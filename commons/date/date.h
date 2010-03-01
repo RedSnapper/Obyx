@@ -24,34 +24,35 @@
 
 #include <ctime>
 #include <string>
+#include <sys/time.h>
 
 //This is a very ancient system - limited to unixtime.
 //But it sort of wraps off posix.
 
 namespace DateUtils {
-		using namespace std;
-		class Date {
-protected:
-			time_t tt;
-			struct tm* local;
-			struct tm* utc;
-
-public:
-			Date();
-			Date(time_t ttime);
-			~Date();
-			void getUTCDateStr(const string&, string &);
-			void getLocalDateStr(const string&, string &);
-			void getDateStr(struct tm*, const string&,string&);
-			void getDateStr(struct tm*, string &cont);
-			const time_t getUTC() const;
-			void getNowDateStr(const string &format, string &cont);
-			void getNow(string& cont);
-			static void getUTCTimeOfDay(string&);
-			static void getCookieDateStr(string &);
-			static void getCookieExpiredDateStr(string &);
-		};
-
-	}       // namespace DateUtils
+	using namespace std;
+	class Date {
+	protected:
+		time_t tt;
+		struct tm* local;
+		struct tm* utc;
+		
+	public:
+		Date();
+		Date(time_t ttime);
+		~Date();
+		void getUTCDateStr(const string&, string&);
+		void getLocalDateStr(const string&, string &);
+		void getDateStr(struct tm*, const string&,string&);
+		void getDateStr(struct tm*, string &cont);
+		const time_t getUTC() const;
+		void getNowDateStr(const string &format, string &cont);
+		void getNow(string& cont);
+		static void getUTCTimeOfDay(string&);
+		static void getCookieDateStr(string &cont);
+		static void getCookieExpiredDateStr(string &cont);
+	};
+	
+}       // namespace DateUtils
 
 #endif
