@@ -1,0 +1,378 @@
+Obyx is protected as a trade mark (2483369) in the name of Red Snapper Ltd.
+This file is Copyright (C) 2006-2010 Red Snapper Ltd. http://www.redsnapper.net
+The governing usage license can be found at http://www.gnu.org/licenses/gpl-3.0.txt
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation; either version 3 of the License, or (at your option)
+any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+------------------------------------------------------------------------------------
+CHANGELOG file
+v10.02.25
+	Removed schema bug.
+	Fixed Validation issue with john snelson (re. PSVI)
+v10.02.23
+	Added CURRENT_TIME
+v10.02.22
+	Revised error message for main file (read permissions!).
+v10.02.12
+	Bug in mailer: temporary files not tidied up.
+v10.02.10
+	Bug in store list
+v10.02.02.1(b1)
+	Mantis 0000028
+	Public Beta 1 Branch-point
+	Updated docs
+v10.02.01
+	Added support for CURRENT_OSI_RESPONSE
+	Rewritten CURRENT_ environment handling (now in iko)
+v10.01.28
+	Added span delimiters to Logger.
+	Added query information on error results.
+v10.01.26
+	Fixed bug where non result of encoder was not returning a NULL.
+v10.01.25
+	Added support for address boxnames in osimessage.
+v10.01.21
+	Started conversion to wchar_t in order to dramatically reduce transcoding.
+v10.01.19
+	Fixed an missing output attribute bug.
+	Updated Copyright year to 2010
+	Added kind fragment
+	Removed bug in output to do with null parents
+	value() maybe redundant - see data(//comment())
+v10.01.12
+	Added (decode) support for RFC 2369 headers.
+v10.01.11
+	Added the attribute 'angled' to message, to deal with the many angled attribute values.
+	Removed a bug in the config file that was stripping rather than trimming lines.
+	Added a scratch name to stop overwrites between obyx instances.
+	Added qp as a decoder.
+v10.01.07
+	Added a default value of 0 to _parms
+v9.12.18
+	Added new Message compositor. Also extended the message grammar.
+	Added a couple of new decoders also.
+	Added character set conversion for non UTF-8 message bodies
+v9.12.14
+	By default, wd() now returns the environment variable PWD.
+	Added message encoder, needs a bit of work.
+	fixed bug for current working directory file load / save.
+v9.12.10
+	Added support for command-line obyx, including
+	new environment variable: OBYX_CONFIG_FILE
+	Added support for -c (configile)
+	Removed logger bug that stopped console logging
+v9.12.09
+	Changed comparision to switch in obyxelement factory.
+	Added initial support for processing-instruction xpath actions.
+v9.12.08
+	Fixed a problem with comment() in set when comment() is not final string.
+	The last few days have been spent isolating the xqilla bug that prevents validation_always working with more than 1 grammar.
+v9.12.03
+	fandr to work on all textareas.
+	Mapping operation='switch' default value was not being returned.
+v9.12.02
+	Added mapping operation='state' (same as original switch)
+	Amended mapping.switch - now leaves domain as is.
+v9.12.01
+	RC4
+	Added error for failed hex encoding.
+ 	Tidied up wsstrip logic when with value attribute in IKO
+v9.11.30
+	Syntax errors in syntax error error (missing close li)...
+v9.11.27
+	binary was 1 bit out.
+	bitpadding bug.
+	added syntax class for syntax errors.
+	added error message for mapping when switch / scope
+	fixed bug - REPEAT_BREAK_COUNT now works in mapping
+v9.11.26
+	instruction: length fails on utf-8 over 0x7F
+	new key attribute scope="all|first"
+	if the operation is substitute and nothing is matched then the domain must (appear to) remain untouched.
+	substitute - mapping should always expect the key to be text, not an xpath!
+v9.11.23
+	substitute - mapping fails (Mantis #23)
+v9.11.16
+	empty key shouldn't cause crash.
+v9.11.12
+	whitespace on match causes error.
+	digit setting on base conversion with precision attribute.
+v9.11.10
+	Field handler for mapping 
+	Length breaks on empty string.
+	Modified constructor errors to say "Syntax Error". These cannot be caught.
+v9.11.05 RC4 Tag
+v9.11.05
+	OBYX_SQLSERVICE_REQ (if set, shows any DB service connection errors)
+	Iteration operations 'while' and 'while_not' must have a control.
+	ontrue/onfalse parms do not throw error until evaluation.
+v9.11.04
+	store may be set with NULL (empty) values.
+	added operation 'kind' to instruction. (returns kind of first input: text|object|empty)
+v9.11.03
+	existence tests now work on xpaths.
+	release='true' now works on nodes set by xpaths.
+	IKO: Locked down process attribute.
+	Comparison: operation true rewrite.
+	Environment: Broken cookie analysis.
+	Comparison: Locked down invert attribute.
+	Comparison: Locked down scope attribute.
+	Base conversion round up is now fixed
+	Added errors for instructions that need at least two inputs.
+	Added support for text substituted #row / #rowcount, etc. eg "foo-#row-bar" now works.
+	Mantis 0000019: Empty test on cookie fails. iko evaluate rewrite / tidy.
+	Added field stuff for compatibility with other iko - no longer stalls. no longer uses current_iteration.
+	Removed redundant static active_iteration from iteration class.
+	Added error message for non-existent parm references within functions.
+	Removed redundant parm processing in inputtype
+	Added (and implemented) hasfield(const std::string&); to VDB API.
+v9.10.23
+	substring accepts positive integers only.
+	Error. Instruction requires a minimum of one input.
+	Mantis 0000014: Script path omitted from system call
+	Mantis 0000016: Running a script that isn't executable causes an error 500
+	Additional support for base conversion with integer result operations.
+	Mapping: must have one domain and at least one match
+v9.10.22
+	Mild behaviour change when accessing text stores with xpaths.
+	b2 supported in precision.
+	Adding syntax error checking when validation is off.
+	Fixed string substitution on mapping.
+	Added BREAK_COUNT for SQL settings also..
+	Ensuring key belongs solely to match.
+	Add an error when content is found but value attribute is already set.
+v9.10.19
+	Mantis 0000013: Instruction operation="sql". Failed connection causes sigfault.
+	Empty substitution causes crash.
+	Environment variables re-adjusted. New one: OBYX_SCRATCH_DIR
+v9.10.16
+	Mantis 0000012: Mapping- domain persists during switch operation on no match, no default.
+v9.10.13  
+	Catching ITERATION_BREAK_COUNT when it's not a number.
+	Not evaluating the output when numrows=0 in an iteration.
+	Amended syslog settings to be more receptive to eg. obyxtests,  where errors are expeced.
+ v9.10.09
+	RC3 Release Candidate 3 Branch-point
+	TIDY THIS to CURRENT_NAME and CURRENT_OBJECT
+	FEA Added breakpoint value to trace..
+ v9.10.08 
+	BUG http object output works better than it did.
+	SEC improved read/write access and closed some nasty jailbreaks.
+ v9.10.02
+	BUG comment() error in xpath.
+    FEA Added / moved error messages during xpath evaluation so that trace() will work.
+ v9.10.01
+	TIDY Moved SVN Repository.
+ v9.09.29
+	TIDY Removed 'approve' from environment.
+	BUG  Corrected filepath for function xpaths.
+ v9.09.25
+	BUG  Corrected filepath for function xpaths.
+	FEAT Added in logger control / appearance for filepath and xpath
+	BUG  Size error in quotient
+ v9.09.24
+	TIDY Moved changelog from main.cpp
+	TIDY Moved config. variable OBYX_PATH to OBYX_ROOT_DIR 
+	FEAT Added support for hexadecimal conversion in arithmetic ops.
+ v9.09.23.2 BUG - regexp never finishes thanks to bad coding on v9.09.23 Obyx.
+ v9.09.23.1 FEA: Modified existence/release to return true if it formerly existed. Added release support to grammar/namespaces.
+ v9.09.23 FEA: Added regexp cache stuff..
+ v9.09.18 BUG: sql encoding needs to knock di to text.
+ v9.09.14 FEA: PostgreSQL support is added.
+ v9.09.11 FEA: Step 1 for adding in PostgreSQL support.
+ v9.09.11 BUG: entity translation bug.
+ v9.09.10 BUG: Load DTD as text, and XSD as objects.
+ v9.09.08 RC2: Release Candidate 2 Branch-point 
+ v9.09.08 FEA: output to new comment() now works. (64 bit support also) 
+ v9.09.04 BUG: NULL access error. item->kind() when item is NULL.
+ v9.09.03 FEA: centralised xpaths for logging. moved store errors up to handlers.
+ v9.09.02 SEC: Locked BREAK_COUNT to when REMOTE_ADDRESS=SERVER_ADDRESS
+ v9.09.01 BUG: xpaths mangled in logging.
+ v9.08.28 FEA: xml decode now handles character encoding properly.
+ v9.08.28 BUG: xml decode was double decoding. 
+ v9.08.25 BUG: xml schema includes deprecated values.
+ v9.08.25 BUG: significant not the same as existent within iko.
+ v9.08.25 BUG: getns not properly defined.
+ v9.08.25 BUG: errors during curl not sent back to containers.
+ v9.08.25 BUG: concatenation of xml + xml or xml + text is attempting an xml parse.
+ v9.08.19 BUG: OSIApp no longer adds Content-Length to multiparts.
+ v9.08.17 BUG: Comparison Ops needed changing, and attributes deleting with empty values.
+ v9.07.24 FEA: Tidied up shell calls to allow for . in shell name, and base64 chars in parameters.
+ v9.07.16 RC1: Release Candidate 1 Branch-point 
+ v9.07.16 FEA: Removed char_at, added substring
+ v9.07.15 BUG: DTD Grammar fails.
+ v9.07.06 FEA: Output: moved cookie parts into their own attribute
+ v9.07.02 FEA: 'isolated' functionality now removed.
+ v9.07.02 BUG: object upcast doesn't maintain the original object. Error not thrown correctly.
+ v9.07.01 BUG: decoder always returns text.
+ v9.06.23 BUG: parsing cdata etc cannot be di_auto!
+ v9.06.23 BUG: ensure that xml is understood to be 1 big block.
+ v9.06.23 BUG: emptiness is not non-existence even with memory items.
+ v9.06.23 BUG: Added legacy support for store/object clashes.
+ v9.06.22 FEA: combined store/object into itemstore
+ v9.06.22 BUG: kind bug - still need to think about scope of kind.
+ v9.06.21 FEA: If final result is kind.text and mime is unchanged, use text/plain.
+ v9.06.19 FEA: Memory type, and kind attribute. store/object now deprecated.
+ v9.06.19 BUG: Mapping: match fails on empty domain.
+ v9.06.17 FEA: Mantis 0000007: OBYX_SCRIPTS_DIR may now be set.
+ v9.06.17 BUG: Mantis 0000003: Non attribute parm values break.
+ v9.06.16 FEA: Added new <c /> element which is shorthand for <instruction><input /></instruction>
+ v9.06.08 BUG: Replacing root element causes crash.
+ v9.05.21 BUG: Replacing root element causes crash.
+ v9.05.20 BUG: basic_string<XMLChr> size() for mem needs size()*sizeof(XMLCh).
+ v9.05.15 UPG: Transferred insertcontext over to basicstring<XMLCh>.
+ v9.05.12 FEA: Added schemas for wsdl and wsdlmime. 
+ v9.05.12 BUG: XMLString::catString() doesn't do any overflow checking so malloc errors
+ v9.05.12 BUG: Adding NAN limits on maximum and minimum.
+ v9.05.08 BUG: flow-function results being wstripped by the output wsstrip attribute. 
+ v9.05.08 BUG: attributes being set to empty string rather than being deleted. 
+ v9.05.07 BUG: Yet another NULL read of a DataItem*
+ v9.05.05 FEA: Add scope attribute to comparison.
+ v9.05.01 BUG: When including a file, using a temporay document as a parent.
+ v9.04.29 BUG: DOMDocuments may not have a Document Element - eg when it has been deleted..
+ v9.04.27 FEA: Added support for textarea empty elements.
+ v9.04.20 BUG: Couple of NULL tests added to dataItem accessors.
+ v9.04.17 FEA: XPath syntax extension for expecting a node result: object!#xpath
+ v9.04.08 BUG: deferred causing simple immediate nests to fail..
+ v9.04.08 BUG: comment nodes were not working correctly in insertContext.
+ v9.04.07 FEA: parm may be used in a context attribute.
+ v9.04.06 Log:  BUG: Logger works better than it used to.
+ v9.04.03 MEM: Many memory leaks patched.
+ v9.04.02 BUG: Several memory issues..
+ v9.04.02 BUG: double delete on empty repeat.
+ v9.03.24 Env:  FEA: Added Access to OBYX_VERSION.
+ v9.03.22 BUG: Several major bugs cleared up: cdata, namespace, pairqueue, appends, etc.
+ v9.03.21 FEA: DataItem intro and rewrite.
+ v9.03.12 Log:  BUG: DOM Errors generating bad-formed logs.
+ v9.03.10 BUG: Xqilla/Xercesc3.01 most tests work.
+ v9.03.06 FEA: Xqilla/Xercesc3.01 support started.
+ v9.02.24 BUG: isolated not including objects. (DOM Branch)
+ v9.02.02 BUG: Function breaking on non function objects..
+ v9.01.19 Log:  BUG: NO_HEADERS is stripping out the body as well..
+ v9.01.06 BUG: dynamic key values were not being evaluated (they need to be undeferred before evaluation).
+ v8.12.031BUG: empty namespace obyx containing non-empty namespace docs...
+ v8.12.12 Feature: Added CURRENT_POINT returns 2x the count of iko/flow-funcs that have been processed.
+ v8.12.11 BUG: Fixed recursion issue.
+ v8.12.10 Feature: Added instruction operation='function' with itype type='parm' and input name attribute.
+ v8.12.08 BUG: POST stuff was not being passed in curl reqs.
+ v8.12.04 Feature: Can now write comments in objects.
+ v8.12.03 Log: BUG: logger was leaking caught errors.
+ v8.11.28 Log: BUG: syslog was missing the Obyx version string.
+ v8.11.27 Log: Feature: syslog now supported regardless of other logging. also more info on logline. 
+ v8.11.24 Log: Feature: syslog now supported. 
+ v8.11.21 Feature: A small sysenv message when case dependent 'Content-Type' is not found. 
+ v8.11.20 BUG: OSI compile breaks on binaries.. 
+ v8.11.18 Log: BUG: Post failed since Logger change. stack check caused error. 
+ v8.11.17 Log: Feature: Major revamp of the Logger. Still no syslog or central logging. 
+ v8.11.11 Log: Feature: Major revamp of the Logger. Still no syslog or central logging. 
+ v8.11.04 Log: BUG LOG_DEBUG broken due to cout not being set.
+ v8.10.30 BUG xml comments persisting in text. Also fixed is CDATA.
+ v8.10.22 Feature: Added better console handling.
+ v8.10.09 BUG: Added some more 40x errors
+ v8.09.15 Feature output type = file
+ v8.09.08 Feature auto-release logic for object iko
+ v8.09.04 Feature - added case transforms to regex, as found in PERL.
+ v8.09.02 BUG: nameencode test for object names.
+ v8.08.05 BUG: XML encoder was not stripping out control chars
+ v8.07.03 Moved _n[] and _v[] to 1 indexing
+ v8.07.03 BUG: context attribute was not supported for deferred inputs. existence check was overenthusiastic and unaware of contexts
+ v8.07.02 BUG: Fields only exist in valid queries. So need #Row etc outside of sql.
+ v8.06.25 Removed Legacy environment stuff.
+ v8.05.08 Added mail encode, svg support, osi:mta
+ v8.03.19 Comparison- existence test bug - namespace needed.
+ v8.03.17 Output type=error. We can throw and catch errors now.
+ v8.01.24 Envn: Poison Cookie Bug (empty value caused crash)
+ v8.01.24 XML: XML parser was calling remote DTD/XSD
+ v8.01.23 CONSOLE Request-Method re-activated also added XML Request-Method
+ v8.01.22 Added a loadGrammar capability
+ v7.12.12 Arbitrary grammars need to be loaded by resolveEntity 
+ v7.12.04 Added THIS_NAME sysenv support, and also amended the behaviour of control for while/while_not iterations.
+ v7.12.03 Renamed Context to Iteration - changed InstructionType to Function - added support for context attribute.
+ v7.11.13 removed context allocation error (body was not being deleted)
+ v7.11.09 textarea kludge reinserted
+ v7.11.08 libraries loaded up from env. variables.
+ v7.11.06 better support for object (empty elements)
+ v7.11.05 Removed quite a few memory leaks..
+ v7.11.01 Added support for ENTITY in objects.
+ v7.10.30 Couple of API updates
+ v7.10.18 Removed substitution, added iko process/encoder
+ v7.10.17 New DL useage and sql API
+ v7.10.05 Bugfixes, and the new note attribute.
+ v7.09.24 OSI framework, and http implementation
+ v7.09.10 Bad XML for objects bugfix and better error reporting.
+ v7.09.05c Key evaluation bugfix.
+ v7.09.05 Object management rewrite..
+ v7.08.30 Errors now show an element trace.
+ v7.08.29 Fixed comparison existence tests.
+ v7.08.28 Added mapping instruction (to replace substitution) 
+ v7.08.24 Added object-meta accessor via ## 
+ v7.08.22.1 Added xxx_encode and xml_decode,url_decode to escape.
+ v7.08.22  Object addressing is by identity, not by reference.
+ v7.08.21.3 Fixed namespace/element prefix bug.
+ v7.08.21 Added cwd stack for file input type handling.
+ v7.08.20 Added a kludge for dealing with empty textarea issues.
+ v7.07.19 Added a 'better' missing field error.
+ v7.07.16 Object output need to fix problem with html xml - also attribute insertion was failing..
+ v7.07.11 On Error, Reset mime and disposition as well as code.
+ v7.07.10 Inlined the context schema, also added a httphead schema. re-wrote default namespace stuff for objects.
+ v7.07.05 Better integer conversion - added true/false options for logical comparisons.
+ v7.07.04 Added error for when a value attribute is used with a non-empty element.
+ v7.07.03.1 fixed object attribute bug.
+ v7.07.03 defInputtype issues still being resolved re. output evaluation.
+ v7.06.29 Demoted Iteration Body to defInputtype - removed some wsstrip bugs on defInpTypes
+ v7.06.26 Function - added attribute isolated=true|false  (still no support for objects)
+ v7.06.25 Document - multiple context namespaces support (still needs to be inside each governing element)
+ v7.06.21 Object management: Added hole accessors preceding-gap(),following-gap(),child-gap()
+ v7.06.19 Object management: set appends elements, replaces strings, removes element on empty.
+ v7.06.19 Any instruction type maybe used as a document container
+ v7.06.15 Cookie input type - now set to only return cookies set by environment
+ v7.06.14 Object management - now can get/set attributes also, using syntax nodetouse@attributename
+ v7.06.12 Added object management for input/output types
+ v7.06.11 Removed Include - added attributes type="url/file" and eval="true|false" input_type
+ v7.05.25 Added raw to remote url (still needs to be valid xml, but returns text)
+ v7.05.24 HTTP header stuff now is managed by the coder.
+ v7.04.30 Custom namespace prefixes now work again - but cannot be included!
+ v7.04.27 Added char_at, return value from shell_command, fixed output bug UT(ntstoreexistence_1.qxml)
+ v7.04.26 Added source attribute to include-  either raw or xml (default is xml)
+ v7.01.18 Common : Existing cookies to be updated were not being posted correctly
+ v7.01.12 Added the privacy output = should be true or false. Iteration http headers are public by default.
+ v7.01.03 Deprecating http::nocache, and instantiating http::remove_nocache_headers
+ v6.12.18 Enabled comparison and/xor - they were broken.
+ v6.12.11 Moved operation="regex", added rregex to substitution.
+ v6.12.11 Added upper to Instruction
+ v6.12.04 Added operation="regex" to instruction.
+ v6.11.39 Added operation="lower" to instruction.
+ v6.11.28 No longer appends contents of an element which has a value attribute.
+ v6.11.28 A context to be re-evaluated in the scope of it's ancestor context
+ v6.11.27 Now scopes are still test evaluated alongside substitutes - in order to resolve eg fields.
+ v6.11.24 Added wsstrip attribute to inputtypes. currently defaults to wsstrip="false" - now strips.
+ v6.11.23 Added wsstrip attribute to inputtypes. currently defaults to wsstrip="false" - actually trims, not strips.
+ v6.11.20 Fixed bug where contexts with no body element were not evaluating their control elements
+ v6.11.17 Fixed comparison bug 
+ v6.11.16 Prepared for defer attribute - also made scope deferred until substitutes are evaluated. 
+ v6.11.07 Added Output types cookie::expires, cookie::path, cookie::domain
+ v6.11.03 Document is more well-behaved as a object
+ v6.10.20 Now contexts are correctly deferred within comparisons
+ v6.10.19 Rewrite - moving context to flow-function
+ v6.10.04 Added a body element to context - also moved the control:type to context:operation
+ v6.10.03 promoted include to be a flow-function
+ v6.10.02 separated comparison, substitution, instruction out from flow-function
+ v6.10.02 moved sink.x to output.x and sourcetype.x to inputtype.x
+ v6.09.29 added transform as an instruction operation
+ v6.09.28 escape=natural to output
+ v6.09.22 Removed encoding bug on outputs - returns variable name rather than value.
+ v6.09.22 Changed all Sink/Source naming to Output/Input
+ v6.09.22 Added escape=name to output
+ v6.09.07 Added httpd::code for eg 500 http head returns
+ v6.09.07 Changelog started.

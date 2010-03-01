@@ -1,0 +1,254 @@
+Obyx is protected as a trade mark (2483369) in the name of Red Snapper Ltd.
+This file is Copyright (C) 2006-2010 Red Snapper Ltd. http://www.redsnapper.net
+The governing usage license can be found at http://www.gnu.org/licenses/gpl-3.0.txt
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation; either version 3 of the License, or (at your option)
+any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+------------------------------------------------------------------------------------
+Obyx INSTALL file. 
+HTML versions of this file can be found at http://www.obyx.org/en/1/installationdebian.html
+
+Please send bug reports to <bugs@obyx.org>
+Obyx can be compiled from code using a small number of supporting libraries. 
+
+This file explains how the code can be compiled under Debian Linux to get a working version of Obyx.
+It is assumed that Apache and MySQL are already available, configured and running.
+
+Installation Process
+
+This installation guide consists of the following steps:
+
+	* 1. Preparation of host: Application support installation
+	* 2. Preparation of host: Library installations
+	* 3. Set up Server File Structure
+	* 4. Download source code (SVN)
+	* 5. Set up compile settings
+	* 6. Compile obyx.cgi binary
+	* 7. Configure HTTP server
+	* 8. Test
+
+**** 1. Preparation of host: Application support installation
+
+It is assumed MySQL/PostgreSQL and Apache are already installed and working.
+The Obyx source code is C++ and requires gcc/g++ compiler to compile.
+The source code is stored in a SVN repository, so svn is necessary to get it.
+Installation here is provided using the aptitude tool as an example. 
+
+	g++ Compiler (>= 4.1)
+    deb: g++ 
+	$sudo aptitude install g++
+
+	svn
+    deb: subversion 
+	$sudo aptitude install subversion
+
+
+**** 2. Preparation of host: Compile-time Library installations 
+
+Obyx relies on a number of supporting libraries at compilation time.
+Installation here is provided using the aptitude tool as an example. 
+In most cases the development version of libraries is required.
+With the runtime libraries, there is still need for headers.
+
+** Compile-time
+
+xercesc 3.01
+http://xerces.apache.org/xerces-c
+http://xerces.apache.org/xerces-c/download.cgi
+
+xqilla 2.2.2
+http://xqilla.sourceforge.net/HomePage
+http://sourceforge.net/project/showfiles.php?group_id=152021
+
+** Run-time: 
+
+libpcre: Used to handle regular expressions within Obyx.
+
+    deb: libpcre3-dev 
+    $sudo aptitude install libpcre3-dev
+
+libcurl: This library provides network access utilities
+
+    deb: libcurl3-dev 
+    $sudo aptitude install libcurl3-dev
+
+libmysql: This library provides database connectivity with MySQL
+    deb: libmysqlclient15-dev 
+    $sudo aptitude install libmysqlclient15-dev
+
+
+**** 3. Setup Server File Structure
+The structure and location of files on the host server is flexible and controlled by configuration files. 
+However, the following is suggested and used in this installation:
+
+	/WWW_ROOT/public    - location of publicly accessible .html, .css, .obyx files.
+    /WWW_ROOT/logs      - location of log files
+    /WWW_ROOT/scripts   - location of Obyx run script files
+    /WWW_ROOT/cgi       - location of Obyx binary and any other cgi scripts
+    /WWW_ROOT/source    - location of Obyx source code
+
+   $mkdir -p /WWW_ROOT/public
+   $mkdir -p /WWW_ROOT/logs
+   $mkdir -p /WWW_ROOT/scripts
+   $mkdir -p /WWW_ROOT/cgi
+   $mkdir -p /WWW_ROOT/source
+
+**** 4. Download source code (SVN)
+The Obyx source code is currently available in a SVN repository.
+To checkout the source code do the following from the ~/RSapps directory:
+
+	$cd /WWW_ROOT/source
+	$svn co http://svn.obyx.org/obyx/PB1002 obyx
+
+To update the source files any later time 
+
+	$cd /WWW_ROOT/source/obyx
+	$svn update
+
+**** 5. Set up compile settings
+Before trying to compile the code some settings need to be setup. 
+The file local.cfg contains compile settings specific to your setup. 
+Amend the file as necessary. 
+
+MYSQL_INC	Should point to the mysql include directory.
+CC_INCLUDES Any additional include directories needed for the compilation. (each needs to be prefixed by -I)
+CC_PATH		The path to gcc/g++
+CC_DB		These are defines used to include or exclude compilation of the mysql or postgresql code.
+			If you do not have postgresql or mysql, remove the -DALLOW flag for the salient item to prevent headers 
+			from not being found.
+CC_FLAGS	The normal set of additional gcc flags used for this compilation.
+RPATH		The full path to the root directory of the www files as mentioned above.
+			Importantly, this only MUST be the parent of the cgi directory to install to.
+CGIDIR		The relative path to the cgi directory. It must be underneath RPATH.
+
+/WWW_ROOT/source/local.cfg:
+MYSQL_INC   = /usr/include/mysql
+CC_INCLUDES = -I$(MYSQL_INC)
+CC_PATH     = /usr/bin/
+CC_DB       = -DALLOW_MYSQL -DALLOW_POSTGRESQL 	
+CC_FLAGS    = -x c++ -funsigned-char -fno-asm -Wno-trigraphs -g -O3 -fmessage-length=0 $(CC_DB) $(CC_WARNA) $(CC_WARNB)
+RPATH       = /WWW_ROOT
+CGIDIR      = cgi
+
+**** 6. Compile obyx.cgi binary
+
+	$cd /WWW_ROOT/source/obyx
+	$make /WWW_ROOT/cgi/obyx.cgi
+
+To check that the linking is correct one can do:
+
+	$ldd /WWW_ROOT/cgi/obyx.cgi
+
+
+**** 7. Configure HTTP server
+Http (Apache2) Configuration.
+Apache needs to know how to handle .obyx files. 
+The following basic apache server configuration file can be used as a basis.
+
+<VirtualHost YOUR-IP-ADDRESS:80>
+	DocumentRoot  /WWW_ROOT/public
+	ServerName    host.yourdomain.com
+	RewriteEngine  on
+	RewriteRule    ^/$   /index.html [R]
+
+#####  Obyx configuration ########
+	<IfModule mime_module>
+		AddHandler  cgi-script				.cgi
+		AddType		application/obyx+xml	.obyx
+		Action      application/obyx+xml	/o/obyx.cgi
+	</IfModule>
+
+	ScriptAlias  /o/			  /WWW_ROOT/cgi
+	<LocationMatch "^/o/" >
+		Order Deny,Allow
+		Deny from All
+		Allow from env=REDIRECT_STATUS
+	</LocationMatch>
+
+#obyx runtime will be able to access any files/directories under the OBYX_ROOT_DIR directory
+#eg using filename /foo.html will actually be pointing to /OBYX_ROOT_DIR/foo.html
+#the scripts directory, which is used by the 'shell' operation should be outside OBYX_ROOT_DIR.
+
+ SetEnv OBYX_DEVELOPMENT       on
+ SetEnv OBYX_ROOT_DIR          /WWW_ROOT/public
+ SetEnv OBYX_SCRIPTS_DIR       /WWW_ROOT/scripts
+ 
+ SetEnv OBYX_SQLSERVICE        mysql  (or postgresql)
+ SetEnv OBYX_SQLDATABASE       YOUR-DATABASE-NAME
+ SetEnv OBYX_SQLHOST           YOUR-DATABASE-HOST
+ SetEnv OBYX_SQLPORT           YOUR-DATABASE-PORT
+ SetEnv OBYX_SQLUSER           YOUR-DATABASE-USERNAME
+ SetEnv OBYX_SQLUSERPW         YOUR-DATABASE-USERPASSWORD
+
+#set the following, if debugging or using breakpoints in obyx files.
+ SetEnv OBYX_DEVELOPMENT       true	
+	
+#There are some settings for using custom paths to dynamic libraries
+#For Mac OS X, which has a dylib suffix, they are mandatory. 
+#Mac OS X uses dylib suffix
+	SetEnv OBYX_LIBCURLSO         /usr/local/lib/libcurl.dylib
+	SetEnv OBYX_LIBPCRESO         /usr/local/lib/libpcre.dylib
+
+#MySQL Library location	(if using MySQL)
+	SetEnv OBYX_LIBMYSQLCRSO      /usr/local/mysql/lib/libmysqlclient_r.dylib
+	SetEnv OBYX_LIBZIPSO          /usr/lib/libz.dylib
+
+#PostgreSQL Library Location (if using PostgreSQL)
+	SetEnv OBYX_LIBPQSO           /usr/local/pgsql/lib/libpq.dylib
+    
+##### End Obyx Configuration #####
+</VirtualHost>
+
+**** 8. Test
+
+Example Obyx Hello World
+
+The two following files may be used to test that Obyx is working. 
+It uses both an SQL connection and a filesystem include to test some basic functionality. 
+The files should go into your public directory (e.g. /WWW_ROOT/public ):
+
+Run the hello world example by going to http://www.yourdomain.com/hello_world.obyx
+You should simply see the words "Hello World" in a valid html page.
+
+hello_world.obyx
+
+<instruction xmlns="http://www.obyx.org" >
+   <input>
+       <instruction note="load view">
+           <output space="store" value="v" />
+           <input space="file" value="hello_world.html" />
+       </instruction>
+       <iteration operation="sql" note="get model">
+           <output space="store" value="v#//*[@id='msg']/text()" />
+           <control value="select 'Hello World' as message" />
+           <body space="field" value="message" />
+       </iteration>
+       <instruction note="display view">
+           <input space="store" value="v" release="true" />
+       </instruction>      
+   </input>
+</instruction>
+
+hello_world.html
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<title>Hello World View</title>
+</head>
+<body><div id="msg">Message</div></body>
+</html>
+
+
