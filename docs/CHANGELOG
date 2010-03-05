@@ -17,6 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v10.03.05
+	Bugfix. syslog-ng only accepts alphanumeric idents.
 v10.03.01
 	Changed version / svn
 v10.02.25
