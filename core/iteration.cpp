@@ -389,14 +389,6 @@ bool Iteration::operation_while(bool existence) {
 	unsigned long long forced_break = 100;
 	numreps = 0;
 	string tmp_var;
-	if (Environment::UseDeprecated) {
-		if ( ItemStore::get("FORCE_ITERATION_BREAK_COUNT",tmp_var) ) {
-			pair<unsigned long long,bool> forced_break_setting = String::znatural(tmp_var);
-			if ( forced_break_setting.second ) forced_break = forced_break_setting.first;
-				
-		}
-		
-	}
 	if ( ItemStore::get("ITERATION_BREAK_COUNT",tmp_var) ) {
 		pair<unsigned long long,bool> forced_break_setting = String::znatural(tmp_var);
 		if ( forced_break_setting.second ) { 

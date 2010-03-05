@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
 		string compiletime(__TIME__);
 		std::cout << version << ", Build:" << compiledate << " " << compiletime;
 	} else {
-		Logger::title = version;
+		Logger::set_title(version);
 		XMLChar::init();
 		Environment::init(argc,argv);					//yes, process post please!
 		Environment::setenv("OBYX_VERSION",version);	//Let coders know what version we are in!

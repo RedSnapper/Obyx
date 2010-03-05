@@ -121,7 +121,6 @@ void Environment::initwlogger() {
 
 //-- new inserts done	
 	if (dosetdebugger) {
-		Logger::title="Debugging";
 		Httphead::doheader();
 		switch (the_area) {
 			case Root:		*Logger::log << Log::debug << Log::LI << "Site area: Root " << Log::LO << Log::blockend; break;

@@ -38,7 +38,7 @@
 using namespace Log;
 
 Logger*				Logger::log = NULL;
-string				Logger::title="Logger";
+string				Logger::title="Obyx Log";
 std::ostringstream* Logger::lstore = NULL;
 
 //startup identifies if we are outputting as a cgi script or as a commandline utility.
@@ -268,23 +268,18 @@ Logger& Logger::operator<< (const bracketing bkt) {
 			switch ( type_stack.top() ) {
 				case debug : { 
 					syslog(LOG_DEBUG,"%s: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
-//					syslog(LOG_DEBUG,"%s (%s)",path.c_str(),log->syslogbuffer.str().c_str());
 				} break;
 				case warn : { 
 					syslog(LOG_WARNING,"%s: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
-//					syslog(LOG_WARNING,"%s (%s)",path.c_str(),log->syslogbuffer.str().c_str());
 				} break;
 				case fatal : { 
 					syslog(LOG_CRIT,"%s: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
-//					syslog(LOG_CRIT,"%s (%s)",path.c_str(),log->syslogbuffer.str().c_str());
 				} break;
 				case syntax : { 
 					syslog(LOG_ERR,"%s: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
-//					syslog(LOG_ERR,"%s (%s)",path.c_str(),log->syslogbuffer.str().c_str());
 				} break;
 				case error : { 
 					syslog(LOG_ERR,"%s: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
-//					syslog(LOG_ERR,"%s (%s)",path.c_str(),log->syslogbuffer.str().c_str());
 				} break;
 				case timing : 
 				case even : 

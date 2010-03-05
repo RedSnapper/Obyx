@@ -330,14 +330,14 @@ bool Output::evaluate(size_t out_num,size_t out_count) {
 								if (! error_stuff.empty() ) {
 									ostringstream err_report;
 									string top_s,tail_s,tmptitle,errstring;
-									tmptitle = Logger::title;
-									Logger::title = "Caught Error";
+									Logger::get_title(tmptitle);
+									Logger::set_title("Caught Error");
 									Logger::top(top_s);
 									Logger::tail(tail_s);
 									err_report << top_s << error_stuff << tail_s;
 									string err_result = err_report.str();
 									String::normalise(err_result);
-									Logger::title = tmptitle;
+									Logger::set_title(tmptitle);
 									DataItem* err_doc = new XMLObject(err_result);
 									ItemStore::set(name_part, err_doc, di_object,errstring);
 									if (!errstring.empty()) {

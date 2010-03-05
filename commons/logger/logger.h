@@ -47,6 +47,7 @@ private:
 	static std::ostringstream* lstore;
 	
 protected:
+	static string title;
 	std::stack<std::ostream*> estrm_stack; //error stream
 	std::stack<Log::msgtype> type_stack;    //current log type was static Log::msgtype itype;
 	bool storageused;
@@ -70,10 +71,11 @@ protected:
 	
 public:
 	int bdepth;									//bracketing depth
-	static string title;
 	static Logger* log;
 	static ostream*& startup();
 	static void shutdown();
+	static void set_title(const string newtitle) { title = newtitle; } 
+	static void get_title(string& container) { container = title; } 
 	static void set_stream(ostream*&); 
 	static void set_stream(ostringstream*&); 
 	static void get_stream(ostream*&); 
