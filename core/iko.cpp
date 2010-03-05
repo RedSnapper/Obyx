@@ -677,8 +677,8 @@ bool IKO::evaltype(inp_type the_space, bool release, bool eval,kind_type ikind,D
 										delete docerrs; docerrs=0;
 										if ( ! errs.empty() ) {
 											*Logger::log << Log::error << Log::LI << "Error with file " << dest_out << Log::LO;
-											*Logger::log << Log::RI << errs << Log::RO;
 											trace();
+											*Logger::log << Log::LI << Log::RI << errs << Log::RO << Log::LO;
 											*Logger::log << Log::blockend;
 										}
 									}
@@ -714,7 +714,19 @@ bool IKO::evaltype(inp_type the_space, bool release, bool eval,kind_type ikind,D
 								if (exist_test == ut_significant) {
 									container = DataItem::factory(fresult,di_text); //don't want to parse for sig.
 								} else {
-									container = DataItem::factory(fresult,ikind); 
+									ostringstream* docerrs = NULL;
+									docerrs = new ostringstream();
+									Logger::set_stream(docerrs);
+									container = DataItem::factory(fresult,ikind);   //test for xml!!
+									Logger::unset_stream();
+									string errs = docerrs->str();
+									delete docerrs; docerrs=0;
+									if ( ! errs.empty() ) {
+										*Logger::log << Log::error << Log::LI << "Error with url " << input_url << Log::LO;
+										trace();
+										*Logger::log << Log::LI << Log::RI << errs << Log::RO << Log::LO;
+										*Logger::log << Log::blockend;
+									}
 								}
 							}
 						} else {
