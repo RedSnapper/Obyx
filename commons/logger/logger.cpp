@@ -128,17 +128,17 @@ OBYX_DEVELOPMENT LOG_DEBUG OBYX_LOGGING_OFF RESULT
 		log->debugflag = Environment::getenv("LOG_DEBUG", tmp_env);
 		if (log->debugflag) {
 			setlogmask(LOG_UPTO (LOG_DEBUG ));
-			openlog("Obyx Log",0,LOG_USER);
+			openlog(" Obyx Log",0,LOG_USER);
 		} else {
 			if (!Environment::getenv("OBYX_LOGGING_OFF",tmp_env)) {
 				setlogmask(LOG_UPTO (LOG_WARNING));
-				openlog("Obyx Log",0,LOG_USER);
+				openlog(" Obyx Log",0,LOG_USER);
 			}
 		}
 	} else {
 		if (! Environment::getenv("OBYX_LOGGING_OFF",tmp_env)) {
 			setlogmask(LOG_UPTO (LOG_WARNING));
-			openlog("Obyx Log",0,LOG_USER);
+			openlog(" Obyx Log",0,LOG_USER);
 		}
 	}
 	log->fo = &std::cout;					//set final output.
