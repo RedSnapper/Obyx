@@ -187,11 +187,7 @@ namespace XML {
 		resourceHandler->setGrammar(xmlxsd,UCS2(L"http://www.w3.org/XML/1998/namespace"),Grammar::SchemaGrammarType);
 		resourceHandler->setGrammar(xlinkxsd,UCS2(L"http://www.w3.org/1999/xlink"),Grammar::SchemaGrammarType);
 		
-		if (Environment::envexists("OBYX_USE_DEPRECATED")) {
-			resourceHandler->setGrammar(obyxdepxsd,UCS2(L"http://www.obyx.org"),Grammar::SchemaGrammarType);      //And this.
-		} else {
-			resourceHandler->setGrammar(obyxxsd,UCS2(L"http://www.obyx.org"),Grammar::SchemaGrammarType);      //And this.
-		}
+		resourceHandler->setGrammar(obyxxsd,UCS2(L"http://www.obyx.org"),Grammar::SchemaGrammarType);      //And this.
 		
 		resourceHandler->setGrammar(messagexsd,UCS2(L"http://www.obyx.org/message"),Grammar::SchemaGrammarType);
 		resourceHandler->setGrammar(oalxsd,UCS2(L"http://www.obyx.org/osi-application-layer"),Grammar::SchemaGrammarType);
@@ -255,7 +251,21 @@ namespace XML {
 		}
 		return rslt;
 	}
-
+	
+	void Parser::validation_off() {
+		if (Environment::envexists("OBYX_VALIDATE_ALWAYS")) {
+			DOMConfiguration* dc = parser->getDomConfig();
+			if (dc->canSetParameter(XMLUni::fgDOMValidate, false)) dc->setParameter(XMLUni::fgDOMValidate, false);
+		} 
+	}
+	
+	void Parser::validation_on() {
+		if (Environment::envexists("OBYX_VALIDATE_ALWAYS")) {
+			DOMConfiguration* dc = parser->getDomConfig();
+			if (dc->canSetParameter(XMLUni::fgDOMValidate, true)) dc->setParameter(XMLUni::fgDOMValidate, true);
+		} 
+	}
+		
 	DOMDocument* Parser::loadDoc(const u_str& xmlfile) {
 		DOMDocument* rslt = NULL;
 		if ( ! xmlfile.empty() ) {

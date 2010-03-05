@@ -94,6 +94,8 @@ namespace XML {
 		Parser();
 		~Parser();
 		void makerw();		
+		void validation_off();
+		void validation_on();
 		void resetErrors() { errorHandler->resetErrors(); }
 		bool hadErrors() { return errorHandler->hadErrors(); }
 		void setGrammar(const std::string&,const u_str&,Grammar::GrammarType = Grammar::SchemaGrammarType);  //use the grammer inside the string.

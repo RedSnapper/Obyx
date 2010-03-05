@@ -60,9 +60,25 @@ XMLObject::XMLObject(const xercesc::DOMNode* s) : DataItem(),x(3),x_doc(NULL) {
 	}	
 }
 
-/* public Errors need to be caught higher up! */
+/* Public Errors need to be caught higher up! */
 XMLObject::XMLObject(const std::string s) : DataItem(),x(4),x_doc(NULL) { 
+	bool validate = true;	//only has an effect if VALIDATE_ALWAYS is set.
+	if ( String::Regex::available() ) {
+		if (String::Regex::match("\\A[^<]*<(\\w*):?schema[^>]+xmlns:?\\1=\"http://www.w3.org/2001/XMLSchema\"",s)) {
+			validate = false;
+		}
+	} else {
+		if (s.find("schema") != string::npos && s.find("http://www.w3.org/2001/XMLSchema") != string::npos ) {
+			validate = false;
+		}
+	}
+	if (!validate) {
+		XML::Manager::parser()->validation_off();
+	}
 	x_doc = XML::Manager::parser()->loadDoc(s);
+	if (!validate) {
+		XML::Manager::parser()->validation_on();
+	}
 	if (x_doc != NULL) { 
 		x_doc->normalize();
 	}

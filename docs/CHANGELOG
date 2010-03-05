@@ -22,6 +22,7 @@ v10.03.05
 	Log Enh. Document parse error more easily identified.
 	Log Enh. URL parse error more easily identified.
 	Bugfix.  wsstrip is ignored when value attribute is used.
+	Bugfix.  Validation must be turned off when loading schema grammars.
 v10.03.01
 	Changed version / svn
 v10.02.25

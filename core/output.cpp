@@ -301,7 +301,7 @@ bool Output::evaluate(size_t out_num,size_t out_count) {
 									deleteval = false;								
 								}
 							} break;
-							case out_xmlgrammar: {
+							case out_xmlgrammar: { //what to do when value_comp is null?
 								ItemStore::setgrammar(name_part,value_comp);
 								value_comp = NULL; //taken by object. 
 								deleteval = false;								
