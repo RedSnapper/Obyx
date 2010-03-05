@@ -128,17 +128,17 @@ OBYX_DEVELOPMENT LOG_DEBUG OBYX_LOGGING_OFF RESULT
 		log->debugflag = Environment::getenv("LOG_DEBUG", tmp_env);
 		if (log->debugflag) {
 			setlogmask(LOG_UPTO (LOG_DEBUG ));
-			openlog(title.c_str(),0,LOG_USER);
+			openlog("Obyx Log",0,LOG_USER);
 		} else {
 			if (!Environment::getenv("OBYX_LOGGING_OFF",tmp_env)) {
 				setlogmask(LOG_UPTO (LOG_WARNING));
-				openlog(title.c_str(),0,LOG_USER);
+				openlog("Obyx Log",0,LOG_USER);
 			}
 		}
 	} else {
 		if (! Environment::getenv("OBYX_LOGGING_OFF",tmp_env)) {
 			setlogmask(LOG_UPTO (LOG_WARNING));
-			openlog(title.c_str(),0,LOG_USER);
+			openlog("Obyx Log",0,LOG_USER);
 		}
 	}
 	log->fo = &std::cout;					//set final output.
@@ -267,19 +267,19 @@ Logger& Logger::operator<< (const bracketing bkt) {
 		if (bkt == LO && log->top_line && !log->syslogbuffer.str().empty() && estrm_stack.size() < 3 ) {
 			switch ( type_stack.top() ) {
 				case debug : { 
-					syslog(LOG_DEBUG,"%s: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
+					syslog(LOG_DEBUG,"[%s]: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
 				} break;
 				case warn : { 
-					syslog(LOG_WARNING,"%s: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
+					syslog(LOG_WARNING,"[%s]: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
 				} break;
 				case fatal : { 
-					syslog(LOG_CRIT,"%s: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
+					syslog(LOG_CRIT,"[%s]: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
 				} break;
 				case syntax : { 
-					syslog(LOG_ERR,"%s: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
+					syslog(LOG_ERR,"[%s]: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
 				} break;
 				case error : { 
-					syslog(LOG_ERR,"%s: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
+					syslog(LOG_ERR,"[%s]: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
 				} break;
 				case timing : 
 				case even : 
@@ -287,7 +287,7 @@ Logger& Logger::operator<< (const bracketing bkt) {
 				case headline : 
 				case notify:
 				case subhead : { 
-					syslog(LOG_NOTICE,"%s: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
+					syslog(LOG_NOTICE,"[%s]: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
 				} break;
 				default : break;
 			}
