@@ -224,7 +224,7 @@ Logger& Logger::operator << (const msgtype mtype) {
 		top_line = false;
 	} else {
 		top_line = true;
-		syslogbuffer.str(" Obyx Log:");
+		syslogbuffer.str("");
 		type_stack.push(mtype); // starting
 		if ( logging_on && ( type_stack.top() != debug || debugging()) )  {  wrap(true); }
 	}
@@ -267,19 +267,24 @@ Logger& Logger::operator<< (const bracketing bkt) {
 		if (bkt == LO && log->top_line && !log->syslogbuffer.str().empty() && estrm_stack.size() < 3 ) {
 			switch ( type_stack.top() ) {
 				case debug : { 
-					syslog(LOG_DEBUG,"%s (%s)",path.c_str(),log->syslogbuffer.str().c_str());
+					syslog(LOG_DEBUG,"%s: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
+//					syslog(LOG_DEBUG,"%s (%s)",path.c_str(),log->syslogbuffer.str().c_str());
 				} break;
 				case warn : { 
-					syslog(LOG_WARNING,"%s (%s)",path.c_str(),log->syslogbuffer.str().c_str());
+					syslog(LOG_WARNING,"%s: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
+//					syslog(LOG_WARNING,"%s (%s)",path.c_str(),log->syslogbuffer.str().c_str());
 				} break;
 				case fatal : { 
-					syslog(LOG_CRIT,"%s (%s)",path.c_str(),log->syslogbuffer.str().c_str());
+					syslog(LOG_CRIT,"%s: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
+//					syslog(LOG_CRIT,"%s (%s)",path.c_str(),log->syslogbuffer.str().c_str());
 				} break;
 				case syntax : { 
-					syslog(LOG_ERR,"%s (%s)",path.c_str(),log->syslogbuffer.str().c_str());
+					syslog(LOG_ERR,"%s: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
+//					syslog(LOG_ERR,"%s (%s)",path.c_str(),log->syslogbuffer.str().c_str());
 				} break;
 				case error : { 
-					syslog(LOG_ERR,"%s (%s)",path.c_str(),log->syslogbuffer.str().c_str());
+					syslog(LOG_ERR,"%s: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
+//					syslog(LOG_ERR,"%s (%s)",path.c_str(),log->syslogbuffer.str().c_str());
 				} break;
 				case timing : 
 				case even : 
