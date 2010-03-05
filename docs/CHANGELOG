@@ -21,6 +21,7 @@ v10.03.05
 	Bugfix.  syslog-ng only accepts alphanumeric idents.
 	Log Enh. Document parse error more easily identified.
 	Log Enh. URL parse error more easily identified.
+	Bugfix.  wsstrip is ignored when value attribute is used.
 v10.03.01
 	Changed version / svn
 v10.02.25

@@ -153,12 +153,9 @@ IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) :
 				*Logger::log << Log::blockend;
 			}
 		}
-	} else {
-		if ( has_val_attr ) {
-			wsstrip = false;
-		} else {
-			wsstrip = true;
-		}
+	}
+	if ( has_val_attr ) {	//wsstrip is ignored when value attribute is used.
+		wsstrip = false;
 	}
 	if ( has_val_attr ) {
 		DataItem* attrval = NULL;
