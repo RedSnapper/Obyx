@@ -224,7 +224,7 @@ Logger& Logger::operator << (const msgtype mtype) {
 		top_line = false;
 	} else {
 		top_line = true;
-		syslogbuffer.str("Obyx Log:");
+		syslogbuffer.str(" Obyx Log:");
 		type_stack.push(mtype); // starting
 		if ( logging_on && ( type_stack.top() != debug || debugging()) )  {  wrap(true); }
 	}
