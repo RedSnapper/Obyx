@@ -207,17 +207,6 @@ bool ItemStore::set(const DataItem* namepath_di, DataItem*& item,kind_type kind,
 		path=np.second;
 		if (!path.empty() && path[0] == '#') { path.erase(0,1); }
 		if (*name.rbegin() == '!') { node_expected = true; name.resize(name.size()-1); }  //remove the final character
-		if (Environment::UseDeprecated && ((name[0] == 'N') || (name[0] == 'G'))) {	//just to speed it up a little.
-			DataItem* nval = DataItem::factory(path,di_text);
-			if ( name.compare("NAMESPACE") == 0 ) {
-				setns(nval,item);
-				retval = true;
-			} else if ( name.compare("GRAMMAR") == 0 ) {
-				setgrammar(nval,item);
-				retval = true;
-			} 
-			delete nval;
-		}
 		if (!retval) {	
 			if ( String::nametest(name)) {
 				if ( (kind != di_auto) && (item != NULL) && (kind != item->kind())) {
@@ -242,7 +231,7 @@ bool ItemStore::set(const DataItem* namepath_di, DataItem*& item,kind_type kind,
 					item_map_type::iterator it = the_item_map->find(name);
 					if (it != the_item_map->end()) {
 						DataItem* basis = it->second; //we will use the path on the basis.
-						if (basis->kind() != di_text) {
+						if (basis != NULL && basis->kind() != di_text) {
 							XMLObject* xbase = (XMLObject *)basis;
 							if (! xbase->empty() ) {
 								insertion_type i_type=DOMLSParser::ACTION_REPLACE;				
@@ -294,12 +283,16 @@ bool ItemStore::set(const DataItem* namepath_di, DataItem*& item,kind_type kind,
 								retval= true; //bad name/path				
 							}
 						} else {
-							string bvalue = *basis;
-							errorstr = "Item '" + name + "' is of kind 'text'. so xpath '" + path + "' cannot be used.";
-							if (bvalue.empty()) {
-								errorstr = "The item is empty. Maybe a previous xpath failed?";
+							if (basis == NULL) {
+								errorstr = "The item is empty. Maybe a parse or previous xpath failed?";
 							} else {
-								errorstr = "It's value is '"+ bvalue + "'";
+								string bvalue = *basis;
+								errorstr = "Item '" + name + "' is of kind 'text'. so xpath '" + path + "' cannot be used.";
+								if (bvalue.empty()) {
+									errorstr = "The item is empty. Maybe a parse or previous xpath failed?";
+								} else {
+									errorstr = "It's value is '"+ bvalue + "'";
+								}
 							}
 							retval= true; // cannot honour xpath		
 						}

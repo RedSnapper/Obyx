@@ -292,9 +292,6 @@ bool Document::eval() {
 			}
 		} else {
 			process(root_node,this);
-//			*Logger::log << Log::error << Log::LI << "Error. xml namespace not declared." << Log::LO;	
-//			trace();
-//			*Logger::log << Log::blockend;
 		}
 	} else {
 		*Logger::log << Log::error << Log::LI << "Error. eval of non-object failed." << Log::LO;	

@@ -668,7 +668,19 @@ bool IKO::evaltype(inp_type the_space, bool release, bool eval,kind_type ikind,D
 									if (exist_test == ut_significant) {
 										container = DataItem::factory(file_content,di_text); //no test for xml
 									} else {
+										ostringstream* docerrs = NULL;
+										docerrs = new ostringstream();
+										Logger::set_stream(docerrs);
 										container = DataItem::factory(file_content,ikind);   //test for xml!!
+										Logger::unset_stream();
+										string errs = docerrs->str();
+										delete docerrs; docerrs=0;
+										if ( ! errs.empty() ) {
+											*Logger::log << Log::error << Log::LI << "Error with file " << dest_out << Log::LO;
+											*Logger::log << Log::RI << errs << Log::RO;
+											trace();
+											*Logger::log << Log::blockend;
+										}
 									}
 								}
 							} // else container remains null.

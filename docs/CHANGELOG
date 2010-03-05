@@ -18,7 +18,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 ------------------------------------------------------------------------------------
 CHANGELOG file
 v10.03.05
-	Bugfix. syslog-ng only accepts alphanumeric idents.
+	Bugfix.  syslog-ng only accepts alphanumeric idents.
+	Log Enh. Document parse error more easily identified.
 v10.03.01
 	Changed version / svn
 v10.02.25

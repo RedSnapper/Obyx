@@ -105,17 +105,7 @@ DataItem* DataItem::factory(const string& s,kind_type kind_it_is) {
 			retval= new FragmentObject(s);
 		} break;			
 		case di_object: {
-			if (Environment::UseDeprecated) {
-				if ( s.compare(0,10,"NAMESPACE#") == 0 ) {
-					retval= new StrObject(s);
-				} else if ( s.compare(0,8,"GRAMMAR#") == 0 ) {
-					retval= new StrObject(s);
-				} else {
-					retval= new XMLObject(s);
-				}
-			} else {
-				retval= new XMLObject(s);
-			}
+			retval= new XMLObject(s);
 		} break;
 		case di_null: {
 			retval=NULL;
