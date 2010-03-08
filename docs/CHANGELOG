@@ -17,26 +17,26 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
-v10.03.08
+v1.10.03.08
 	Bugfix.  http output remove_methods had reversed output logic.
-v10.03.05
+v1.10.03.05
 	Bugfix.  syslog-ng only accepts alphanumeric idents.
 	Log Enh. Document parse error more easily identified.
 	Log Enh. URL parse error more easily identified.
 	Bugfix.  wsstrip is ignored when value attribute is used.
 	Bugfix.  Validation must be turned off when loading schema grammars.
-v10.03.01
+v1.10.03.01
 	Changed version / svn
-v10.02.25
+v1.10.02.25
 	Removed schema bug.
 	Fixed Validation issue with john snelson (re. PSVI)
-v10.02.23
+v1.10.02.23
 	Added CURRENT_TIME
-v10.02.22
+v1.10.02.22
 	Revised error message for main file (read permissions!).
-v10.02.12
+v1.10.02.12
 	Bug in mailer: temporary files not tidied up.
-v10.02.10
+v1.10.02.10
 	Bug in store list
 v10.02.02.1(b1)
 	Mantis 0000028
