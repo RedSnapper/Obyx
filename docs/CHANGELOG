@@ -19,6 +19,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 CHANGELOG file
 v1.10.03.08
 	Bugfix.  http output remove_methods had reversed output logic.
+	Bugfix.  over-enthusiastic error report for scope attribute.
 v1.10.03.05
 	Bugfix.  syslog-ng only accepts alphanumeric idents.
 	Log Enh. Document parse error more easily identified.

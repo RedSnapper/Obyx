@@ -177,12 +177,24 @@ IKO(n,par,el),eval(false),release(false),type(immediate),parm_name() {
 							if (mp->op() == m_substitute) {
 								if ( attr_val.compare(UCS2(L"first")) == 0 ) {  
 									m->k_scope = false; 
+								} else {
+									if ( attr_val.compare(UCS2(L"all")) == 0 ) {  
+										m->k_scope = true; 
+									} else {
+										*Logger::log << Log::syntax << Log::LI << "Syntax Error. The scope attribute of a key must have the value 'first' or 'all' "  << Log::LO;
+										trace();
+										*Logger::log << Log::blockend;
+									}
 								}
 							} else {
-								*Logger::log << Log::syntax << Log::LI << "Syntax Error. The scope attribute of a key is only meaningful within a substitute mapping.  ";
-								*Logger::log << "As keys within 'switch' mappings match the entire domain, the scope attribute is redundant."  << Log::LO;
-								trace();
-								*Logger::log << Log::blockend;
+								if ( attr_val.compare(UCS2(L"any")) == 0 ) {  
+									 *Logger::log << Log::syntax << Log::LI << "Syntax Error. The scope attribute of a key is only meaningful within a substitute mapping.  ";
+									 *Logger::log << "As keys within 'switch' mappings match the entire domain, the scope attribute can only be 'all'."  << Log::LO;
+									 trace();
+									 *Logger::log << Log::blockend;
+								} else {
+									//Ignored. XML Parser may add in default attribute values, so we must ignore it if we are not in substitute.
+								}
 							}
 						} else {
 							*Logger::log << Log::syntax << Log::LI << "Syntax Error. match with a key can only be a child of mapping."  << Log::LO;
