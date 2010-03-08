@@ -187,7 +187,7 @@ IKO(n,par,el),eval(false),release(false),type(immediate),parm_name() {
 									}
 								}
 							} else {
-								if ( attr_val.compare(UCS2(L"any")) == 0 ) {  
+								if ( attr_val.compare(UCS2(L"first")) == 0 ) {  
 									 *Logger::log << Log::syntax << Log::LI << "Syntax Error. The scope attribute of a key is only meaningful within a substitute mapping.  ";
 									 *Logger::log << "As keys within 'switch' mappings match the entire domain, the scope attribute can only be 'all'."  << Log::LO;
 									 trace();
