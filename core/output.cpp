@@ -158,7 +158,6 @@ void Output::sethttp(const http_line_type line_type,const string& val) {
 		case date:					Httphead::setdate(value); break;
 		case h_expires:				Httphead::setexpires(value); break;
 		case location:				Httphead::setlocation(value); break;
-		case nocache:				Httphead::nocache(! value.empty()) ; break;  //DEPRECATED
 		case p3p:					Httphead::setp3p(value); break;
 		case pragma:				Httphead::setpragma(value); break;
 		case range:					Httphead::setrange(value); break;
@@ -174,37 +173,59 @@ void Output::sethttp(const http_line_type line_type,const string& val) {
 			}
 		} break;
 		case remove_date: {
-			String::tolower(value); 
-			String::trim(value);
-			if ( value.compare("true") ) {
+			if ( value.compare("true") == 0) {
 				Httphead::nodates(true); //ie remove the date headerlines.
-			}	
+			} else {
+				if ( value.compare("false") == 0) {
+					Httphead::nodates(false); //ie remove the date headerlines.
+				} else {
+					*Logger::log << Log::error << Log::LI << "Error. Output: http remove_date must be 'true' or 'false'" << Log::LO;
+					trace();
+					*Logger::log << Log::blockend;
+				}
+			}
 		} break;
 		case remove_http: {
-			String::tolower(value); 
-			String::trim(value);
-			if (value.compare("true")) {
+			if (value.compare("true") == 0) {
 				Httphead::noheader(true); //ie remove the header
-			}	
+			} else {
+				if ( value.compare("false") == 0) {
+					Httphead::noheader(false); //ie remove the header
+				} else {
+					*Logger::log << Log::error << Log::LI << "Error. Output: http remove_http must be 'true' or 'false'" << Log::LO;
+					trace();
+					*Logger::log << Log::blockend;
+				}
+			}
 		} break;
 		case privacy: {
-			String::tolower(value); 
-			String::trim(value);
-			if (value.compare("true")) {
+			if (value.compare("true") == 0) {
 				Httphead::setprivate(true);  //ie add privacy
 			} else {
-				Httphead::setprivate(false); //ie remove privacy (the default)
+				if ( value.compare("false") == 0) {
+					Httphead::setprivate(false); //ie remove the header
+				} else {
+					*Logger::log << Log::error << Log::LI << "Error. Output: http privacy must be 'true' or 'false'" << Log::LO;
+					trace();
+					*Logger::log << Log::blockend;
+				}
 			}
 		} break;
 		case remove_nocache: {
-			String::tolower(value); 
-			String::trim(value);
-			if (value.compare("true")) {
+			if (value.compare("true") == 0) {
 				Httphead::nocache(false); //ie remove the nocache headerlines.
-			}	
+			} else {
+				if ( value.compare("false") == 0) {
+					Httphead::nocache(true); //ie remove the header
+				} else {
+					*Logger::log << Log::error << Log::LI << "Error. Output: http remove_nocache must be 'true' or 'false'" << Log::LO;
+					trace();
+					*Logger::log << Log::blockend;
+				}
+			}
 		} break;
 		default: {
-			*Logger::log << Log::error << Log::LI << "Error. Http output not implemented." << Log::LO;	
+			*Logger::log << Log::error << Log::LI << "Error. Http output '" << value << "' not implemented." << Log::LO;	
 			trace();
 			*Logger::log << Log::blockend;
 		} break;

@@ -17,6 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v10.03.08
+	Bugfix.  http output remove_methods had reversed output logic.
 v10.03.05
 	Bugfix.  syslog-ng only accepts alphanumeric idents.
 	Log Enh. Document parse error more easily identified.
