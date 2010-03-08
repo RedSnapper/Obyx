@@ -328,11 +328,11 @@ namespace String {
 		if (it != regex_cache.end()) {
 			re = ((*it).second.first);
 			rx = ((*it).second.second);
-			exec_result = pcre_exec(re,rx,scope.c_str(),scope.length(),offset,mt_options,ov,ovc);
+			exec_result = pcre_exec(re,rx,scope.c_str(),(unsigned int)scope.length(),offset,mt_options,ov,ovc);
 		} else {
 			if ( compile(pattern,re,rx) ) {
 				regex_cache.insert(type_regex_cache::value_type(pattern,pair<pcre*,pcre_extra*>(re,rx)));
-				exec_result = pcre_exec(re,rx,scope.c_str(),scope.length(),offset,mt_options,ov,ovc);
+				exec_result = pcre_exec(re,rx,scope.c_str(),(unsigned int)scope.length(),offset,mt_options,ov,ovc);
 			}
 		}
 		if ( exec_result < 1 ) { 
