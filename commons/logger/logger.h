@@ -38,6 +38,7 @@ namespace Log {
 
 class Logger {
 private:
+	bool		  syslogging;	//boolean representing syslog alerts (default is on)
 	bool		  top_line;		//first bracket contents of a block.
 	bool		  inraw;
 	Log::msgtype  curr_type;

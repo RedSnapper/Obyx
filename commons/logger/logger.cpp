@@ -89,7 +89,7 @@ void Logger::unset_stream() {
 	}
 }	
 
-Logger::Logger(int i) : bdepth(i) {
+Logger::Logger(int i) : syslogging(true),bdepth(i) {
 	fo = NULL;		//final output stream
 	o = NULL;		//current output stream
 	debugflag=false;
@@ -112,33 +112,44 @@ ostream*& Logger::startup() {
 	} else {
 		log = new CLILogger();	// create new command line reporter
 	}
-/*
-OBYX_DEVELOPMENT LOG_DEBUG OBYX_LOGGING_OFF RESULT
-	on				on			off			syslog(debug) (syslog opened)
-	on				off			off			syslog(warn)  (syslog opened)
-	on				on			on			syslog(debug) (syslog opened)
-	on				off			on			[no syslog]   (syslog not opened)
-	off				on			on			[no syslog]   (syslog not opened)		
-	off				off			on			[no syslog]   (syslog not opened)		
-	off				on			off			syslog(warn)  (syslog opened)		
-	off				off			off			syslog(warn)  (syslog opened)	
-*/
-	log->logging_on = Environment::getenv("OBYX_DEVELOPMENT",tmp_env);
-	if (log->logging_on) {
-		log->debugflag = Environment::getenv("LOG_DEBUG", tmp_env);
-		if (log->debugflag) {
-			setlogmask(LOG_UPTO (LOG_DEBUG ));
-			openlog("Obyx",0,LOG_USER);
+	/*
+	 OBYX_DEVELOPMENT LOG_DEBUG OBYX_LOGGING_OFF OBYX_SYSLOG_OFF RESULT
+	 on				on			off				on			syslog(debug) (syslog opened)
+	 on				off			off				on			syslog(warn)  (syslog opened)
+	 on				on			on				on			syslog(debug) (syslog opened)
+	 on				off			on				on			[no syslog]   (syslog not opened)
+	 off			on			on				on			[no syslog]   (syslog not opened)		
+	 off			off			on				on			[no syslog]   (syslog not opened)		
+	 off			on			off				on			syslog(warn)  (syslog opened)		
+	 off			off			off				on			syslog(warn)  (syslog opened)	
+	 on				on			off				off			[no syslog]   (syslog not opened)
+	 on				off			off				off			[no syslog]   (syslog not opened)
+	 on				on			on				off			[no syslog]   (syslog not opened)
+	 on				off			on				off			[no syslog]   (syslog not opened)
+	 off			on			on				off			[no syslog]   (syslog not opened)		
+	 off			off			on				off			[no syslog]   (syslog not opened)		
+	 off			on			off				off			[no syslog]   (syslog not opened)		
+	 off			off			off				off			[no syslog]   (syslog not opened)	
+	 */
+	log->syslogging = ! Environment::getenv("OBYX_SYSLOG_OFF",tmp_env);
+	log->logging_on =   Environment::getenv("OBYX_DEVELOPMENT",tmp_env);
+	if (log->syslogging) {
+		if (log->logging_on) {
+			log->debugflag = Environment::getenv("LOG_DEBUG", tmp_env);
+			if (log->debugflag) {
+				setlogmask(LOG_UPTO (LOG_DEBUG ));
+				openlog("Obyx",0,LOG_USER);
+			} else {
+				if (!Environment::getenv("OBYX_LOGGING_OFF",tmp_env)) {
+					setlogmask(LOG_UPTO (LOG_WARNING));
+					openlog("Obyx",0,LOG_USER);
+				}
+			}
 		} else {
-			if (!Environment::getenv("OBYX_LOGGING_OFF",tmp_env)) {
+			if (! Environment::getenv("OBYX_LOGGING_OFF",tmp_env)) {
 				setlogmask(LOG_UPTO (LOG_WARNING));
 				openlog("Obyx",0,LOG_USER);
 			}
-		}
-	} else {
-		if (! Environment::getenv("OBYX_LOGGING_OFF",tmp_env)) {
-			setlogmask(LOG_UPTO (LOG_WARNING));
-			openlog("Obyx",0,LOG_USER);
 		}
 	}
 	log->fo = &std::cout;					//set final output.
@@ -175,7 +186,7 @@ void Logger::shutdown() {
 }
 
 Logger& Logger::operator<< (const double val ) { 
-	if (log->top_line) { log->syslogbuffer << val;}
+	if (log->top_line && log->syslogging ) { log->syslogbuffer << val;}
 	if ( logging_on && ( type_stack.top() != debug || debugging()) )  {
 		*o << val; 
 	}
@@ -183,7 +194,7 @@ Logger& Logger::operator<< (const double val ) {
 }
 
 Logger& Logger::operator<< (const bool val ) { 
-	if (log->top_line) { log->syslogbuffer << val;}
+	if (log->top_line && log->syslogging ) { log->syslogbuffer << val;}
 	if ( logging_on && ( type_stack.top() != debug || debugging()) )  {
 		if (val) {
 			*o << "true"; 
@@ -195,7 +206,7 @@ Logger& Logger::operator<< (const bool val ) {
 }
 
 Logger& Logger::operator<< (const int val ) { 
-	if (log->top_line) { log->syslogbuffer << val;}
+	if (log->top_line && log->syslogging ) { log->syslogbuffer << val;}
 	if ( logging_on && ( type_stack.top() != debug || debugging()) )  {
 		*o << static_cast<int>(val); 
 	}
@@ -203,7 +214,7 @@ Logger& Logger::operator<< (const int val ) {
 }	
 
 Logger& Logger::operator<< (const unsigned int val ) { 
-	if (log->top_line) { log->syslogbuffer << val;}
+	if (log->top_line && log->syslogging ) { log->syslogbuffer << val;}
 	if ( logging_on && ( type_stack.top() != debug || debugging()) )  {
 		*o << static_cast<unsigned int>(val); 
 	}
@@ -224,7 +235,9 @@ Logger& Logger::operator << (const msgtype mtype) {
 		top_line = false;
 	} else {
 		top_line = true;
-		syslogbuffer.str("");
+		if (log->syslogging) {
+			syslogbuffer.str("");
+		}
 		type_stack.push(mtype); // starting
 		if ( logging_on && ( type_stack.top() != debug || debugging()) )  {  wrap(true); }
 	}
@@ -240,7 +253,7 @@ Logger& Logger::operator << (const extratype extrabit) {
 
 Logger& Logger::operator<< (const char* msg) { 
 	string mesg(msg);
-	if (log->top_line) { log->syslogbuffer << mesg;}
+	if (log->top_line && log->syslogging) { log->syslogbuffer << mesg;}
 	XMLChar::encode(mesg);
 	if ( logging_on && (type_stack.top() != debug || debugging()) )  {
 		*o << mesg;  
@@ -249,7 +262,7 @@ Logger& Logger::operator<< (const char* msg) {
 }
 
 Logger& Logger::operator<< (const std::string msg ) {  
-	if (log->top_line) { log->syslogbuffer << msg;}
+	if (log->top_line && log->syslogging) { log->syslogbuffer << msg;}
 	string mesg(msg);
 	if ( logging_on && (type_stack.top() != debug || debugging()) )  {
 //		if ( type_stack.top() != raw ) {
@@ -265,34 +278,35 @@ Logger& Logger::operator<< (const bracketing bkt) {
 		inraw = bkt == RI ? true : false;
 	} else {
 		if (bkt == LO && log->top_line && !log->syslogbuffer.str().empty() && estrm_stack.size() < 3 ) {
-			switch ( type_stack.top() ) {
-				case debug : { 
-					syslog(LOG_DEBUG,"[%s]: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
-				} break;
-				case warn : { 
-					syslog(LOG_WARNING,"[%s]: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
-				} break;
-				case fatal : { 
-					syslog(LOG_CRIT,"[%s]: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
-				} break;
-				case syntax : { 
-					syslog(LOG_ERR,"[%s]: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
-				} break;
-				case error : { 
-					syslog(LOG_ERR,"[%s]: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
-				} break;
-				case timing : 
-				case even : 
-				case info : 
-				case headline : 
-				case notify:
-				case subhead : { 
-					syslog(LOG_NOTICE,"[%s]: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
-				} break;
-				default : break;
+			if (log->syslogging) {
+				switch ( type_stack.top() ) {
+					case debug : { 
+						syslog(LOG_DEBUG,"[%s]: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
+					} break;
+					case warn : { 
+						syslog(LOG_WARNING,"[%s]: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
+					} break;
+					case fatal : { 
+						syslog(LOG_CRIT,"[%s]: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
+					} break;
+					case syntax : { 
+						syslog(LOG_ERR,"[%s]: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
+					} break;
+					case error : { 
+						syslog(LOG_ERR,"[%s]: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
+					} break;
+					case timing : 
+					case even : 
+					case info : 
+					case headline : 
+					case notify:
+					case subhead : { 
+						syslog(LOG_NOTICE,"[%s]: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
+					} break;
+					default : break;
+				}
 			}
 			top_line=false;
-//			syslogbuffer.str(""); 		
 		}
 		if ( logging_on ) {
 			if ( debugging() ) {
