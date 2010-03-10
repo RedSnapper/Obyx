@@ -47,9 +47,10 @@ protected:
 	friend class DataItem;
 	friend class StrObject;
 	XMLObject(const XMLObject*);
-	XMLObject(const xercesc::DOMDocument*) ;
+	XMLObject(const xercesc::DOMDocument*);
 	XMLObject(xercesc::DOMDocument*&);
 	XMLObject(const xercesc::DOMNode*);
+	XMLObject(const xercesc::DOMElement*);
 	
 public:
 //	u_str

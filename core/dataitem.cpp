@@ -204,10 +204,10 @@ DataItem* DataItem::factory(xercesc::DOMNode* const& pt,kind_type kind_it_is) {
 			case di_auto: {
 				switch ( pt->getNodeType() ) {
 					case DOMNode::DOCUMENT_NODE: {
-						retval = new XMLObject((xercesc::DOMDocument*&)pt);
+						retval = new XMLObject((const xercesc::DOMDocument*&)pt);
 					} break;
 					case DOMNode::ELEMENT_NODE: {
-						retval = new XMLObject(pt);
+						retval = new XMLObject((const xercesc::DOMElement*&)pt);
 					} break;
 					case DOMNode::DOCUMENT_TYPE_NODE: 
 					case DOMNode::DOCUMENT_FRAGMENT_NODE: 

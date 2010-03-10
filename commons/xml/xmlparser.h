@@ -72,16 +72,7 @@ namespace XML {
 		void do_maybenode_following_gap(DOMDocument*&,DOMNode*&,const u_str&);
 		void do_maybenode_set(DOMDocument*&,DOMNode*&,const u_str&);
 		void do_attr_namespace_kludge(DOMDocument*&,DOMNode*&);
-/* now with documents */
-/*		
-		void do_mustbetext_following_gap(DOMNode*&,DOMDocument*);
-		void do_mustbetext_preceding_gap(DOMNode*&,DOMDocument*);
-		void do_mustbetext_set(DOMNode*&, DOMDocument*);
-		void do_maybenode_child_gap(DOMDocument*&,DOMNode*&,const DOMDocument*);
-		void do_maybenode_preceding_gap(DOMDocument*&,DOMNode*&,const DOMDocument*);
-		void do_maybenode_following_gap(DOMDocument*&,DOMNode*&,const DOMDocument*);
-		void do_maybenode_set(DOMDocument*&,DOMNode*&,const DOMDocument*);
-*/
+
 		void do_mustbetext_following_gap(DOMNode*&,DOMNode*);
 		void do_mustbetext_preceding_gap(DOMNode*&,DOMNode*);
 		void do_mustbetext_set(DOMNode*&, DOMNode*);
@@ -103,7 +94,7 @@ namespace XML {
 		void existsGrammar(const std::string&,bool);  //use the grammer inside the string.
 		DOMDocument* loadDoc(const std::string&);
 		DOMDocument* loadDoc(const u_str&);
-		DOMDocument* newDoc();
+		DOMDocument* newDoc(const DOMNode*);
 		DOMDocumentFragment* newDocFrag(DOMDocument*);
 		basic_string<XMLCh> xpath(const DOMNode* );
 		void insertContext(DOMDocument*&,DOMNode*&,const u_str&,DOMLSParser::ActionType);

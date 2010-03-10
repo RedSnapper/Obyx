@@ -197,17 +197,50 @@ namespace XML {
 		resourceHandler->setGrammar(soapencodingxsd,UCS2(L"http://schemas.xmlsoap.org/soap/encoding/"),Grammar::SchemaGrammarType);
 		resourceHandler->setGrammar(wsdlxsd,UCS2(L"http://schemas.xmlsoap.org/wsdl/"),Grammar::SchemaGrammarType);
 		resourceHandler->setGrammar(wsdlmimexsd,UCS2(L"http://schemas.xmlsoap.org/wsdl/mime/"),Grammar::SchemaGrammarType);
-
-/*		
- Try setting the property "XMLUni::fgDOMValidate" instead, to see if that  enables identity-constraint checking.
- But if you set fgDOMValidateIfSchema to true after that, it will remove the previous setting.
- Try removing the fgDOMValidateIfSchema altogether.  
-*/		
-
 	}
 
-	DOMDocument* Parser::newDoc() {
-		return impl->createDocument(); //no root element.
+	DOMDocument* Parser::newDoc(const DOMNode* n) {
+		DOMDocument* doc = NULL;
+		if (n != NULL) {
+			const DOMDocument* basis  = NULL;
+			const DOMElement* root = NULL;
+			if (n->getNodeType() == DOMNode::DOCUMENT_NODE) {
+				basis = (const DOMDocument*)(n);
+			} else {
+				basis = n->getOwnerDocument();
+				if (n->getNodeType() == DOMNode::ELEMENT_NODE) {
+					root = (const DOMElement*)(n);
+				}
+			}
+			const XMLCh* nsuri = NULL;
+			const XMLCh* nsname = NULL;
+			const DOMElement* el = NULL;
+			if (root == NULL) {
+				el = basis->getDocumentElement();
+			} else {
+				el = root;
+			}
+			if (el != NULL) {
+				nsuri = el->getNamespaceURI();
+				nsname = el->getLocalName();
+			}
+			DOMDocumentType* newdt = NULL;
+			const DOMDocumentType* dt = basis->getDoctype();
+			if (dt != NULL) {
+				newdt = impl->createDocumentType(dt->getName(),dt->getPublicId(),dt->getSystemId());
+			}
+			try {
+				doc = impl->createDocument(nsuri,nsname,newdt); 
+			}
+			catch (DOMException e) {
+				string err_message;
+				transcode(e.getMessage(),err_message);			
+				*Logger::log << error << Log::LI << "DOM Copy. Exception message is:" << Log::br << err_message << "\n" << Log::LO << Log::blockend;				
+			}
+		} else {
+			doc = impl->createDocument(); 
+		}
+		return doc;
 	}
 	
 	DOMDocumentFragment* Parser::newDocFrag(DOMDocument* doc) {
@@ -657,9 +690,10 @@ namespace XML {
 							//doc = static_cast<DOMDocument *>(ins->cloneNode(true));
 							//using the following instead..
 							{
-								doc = XML::Manager::parser()->newDoc();
+								doc = XML::Manager::parser()->newDoc(ins);
 								xercesc::DOMNode* inod = doc->importNode(ins,true);	 //importNode always takes a copy - returns DOMNode* inod =  new node pointer.
-								doc->appendChild(inod);
+								doc->replaceChild(inod,doc->getDocumentElement());
+//								doc->appendChild(inod);
 							}
 							//until xqilla works.
 							

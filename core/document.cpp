@@ -124,9 +124,9 @@ void Document::list() const {
 Document::Document(ObyxElement* par,const Document* orig) :
 ObyxElement(par,orig), xdoc(NULL),root_node(NULL),filepath(),ownprefix(),
 parm_map(NULL),doc_par(NULL) { 
-	xdoc = XML::Manager::parser()->newDoc();
+	xdoc = XML::Manager::parser()->newDoc(orig->xdoc);
 	xercesc::DOMNode* inod = xdoc->importNode(orig->xdoc->getDocumentElement(),true);	 //
-	xdoc->appendChild(inod);
+	xdoc->replaceChild(inod,xdoc->getDocumentElement());
 	root_node = xdoc->getDocumentElement();
 	filepath  = orig->filepath;
 	ownprefix = orig->ownprefix;	

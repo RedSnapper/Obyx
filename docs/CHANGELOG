@@ -17,6 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.10.03.10
+	Bugfix.  DOCTYPES now persist except for fragments. fragments lose DOCTYPES (and entities will therefore break)
 v1.10.03.08
 	Log Enh. Support for OBYX_SYSLOG_OFF
 	Bugfix.  http output remove_methods had reversed output logic.

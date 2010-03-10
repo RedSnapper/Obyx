@@ -33,7 +33,7 @@ xercesc::DOMDocument* FragmentObject::frag_doc = NULL;
 /* ==================== NON virtual methods. =========== */
 /* public static */
 void FragmentObject::init() {
-	frag_doc = XML::Manager::parser()->newDoc();
+	frag_doc = XML::Manager::parser()->newDoc(NULL);
 }
 void FragmentObject::finalise() {
 	if (frag_doc != NULL) {
@@ -145,9 +145,10 @@ FragmentObject::operator XMLObject*() {
 }
 FragmentObject::operator xercesc::DOMDocument*() const { //This may fail wildly!
 	xercesc::DOMDocument* xdoc = NULL;
-	xdoc = XML::Manager::parser()->newDoc();
+	xdoc = XML::Manager::parser()->newDoc(fragment);
 	xercesc::DOMNode* inod = xdoc->importNode(fragment,true);	 //importNode always takes a copy - returns DOMNode* inod =  new node pointer.
-	xdoc->appendChild(inod);
+	xdoc->replaceChild(inod,xdoc->getDocumentElement());
+//xdoc->appendChild(inod);
 	return xdoc;
 }
 FragmentObject::operator xercesc::DOMNode*() const {

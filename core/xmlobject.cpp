@@ -37,26 +37,28 @@ XMLObject::XMLObject(const XMLObject* s) : DataItem(),x(0),x_doc(NULL) {
 }
 
 XMLObject::XMLObject(const xercesc::DOMDocument* s) : DataItem(),x(1),x_doc(NULL) {
-// cloneNode is failing on XQilla. 
-// x_doc = static_cast<DOMDocument *>(static_cast<const DOMNode *>(s)->cloneNode(true));
-	//using this instead.
 	if  ( s != NULL ) {
-		x_doc = XML::Manager::parser()->newDoc();
+		x_doc = XML::Manager::parser()->newDoc(s);
 		xercesc::DOMNode* inod = x_doc->importNode(s->getDocumentElement(),true);	//importNode always takes a copy - returns DOMNode* inod =  new node pointer.
-		x_doc->appendChild(inod);
-		x_doc->normalize();
+		x_doc->replaceChild(inod,x_doc->getDocumentElement());
 	}	
-	//until XQilla supports cloneNode.
 }
 
 XMLObject::XMLObject(xercesc::DOMDocument*& s) : DataItem(),x(2),x_doc(s) {}
 
+XMLObject::XMLObject(const xercesc::DOMElement* e) : DataItem(),x(5),x_doc(NULL) {
+	if  ( e != NULL ) {
+		x_doc = XML::Manager::parser()->newDoc(e);
+		xercesc::DOMNode* inod = x_doc->importNode(e,true);	 //importNode always takes a copy - returns DOMNode* inod =  new node pointer.
+		x_doc->replaceChild(inod,x_doc->getDocumentElement());
+	}	
+}
+
 XMLObject::XMLObject(const xercesc::DOMNode* s) : DataItem(),x(3),x_doc(NULL) {
 	if  ( s != NULL ) {
-		x_doc = XML::Manager::parser()->newDoc();
+		x_doc = XML::Manager::parser()->newDoc(s);
 		xercesc::DOMNode* inod = x_doc->importNode(s,true);	 //importNode always takes a copy - returns DOMNode* inod =  new node pointer.
-		x_doc->appendChild(inod);
-		x_doc->normalize();
+		x_doc->replaceChild(inod,x_doc->getDocumentElement());
 	}	
 }
 
@@ -96,21 +98,19 @@ void XMLObject::copy(XMLObject*& container) const {
 	//	xercesc::DOMNode* tmp = x_doc->cloneNode(true);
 	// cloneNode is failing on XQilla..
 	if  ( x_doc != NULL ) {
-		DOMDocument* doc = XML::Manager::parser()->newDoc();
+		DOMDocument* doc = XML::Manager::parser()->newDoc(x_doc);
 		xercesc::DOMNode* inod = doc->importNode(x_doc->getDocumentElement(),true);	 //
-		doc->appendChild(inod);
-		doc->normalize();
+		doc->replaceChild(inod,doc->getDocumentElement());
 		container = new XMLObject(doc);
 	}		
 }
 
 void XMLObject::copy(DOMDocument*& container) const {
 	if  ( x_doc != NULL ) { // should really check for NULL here.
-		container = XML::Manager::parser()->newDoc();
+		container = XML::Manager::parser()->newDoc(x_doc);
 		DOMDocument* doc = container;
 		xercesc::DOMNode* inod = doc->importNode(x_doc->getDocumentElement(),true);	 //
-		doc->appendChild(inod);
-		doc->normalize();
+		doc->replaceChild(inod,doc->getDocumentElement());
 	}		
 }
 
@@ -144,13 +144,10 @@ XMLObject::operator xercesc::DOMDocument*() const {
 }
 
 void XMLObject::copy(DataItem*& container) const {
-	//	xercesc::DOMNode* tmp = x_doc->cloneNode(true);
-	// cloneNode is failing on XQilla..
 	if  ( x_doc != NULL ) {
-		DOMDocument* doc = XML::Manager::parser()->newDoc();
+		DOMDocument* doc = XML::Manager::parser()->newDoc(x_doc);
 		xercesc::DOMNode* inod = doc->importNode(x_doc->getDocumentElement(),true);	 //
-		doc->appendChild(inod);
-		doc->normalize();
+		doc->replaceChild(inod,doc->getDocumentElement());
 		container = DataItem::factory(doc); 
 	}		
 }
@@ -523,6 +520,8 @@ bool XMLObject::getns(const u_str& code, u_str& result,bool release) {
 
 XMLObject::~XMLObject() {
 	if (x_doc != NULL) {
+//		DOMDocumentType* dt = x_doc->getDoctype();
+//		dt->release();
 		x_doc->release();
 		x_doc = NULL;
 	}	
