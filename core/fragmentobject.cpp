@@ -143,13 +143,8 @@ FragmentObject::operator std::string() const {
 FragmentObject::operator XMLObject*() {
 	return NULL;
 }
-FragmentObject::operator xercesc::DOMDocument*() const { //This may fail wildly!
-	xercesc::DOMDocument* xdoc = NULL;
-	xdoc = XML::Manager::parser()->newDoc(fragment);
-	xercesc::DOMNode* inod = xdoc->importNode(fragment,true);	 //importNode always takes a copy - returns DOMNode* inod =  new node pointer.
-	xdoc->replaceChild(inod,xdoc->getDocumentElement());
-//xdoc->appendChild(inod);
-	return xdoc;
+FragmentObject::operator xercesc::DOMDocument*() const { //Fragments do not hold onto doctypes.
+	return XML::Manager::parser()->newDoc(fragment);
 }
 FragmentObject::operator xercesc::DOMNode*() const {
 	return fragment;	//check how this is being used?

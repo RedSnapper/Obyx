@@ -39,68 +39,30 @@ XMLObject::XMLObject(const XMLObject* s) : DataItem(),x(0),x_doc(NULL) {
 XMLObject::XMLObject(const xercesc::DOMDocument* s) : DataItem(),x(1),x_doc(NULL) {
 	if  ( s != NULL ) {
 		x_doc = XML::Manager::parser()->newDoc(s);
-		xercesc::DOMNode* inod = x_doc->importNode(s->getDocumentElement(),true);	//importNode always takes a copy - returns DOMNode* inod =  new node pointer.
-		x_doc->replaceChild(inod,x_doc->getDocumentElement());
 	}	
 }
 
 XMLObject::XMLObject(xercesc::DOMDocument*& s) : DataItem(),x(2),x_doc(s) {}
 
-XMLObject::XMLObject(const xercesc::DOMElement* e) : DataItem(),x(5),x_doc(NULL) {
-	if  ( e != NULL ) {
-		x_doc = XML::Manager::parser()->newDoc(e);
-		xercesc::DOMNode* inod = x_doc->importNode(e,true);	 //importNode always takes a copy - returns DOMNode* inod =  new node pointer.
-		x_doc->replaceChild(inod,x_doc->getDocumentElement());
-	}	
-}
-
 XMLObject::XMLObject(const xercesc::DOMNode* s) : DataItem(),x(3),x_doc(NULL) {
 	if  ( s != NULL ) {
 		x_doc = XML::Manager::parser()->newDoc(s);
-		xercesc::DOMNode* inod = x_doc->importNode(s,true);	 //importNode always takes a copy - returns DOMNode* inod =  new node pointer.
-		x_doc->replaceChild(inod,x_doc->getDocumentElement());
 	}	
 }
 
 /* Public Errors need to be caught higher up! */
 XMLObject::XMLObject(const std::string s) : DataItem(),x(4),x_doc(NULL) { 
-	bool validate = true;	//only has an effect if VALIDATE_ALWAYS is set.
-	if ( String::Regex::available() ) {
-		if (String::Regex::match("\\A[^<]*<(\\w*):?schema[^>]+xmlns:?\\1=\"http://www.w3.org/2001/XMLSchema\"",s)) {
-			validate = false;
-		}
-	} else {
-		if (s.find("schema") != string::npos && s.find("http://www.w3.org/2001/XMLSchema") != string::npos ) {
-			validate = false;
-		}
-	}
-	if (!validate) {
-		XML::Manager::parser()->validation_off();
-	}
 	x_doc = XML::Manager::parser()->loadDoc(s);
-	if (!validate) {
-		XML::Manager::parser()->validation_on();
-	}
-	if (x_doc != NULL) { 
-		x_doc->normalize();
-	}
 }
 XMLObject::XMLObject(u_str s) : DataItem(),x(7),x_doc(NULL) { 
 	x_doc = XML::Manager::parser()->loadDoc(s);
-	if (x_doc != NULL) { 
-		x_doc->normalize();
-	}
 }
 XMLObject::XMLObject(const XMLObject& src) : DataItem(),x(5),x_doc(src) {}
 XMLObject::XMLObject(const DataItem& src) : DataItem(),x(6),x_doc(src) {}
 
 void XMLObject::copy(XMLObject*& container) const {
-	//	xercesc::DOMNode* tmp = x_doc->cloneNode(true);
-	// cloneNode is failing on XQilla..
 	if  ( x_doc != NULL ) {
 		DOMDocument* doc = XML::Manager::parser()->newDoc(x_doc);
-		xercesc::DOMNode* inod = doc->importNode(x_doc->getDocumentElement(),true);	 //
-		doc->replaceChild(inod,doc->getDocumentElement());
 		container = new XMLObject(doc);
 	}		
 }
@@ -108,9 +70,6 @@ void XMLObject::copy(XMLObject*& container) const {
 void XMLObject::copy(DOMDocument*& container) const {
 	if  ( x_doc != NULL ) { // should really check for NULL here.
 		container = XML::Manager::parser()->newDoc(x_doc);
-		DOMDocument* doc = container;
-		xercesc::DOMNode* inod = doc->importNode(x_doc->getDocumentElement(),true);	 //
-		doc->replaceChild(inod,doc->getDocumentElement());
 	}		
 }
 
@@ -146,8 +105,6 @@ XMLObject::operator xercesc::DOMDocument*() const {
 void XMLObject::copy(DataItem*& container) const {
 	if  ( x_doc != NULL ) {
 		DOMDocument* doc = XML::Manager::parser()->newDoc(x_doc);
-		xercesc::DOMNode* inod = doc->importNode(x_doc->getDocumentElement(),true);	 //
-		doc->replaceChild(inod,doc->getDocumentElement());
 		container = DataItem::factory(doc); 
 	}		
 }

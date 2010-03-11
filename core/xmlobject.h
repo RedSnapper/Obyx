@@ -50,7 +50,6 @@ protected:
 	XMLObject(const xercesc::DOMDocument*);
 	XMLObject(xercesc::DOMDocument*&);
 	XMLObject(const xercesc::DOMNode*);
-	XMLObject(const xercesc::DOMElement*);
 	
 public:
 //	u_str

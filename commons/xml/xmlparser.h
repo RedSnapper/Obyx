@@ -52,7 +52,7 @@ namespace XML {
 		static std::string	xhtml1xsd;
 		static std::string	wsdlmimexsd;
 		static std::string	wsdlxsd;
-	
+
 		XML::XMLErrorHandler*	errorHandler;
 		XML::XMLResourceHandler* resourceHandler;
 		DOMImplementation*		impl;
@@ -60,6 +60,7 @@ namespace XML {
 		XMLFormatTarget*        xfmt;
 		XMLGrammarPoolImpl*		grpool;
 		DOMLSParser*			parser; //xercesc 3.0
+		bool					validation; //still validates if there's a schema.
 		void makeReader();
 		void makeWriter();
 		

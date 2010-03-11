@@ -50,7 +50,7 @@ namespace XML {
 	
 	const u_str Parser::memfile = UCS2(L"[xsd]"); // "[xsd]"
 		
-	Parser::Parser() : errorHandler(NULL),resourceHandler(NULL),impl(NULL),writer(NULL),xfmt(NULL),grpool(NULL),parser(NULL) {
+	Parser::Parser() : errorHandler(NULL),resourceHandler(NULL),impl(NULL),writer(NULL),xfmt(NULL),grpool(NULL),parser(NULL),validation(false) {
 		const u_str imptype = UCS2(L"XPath2 3.0");	// "XPath2 3.0"
 //		const u_str imptype = UCS2(L"LS");			// "LS"
 		impl = DOMImplementationRegistry::getDOMImplementation( imptype.c_str() );
@@ -91,10 +91,7 @@ namespace XML {
 			delete mbft;
 		} // else {} //node was NULL
 	}
-	
-//-	void writenode(const DOMNode* const& ,u_str&);
-//-	void writedoc(const DOMDocument* const& ,u_str&);
-	
+		
 	void Parser::writenode(const DOMNode* const& n, std::string& result) {
 		if ( n != NULL ) {
 			AutoRelease<DOMLSOutput> output(((DOMImplementationLS*)impl)->createLSOutput());	
@@ -173,10 +170,15 @@ namespace XML {
 		dc->setParameter(XMLUni::fgXercesIdentityConstraintChecking,true);
 		
 		if (Environment::envexists("OBYX_VALIDATE_ALWAYS")) {
-//			if (dc->canSetParameter(XMLUni::fgDOMValidateIfSchema, true)) dc->setParameter(XMLUni::fgDOMValidateIfSchema, true);
-			if (dc->canSetParameter(XMLUni::fgDOMValidate, true)) dc->setParameter(XMLUni::fgDOMValidate, true);
+			if (dc->canSetParameter(XMLUni::fgDOMValidate, true)) {
+				dc->setParameter(XMLUni::fgDOMValidate, true);
+				validation = true;
+			}
 		} else {
-			if (dc->canSetParameter(XMLUni::fgDOMValidateIfSchema, true)) dc->setParameter(XMLUni::fgDOMValidateIfSchema, true);
+			if (dc->canSetParameter(XMLUni::fgDOMValidateIfSchema, true)) {
+				dc->setParameter(XMLUni::fgDOMValidateIfSchema, true);
+				validation = false;
+			}
 		}
 		dc->setParameter(XMLUni::fgDOMDatatypeNormalization, true); //add in datatypes..
 		dc->setParameter(XMLUni::fgXercesDOMHasPSVIInfo,false);			//Otherwise we are in trouble.
@@ -214,28 +216,33 @@ namespace XML {
 			}
 			const XMLCh* nsuri = NULL;
 			const XMLCh* nsname = NULL;
-			const DOMElement* el = NULL;
 			if (root == NULL) {
-				el = basis->getDocumentElement();
-			} else {
-				el = root;
+				root = basis->getDocumentElement();
 			}
-			if (el != NULL) {
-				nsuri = el->getNamespaceURI();
-				nsname = el->getLocalName();
+			if (root != NULL) {
+				nsuri = root->getNamespaceURI();
+				nsname = root->getLocalName();
 			}
 			DOMDocumentType* newdt = NULL;
 			const DOMDocumentType* dt = basis->getDoctype();
 			if (dt != NULL) {
 				newdt = impl->createDocumentType(dt->getName(),dt->getPublicId(),dt->getSystemId());
 			}
-			try {
-				doc = impl->createDocument(nsuri,nsname,newdt); 
-			}
-			catch (DOMException e) {
-				string err_message;
-				transcode(e.getMessage(),err_message);			
-				*Logger::log << error << Log::LI << "DOM Copy. Exception message is:" << Log::br << err_message << "\n" << Log::LO << Log::blockend;				
+			if (nsuri == NULL && newdt == NULL) { //it's anonymous.
+				doc = impl->createDocument(); 
+				xercesc::DOMNode* inod = doc->importNode(root,true);
+				doc->appendChild(inod);
+			} else {
+				try {
+					doc = impl->createDocument(nsuri,nsname,newdt); 
+					xercesc::DOMNode* inod = doc->importNode(root,true);
+					doc->replaceChild(inod,doc->getDocumentElement());
+				}
+				catch (DOMException e) {
+					string err_message;
+					transcode(e.getMessage(),err_message);			
+					*Logger::log << error << Log::LI << "DOM Copy. Exception message is:" << Log::br << err_message << "\n" << Log::LO << Log::blockend;				
+				}
 			}
 		} else {
 			doc = impl->createDocument(); 
@@ -249,9 +256,26 @@ namespace XML {
 
 	//non-releasing the doc result is not good...
 	DOMDocument* Parser::loadDoc(const std::string& xfile) {
-		std::string xmlfile = xfile;		
 		DOMDocument* rslt = NULL;
-		if ( ! xmlfile.empty() ) {
+		if ( ! xfile.empty() ) {
+			std::string xmlfile = xfile;		
+			bool do_validation = false;	//only has an effect if VALIDATE_ALWAYS is set.
+			if (validation) {
+				if ( String::Regex::available() ) {
+					if (String::Regex::match("<(\\w*):?schema[^>]+xmlns:?\\1=\"http://www.w3.org/2001/XMLSchema\"",xfile)) {
+						do_validation = false;
+					} else {
+						if (String::Regex::match("<(\\w*):?[^>]+xmlns:?\\1=",xfile) || (xfile.find("<!DOCTYPE") != string::npos)) {
+							do_validation = true;
+						} else { 
+							do_validation = false;
+						}
+					}
+				} 
+			}
+			if (validation && !do_validation) {
+				XML::Manager::parser()->validation_off();
+			}
 			AutoRelease<DOMLSInput> input(((DOMImplementationLS*)impl)->createLSInput());	
 			XMLByte* xmlraw = (XMLByte*)(xmlfile.c_str());
 			MemBufInputSource* mbis = new MemBufInputSource(xmlraw,xmlfile.size(),memfile.c_str());
@@ -281,19 +305,23 @@ namespace XML {
 			} 
 			delete mbis; 
 			mbis=NULL;
+			
+			if (validation && !do_validation) {
+				XML::Manager::parser()->validation_on();
+			}
 		}
 		return rslt;
 	}
 	
 	void Parser::validation_off() {
-		if (Environment::envexists("OBYX_VALIDATE_ALWAYS")) {
+		if (validation) {
 			DOMConfiguration* dc = parser->getDomConfig();
 			if (dc->canSetParameter(XMLUni::fgDOMValidate, false)) dc->setParameter(XMLUni::fgDOMValidate, false);
 		} 
 	}
 	
 	void Parser::validation_on() {
-		if (Environment::envexists("OBYX_VALIDATE_ALWAYS")) {
+		if (validation) {
 			DOMConfiguration* dc = parser->getDomConfig();
 			if (dc->canSetParameter(XMLUni::fgDOMValidate, true)) dc->setParameter(XMLUni::fgDOMValidate, true);
 		} 
@@ -686,17 +714,7 @@ namespace XML {
 								doc->release();
 								doc = NULL;
 							}
-							// cloneNode is failing on XQilla. 
-							//doc = static_cast<DOMDocument *>(ins->cloneNode(true));
-							//using the following instead..
-							{
-								doc = XML::Manager::parser()->newDoc(ins);
-								xercesc::DOMNode* inod = doc->importNode(ins,true);	 //importNode always takes a copy - returns DOMNode* inod =  new node pointer.
-								doc->replaceChild(inod,doc->getDocumentElement());
-//								doc->appendChild(inod);
-							}
-							//until xqilla works.
-							
+							doc = XML::Manager::parser()->newDoc(ins);
 						} break;
 						default: {
 							*Logger::log << error << Log::LI << "XPath action not yet supported for documents." << Log::LO << Log::blockend;
