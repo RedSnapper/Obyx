@@ -18,7 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 ------------------------------------------------------------------------------------
 CHANGELOG file
 v1.10.03.11
-	Bugfix.  when VALIDATE_ALWAYS is set, allow for anonymous xml.
+	Bugfix.  when OBYX_VALIDATE_ALWAYS is set, allow for anonymous xml.
 v1.10.03.10
 	Bugfix.  DOCTYPES now persist except for fragments. fragments lose DOCTYPES (and entities will therefore break)
 v1.10.03.08
