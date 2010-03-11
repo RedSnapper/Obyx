@@ -177,7 +177,7 @@ Document::Document(DataItem* inputfile,load_type use_loader, std::string fp, Oby
 		delete docerrs; docerrs=0;
 		if ( ! errs.empty() ) {
 			*Logger::log << Log::error << Log::LI << "Error. Document parse error." << Log::LO;
-			*Logger::log << Log::RI << errs << Log::RO;
+			*Logger::log << Log::LI << Log::RI << errs << Log::RO << Log::LO;
 			if (inputfile != NULL) {
 				*Logger::log << Log::LI ;
 				*Logger::log << Log::notify;
