@@ -447,14 +447,14 @@ Iteration::~Iteration() {
 
 void Iteration::addInputType(InputType* i) {
 	if (inputs.size() > 0) {
-		*Logger::log << Log::error << Log::LI << "Error. A maximum of one control is legal for iteration." << Log::LO; 
+		*Logger::log << Log::syntax << Log::LI << "Syntax Error. A maximum of one control is legal for iteration." << Log::LO; 
 		trace();
 		*Logger::log << Log::blockend;
 	} else {
 		if (i->wotzit == control) {
 			inputs.push_back(i);
 		} else {
-			*Logger::log << Log::error << Log::LI << "Error. Only control and body are legal for iteration." << Log::LO; 
+			*Logger::log << Log::syntax << Log::LI << "Syntax Error. Only control and body are legal for iteration." << Log::LO; 
 			trace();
 			*Logger::log << Log::blockend;
 		}
@@ -463,14 +463,14 @@ void Iteration::addInputType(InputType* i) {
 
 void Iteration::addDefInpType(DefInpType* i) {
 	if (definputs.size() > 0) {
-		*Logger::log << Log::error << Log::LI << "Error. A maximum of one body is legal for iteration." << Log::LO; 
+		*Logger::log << Log::syntax << Log::LI << "Syntax Error. A maximum of one body is legal for iteration." << Log::LO; 
 		trace();
 		*Logger::log << Log::blockend;
 	} else {
 		if (i->wotzit == body) {
 			definputs.push_back(i);
 		} else {
-			*Logger::log << Log::error << Log::LI << "Error. Only control and body are legal for iteration." << Log::LO; 
+			*Logger::log << Log::syntax << Log::LI << "Syntax Error. Only control and body are legal for iteration." << Log::LO; 
 			trace();
 			*Logger::log << Log::blockend;
 		}
