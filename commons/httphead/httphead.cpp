@@ -126,7 +126,7 @@ string			Httphead::cacheprivacy		= "public";
 string			Httphead::pragmaline		= "no-cache";
 //string			Httphead::mimevalue			= "application/xhtml+xml; charset=utf-8";
 string			Httphead::mimevalue			= "text/html; charset=utf-8";
-string			Httphead::servervalue		= "Obyx/09";
+string			Httphead::servervalue		= "Obyx/version1";
 string			Httphead::rangevalue		= "bytes";
 string			Httphead::p3pline			= "";
 
