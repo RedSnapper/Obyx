@@ -34,8 +34,8 @@
 		B56171840AD134C00032F167 /* instruction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B56171830AD134C00032F167 /* instruction.cpp */; };
 		B56171DF0AD13B430032F167 /* comparison.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B56171DE0AD13B430032F167 /* comparison.cpp */; };
 		B56234A10FEFC9A400CF092E /* itemstore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B56234A00FEFC9A400CF092E /* itemstore.cpp */; };
-		B562F3980F6545DC008FB8C0 /* libxerces-c-3.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B562F3970F6545DC008FB8C0 /* libxerces-c-3.0.dylib */; };
 		B568C3030CC63C1600B1EBFF /* connection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B568C2FB0CC63C1600B1EBFF /* connection.cpp */; };
+		B580E01B1149254B00A49926 /* libxerces-c-3.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B5F9885D1148037000DB37C3 /* libxerces-c-3.0.dylib */; };
 		B58852A60CC39E1B009D0279 /* regex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B58852A10CC39E1B009D0279 /* regex.cpp */; };
 		B58DA8C21104B05E00C34661 /* fragmentobject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B58DA8C11104B05E00C34661 /* fragmentobject.cpp */; };
 		B5A68E9209CF266B00D69316 /* pairqueue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5A68E9109CF266B00D69316 /* pairqueue.cpp */; };
@@ -179,7 +179,6 @@
 		B56171DE0AD13B430032F167 /* comparison.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = comparison.cpp; sourceTree = "<group>"; };
 		B562349F0FEFC9A400CF092E /* itemstore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = itemstore.h; sourceTree = "<group>"; };
 		B56234A00FEFC9A400CF092E /* itemstore.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = itemstore.cpp; sourceTree = "<group>"; };
-		B562F3970F6545DC008FB8C0 /* libxerces-c-3.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libxerces-c-3.0.dylib"; path = "/usr/local/lib/libxerces-c-3.0.dylib"; sourceTree = "<absolute>"; };
 		B568C2FB0CC63C1600B1EBFF /* connection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = connection.cpp; sourceTree = "<group>"; };
 		B578E15C104417200051CA32 /* obyxdep.xsd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = obyxdep.xsd; path = grammars/obyxdep.xsd; sourceTree = SOURCE_ROOT; };
 		B58852A00CC39E1B009D0279 /* regex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = regex.h; sourceTree = "<group>"; };
@@ -226,6 +225,7 @@
 		B5F0C0440A4C3B0A00CC363D /* IInfInfo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IInfInfo.cpp; sourceTree = "<group>"; };
 		B5F0C0460A4C3B0A00CC363D /* IInfNetworkGraphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IInfNetworkGraphics.cpp; sourceTree = "<group>"; };
 		B5F0C0480A4C3B0A00CC363D /* IInfReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IInfReader.cpp; sourceTree = "<group>"; };
+		B5F9885D1148037000DB37C3 /* libxerces-c-3.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libxerces-c-3.0.dylib"; path = "/usr/local/lib/libxerces-c-3.0.dylib"; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -234,8 +234,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				B51648170CBB8285000995D5 /* libdl.dylib in Frameworks */,
-				B562F3980F6545DC008FB8C0 /* libxerces-c-3.0.dylib in Frameworks */,
 				B53D233910568020008FC5CB /* libxqilla.dylib in Frameworks */,
+				B580E01B1149254B00A49926 /* libxerces-c-3.0.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -245,9 +245,9 @@
 		0249A662FF388D9811CA2CEA /* External Frameworks and Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				B5F9885D1148037000DB37C3 /* libxerces-c-3.0.dylib */,
 				B51648160CBB8285000995D5 /* libdl.dylib */,
 				B599F9230F583DEA00AD3D2C /* libxqilla.dylib */,
-				B562F3970F6545DC008FB8C0 /* libxerces-c-3.0.dylib */,
 			);
 			name = "External Frameworks and Libraries";
 			sourceTree = "<group>";
