@@ -1,5 +1,5 @@
 /*
- * xmlobject.cpp is authored and maintained by Sam Lindley and Ben Griffin of Red Snapper Ltd 
+ * xmlobject.cpp is authored and maintained by Ben Griffin of Red Snapper Ltd 
  * xmlobject.cpp is a part of Obyx - see http://www.obyx.org .
  * Obyx is protected as a trade mark (2483369) in the name of Red Snapper Ltd.
  * This file is Copyright (C) 2006-2010 Red Snapper Ltd. http://www.redsnapper.net
@@ -41,9 +41,7 @@ XMLObject::XMLObject(const xercesc::DOMDocument* s) : DataItem(),x(1),x_doc(NULL
 		x_doc = XML::Manager::parser()->newDoc(s);
 	}	
 }
-
 XMLObject::XMLObject(xercesc::DOMDocument*& s) : DataItem(),x(2),x_doc(s) {}
-
 XMLObject::XMLObject(const xercesc::DOMNode* s) : DataItem(),x(3),x_doc(NULL) {
 	if  ( s != NULL ) {
 		x_doc = XML::Manager::parser()->newDoc(s);
@@ -477,8 +475,6 @@ bool XMLObject::getns(const u_str& code, u_str& result,bool release) {
 
 XMLObject::~XMLObject() {
 	if (x_doc != NULL) {
-//		DOMDocumentType* dt = x_doc->getDoctype();
-//		dt->release();
 		x_doc->release();
 		x_doc = NULL;
 	}	

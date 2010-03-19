@@ -109,7 +109,7 @@ The Obyx source code is currently available in a SVN repository.
 To checkout the source code do the following from the ~/RSapps directory:
 
 	$cd /WWW_ROOT/source
-	$svn co http://svn.obyx.org/obyx/PB1002 obyx
+	$svn co http://svn.obyx.org/obyx/supported/version1 obyx
 
 To update the source files any later time 
 

@@ -41,7 +41,6 @@ class Iteration;
 
 class Function : public ObyxElement {
 private:
-//	friend class InputType;
 	friend class PairQueue;
 	friend class Document;
 	
@@ -49,7 +48,6 @@ private:
 	virtual bool evaluate_this() =0;					//private evaluation
 	bool pre_evaluate();
 
-//	bool isolated;										//push / pop the current store
 	bool deferred;										//
 	bool finalised;
 	bool stream_is_set;									//semaphore for catching errors.

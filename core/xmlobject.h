@@ -1,5 +1,5 @@
 /*
- * xmlobject.h is authored and maintained by Sam Lindley and Ben Griffin of Red Snapper Ltd 
+ * xmlobject.h is authored and maintained by Ben Griffin of Red Snapper Ltd 
  * xmlobject.h is a part of Obyx - see http://www.obyx.org .
  * Obyx is protected as a trade mark (2483369) in the name of Red Snapper Ltd.
  * This file is Copyright (C) 2006-2010 Red Snapper Ltd. http://www.redsnapper.net

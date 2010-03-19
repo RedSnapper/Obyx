@@ -358,7 +358,6 @@ string Environment::response_cookies(bool explaining) {
 				if (this_cookie_value.compare(ck_val) == 0) urlenc = false;
 				if (explaining) {
 					XMLChar::encode(this_cookie_name);
-//					String::xmlencode(this_cookie_name);
 					cookiestream << "<m:header name=\"Set-Cookie\" cookie=\"" << this_cookie_name << "\">";
 					cookiestream << "<m:subhead name=\"" << this_cookie_name << "\" value=\"" << ck_val << "\"";
 					if (urlenc) { cookiestream << " urlencoded=\"true\""; }
@@ -405,44 +404,56 @@ string Environment::response_cookies(bool explaining) {
 			} 
 		}
 	} 
-	//now just do request cookies.
+	//now do request cookies where their expiry date has changed..
 	for(var_map_type::iterator imd = ck_expires_map.begin(); imd != ck_expires_map.end(); imd++) {
 		this_cookie_name = imd->first; 
 		this_cookie_expires = imd->second;
-		if (getcookie_req(this_cookie_name,this_cookie_value)) {
-			if ( ! this_cookie_name.empty() && ! this_cookie_value.empty() ) {
-				if (explaining) {
-					XMLChar::encode(this_cookie_name);
-//					String::xmlencode(this_cookie_name);
-					cookiestream << "<m:header name=\"Set-Cookie\" cookie=\"" << this_cookie_name << "\">";
-					cookiestream << "<m:subhead name=\"" << this_cookie_name << "\" value=\"" << this_cookie_value << "\"";
-					cookiestream << "/>";
-				} else {
-					cookiestream << Httphead::cookiesig << ": " << this_cookie_name << "=" << this_cookie_value;
-				}
-				if ( ( !this_cookie_expires.empty() ) && ( this_cookie_expires.compare("session") != 0) ) {
-					if (this_cookie_expires.compare("persist") == 0) {
-						this_cookie_expires = yearahead; 
+		if (!getcookie_res(this_cookie_name,this_cookie_value)) { //We don't want to rewrite cookies that have been composited as responses already.
+			if (getcookie_req(this_cookie_name,this_cookie_value)) {
+				if ( ! this_cookie_name.empty() && ! this_cookie_value.empty() ) {
+					bool urlenc = true;
+					std::string ck_val = this_cookie_value;
+					String::urlencode(ck_val);
+					if (this_cookie_value.compare(ck_val) == 0) { 
+						urlenc = false;
 					} else {
-						if (this_cookie_expires.compare("discard") == 0) {
-							this_cookie_expires = yearago; 
-						} 
+						this_cookie_value = ck_val;
 					}
 					if (explaining) {
-						cookiestream << "<m:subhead name=\"expires\" value=\"" << this_cookie_expires << "\"/>";
+						XMLChar::encode(this_cookie_name);
+						cookiestream << "<m:header name=\"Set-Cookie\" cookie=\"" << this_cookie_name << "\">";
+						cookiestream << "<m:subhead name=\"" << this_cookie_name << "\" value=\"" << this_cookie_value << "\"";
+						if (urlenc) {
+							cookiestream << " urlencoded=\"true\"";
+						}
+						cookiestream << "/>";
 					} else {
-						cookiestream << "; expires=" << this_cookie_expires;
+						cookiestream << Httphead::cookiesig << ": " << this_cookie_name << "=" << this_cookie_value;
+					}
+					if ( ( !this_cookie_expires.empty() ) && ( this_cookie_expires.compare("session") != 0) ) {
+						if (this_cookie_expires.compare("persist") == 0) {
+							this_cookie_expires = yearahead; 
+						} else {
+							if (this_cookie_expires.compare("discard") == 0) {
+								this_cookie_expires = yearago; 
+							} 
+						}
+						if (explaining) {
+							cookiestream << "<m:subhead name=\"expires\" value=\"" << this_cookie_expires << "\"/>";
+						} else {
+							cookiestream << "; expires=" << this_cookie_expires;
+						}
+					}
+					if (explaining) {
+						cookiestream << "</m:header>";
+					} else {
+						cookiestream << Httphead::crlf;
 					}
 				}
-				if (explaining) {
-					cookiestream << "</m:header>";
-				} else {
-					cookiestream << Httphead::crlf;
-				}
+				
 			}
-			
 		}
-	} 
+	}
 	return cookiestream.str();
 }
 

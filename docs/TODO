@@ -21,9 +21,17 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 TODO File
 Following is the list of Obyx-related issues.
 
-Feature Requests
+Future Directions for later versions
 ------------------------------------------------------------------------------------
-Mantis #22 - merging iko and flowfunctions. #http://mantis.redsnapper.net/view.php?id=22
+Merging iko and flowfunctions. #http://mantis.redsnapper.net/view.php?id=22
+Consider expression operation (mathematic expression handler). (kp/jb)
+Consider an interaction mechanism (eg space) (ao/jpw)
+Consider multithread / parallel - especially for handling many requests. (kp/jb/ao)
+Consider listen/wait  (ao/jpw/kp)
+Consider a script handler object instead of a dumbed down commandline (jb/jpw)
+Consider adding xpath support to the non-store spaces.
+Consider a plug-in mechanism
+Consider authoring the config file as xml
 
 Outstanding Issues
 ------------------------------------------------------------------------------------

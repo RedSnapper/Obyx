@@ -218,7 +218,7 @@ namespace Fetch {
 //		body->clear(); //it's not ours to free...
 	}
 
-//used by OSI Request directly. maxRedirects
+//used by OSI Request directly.
 	bool HTTPFetch::doRequest(string& headerString,string& bodyString,string& errstr) {
 //		processErrorCode(curl_easy_setopt(handle, CURLOPT_VERBOSE, true));
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_NOSIGNAL, 1), errstr);

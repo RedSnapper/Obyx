@@ -1,4 +1,4 @@
-/* httphead.cpp is authored and maintained by Sam Lindley, Ben Griffin of Red Snapper Ltd 
+/* httphead.cpp is authored and maintained by Ben Griffin of Red Snapper Ltd 
  * httphead.cpp is a part of Obyx - see http://www.obyx.org .
  * Obyx is protected as a trade mark (2483369) in the name of Red Snapper Ltd.
  * This file is Copyright (C) 2006-2010 Red Snapper Ltd. http://www.redsnapper.net
@@ -306,9 +306,7 @@ void Httphead::doheader(ostream* x,bool explaining,const response_format& f) {
 		*x << f.response_i << f.protocol_i;
 		if ( (!nocodeline) || explaining) {
 			*x << f.protoval_i;
-			if ((httpsig.compare("Status") != 0) || (&f != &Httphead::xml_fmt)) {
-				*x << f.version_i << httpsig << f.version_o;
-			}
+			*x << f.version_i << httpsig << f.version_o;
 			*x << f.code_i << httpcode << f.code_o;
 			*x << f.reason_i << codemessage << f.reason_o ; 
 			*x << f.protoval_o; 

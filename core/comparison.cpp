@@ -101,7 +101,7 @@ bool Comparison::evaluate_this() {
 	pair<long long,bool> naccumulator;
 	if (!cmp_evaluated ) {			//are all the comparators evaluated?
 		cmp_evaluated = true;
-		for ( unsigned int i = 0; i < inputs.size(); i++ ) {
+		for ( size_t i = 0; i < inputs.size(); i++ ) {
 			bool wasfinal = inputs[i]->evaluate();
 			cmp_evaluated = cmp_evaluated && wasfinal;
 		}
@@ -269,7 +269,6 @@ bool Comparison::evaluate_this() {
 								}
 							} break;
 						}
-						
 						if (scope == qxml::all) {
 							compare_bool = compare_bool && compare_test; 
 						} else {

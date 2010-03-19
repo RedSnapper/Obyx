@@ -41,7 +41,7 @@ using namespace Log;
 using namespace qxml;
 
 int main(int argc, char *argv[]) {
-	string version = "Obyx v1.10.03.11 Supported (Xerces 3.0/XQilla 2.2)";
+	string version = "Obyx v1.10.03.19 Supported (Xerces 3.0/XQilla 2.2)";
     if (argc == 2 && argv[1][0]=='-' && argv[1][1]=='V' ) {
 		string compiledate(__DATE__);
 		string compiletime(__TIME__);

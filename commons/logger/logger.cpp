@@ -38,7 +38,7 @@
 using namespace Log;
 
 Logger*				Logger::log = NULL;
-string				Logger::title="Obyx Log";
+string				Logger::title="Logger";
 std::ostringstream* Logger::lstore = NULL;
 
 //startup identifies if we are outputting as a cgi script or as a commandline utility.
@@ -194,7 +194,7 @@ Logger& Logger::operator<< (const double val ) {
 }
 
 Logger& Logger::operator<< (const bool val ) { 
-	if (log->top_line && log->syslogging ) { log->syslogbuffer << val;}
+	if (log->top_line && log->syslogging) { log->syslogbuffer << val;}
 	if ( logging_on && ( type_stack.top() != debug || debugging()) )  {
 		if (val) {
 			*o << "true"; 
@@ -206,7 +206,7 @@ Logger& Logger::operator<< (const bool val ) {
 }
 
 Logger& Logger::operator<< (const int val ) { 
-	if (log->top_line && log->syslogging ) { log->syslogbuffer << val;}
+	if (log->top_line && log->syslogging) { log->syslogbuffer << val;}
 	if ( logging_on && ( type_stack.top() != debug || debugging()) )  {
 		*o << static_cast<int>(val); 
 	}
@@ -214,7 +214,7 @@ Logger& Logger::operator<< (const int val ) {
 }	
 
 Logger& Logger::operator<< (const unsigned int val ) { 
-	if (log->top_line && log->syslogging ) { log->syslogbuffer << val;}
+	if (log->top_line && log->syslogging) { log->syslogbuffer << val;}
 	if ( logging_on && ( type_stack.top() != debug || debugging()) )  {
 		*o << static_cast<unsigned int>(val); 
 	}
@@ -265,9 +265,9 @@ Logger& Logger::operator<< (const std::string msg ) {
 	if (log->top_line && log->syslogging) { log->syslogbuffer << msg;}
 	string mesg(msg);
 	if ( logging_on && (type_stack.top() != debug || debugging()) )  {
-//		if ( type_stack.top() != raw ) {
-			if (!inraw) XMLChar::encode(mesg);
-//		} 
+		if (!inraw) { 
+			XMLChar::encode(mesg);
+		}
 		*o << mesg;  
 	}
 	return *this;

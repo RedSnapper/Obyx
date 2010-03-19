@@ -544,12 +544,13 @@ bool IKO::evaltype(inp_type the_space, bool release, bool eval,kind_type ikind,D
 							}														
 						}
 						if ((!finished && exist_test == ut_value) || (par == NULL && !errstring.empty())) {
+							*Logger::log  << Log::error;
 							if (!errstring.empty()) {
 								std::string err_msg; transcode(input_name.c_str(),err_msg);
-								*Logger::log << Log::error << Log::LI << "Error. Field " << err_msg << " has an error. " << errstring << Log::LO;
+								*Logger::log << Log::LI << "Error. Field " << err_msg << " has an error. " << errstring << Log::LO;
 							} else {
 								std::string err_msg; transcode(input_name.c_str(),err_msg);
-								*Logger::log << Log::error << Log::LI << "Error. Field " << err_msg << " does not exist or is not available." << Log::LO;
+								*Logger::log << Log::LI << "Error. Field " << err_msg << " does not exist or is not available." << Log::LO;
 							}
 							trace();
 							*Logger::log << Log::blockend;

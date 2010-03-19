@@ -59,7 +59,6 @@ protected:
 	bool evaltype(inp_type, bool, bool, kind_type, DataItem*&,DataItem*&); 
 	
 public:
-
 	static void init();
 	static bool currentenv(const string&,const usage_tests,const IKO*,DataItem*&);
 	bool getexists() const {return exists;}

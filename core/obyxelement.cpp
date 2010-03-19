@@ -424,7 +424,6 @@ ObyxElement::~ObyxElement() {
 void ObyxElement::finalise() {
 	Function::finalise();
 	FragmentObject::finalise();
-	
 	if ( ! ce_map.empty() ) {
 		*Logger::log << Log::error << Log::LI << "Error. Not all ObyxElements were deleted."  << Log::LO << Log::blockend;	
 		for( long_map::iterator imt = ce_map.begin(); imt != ce_map.end(); imt++) {
@@ -472,7 +471,7 @@ void ObyxElement::init(Vdb::ServiceFactory*& dbsf_i) {
 		if (dbc->isopen())  {
 			dbc->database(Environment::Database());
 		} else {
-			*Logger::log << Log::error << Log::LI << "SQL Service '" << dbservice << "' was fine, but connection to the database failed." << Log::LO << Log::blockend; 					
+			*Logger::log << Log::error << Log::LI << "SQL Service. The '" << dbservice << "' library was loaded, but the host connection failed using the current host, user, port, and userpassword settings." << Log::LO << Log::blockend; 					
 		}
 	} 
 	FragmentObject::init();

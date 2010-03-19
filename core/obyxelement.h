@@ -78,6 +78,7 @@ namespace qxml {
 using namespace qxml;
 class Document;
 class Iteration;
+
 class ObyxElement {
 private:
 	static long_map ce_map;

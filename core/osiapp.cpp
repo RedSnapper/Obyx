@@ -221,9 +221,21 @@ void OsiAPP::compile_http_response(string& head, string& body, string& the_resul
 	res_vals[1] = res_vs.first;
 	res_vals[2] = res_vs.second;
 	res << "<osi:response";
-	if ( !res_vals[0].empty()) res << " version=\"" << res_vals[0] << "\"";
-	if ( !res_vals[1].empty()) res << " code=\"" << res_vals[1] << "\"";
-	if ( !res_vals[2].empty()) res << " reason=\"" << res_vals[2] << "\"";
+	if ( !res_vals[0].empty()) { 
+		res << " version=\"" << res_vals[0] << "\""; 
+	} else {
+		res << " version=\"HTTP/1.0\"";
+	}
+	if ( !res_vals[1].empty()) {
+		res << " code=\"" << res_vals[1] << "\"";
+	} else {
+		res << " code=\"200\"";
+	}
+	if ( !res_vals[2].empty()) { 
+		res << " reason=\"" << res_vals[2] << "\"";
+	} else {
+		res << " reason=\"OK\"";
+	}
 	res << ">";
 	string msg = head+body;
 	compile_message(msg,res);
@@ -250,32 +262,11 @@ void OsiAPP::compile_http_request(string& head, string& body, string& the_result
 	String::split(' ',res_val,res_vs);
 	res_vals[1] = res_vs.first;
 	res_vals[2] = res_vs.second;
-/*	
-	size_t nextPos, pos = 0; unsigned int n=0;
-	do {
-		nextPos = head.find(' ', pos);
-		if(nextPos == string::npos || nextPos > hd_endLinePos ) {
-			if(hd_endLinePos != string::npos) {
-				res_vals[n++] = head.substr(pos, hd_endLinePos - pos);
-			} else {
-				res_vals[n++] = head.substr(pos, hd_endLinePos);
-			}
-		} else {
-			res_vals[n++] = head.substr(pos, nextPos-pos);
-			pos = ++nextPos; 
-		}
-	} while (nextPos != string::npos && nextPos < hd_endLinePos);
-	if(hd_endLinePos != string::npos) {
-		head.erase(0, hd_endLinePos+2);
-	} else {
-		head.erase(0, hd_endLinePos);
-	}
-*/	
 	res << "<osi:request";
 	String::xmlencode(res_vals[1]);
-	if ( !res_vals[0].empty()) res << " method=\"" << res_vals[0] << "\"";
-	if ( !res_vals[1].empty()) res << " url=\"" << res_vals[1] << "\"";
-	if ( !res_vals[2].empty()) res << " version=\"" << res_vals[2] << "\"";
+	if ( !res_vals[0].empty()) { res << " method=\"" << res_vals[0] << "\""; }
+	if ( !res_vals[1].empty()) { res << " url=\"" << res_vals[1] << "\""; }
+	if ( !res_vals[2].empty()) { res << " version=\"" << res_vals[2] << "\""; }
 	res << ">";
 	string msg = head+crlfcrlf+body;
 	compile_message(msg,res);
@@ -446,7 +437,7 @@ void OsiAPP::decompile_message(const xercesc::DOMNode* n,vector<std::string>& he
 									while (boundary_clash) {
 										loc_boundary=boundary;
 										loc_boundary.append(String::tofixedstring(6,counter++));
-										for (unsigned int x=0; x < messages.size(); x++) {
+										for (size_t x=0; x < messages.size(); x++) {
 											boundary_clash = messages[x].find(loc_boundary) != string::npos;
 											if (boundary_clash) break;
 										}

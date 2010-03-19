@@ -187,9 +187,9 @@ void Instruction::do_function() {
 }
 
 bool Instruction::evaluate_this() {
+	size_t n = inputs.size();
 	if ( !inputsfinal ) {
 		inputsfinal = true;
-		size_t n = inputs.size();
 		if (n == 0) {
 			*Logger::log << Log::error << Log::LI << "Error. Instruction requires a minimum of one input." << Log::LO;
 			trace();
@@ -206,24 +206,24 @@ bool Instruction::evaluate_this() {
 				do_function();
 			} break;
 			case move: {
-				if ( inputs.size() > 1 ) {
+				if ( n > 1 ) {
 					*Logger::log << Log::error << Log::LI << "Error. Operation 'assign' accepts only the first input. Use operation 'append' for multiple input instructions." << Log::LO;
 					trace();
 					*Logger::log << Log::blockend;
 				}
-				if ( inputs.size() > 0 ) {	
+				if ( n > 0 ) {	
 					DataItem* srr = NULL;
 					inputs[0]->results.takeresult(srr);
 					results.setresult(srr);
 				}
 			} break;
 			case kind: {
-				if ( inputs.size() > 1 ) {
+				if ( n > 1 ) {
 					*Logger::log << Log::error << Log::LI << "Error. Operation 'kind' accepts only one input." << Log::LO;
 					trace();
 					*Logger::log << Log::blockend;
 				}
-				if ( inputs.size() > 0 ) {	
+				if ( n > 0 ) {	
 					DataItem* srr = NULL;
 					string value;
 					inputs[0]->results.takeresult(srr);
@@ -251,7 +251,7 @@ bool Instruction::evaluate_this() {
 				std::string accumulator;
 				unsigned long long naccumulator = 0;
 				double daccumulator = 0;
-				for ( unsigned int i = 0; i < inputs.size(); i++ ) {
+				for ( size_t i = 0; i < n; i++ ) {
 					if ( inputs[i]->wotzit == input ) {					
 						inputs[i]->results.takeresult(srcval); //final stuff here - this is always right - see above
 						if (firstval) {
@@ -531,7 +531,7 @@ bool Instruction::evaluate_this() {
 					case kind:
 						break;
 					case position: {
-						if (inputs.size() < 2) {
+						if (n < 2) {
 							*Logger::log << Log::error << Log::LI << "Error. Operation 'position' needs two inputs." << Log::LO;
 							trace();
 							*Logger::log << Log::blockend;
@@ -554,7 +554,7 @@ bool Instruction::evaluate_this() {
 					case maximum: 
 					case minimum: 
 					case divide: {
-						if (inputs.size() < 2) {
+						if (n < 2) {
 							*Logger::log << Log::error << Log::LI << "Error. Arithmetic operations need at least two inputs." << Log::LO;
 							trace();
 							*Logger::log << Log::blockend;
@@ -570,7 +570,7 @@ bool Instruction::evaluate_this() {
 						}
 					} break;
 					case qxml::remainder: {
-						if (inputs.size() < 2) {
+						if (n < 2) {
 							*Logger::log << Log::error << Log::LI << "Error. 'remainder' operation needs at least two inputs." << Log::LO;
 							trace();
 							*Logger::log << Log::blockend;
@@ -590,7 +590,7 @@ bool Instruction::evaluate_this() {
 						}
 					} break;
 					case quotient: {
-						if (inputs.size() < 2) {
+						if (n < 2) {
 							*Logger::log << Log::error << Log::LI << "Error. 'quotient' operation needs at least two inputs." << Log::LO;
 							trace();
 							*Logger::log << Log::blockend;

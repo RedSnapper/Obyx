@@ -51,7 +51,6 @@
 #include <xercesc/dom/DOMLSSerializer.hpp>
 #include <xercesc/dom/DOMNamedNodeMap.hpp>
 #include <xercesc/dom/DOMNode.hpp>
-//#include <xercesc/dom/DOMStringList.hpp>
 
 #include <xercesc/validators/common/Grammar.hpp>
 
