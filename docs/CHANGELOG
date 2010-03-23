@@ -17,7 +17,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
-v1.10.03.20
+v1.10.03.23
 	Bugfix.  Single quotes are often contextually required to be urlencoded (RFC2396 Para. 2.3) 
 v1.10.03.19
 	Bugfix.  request cookies with changed expiry persist in response.
