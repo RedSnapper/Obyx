@@ -504,7 +504,7 @@ namespace String {
 	}
 
 //---------------------------------------------------------------------------
-// as defined in RFC2068
+// as defined in RFCs 1738 2396
 		void urlencode(std::string& s) {
 			std::string result;
 			unsigned char c;
@@ -522,6 +522,7 @@ namespace String {
 					case '=':
 					case '+':  // until here: reserved
 					case '"':
+					case '\'':
 					case '#':
 					case '%':
 					case '<':
