@@ -177,11 +177,11 @@ bool IKO::currentenv(const string& req,const usage_tests exist_test, const IKO* 
 	if( j != current_types.end() ) {
 		switch (j->second) {
 			case c_vnumber: {
-				exists = Environment::getenv("CURRENT_VERSION_NUMBER",result);
+				exists = Environment::getenv("OBYX_VERSION_NUMBER",result);
 				container = DataItem::factory(result,di_text);
 			} break;
 			case c_version: {
-				exists = Environment::getenv("CURRENT_VERSION",result);
+				exists = Environment::getenv("OBYX_VERSION",result);
 				container = DataItem::factory(result,di_text);
 			} break;
 			case c_object: {

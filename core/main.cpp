@@ -51,8 +51,8 @@ int main(int argc, char *argv[]) {
 		Logger::set_title(version);
 		XMLChar::init();
 		Environment::init(argc,argv);							//yes, process post please!
-		Environment::setenv("CURRENT_VERSION",version);			//Let coders know what version we are in!
-		Environment::setenv("CURRENT_VERSION_NUMBER",v_number);	//Let coders know what version number we are in!
+		Environment::setenv("OBYX_VERSION",version);			//Let coders know what version we are in!
+		Environment::setenv("OBYX_VERSION_NUMBER",v_number);	//Let coders know what version number we are in!
 		ostream* os = Logger::startup();		//Logger
 		Httphead::init(os);
 		Document::init();
