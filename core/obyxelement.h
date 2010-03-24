@@ -71,7 +71,7 @@ namespace qxml {
 	typedef std::map<unsigned long, std::string > long_map; 
 	
 	typedef enum { ut_value, ut_existence, ut_significant } usage_tests;
-	typedef enum { c_object, c_name, c_request, c_response, c_time, c_timing, c_version, c_http, c_point, c_cookies } current_type;	//what kind of dataItem
+	typedef enum { c_object, c_name, c_request, c_response, c_time, c_timing, c_version, c_vnumber, c_http, c_point, c_cookies } current_type;	//what kind of dataItem
 	typedef std::map< std::string, current_type > current_type_map; 
 	
 }

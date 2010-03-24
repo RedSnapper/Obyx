@@ -176,8 +176,9 @@ bool IKO::currentenv(const string& req,const usage_tests exist_test, const IKO* 
 	current_type_map::const_iterator j = current_types.find(req);
 	if( j != current_types.end() ) {
 		switch (j->second) {
+			case c_vnumber: 
 			case c_version: {
-				exists = Environment::getenv("OBYX_VERSION",result);
+				exists = Environment::getenv(req,result);
 				container = DataItem::factory(result,di_text);
 			} break;
 			case c_object: {
@@ -803,7 +804,7 @@ bool IKO::evaltype(inp_type the_space, bool release, bool eval,kind_type ikind,D
 						}
 					} else { //it's an OBYX_
 						if ( sysenv_name.compare("OBYX_VERSION") == 0 ) {
-							exists = Environment::getenv(sysenv_name,fresult);
+							errmsg = "is restricted. Use CURRENT_VERSION instead";
 						} else {
 							errmsg = "is restricted.";
 						}
@@ -892,6 +893,7 @@ void IKO::init() {
 	current_types.insert(current_type_map::value_type("TIMING",c_timing));
 	current_types.insert(current_type_map::value_type("TIME",c_time));
 	current_types.insert(current_type_map::value_type("VERSION",c_version));
+	current_types.insert(current_type_map::value_type("VERSION_NUMBER",c_vnumber));
 	current_types.insert(current_type_map::value_type("HTTP",c_http));
 	current_types.insert(current_type_map::value_type("POINT",c_point));
 	current_types.insert(current_type_map::value_type("COOKIES",c_cookies));

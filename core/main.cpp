@@ -41,16 +41,18 @@ using namespace Log;
 using namespace qxml;
 
 int main(int argc, char *argv[]) {
-	string version = "Obyx v1.10.03.23 Supported (Xerces 3.0/XQilla 2.2)";
-    if (argc == 2 && argv[1][0]=='-' && argv[1][1]=='V' ) {
+ 	string v_number = "1.100324";
+	string version  = "Obyx v"+v_number+" Supported (Xerces 3.0/XQilla 2.2)";
+   if (argc == 2 && argv[1][0]=='-' && argv[1][1]=='V' ) {
 		string compiledate(__DATE__);
 		string compiletime(__TIME__);
 		std::cout << version << ", Build:" << compiledate << " " << compiletime;
 	} else {
 		Logger::set_title(version);
 		XMLChar::init();
-		Environment::init(argc,argv);					//yes, process post please!
-		Environment::setenv("OBYX_VERSION",version);	//Let coders know what version we are in!
+		Environment::init(argc,argv);							//yes, process post please!
+		Environment::setenv("CURRENT_VERSION",version);			//Let coders know what version we are in!
+		Environment::setenv("CURRENT_VERSION_NUMBER",v_number);	//Let coders know what version number we are in!
 		ostream* os = Logger::startup();		//Logger
 		Httphead::init(os);
 		Document::init();
