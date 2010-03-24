@@ -176,9 +176,12 @@ bool IKO::currentenv(const string& req,const usage_tests exist_test, const IKO* 
 	current_type_map::const_iterator j = current_types.find(req);
 	if( j != current_types.end() ) {
 		switch (j->second) {
-			case c_vnumber: 
+			case c_vnumber: {
+				exists = Environment::getenv("CURRENT_VERSION_NUMBER",result);
+				container = DataItem::factory(result,di_text);
+			} break;
 			case c_version: {
-				exists = Environment::getenv(req,result);
+				exists = Environment::getenv("CURRENT_VERSION",result);
 				container = DataItem::factory(result,di_text);
 			} break;
 			case c_object: {
