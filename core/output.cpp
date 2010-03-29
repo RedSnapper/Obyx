@@ -51,25 +51,10 @@ Output::Output(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el): IKO(n,
 	errs = new ostringstream();
 	u_str str_esc,str_encoder,str_process,str_type,str_value,str_part;
 	
-	if (Environment::UseDeprecated) {
-		if ( XML::Manager::attribute(n,UCS2(L"type"),str_type)  ) {
-			output_type_map::const_iterator j = output_types.find(str_type);
-			if( j != output_types.end() ) {
-				type = j->second; 
-			} else {
-				string err_type; transcode(str_type.c_str(),err_type);
-				*Logger::log << Log::syntax << Log::LI << "Syntax Error. Output: type '" << err_type << "'  not recognised needs to be one of:";
-				*Logger::log << "immediate,discard,cookie,store,http,ck_expires,ck_value,ck_domain,ck_value." << Log::LO;
-				trace();
-				*Logger::log  << Log::blockend;
-			}
-		}
-	} else {
-		if ( XML::Manager::attribute(n,UCS2(L"type"),str_type)  ) {
-			*Logger::log << Log::syntax << Log::LI << "Syntax Error. Output: attribute 'type' should be 'space'" << Log::LO;
-			trace();
-			*Logger::log  << Log::blockend;
-		}
+	if ( XML::Manager::attribute(n,UCS2(L"type"),str_type)  ) {
+		*Logger::log << Log::syntax << Log::LI << "Syntax Error. Output: attribute 'type' should be 'space'" << Log::LO;
+		trace();
+		*Logger::log  << Log::blockend;
 	}
 	if ( XML::Manager::attribute(n,UCS2(L"space"),str_type)  ) {
 		output_type_map::const_iterator j = output_types.find(str_type);
@@ -96,24 +81,6 @@ Output::Output(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el): IKO(n,
 				trace();
 				*Logger::log  << Log::blockend;
 			}
-		}
-	}
-	
-	if (Environment::UseDeprecated) {
-		switch(type) {
-			case out_cookie_path: {
-				type=out_cookie;
-				part=path;
-			} break;
-			case out_cookie_expiry: {
-				type=out_cookie;
-				part=expires;
-			} break;
-			case out_cookie_domain: {
-				type=out_cookie;
-				part=domain;
-			} break;
-			default: break;
 		}
 	}
 	
@@ -510,38 +477,6 @@ void Output::init() {
 	output_types.insert(output_type_map::value_type(UCS2(L"namespace"), out_xmlnamespace));
 	output_types.insert(output_type_map::value_type(UCS2(L"grammar"), out_xmlgrammar));
 	
-	if (Environment::UseDeprecated) {
-//deprecated 2009-07-06
-		output_types.insert(output_type_map::value_type(UCS2(L"ck_value"), out_cookie));
-		output_types.insert(output_type_map::value_type(UCS2(L"ck_expires"), out_cookie_expiry));
-		output_types.insert(output_type_map::value_type(UCS2(L"ck_path"), out_cookie_path));
-		output_types.insert(output_type_map::value_type(UCS2(L"ck_domain"), out_cookie_domain));
-		
-//deprecated 2009-06-17
-		output_types.insert(output_type_map::value_type(UCS2(L"discard"), out_none));
-		output_types.insert(output_type_map::value_type(UCS2(L"object"), out_store));
-//deprecated from long time ago
-		output_types.insert(output_type_map::value_type(UCS2(L"cookie::value"), out_cookie));
-		output_types.insert(output_type_map::value_type(UCS2(L"cookie::expires"), out_cookie_expiry));
-		output_types.insert(output_type_map::value_type(UCS2(L"cookie::path"), out_cookie_path));
-		output_types.insert(output_type_map::value_type(UCS2(L"cookie::domain"), out_cookie_domain));
-		httplinetypes.insert(http_line_type_map::value_type(UCS2(L"code"), code));
-		httplinetypes.insert(http_line_type_map::value_type(UCS2(L"date"), date));
-		httplinetypes.insert(http_line_type_map::value_type(UCS2(L"server"), server));
-		httplinetypes.insert(http_line_type_map::value_type(UCS2(L"private"), privacy));
-		httplinetypes.insert(http_line_type_map::value_type(UCS2(L"cache"), cache));
-		httplinetypes.insert(http_line_type_map::value_type(UCS2(L"pragma"), pragma));
-		httplinetypes.insert(http_line_type_map::value_type(UCS2(L"range"), range));
-		httplinetypes.insert(http_line_type_map::value_type(UCS2(L"mime"), content_type));
-		httplinetypes.insert(http_line_type_map::value_type(UCS2(L"location"), location));
-		httplinetypes.insert(http_line_type_map::value_type(UCS2(L"length"), content_length));
-		httplinetypes.insert(http_line_type_map::value_type(UCS2(L"disposition"), content_disposition));
-		httplinetypes.insert(http_line_type_map::value_type(UCS2(L"content_disposition"), content_disposition));
-		httplinetypes.insert(http_line_type_map::value_type(UCS2(L"connection"), connection));
-		httplinetypes.insert(http_line_type_map::value_type(UCS2(L"p3p"), p3p));
-		httplinetypes.insert(http_line_type_map::value_type(UCS2(L"custom"), custom));
-	}
-
 	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"Code"), code));
 	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"Date"), date));
 	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"Server"), server));

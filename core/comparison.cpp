@@ -386,26 +386,5 @@ void Comparison::init() {
 	cmp_types.insert(cmp_type_map::value_type(UCS2(L"greater"), std::pair<cmp_type,bool>::pair(greater_than,false) ));
 	cmp_types.insert(cmp_type_map::value_type(UCS2(L"lesser"), std::pair<cmp_type,bool>::pair(less_than,false) ));
 	cmp_types.insert(cmp_type_map::value_type(UCS2(L"true"), std::pair<cmp_type,bool>::pair(cmp_true,false) ));
-	
-	if (Environment::UseDeprecated) {
-		cmp_types.insert(cmp_type_map::value_type(UCS2(L"equals"), std::pair<cmp_type,bool>::pair(equivalent_to,false) ));
-		cmp_types.insert(cmp_type_map::value_type(UCS2(L"exists"), std::pair<cmp_type,bool>::pair(exists,false)));
-		cmp_types.insert(cmp_type_map::value_type(UCS2(L"substring_of"), std::pair<cmp_type,bool>::pair(substring_of,false) ));
-		cmp_types.insert(cmp_type_map::value_type(UCS2(L"natural"), std::pair<cmp_type,bool>::pair(natural,false) ));
-		cmp_types.insert(cmp_type_map::value_type(UCS2(L"or"), std::pair<cmp_type,bool>::pair(cmp_or,false) ));
-		cmp_types.insert(cmp_type_map::value_type(UCS2(L"and"), std::pair<cmp_type,bool>::pair(cmp_and,false) ));
-		cmp_types.insert(cmp_type_map::value_type(UCS2(L"xor"), std::pair<cmp_type,bool>::pair(cmp_xor,false) ));
-		cmp_types.insert(cmp_type_map::value_type(UCS2(L"less_than"), std::pair<cmp_type,bool>::pair(less_than,false) ));
-		cmp_types.insert(cmp_type_map::value_type(UCS2(L"greater_than"), std::pair<cmp_type,bool>::pair(greater_than,false) ));
-		cmp_types.insert(cmp_type_map::value_type(UCS2(L"email"), std::pair<cmp_type,bool>::pair(email,false) ));
-		cmp_types.insert(cmp_type_map::value_type(UCS2(L"equivalent_to"), std::pair<cmp_type,bool>::pair(equivalent_to,false) ));
-		cmp_types.insert(cmp_type_map::value_type(UCS2(L"greater_or_equal_to"), std::pair<cmp_type,bool>::pair(less_than,true) ));
-		cmp_types.insert(cmp_type_map::value_type(UCS2(L"less_or_equal_to"), std::pair<cmp_type,bool>::pair(greater_than,true) ));
-		cmp_types.insert(cmp_type_map::value_type(UCS2(L"not_equivalent_to"), std::pair<cmp_type,bool>::pair(equivalent_to,true) ));
-		cmp_types.insert(cmp_type_map::value_type(UCS2(L"not_exists"), std::pair<cmp_type,bool>::pair(exists,true) ));
-		cmp_types.insert(cmp_type_map::value_type(UCS2(L"not_empty"), std::pair<cmp_type,bool>::pair(is_empty,true) ));
-		cmp_types.insert(cmp_type_map::value_type(UCS2(L"nor"), std::pair<cmp_type,bool>::pair(cmp_or,true) ));
-		cmp_types.insert(cmp_type_map::value_type(UCS2(L"nand"), std::pair<cmp_type,bool>::pair(cmp_and,true) ));
-	}
 
 }

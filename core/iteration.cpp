@@ -154,17 +154,17 @@ bool Iteration::fieldexists(const string& fname,string& errstring) const {
 	} else {
 		size_t hashpos = fname.find('#');
 		if (hashpos != string::npos) {
-			if (fname.compare(hashpos,9,"#rowcount") == 0  || ( Environment::UseDeprecated && fname.compare("#NumRows") == 0 )) {
+			if (fname.compare(hashpos,9,"#rowcount") == 0  ) {
 				if ( operation == it_repeat) {
 					retval = true;
 				} else {
 					errstring = "Field #rowcount not allowed here. In while only the field #row is valid";
 				}
 			} else {
-				if ( fname.compare(hashpos,4,"#row") == 0 || ( Environment::UseDeprecated && fname.compare("#Row") == 0 )) {
+				if ( fname.compare(hashpos,4,"#row") == 0 ) {
 					retval = true;
 				} else {
-					if ( fname.compare(hashpos,11,"#fieldcount") == 0 || ( Environment::UseDeprecated && fname.compare("#NumFields") == 0 )) {
+					if ( fname.compare(hashpos,11,"#fieldcount") == 0 ) {
 						errstring = "Field #fieldcount not allowed here. In while and repeat only the fields #rowcount and #row are valid";
 					} 
 				}
@@ -187,19 +187,6 @@ bool Iteration::field(const string& fname,string& container,string& errstring) c
 		string tmpval;
 		container = fname;
 		size_t hashpos = container.find('#');
-		if ( Environment::UseDeprecated) {
-			if (container.compare("#NumRows") == 0 ) {
-				if ( operation == it_repeat) {
-					String::tostring(container,numreps);
-					retval = true; 
-				}
-			} else { 
-				if (container.compare("#Row") == 0) {
-					String::tostring(container,currentrow);
-					retval = true;
-				}
-			}
-		}
 		while (hashpos != string::npos) {
 			if (container.compare(hashpos,9,"#rowcount") == 0) {
 				if ( operation == it_repeat) {

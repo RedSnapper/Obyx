@@ -120,12 +120,6 @@ bool Mapping::evaluate_this() {
 		definputs[0]->results.takeresult(the_domain);
 		if (repeated) {
 			string regbrk;
-			if (Environment::UseDeprecated) {
-				if (ItemStore::get("FORCE_REPEAT_BREAK_COUNT",regbrk)) {
-					pair<unsigned long long,bool> forced_break_setting = String::znatural(regbrk);
-					if ( forced_break_setting.second ) forced_break = forced_break_setting.first;
-				}
-			} 
 			if (ItemStore::get("REPEAT_BREAK_COUNT",regbrk)) {
 				pair<unsigned long long,bool> forced_break_setting = String::znatural(regbrk);
 				if ( forced_break_setting.second ) forced_break = forced_break_setting.first;

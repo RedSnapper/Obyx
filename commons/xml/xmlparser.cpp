@@ -52,7 +52,6 @@ namespace XML {
 		
 	Parser::Parser() : errorHandler(NULL),resourceHandler(NULL),impl(NULL),writer(NULL),xfmt(NULL),grpool(NULL),parser(NULL),validation(false) {
 		const u_str imptype = UCS2(L"XPath2 3.0");	// "XPath2 3.0"
-//		const u_str imptype = UCS2(L"LS");			// "LS"
 		impl = DOMImplementationRegistry::getDOMImplementation( imptype.c_str() );
 		grpool	= new XMLGrammarPoolImpl(XMLPlatformUtils::fgMemoryManager);
 		errorHandler = new XMLErrorHandler();

@@ -89,8 +89,6 @@ std::string Environment::parmprefix= ""; //used to prefix parameter numbers
 int Environment::gArgc=0;
 char **Environment::gArgv=NULL;
 
-bool Environment::UseDeprecated = false;
-
 //public methods
 //---------------------------------------------------------------------------
 
@@ -1253,7 +1251,6 @@ void Environment::getenvvars() {
 		}
 	}
 	getenv("LOG_DEBUG",envtmp);
-	UseDeprecated = envexists("OBYX_USE_DEPRECATED");
 	if (getenv("OBYX_SQLPORT",envtmp)) {
 		tmp = String::znatural(envtmp);
 		if (tmp.second) gSQLport = (unsigned int)tmp.first;

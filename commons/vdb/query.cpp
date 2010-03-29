@@ -95,21 +95,6 @@ namespace Vdb {
 			if (it != fieldnameidx.end()) {
 				retval = true;
 			} else {
-				if (Environment::UseDeprecated) {
-					if (field[0] == '#') {
-						if (field.compare("#NumRows") == 0 ) {
-							retval= true;
-						} else {
-							if (field.compare("#Row") == 0 ) {
-								retval= true;
-							} else {
-								if (field.compare("#NumFields") == 0 ) {
-									retval= true;
-								} 
-							}
-						}
-					}
-				}
 				size_t hashpos = field.find('#');
 				if (hashpos != string::npos) {
 					if (field.compare(hashpos,9,"#rowcount") == 0 ) {
@@ -136,24 +121,6 @@ namespace Vdb {
 			if (it != fieldnameidx.end()) {
 				retval = readfield( i, it->second, readString, errstring);
 			} else {
-				if (Environment::UseDeprecated) {
-					if (field[0] == '#') {
-						if (field.compare("#NumRows") == 0 ) {
-							String::tostring(readString,static_cast<unsigned long long>(numRows));					
-							retval= true;
-						} else {
-							if (field.compare("#Row") == 0 ) {
-								readString = String::tostring((long long)i);					
-								retval= true;
-							} else {
-								if (field.compare("#NumFields") == 0 ) {
-									String::tostring(readString,(unsigned long long)numFields);					
-									retval= true;
-								} 
-							}
-						}
-					}
-				}
 				size_t hashpos = field.find('#');
 				string tmpval;
 				readString = field;

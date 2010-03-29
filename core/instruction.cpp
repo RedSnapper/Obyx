@@ -765,10 +765,5 @@ void Instruction::init() {
 	op_types.insert(op_type_map::value_type(UCS2(L"substring"), substring));
 	op_types.insert(op_type_map::value_type(UCS2(L"subtract"), subtract));
 	op_types.insert(op_type_map::value_type(UCS2(L"upper"), qxml::upper));	
-	if (Environment::UseDeprecated) {
-		op_types.insert(op_type_map::value_type(UCS2(L"move"), move));
-		op_types.insert(op_type_map::value_type(UCS2(L"maximum"), maximum ));
-		op_types.insert(op_type_map::value_type(UCS2(L"minimum"), minimum ));
-	}
 	
 }

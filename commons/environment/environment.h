@@ -44,7 +44,6 @@ namespace Vdb {
 class Environment {
 public:
 	typedef enum {Root,Public,Console,Scripts,Logs,Web} buildarea_type;
-	static bool UseDeprecated;
 
 private:
 	static int gArgc;

@@ -927,7 +927,4 @@ void IKO::init() {
 	ctx_types.insert(inp_type_map::value_type(UCS2(L"store"), store));
 	ctx_types.insert(inp_type_map::value_type(UCS2(L"namespace"), xmlnamespace));
 	
-	if (Environment::UseDeprecated) {
-		ctx_types.insert(inp_type_map::value_type(UCS2(L"object"), store)); 
-	}		
 }

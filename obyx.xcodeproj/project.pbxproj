@@ -103,7 +103,6 @@
 		B50F50A009939223002FC561 /* logger.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = logger.cpp; sourceTree = "<group>"; };
 		B50F50A109939223002FC561 /* logger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = logger.h; sourceTree = "<group>"; };
 		B51648160CBB8285000995D5 /* libdl.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libdl.dylib; path = /usr/lib/libdl.dylib; sourceTree = "<absolute>"; };
-		B51AF62B10441B30004021E8 /* obyxdepxsd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = obyxdepxsd.h; path = grammars/obyxdepxsd.h; sourceTree = "<group>"; };
 		B5207EB90F5ECA30004F5C1B /* xmlrsrchandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = xmlrsrchandler.h; sourceTree = "<group>"; };
 		B5207EBA0F5ECA30004F5C1B /* xmlrsrchandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = xmlrsrchandler.cpp; sourceTree = "<group>"; };
 		B52556160C7DDB7700E3ADFC /* mapping.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mapping.h; sourceTree = "<group>"; };
@@ -141,10 +140,7 @@
 		B55597170F8A04B4003C3BE0 /* message.xsd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = message.xsd; path = grammars/message.xsd; sourceTree = SOURCE_ROOT; };
 		B55597180F8A04B4003C3BE0 /* oal.xsd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = oal.xsd; path = grammars/oal.xsd; sourceTree = SOURCE_ROOT; };
 		B55597190F8A04B4003C3BE0 /* obyx.xsd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = obyx.xsd; path = grammars/obyx.xsd; sourceTree = SOURCE_ROOT; };
-		B555971B0F8A04B4003C3BE0 /* xhtml-datatypes-1.xsd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "xhtml-datatypes-1.xsd"; path = "grammars/xhtml-datatypes-1.xsd"; sourceTree = SOURCE_ROOT; };
 		B555971C0F8A04B4003C3BE0 /* xhtml1-strict.dtd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "xhtml1-strict.dtd"; path = "grammars/xhtml1-strict.dtd"; sourceTree = SOURCE_ROOT; };
-		B555971D0F8A04B4003C3BE0 /* xhtml1-strict.xsd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "xhtml1-strict.xsd"; path = "grammars/xhtml1-strict.xsd"; sourceTree = SOURCE_ROOT; };
-		B555971E0F8A04B4003C3BE0 /* xhtml11.xsd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = xhtml11.xsd; path = grammars/xhtml11.xsd; sourceTree = SOURCE_ROOT; };
 		B555971F0F8A04B4003C3BE0 /* xlink.xsd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = xlink.xsd; path = grammars/xlink.xsd; sourceTree = SOURCE_ROOT; };
 		B55597200F8A04B4003C3BE0 /* xml.xsd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = xml.xsd; path = grammars/xml.xsd; sourceTree = SOURCE_ROOT; };
 		B55597230F8A04F4003C3BE0 /* messagexsd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = messagexsd.h; path = grammars/messagexsd.h; sourceTree = "<group>"; };
@@ -152,7 +148,6 @@
 		B55597250F8A04F4003C3BE0 /* obyxxsd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = obyxxsd.h; path = grammars/obyxxsd.h; sourceTree = "<group>"; };
 		B55597260F8A04F4003C3BE0 /* soapxsd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = soapxsd.h; path = grammars/soapxsd.h; sourceTree = "<group>"; };
 		B55597270F8A04F4003C3BE0 /* xhtml1dtd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = xhtml1dtd.h; path = grammars/xhtml1dtd.h; sourceTree = "<group>"; };
-		B55597280F8A04F4003C3BE0 /* xhtml1strictxsd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = xhtml1strictxsd.h; path = grammars/xhtml1strictxsd.h; sourceTree = "<group>"; };
 		B55597290F8A04F4003C3BE0 /* xlinkxsd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = xlinkxsd.h; path = grammars/xlinkxsd.h; sourceTree = "<group>"; };
 		B555972A0F8A04F4003C3BE0 /* xmlxsd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = xmlxsd.h; path = grammars/xmlxsd.h; sourceTree = "<group>"; };
 		B555972D0F8A0504003C3BE0 /* manager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = manager.cpp; sourceTree = "<group>"; };
@@ -180,7 +175,6 @@
 		B562349F0FEFC9A400CF092E /* itemstore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = itemstore.h; sourceTree = "<group>"; };
 		B56234A00FEFC9A400CF092E /* itemstore.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = itemstore.cpp; sourceTree = "<group>"; };
 		B568C2FB0CC63C1600B1EBFF /* connection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = connection.cpp; sourceTree = "<group>"; };
-		B578E15C104417200051CA32 /* obyxdep.xsd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = obyxdep.xsd; path = grammars/obyxdep.xsd; sourceTree = SOURCE_ROOT; };
 		B58852A00CC39E1B009D0279 /* regex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = regex.h; sourceTree = "<group>"; };
 		B58852A10CC39E1B009D0279 /* regex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = regex.cpp; sourceTree = "<group>"; };
 		B58DA8C01104B05E00C34661 /* fragmentobject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fragmentobject.h; sourceTree = "<group>"; };
@@ -434,14 +428,12 @@
 		B5841F890F6981F0008CED55 /* grammars */ = {
 			isa = PBXGroup;
 			children = (
-				B51AF62B10441B30004021E8 /* obyxdepxsd.h */,
 				B5C208F70FB984EF000BD08A /* wsdlxsd.h */,
 				B5C208F60FB984EF000BD08A /* wsdlmimexsd.h */,
 				B55597230F8A04F4003C3BE0 /* messagexsd.h */,
 				B55597240F8A04F4003C3BE0 /* oalxsd.h */,
 				B55597250F8A04F4003C3BE0 /* obyxxsd.h */,
 				B55597270F8A04F4003C3BE0 /* xhtml1dtd.h */,
-				B55597280F8A04F4003C3BE0 /* xhtml1strictxsd.h */,
 				B55597290F8A04F4003C3BE0 /* xlinkxsd.h */,
 				B555972A0F8A04F4003C3BE0 /* xmlxsd.h */,
 				B55597260F8A04F4003C3BE0 /* soapxsd.h */,
@@ -467,16 +459,12 @@
 		B5E1A7BE0CDA33BF00E7415B /* grammars */ = {
 			isa = PBXGroup;
 			children = (
+				B55597200F8A04B4003C3BE0 /* xml.xsd */,
+				B555971F0F8A04B4003C3BE0 /* xlink.xsd */,
+				B55597190F8A04B4003C3BE0 /* obyx.xsd */,
 				B55597170F8A04B4003C3BE0 /* message.xsd */,
 				B55597180F8A04B4003C3BE0 /* oal.xsd */,
-				B55597190F8A04B4003C3BE0 /* obyx.xsd */,
-				B578E15C104417200051CA32 /* obyxdep.xsd */,
-				B555971B0F8A04B4003C3BE0 /* xhtml-datatypes-1.xsd */,
 				B555971C0F8A04B4003C3BE0 /* xhtml1-strict.dtd */,
-				B555971D0F8A04B4003C3BE0 /* xhtml1-strict.xsd */,
-				B555971E0F8A04B4003C3BE0 /* xhtml11.xsd */,
-				B555971F0F8A04B4003C3BE0 /* xlink.xsd */,
-				B55597200F8A04B4003C3BE0 /* xml.xsd */,
 				B5F0776C0D17F67400C5E0F1 /* soap.xsd */,
 				B55EFE020FA5DBC900AFC317 /* soap-encoding.xsd */,
 				B5C208CB0FB982F7000BD08A /* wsdl.xsd */,
@@ -596,7 +584,6 @@
 			files = (
 			);
 			inputPaths = (
-				"$(SRCROOT)/grammars/xhtml1-strict.xsd",
 				"$(SRCROOT)/grammars/xml.xsd",
 				"$(SRCROOT)/grammars/message.xsd",
 				"${SRCROOT}/grammars/xhtml1-strict.dtd",
@@ -605,29 +592,24 @@
 				"$(SRCROOT)/grammars/soap.xsd",
 				"$(SRCROOT)/grammars/xlink.xsd",
 				"$(SRCROOT)/grammars/oal.xsd",
-				"$(SRCROOT)/grammars/svg.xsd",
 				"$(SRCROOT)/grammars/wsdl.xsd",
 				"$(SRCROOT)/grammars/wsdlmime.xsd",
-				"$(SRCROOT)/grammars/obyxdep.xsd",
 			);
 			outputPaths = (
 				"${SRCROOT}/commons/xml/grammars/xhtml1dtd.h",
-				"${SRCROOT}/commons/xml/grammars/xhtml1strictxsd.h",
-				"${SRCROOT}/commons/xml/grammars/obyxdepxsd.h",
 				"${SRCROOT}/commons/xml/grammars/obyxxsd.h",
 				"${SRCROOT}/commons/xml/grammars/xmlxsd.h",
 				"${SRCROOT}/commons/xml/grammars/messagexsd.h",
 				"${SRCROOT}/commons/xml/grammars/oalxsd.h",
 				"$(SRCROOT)/commons/xml/grammars/soapencodingxsd.h",
 				"$(SRCROOT)/commons/xml/grammars/soapxsd.h",
-				"$(SRCROOT)/commons/xml/grammars/svgxsd.h",
 				"$(SRCROOT)/commons/xml/grammars/xlinkxsd.h",
 				"${SRCROOT}/commons/xml/grammars/wsdlxsd.h",
 				"${SRCROOT}/commons/xml/grammars/wsdlmimexsd.h",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "export hfile=${SRCROOT}/commons/xml/grammars/xhtml1strictxsd.h\necho \"std::string Parser::xhtml1xsd =\\\"\\\"\" > ${hfile}\ncat  ${SRCROOT}/grammars/xhtml1-strict.xsd | sed -e 's/\\\\/\\\\\\\\/g' | sed 's/\\\"/\\\\\\\"/g' | sed -e 's/^/\"/g' | sed -e 's/$/\"/g' >> ${hfile}\necho \"\\\"\\\";\"  >> ${hfile}\necho\nexport hfile=${SRCROOT}/commons/xml/grammars/xmlxsd.h\necho \"std::string Parser::xmlxsd=\\\"\\\"\" > ${hfile}\ncat  ${SRCROOT}/grammars/xml.xsd | sed -e 's/\\\\/\\\\\\\\/g' | sed 's/\\\"/\\\\\\\"/g' | sed -e 's/^/\"/g' | sed -e 's/$/\"/g' >> ${hfile}\necho \"\\\"\\\";\"  >> ${hfile}\necho\nexport hfile=${SRCROOT}/commons/xml/grammars/messagexsd.h\necho \"std::string Parser::messagexsd=\\\"\\\"\" > ${hfile}\ncat  ${SRCROOT}/grammars/message.xsd | sed -e 's/\\\\/\\\\\\\\/g' | sed 's/\\\"/\\\\\\\"/g' | sed -e 's/^/\"/g' | sed -e 's/$/\"/g' >> ${hfile}\necho \"\\\"\\\";\"  >> ${hfile}\necho \nexport hfile=${SRCROOT}/commons/xml/grammars/xhtml1dtd.h\necho \"std::string Parser::xhtml1dtd =\\\"\\\"\" > ${hfile}\ncat ${SRCROOT}/grammars/xhtml1-strict.dtd | sed -e 's/\\\\/\\\\\\\\/g' | sed 's/\\\"/\\\\\\\"/g' | sed -e 's/^/\"/g' | sed -e 's/$/\"/g' >> ${hfile}\necho \"\\\"\\\";\"  >> ${hfile}\necho\nexport hfile=${SRCROOT}/commons/xml/grammars/obyxxsd.h\necho \"std::string Parser::obyxxsd=\\\"\\\"\" > ${hfile}\ncat  ${SRCROOT}/grammars/obyx.xsd | sed -e 's/\\\\/\\\\\\\\/g' | sed 's/\\\"/\\\\\\\"/g' | sed -e 's/^/\"/g' | sed -e 's/$/\"/g' >> ${hfile}\necho \"\\\"\\\";\"  >> ${hfile}\necho\nexport hfile=${SRCROOT}/commons/xml/grammars/obyxdepxsd.h\necho \"std::string Parser::obyxdepxsd =\\\"\\\"\" > ${hfile}\ncat  ${SRCROOT}/grammars/obyxdep.xsd | sed -e 's/\\\\/\\\\\\\\/g' | sed 's/\\\"/\\\\\\\"/g' | sed -e 's/^/\"/g' | sed -e 's/$/\"/g' >> ${hfile}\necho \"\\\"\\\";\"  >> ${hfile}\necho\nexport hfile=${SRCROOT}/commons/xml/grammars/soapxsd.h\necho \"std::string Parser::soapxsd =\\\"\\\"\" > ${hfile}\ncat  ${SRCROOT}/grammars/soap.xsd | sed -e 's/\\\\/\\\\\\\\/g' | sed 's/\\\"/\\\\\\\"/g' | sed -e 's/^/\"/g' | sed -e 's/$/\"/g' >> ${hfile}\necho \"\\\"\\\";\"  >> ${hfile}\necho \nexport hfile=${SRCROOT}/commons/xml/grammars/soapencodingxsd.h\necho \"std::string Parser::soapencodingxsd =\\\"\\\"\" > ${hfile}\ncat  ${SRCROOT}/grammars/soap-encoding.xsd | sed -e 's/\\\\/\\\\\\\\/g' | sed 's/\\\"/\\\\\\\"/g' | sed -e 's/^/\"/g' | sed -e 's/$/\"/g' >> ${hfile}\necho \"\\\"\\\";\"  >> ${hfile}\necho\nexport hfile=${SRCROOT}/commons/xml/grammars/xlinkxsd.h\necho \"std::string Parser::xlinkxsd=\\\"\\\"\" > ${hfile}\ncat ${SRCROOT}/grammars/xlink.xsd | sed -e 's/\\\\/\\\\\\\\/g' | sed 's/\\\"/\\\\\\\"/g' | sed -e 's/^/\"/g' | sed -e 's/$/\"/g' >> ${hfile}\necho \"\\\"\\\";\"  >> ${hfile}\necho\nexport hfile=${SRCROOT}/commons/xml/grammars/oalxsd.h\necho \"std::string Parser::oalxsd =\\\"\\\"\" > ${hfile}\ncat  ${SRCROOT}/grammars/oal.xsd | sed -e 's/\\\\/\\\\\\\\/g' | sed 's/\\\"/\\\\\\\"/g' | sed -e 's/^/\"/g' | sed -e 's/$/\"/g' >> ${hfile}\necho \"\\\"\\\";\"  >> ${hfile}\necho \nexport hfile=${SRCROOT}/commons/xml/grammars/wsdlxsd.h\necho \"std::string Parser::wsdlxsd=\\\"\\\"\" > ${hfile}\ncat ${SRCROOT}/grammars/wsdl.xsd | sed -e 's/\\\\/\\\\\\\\/g' | sed 's/\\\"/\\\\\\\"/g' | sed -e 's/^/\"/g' | sed -e 's/$/\"/g' >>  ${hfile}\necho \"\\\"\\\";\"  >>  ${hfile}\necho\nexport hfile=${SRCROOT}/commons/xml/grammars/wsdlmimexsd.h\necho \"std::string Parser::wsdlmimexsd=\\\"\\\"\" > ${hfile}\ncat ${SRCROOT}/grammars/wsdlmime.xsd | sed -e 's/\\\\/\\\\\\\\/g' | sed 's/\\\"/\\\\\\\"/g' | sed -e 's/^/\"/g' | sed -e 's/$/\"/g' >>  ${hfile}\necho \"\\\"\\\";\"  >>  ${hfile}\necho";
+			shellScript = "export hfile=${SRCROOT}/commons/xml/grammars/xmlxsd.h\necho \"std::string Parser::xmlxsd=\\\"\\\"\" > ${hfile}\ncat  ${SRCROOT}/grammars/xml.xsd | sed -e 's/\\\\/\\\\\\\\/g' | sed 's/\\\"/\\\\\\\"/g' | sed -e 's/^/\"/g' | sed -e 's/$/\"/g' >> ${hfile}\necho \"\\\"\\\";\"  >> ${hfile}\necho\nexport hfile=${SRCROOT}/commons/xml/grammars/messagexsd.h\necho \"std::string Parser::messagexsd=\\\"\\\"\" > ${hfile}\ncat  ${SRCROOT}/grammars/message.xsd | sed -e 's/\\\\/\\\\\\\\/g' | sed 's/\\\"/\\\\\\\"/g' | sed -e 's/^/\"/g' | sed -e 's/$/\"/g' >> ${hfile}\necho \"\\\"\\\";\"  >> ${hfile}\necho \nexport hfile=${SRCROOT}/commons/xml/grammars/xhtml1dtd.h\necho \"std::string Parser::xhtml1dtd =\\\"\\\"\" > ${hfile}\ncat ${SRCROOT}/grammars/xhtml1-strict.dtd | sed -e 's/\\\\/\\\\\\\\/g' | sed 's/\\\"/\\\\\\\"/g' | sed -e 's/^/\"/g' | sed -e 's/$/\"/g' >> ${hfile}\necho \"\\\"\\\";\"  >> ${hfile}\necho\nexport hfile=${SRCROOT}/commons/xml/grammars/obyxxsd.h\necho \"std::string Parser::obyxxsd=\\\"\\\"\" > ${hfile}\ncat  ${SRCROOT}/grammars/obyx.xsd | sed -e 's/\\\\/\\\\\\\\/g' | sed 's/\\\"/\\\\\\\"/g' | sed -e 's/^/\"/g' | sed -e 's/$/\"/g' >> ${hfile}\necho \"\\\"\\\";\"  >> ${hfile}\necho\nexport hfile=${SRCROOT}/commons/xml/grammars/soapxsd.h\necho \"std::string Parser::soapxsd =\\\"\\\"\" > ${hfile}\ncat  ${SRCROOT}/grammars/soap.xsd | sed -e 's/\\\\/\\\\\\\\/g' | sed 's/\\\"/\\\\\\\"/g' | sed -e 's/^/\"/g' | sed -e 's/$/\"/g' >> ${hfile}\necho \"\\\"\\\";\"  >> ${hfile}\necho \nexport hfile=${SRCROOT}/commons/xml/grammars/soapencodingxsd.h\necho \"std::string Parser::soapencodingxsd =\\\"\\\"\" > ${hfile}\ncat  ${SRCROOT}/grammars/soap-encoding.xsd | sed -e 's/\\\\/\\\\\\\\/g' | sed 's/\\\"/\\\\\\\"/g' | sed -e 's/^/\"/g' | sed -e 's/$/\"/g' >> ${hfile}\necho \"\\\"\\\";\"  >> ${hfile}\necho\nexport hfile=${SRCROOT}/commons/xml/grammars/xlinkxsd.h\necho \"std::string Parser::xlinkxsd=\\\"\\\"\" > ${hfile}\ncat ${SRCROOT}/grammars/xlink.xsd | sed -e 's/\\\\/\\\\\\\\/g' | sed 's/\\\"/\\\\\\\"/g' | sed -e 's/^/\"/g' | sed -e 's/$/\"/g' >> ${hfile}\necho \"\\\"\\\";\"  >> ${hfile}\necho\nexport hfile=${SRCROOT}/commons/xml/grammars/oalxsd.h\necho \"std::string Parser::oalxsd =\\\"\\\"\" > ${hfile}\ncat  ${SRCROOT}/grammars/oal.xsd | sed -e 's/\\\\/\\\\\\\\/g' | sed 's/\\\"/\\\\\\\"/g' | sed -e 's/^/\"/g' | sed -e 's/$/\"/g' >> ${hfile}\necho \"\\\"\\\";\"  >> ${hfile}\necho \nexport hfile=${SRCROOT}/commons/xml/grammars/wsdlxsd.h\necho \"std::string Parser::wsdlxsd=\\\"\\\"\" > ${hfile}\ncat ${SRCROOT}/grammars/wsdl.xsd | sed -e 's/\\\\/\\\\\\\\/g' | sed 's/\\\"/\\\\\\\"/g' | sed -e 's/^/\"/g' | sed -e 's/$/\"/g' >>  ${hfile}\necho \"\\\"\\\";\"  >>  ${hfile}\necho\nexport hfile=${SRCROOT}/commons/xml/grammars/wsdlmimexsd.h\necho \"std::string Parser::wsdlmimexsd=\\\"\\\"\" > ${hfile}\ncat ${SRCROOT}/grammars/wsdlmime.xsd | sed -e 's/\\\\/\\\\\\\\/g' | sed 's/\\\"/\\\\\\\"/g' | sed -e 's/^/\"/g' | sed -e 's/$/\"/g' >>  ${hfile}\necho \"\\\"\\\";\"  >>  ${hfile}\necho";
 		};
 /* End PBXShellScriptBuildPhase section */
 

@@ -218,9 +218,6 @@ bool ItemStore::set(const DataItem* namepath_di, DataItem*& item,kind_type kind,
 					item_map_type::iterator it = the_item_map->find(name);
 					if (it != the_item_map->end()) {
 						DataItem*& basis = it->second;
-						if (Environment::UseDeprecated && (basis->kind() != item->kind() ) ) {
-							errorstr = "Legacy Error. Name clash for store/object '" +  name + "'.";
-						}					
 						delete basis;
 						the_item_map->erase(it); //and if there is any item then insert it.
 					}
@@ -322,9 +319,6 @@ bool ItemStore::get(const DataItem* namepath_di, DataItem*& item, bool release,s
 		namepath = *namepath_di; 
 		String::split('#',namepath,np);		 // eg foobar#/BOOK[0]      -- foobar       /BOOK[0]
 		name=np.first; path=np.second;
-		if (Environment::UseDeprecated) {
-			if (!path.empty() && path[0] == '#') { path.erase(0,1); } //Legacy ##
-		}
 		if (*name.rbegin() == '!') { node_expected = true; name.resize(name.size()-1); }  //remove the final character
 		if ( String::nametest(name)) {
 			retval = true; 

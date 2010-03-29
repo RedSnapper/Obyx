@@ -54,27 +54,11 @@ IKO(n,par,el),eval(false),release(false),type(immediate),parm_name() {
 	
 	u_str str_type,eval_str,release_str;
 
-	if (Environment::UseDeprecated) {
-		if ( Manager::attribute(n,UCS2(L"type"),str_type) ) {
-			inp_type_map::const_iterator j = inp_types.find(str_type);
-			if( j != inp_types.end() ) {
-				type = j->second;
-			} else {
-				string err_type; transcode(str_type.c_str(),err_type);
-				*Logger::log << Log::syntax << Log::LI << "Syntax Error. " << name() << ": " <<  err_type << " is not a legal input space. It should be one of " ;
-				*Logger::log << "immediate, none, store, field, sysparm, sysenv, cookie, file, url, parm, namespace, grammar" << Log::LO; 
-				trace();
-				*Logger::log << Log::blockend;
-			}
-		}
-	} else {
-		if ( Manager::attribute(n,UCS2(L"type"),str_type)  ) {
-			*Logger::log << Log::syntax << Log::LI << "Syntax Error. " << name() << ": attribute 'type' should be 'space'" << Log::LO;
-			trace();
-			*Logger::log  << Log::blockend;
-		}
+	if ( Manager::attribute(n,UCS2(L"type"),str_type)  ) {
+		*Logger::log << Log::syntax << Log::LI << "Syntax Error. " << name() << ": attribute 'type' should be 'space'" << Log::LO;
+		trace();
+		*Logger::log  << Log::blockend;
 	}
-
 	
 	if ( Manager::attribute(n,UCS2(L"space"),str_type) ) {
 		inp_type_map::const_iterator j = inp_types.find(str_type);
@@ -297,10 +281,6 @@ void InputType::init() {
 	inp_types.insert(inp_type_map::value_type(UCS2(L"parm"), fnparm));
 	inp_types.insert(inp_type_map::value_type(UCS2(L"namespace"), xmlnamespace));
 	inp_types.insert(inp_type_map::value_type(UCS2(L"grammar"), xmlgrammar));
-	if (Environment::UseDeprecated) {
-		inp_types.insert(inp_type_map::value_type(UCS2(L"empty"), none));
-		inp_types.insert(inp_type_map::value_type(UCS2(L"object"), store)); 
-	}
 }
 
 //this includes match and domain but not key.
