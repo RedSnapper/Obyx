@@ -116,11 +116,16 @@ namespace XML {
 				result = string(c_result,((MemBufFormatTarget*)mbft)->getLen());
 			}
 			delete mbft;
-			if ( ! result.empty() && String::Regex::available() ) {
-				// NEED TO FIX single quote attributes as well as double quote ones.
-				const string textarea_find="<textarea((?:\\s+(?:\\w+:)?\\w+=\"[^\"]+\")+)/>";
-				const string textarea_repl="<textarea\\1></textarea>";
-				String::Regex::replace(textarea_find,textarea_repl,result,true);
+			if ( ! result.empty() ) {
+				if (Environment::envexists("OBYX_PRETTY_PRINT")) {
+					result.erase(0,result.find_first_not_of("\n\r\t "));
+				} 
+				if ( String::Regex::available()) {
+					// NEED TO FIX single quote attributes as well as double quote ones.
+					const string textarea_find="<textarea((?:\\s+(?:\\w+:)?\\w+=\"[^\"]+\")+)/>";
+					const string textarea_repl="<textarea\\1></textarea>";
+					String::Regex::replace(textarea_find,textarea_repl,result,true);
+				}
 			} 
 		} // else {} //node was NULL
 	}
