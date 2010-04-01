@@ -187,8 +187,7 @@ void ObyxElement::do_breakpoint() {
 			Logger::unset_stream();
 		}
 		xercesc::DOMDocument* src = node->getOwnerDocument();
-		u_str pi_name;
-		XML::transcode("bp",pi_name);
+		const u_str pi_name = UCS2(L"bp");
 		DOMProcessingInstruction* pi_nodi = src->createProcessingInstruction(pi_name.c_str(),NULL);
 		DOMProcessingInstruction* pi_nodo = src->createProcessingInstruction(pi_name.c_str(),NULL);
 		if (node->getParentNode() != NULL) {
@@ -201,7 +200,7 @@ void ObyxElement::do_breakpoint() {
 		}
 		string src_doc_str;
 		XML::Manager::parser()->writedoc(src,src_doc_str);
-		*Logger::log << Log::warn << Log::LI << "BREAKPOINT " << (unsigned int)eval_count << Log::LO;
+		*Logger::log << Log::fatal << Log::LI << "BREAKPOINT " << (unsigned int)eval_count << Log::LO;
 		*Logger::log << Log::LI << Log::info ;
 		trace();
 		*Logger::log << Log::blockend << Log::LO;
@@ -440,12 +439,10 @@ void ObyxElement::finalise() {
 void ObyxElement::init(Vdb::ServiceFactory*& dbsf_i) {
 	eval_count = 0;
 	break_point=0;
-	
-	string BREAK_COUNT_val,sa,ra;
+	bool ok_to_break= Environment::envexists("OBYX_DEVELOPMENT");
+	string BREAK_COUNT_val;
 	Environment::getcookie_req("BREAK_COUNT",BREAK_COUNT_val);
-	Environment::getenv("REMOTE_ADDR",sa);
-	Environment::getenv("SERVER_ADDR",ra);
-	if (!BREAK_COUNT_val.empty() && sa.compare(ra) == 0 ) {
+	if (!BREAK_COUNT_val.empty() && ok_to_break ) {
 		pair<unsigned long long,bool> bp_value = String::znatural(BREAK_COUNT_val);
 		if  ( bp_value.second ) {
 			break_point = bp_value.first;
