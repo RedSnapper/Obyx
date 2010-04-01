@@ -218,7 +218,6 @@ Document::Document(DataItem* inputfile,load_type use_loader, std::string fp, Oby
 		if ( ! results.final()  ) { //if it is STILL not final..
 			*Logger::log << Log::error << Log::LI << "Error. Document " << filepath << " was not fully evaluated." << Log::LO ;
 			trace();
-//			results.explain();
 			string troubled_doc;
 			XML::Manager::parser()->writedoc(xdoc,troubled_doc);
 			*Logger::log << Log::LI << "The document that failed is:" << Log::LO;
@@ -301,25 +300,27 @@ bool Document::eval() {
 
 void Document::process( xercesc::DOMNode*& n,ObyxElement* par) {
 	if (par == NULL) par = this; //owner_document
-	ObyxElement* ce = ObyxElement::Factory(n,par);	//create the new obyxelement here
-	if ( ce != NULL ) {	
-		for (DOMNode* child=n->getFirstChild(); child != NULL; child=child->getNextSibling()) {				
-			process(child,ce);  //carry on down..
-		}
-		Function* fn = dynamic_cast<Function*>(ce);
-		if (fn != NULL) {
-			if (fn->pre_evaluate()) {
-				delete ce; ce = NULL;
-			} // else it's deferred.
-		} 
-		if ( (ce != NULL) && (par == doc_par || (par == this) )) {
-			if ( ce->evaluate() )  {
-				DataItem* rs = NULL;
-				ce->results.takeresult(rs);
-				results.setresult(rs);
+	if (!ObyxElement::break_happened) {
+		ObyxElement* ce = ObyxElement::Factory(n,par);	//create the new obyxelement here
+		if ( ce != NULL ) {	
+			for (DOMNode* child=n->getFirstChild(); child != NULL; child=child->getNextSibling()) {				
+				process(child,ce);  //carry on down..
 			}
-//			delete ce;  //YES there's a bug here. It's happening inside functions. somewhere.
-//			ce = NULL;
+			Function* fn = dynamic_cast<Function*>(ce);
+			if (fn != NULL) {
+				if (fn->pre_evaluate()) {
+					delete ce; ce = NULL;
+				} // else it's deferred.
+			} 
+			if ( (ce != NULL) && (par == doc_par || (par == this) )) {
+				if ( ce->evaluate() )  {
+					DataItem* rs = NULL;
+					ce->results.takeresult(rs);
+					results.setresult(rs);
+				}
+	//			delete ce;  //YES there's a bug here. It's happening inside functions. somewhere.
+	//			ce = NULL;
+			}
 		}
 	}
 }

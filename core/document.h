@@ -58,7 +58,7 @@ private:
 	xercesc::DOMNode*	root_node;
 	std::string filepath;
 	u_str ownprefix;			//used for really special cases.
-	type_parm_map*				parm_map;
+	type_parm_map*					parm_map;
 
 	static std::stack<u_str>		prefix_stack;
 	static std::stack<std::string>  filepath_stack;

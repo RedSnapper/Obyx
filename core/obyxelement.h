@@ -92,6 +92,7 @@ protected:
 	friend class Function;
 	friend class Iteration;
 	friend class IKO;
+	static bool break_happened;
 	static unsigned long long int eval_count;
 	static unsigned long long int break_point;
 	static Vdb::ServiceFactory*	dbsf;		//this is managed by main.
@@ -117,7 +118,7 @@ public:
 	virtual void explain() { results.explain(); }			//
 	virtual const string name() const;	
 	virtual bool evaluate(size_t=0,size_t=0) = 0 ;	
-
+	static void setbreak(bool broke) { break_happened = broke; }
 	static ObyxElement* Factory(xercesc::DOMNode* const&,ObyxElement*);
 	static void init(Vdb::ServiceFactory*&);
 	static void finalise();

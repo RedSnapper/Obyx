@@ -49,6 +49,7 @@ using namespace qxml;
 
 unsigned long long int		ObyxElement::eval_count =0;
 unsigned long long int		ObyxElement::break_point =0;
+bool						ObyxElement::break_happened = false;
 
 long_map				ObyxElement::ce_map;
 nametype_map			ObyxElement::ntmap;
@@ -217,6 +218,7 @@ void ObyxElement::do_breakpoint() {
 			Logger::set_stream(tmp_stack.top());
 			tmp_stack.pop();
 		}
+		break_happened = true;
 	}
 }
 
