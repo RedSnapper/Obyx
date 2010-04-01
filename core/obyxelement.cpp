@@ -206,6 +206,9 @@ void ObyxElement::do_breakpoint() {
 		trace();
 		*Logger::log << Log::blockend << Log::LO;
 		*Logger::log << Log::LI << src_doc_str << Log::LO;
+		*Logger::log << Log::LI;
+		results.explain(); 
+		*Logger::log << Log::LO;
 		*Logger::log << Log::LI ;
 		Environment::listEnv();					//for debugging
 		Environment::listParms();

@@ -340,34 +340,40 @@ void PairQueue::normalise(bool wsstrip) {
 }
 
 void PairQueue::explain() {
+	*Logger::log << Log::subhead  << Log::LI << "result" << Log::LO;	
 	if ( finalised ) {
 		string res_to_show;
 		if (theresult != NULL) {
 			res_to_show = *theresult;
-			*Logger::log << Log::info << Log::LI << "[" << res_to_show << "]" << Log::LO << Log::blockend; 
+			*Logger::log << Log::LI << res_to_show << Log::LO; 
+		} else {
+			*Logger::log << Log::LI << "result is final and empty" << Log::LO; 
 		}
 	} else {
 		size_t n = queue.size();
 		if ( n > 1 ) {
-			*Logger::log << Log::even;
+			*Logger::log << Log::LI ;
 			for ( size_t i = 0; i < n; i++) {
 				if ( queue[i].first != NULL && ! queue[i].first->empty() ) {
-					*Logger::log << Log::LI << "[" << std::string(*(queue[i].first)) << "]" << Log::LO;
+					*Logger::log << Log::II << std::string(*(queue[i].first)) << Log::IO;
 				}
 				Function* it = queue[i].second;
 				if ( queue[i].second != pqendthing ) {
+					*Logger::log << Log::II;
 					it->explain();
+					*Logger::log << Log::IO;
 				}
 			}
-			*Logger::log << Log::blockend; 
+			*Logger::log << Log::LO; 
 		} else {
 			string res_to_show;
 			if (theresult != NULL) {
 				res_to_show = *theresult;
-				*Logger::log << Log::info << Log::LI << "Not finalised, but result has: [" << res_to_show << "]" << Log::LO << Log::blockend; 
+				*Logger::log << Log::LI << Log::II << "Not finalised " << Log::IO << Log::II << res_to_show << Log::IO << Log::LO; 
 			} else {
-				*Logger::log << Log::info << Log::LI << "The result queue and final result is empty. Nothing to explain." << Log::LO << Log::blockend; 
+				*Logger::log << Log::LI << "The result queue and result is empty." << Log::LO; 
 			}
 		}
 	}
+	*Logger::log << Log::blockend;
 }
