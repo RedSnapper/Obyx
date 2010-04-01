@@ -188,9 +188,9 @@ void ObyxElement::do_breakpoint() {
 			Logger::unset_stream();
 		}
 		xercesc::DOMDocument* src = node->getOwnerDocument();
-		const u_str pi_name = UCS2(L"bp");
+		const u_str pi_name = UCS2(L"bpi"),po_name = UCS2(L"bpo");
 		DOMProcessingInstruction* pi_nodi = src->createProcessingInstruction(pi_name.c_str(),NULL);
-		DOMProcessingInstruction* pi_nodo = src->createProcessingInstruction(pi_name.c_str(),NULL);
+		DOMProcessingInstruction* pi_nodo = src->createProcessingInstruction(po_name.c_str(),NULL);
 		if (node->getParentNode() != NULL) {
 			node->getParentNode()->insertBefore(pi_nodi,node);
 			if (node->getNextSibling() != NULL) {
