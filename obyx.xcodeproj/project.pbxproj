@@ -35,7 +35,6 @@
 		B56171DF0AD13B430032F167 /* comparison.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B56171DE0AD13B430032F167 /* comparison.cpp */; };
 		B56234A10FEFC9A400CF092E /* itemstore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B56234A00FEFC9A400CF092E /* itemstore.cpp */; };
 		B568C3030CC63C1600B1EBFF /* connection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B568C2FB0CC63C1600B1EBFF /* connection.cpp */; };
-		B580E01B1149254B00A49926 /* libxerces-c-3.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B5F9885D1148037000DB37C3 /* libxerces-c-3.0.dylib */; };
 		B58852A60CC39E1B009D0279 /* regex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B58852A10CC39E1B009D0279 /* regex.cpp */; };
 		B58DA8C21104B05E00C34661 /* fragmentobject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B58DA8C11104B05E00C34661 /* fragmentobject.cpp */; };
 		B5A68E9209CF266B00D69316 /* pairqueue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5A68E9109CF266B00D69316 /* pairqueue.cpp */; };
@@ -68,6 +67,7 @@
 		B5F0C04C0A4C3B0A00CC363D /* IInfInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5F0C0440A4C3B0A00CC363D /* IInfInfo.cpp */; };
 		B5F0C04D0A4C3B0A00CC363D /* IInfNetworkGraphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5F0C0460A4C3B0A00CC363D /* IInfNetworkGraphics.cpp */; };
 		B5F0C04E0A4C3B0A00CC363D /* IInfReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5F0C0480A4C3B0A00CC363D /* IInfReader.cpp */; };
+		B5F59E751164BDE000872F71 /* libxerces-c-3.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B5F9885D1148037000DB37C3 /* libxerces-c-3.0.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -229,7 +229,7 @@
 			files = (
 				B51648170CBB8285000995D5 /* libdl.dylib in Frameworks */,
 				B53D233910568020008FC5CB /* libxqilla.dylib in Frameworks */,
-				B580E01B1149254B00A49926 /* libxerces-c-3.0.dylib in Frameworks */,
+				B5F59E751164BDE000872F71 /* libxerces-c-3.0.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
