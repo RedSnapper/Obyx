@@ -35,13 +35,11 @@ namespace XML {
 #include "grammars/xmlxsd.h"
 #include "grammars/messagexsd.h"
 #include "grammars/obyxxsd.h"
-#include "grammars/obyxdepxsd.h"
 #include "grammars/oalxsd.h"
 #include "grammars/soapxsd.h"
 #include "grammars/soapencodingxsd.h"
 #include "grammars/xlinkxsd.h"
 #include "grammars/xhtml1dtd.h"
-#include "grammars/xhtml1strictxsd.h"
 #include "grammars/wsdlxsd.h"
 #include "grammars/wsdlmimexsd.h"
 
