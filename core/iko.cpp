@@ -602,7 +602,7 @@ bool IKO::evaltype(inp_type the_space, bool release, bool eval,kind_type ikind,D
 						exists = ItemStore::get(name_item,container,release,errstring);
 						if (!errstring.empty()) {
 							std::string err_msg; transcode(input_name.c_str(),err_msg);
-							*Logger::log << Log::error << Log::LI << "Error. Store " << err_msg  << " "  << errstring << Log::LO;	
+							*Logger::log << Log::error << Log::LI << "Error. Store error occurrred with " << err_msg << Log::LO << Log::LI << errstring << Log::LO;	
 							trace();
 							*Logger::log << Log::blockend;
 						} else {
@@ -832,7 +832,11 @@ bool IKO::evaltype(inp_type the_space, bool release, bool eval,kind_type ikind,D
 				} break;
 				case qxml::error: {
 					exists = true;
+					break_happened = true;
 					std::string err_msg; transcode(input_name.c_str(),err_msg); //This really should be converted - being internal.
+					if (err_msg.compare("halt") == 0) {
+						break_happened = true;
+					}
 					*Logger::log << Log::warn << Log::LI << "Break  '" << err_msg << "'" << Log::LO;
 					*Logger::log << Log::LI << Log::notify ;
 					trace();
