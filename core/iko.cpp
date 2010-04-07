@@ -614,13 +614,13 @@ bool IKO::evaltype(inp_type the_space, bool release, bool eval,kind_type ikind,D
 							}		
 						}
 					} else {
-						exists = ItemStore::exists(name_item,release,errstring); //looking for a name!
-						if (!errstring.empty()) {
-							std::string err_msg; transcode(input_name.c_str(),err_msg);
-							*Logger::log << Log::error << Log::LI << "Error. Store " << err_msg  << " "  << errstring << Log::LO;	
-							trace();
-							*Logger::log << Log::blockend;
-						}
+						exists = ItemStore::exists(name_item,release,errstring); //ignore errors - just testing for existence.
+//						if (!errstring.empty()) {
+//							std::string err_msg; transcode(input_name.c_str(),err_msg);
+//							*Logger::log << Log::error << Log::LI << "Error. Store " << err_msg  << " "  << errstring << Log::LO;	
+//							trace();
+//							*Logger::log << Log::blockend;
+//						}
 					}
 				} break;
 				case fnparm: {
