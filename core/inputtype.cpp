@@ -224,6 +224,7 @@ InputType::InputType(ObyxElement* par,const InputType* orig) : IKO(par,orig),
 bool InputType::evaluate(size_t /*item_num*/,size_t /*item_count*/) {
 	bool cresult = true; //context is evaluated by default
 	bool result = false; //input is not evaluated by default.
+	prep_breakpoint();
 	if (!results.final()) {	//This can happen when the value is not an attribute.
 		results.evaluate(wsstrip);
 	}

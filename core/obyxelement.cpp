@@ -47,10 +47,11 @@ using namespace Log;
 using namespace XML;
 using namespace qxml;
 
-unsigned long long int		ObyxElement::eval_count =0;
-unsigned long long int		ObyxElement::break_point =0;
-bool						ObyxElement::break_happened = false;
+unsigned long long int	ObyxElement::eval_count =0;
+unsigned long long int	ObyxElement::break_point =0;
+std::stack<elemtype>	ObyxElement::eval_type; 
 
+bool						ObyxElement::break_happened = false;
 long_map				ObyxElement::ce_map;
 nametype_map			ObyxElement::ntmap;
 Vdb::ServiceFactory*	ObyxElement::dbsf = NULL;			//this is managed by main.
@@ -224,6 +225,15 @@ void ObyxElement::do_breakpoint() {
 			tmp_stack.pop();
 		}
 	}
+	eval_type.pop();
+}
+
+void ObyxElement::prep_breakpoint() {
+	eval_type.push(wotzit);
+}
+
+unsigned long long int ObyxElement::breakpoint() {
+	return eval_count + 1;
 }
 
 const string ObyxElement::name() const {

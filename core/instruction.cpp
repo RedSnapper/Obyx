@@ -90,7 +90,7 @@ Function(n,instruction,par),operation(move),precision(0),bitpadding(0),base_conv
 			if  ( prec_value.second && prec_value.first < 17) {
 				precision = (unsigned int)prec_value.first;
 			} else {
-				*Logger::log << Log::syntax << Log::LI << "Syntax Error. Instruction: precision must be a number between 0 and 16." << Log::LO;
+				*Logger::log << Log::syntax << Log::LI << "Syntax. Instruction: precision must be a number between 0 and 16." << Log::LO;
 				trace();
 				*Logger::log << Log::blockend;
 			}

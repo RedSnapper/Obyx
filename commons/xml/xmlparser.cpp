@@ -301,7 +301,7 @@ namespace XML {
 				*Logger::log << error << Log::LI << "Some load error occured with an xml file of length " << (unsigned int)xmlfile.size() << Log::LO << Log::blockend;
 			}
 			if ( errorHandler->hadErrors() ) {	
-				*Logger::log << error << Log::LI << "Text that failed parse" << Log::LO << Log::LI << xmlfile << Log::LO << Log::blockend;
+				*Logger::log << syntax << Log::LI << "Text that failed parse" << Log::LO << Log::LI << xmlfile << Log::LO << Log::blockend;
 				rslt=NULL;
 				errorHandler->resetErrors();
 			} 

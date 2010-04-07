@@ -163,7 +163,7 @@ Document::Document(DataItem* inputfile,load_type use_loader, std::string fp, Oby
 					xdoc = XML::Manager::parser()->loadDoc((string)*inputfile); 
 				}
 				if (xdoc != NULL) loaded=true;
-			} break; //don't  delete xdoc - it's owned by the parser -- hmm but get the parser to release it!!!
+			} break; //don't delete xdoc - it's owned by the parser -- hmm but get the parser to release it!!!
 			case URL:
 			case URLText:	
 				loaded = XML::Manager::parser()->loadURI(*inputfile,xdoc); 
@@ -175,7 +175,7 @@ Document::Document(DataItem* inputfile,load_type use_loader, std::string fp, Oby
 		string errs = docerrs->str(); // XMLChar::encode(errs);
 		delete docerrs; docerrs=0;
 		if ( ! errs.empty() ) {
-			*Logger::log << Log::error << Log::LI << "Error. Document parse error." << Log::LO;
+			*Logger::log << Log::syntax << Log::LI << "Syntax Error. Document parse error." << Log::LO;
 			*Logger::log << Log::LI << Log::RI << errs << Log::RO << Log::LO;
 			if (inputfile != NULL) {
 				*Logger::log << Log::LI ;

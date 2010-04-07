@@ -202,6 +202,7 @@ void Output::sethttp(const http_line_type line_type,const string& val) {
 bool Output::evaluate(size_t out_num,size_t out_count) {
 	bool evaluated = true;
 	results.undefer();
+	prep_breakpoint();
 	evaluated = results.evaluate();
 	if ( evaluated ) {
 		DataItem* name_part = NULL; 
@@ -224,9 +225,6 @@ bool Output::evaluate(size_t out_num,size_t out_count) {
 			} break;
 		}
 		if (evaluated) { // true, unless the context failed!
-			//assume for the moment that our value is actually a name. 
-			//it's going to be true unless type=out_immediate!
-			do_breakpoint();
 			switch ( type ) {
 				case out_immediate: {
 					if ( p->results.result() != NULL ) { // &&  p->results.final() surely this is tested already?
@@ -456,6 +454,7 @@ bool Output::evaluate(size_t out_num,size_t out_count) {
 			}
 		}
 	} 
+	do_breakpoint();
 	return evaluated;
 }
 

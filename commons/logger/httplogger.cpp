@@ -197,7 +197,11 @@ void HTTPLogger::bracket(bracketing bkt) {
 			if (minititle) {
 				if (type() == Log::fatal || type() == Log::error || type() == Log::warn) {
 					unsigned long long int bp = ObyxElement::breakpoint(); 
-					*o << ">▶ (" << bp << ") ";
+					if ( bp != 0 ) {
+						*o << ">▶ (" << bp << ") ";
+					} else {
+						*o << ">▶ ";
+					}
 				} else {
 					*o << ">▶ ";
 				}

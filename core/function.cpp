@@ -148,7 +148,7 @@ Function::Function(ObyxElement* par,const Function* orig) :
 bool Function::evaluate(size_t,size_t) {
 	finalised = false;
 	if (!deferred) {
-//		do_breakpoint();
+		prep_breakpoint();
 		if (wotzit != endqueue) { 
 			if (!stream_is_set) {
 				for (unsigned int s = 0; s < outputs.size(); s++) {

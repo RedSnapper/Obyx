@@ -26,6 +26,7 @@
 #include <utility>
 #include <string>
 #include <set>
+#include <stack>
 #include <map>
 #include <deque>
 
@@ -94,6 +95,7 @@ protected:
 	friend class IKO;
 	static bool break_happened;
 	static unsigned long long int eval_count;
+	static std::stack<elemtype> eval_type; 
 	static unsigned long long int break_point;
 	static Vdb::ServiceFactory*	dbsf;		//this is managed by main.
 	static Vdb::Service*		dbs;		//this is managed by the factory.
@@ -102,6 +104,7 @@ protected:
 	ObyxElement* p;							//not const, as we append to it's results!
 	xercesc::DOMNode* node;					//should be a const (but we manipulate it in breakpoint)
 	void do_breakpoint();
+	void prep_breakpoint(); 
 
 	//statics
 public:
@@ -114,7 +117,7 @@ public:
 	virtual ~ObyxElement();
 
 	void trace() const;
-	static unsigned long long int breakpoint() {return eval_count+1;}
+	static unsigned long long int breakpoint(); 
 	
 	virtual void explain() { results.explain(); }			//
 	virtual const string name() const;	
