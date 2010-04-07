@@ -17,6 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.100407
+	Tidy.	Turning syslogging off during a debug.
 	Bugfix. compile bug (missing files reported) 
 v1.100402
 	Tidy.   Added debugger support.
