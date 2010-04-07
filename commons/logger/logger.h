@@ -60,6 +60,7 @@ protected:
 	ostream*	fo;							  //final output stream
 	ostream*	o;							  //output stream
 	Logger(int i);
+	Log::msgtype type() const { return curr_type; }
 	virtual void wrap(bool) =0;					//wrapping log/warning/error etc.  
 	virtual void extra(Log::extratype) =0;		//wrapping raw,urli,urlt,urlo,br,end etc.  
 	virtual void open() =0;						//Open logger
@@ -69,6 +70,7 @@ protected:
 	virtual void ltop(string&) =0;		//top log document
 	virtual void ltail(string&) =0;		//tail log document
 	virtual void dofatal() =0; //handle fatal.
+
 	
 public:
 	int bdepth;									//bracketing depth

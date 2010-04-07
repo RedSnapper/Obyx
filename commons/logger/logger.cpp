@@ -28,6 +28,7 @@
 #include "commons/httphead/httphead.h"
 #include "commons/environment/environment.h"
 #include "commons/string/strings.h"
+#include "core/obyxelement.h"
 
 #include "logger.h"
 #include "httplogger.h"
@@ -160,7 +161,7 @@ ostream*& Logger::startup() {
 	Environment::initwlogger(); //Continue environment load.
 	Environment::getenv("PATH_TRANSLATED",log->path);
 	if (area == Environment::Web) {
-		*log << error << LI << "Obyx requires that you set up a public root directory to work." << LO << blockend;  
+		*log << Log::error << LI << "Obyx requires that you set up a public root directory to work." << LO << blockend;  
 	}
 	return log->fo;
 }
@@ -222,7 +223,8 @@ Logger& Logger::operator<< (const unsigned int val ) {
 }	
 // estrm_stack.empty()
 Logger& Logger::operator << (const msgtype mtype) {
-	if ( !hadfatal && ((mtype == fatal || mtype == warn || mtype == syntax) || (mtype == error && estrm_stack.size() == 1)) ) {
+	curr_type = mtype;
+	if ( !hadfatal && ((mtype == fatal || mtype == warn || mtype == syntax) || (mtype == Log::error && estrm_stack.size() == 1)) ) {
 		hadfatal = true;
 		dofatal();
 		string messages = lstore->str();
@@ -279,21 +281,22 @@ Logger& Logger::operator<< (const bracketing bkt) {
 	} else {
 		if (bkt == LO && log->top_line && !log->syslogbuffer.str().empty() && estrm_stack.size() < 3 ) {
 			if (log->syslogging) {
+				unsigned long long int bp = ObyxElement::breakpoint(); 
 				switch ( type_stack.top() ) {
 					case debug : { 
-						syslog(LOG_DEBUG,"[%s]: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
+						syslog(LOG_DEBUG,"[%s]: %s ;%u (%s)",title.c_str(),path.c_str(),bp,log->syslogbuffer.str().c_str());
 					} break;
 					case warn : { 
-						syslog(LOG_WARNING,"[%s]: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
+						syslog(LOG_WARNING,"[%s]: %s ;%u (%s)",title.c_str(),path.c_str(),bp,log->syslogbuffer.str().c_str());
 					} break;
 					case fatal : { 
-						syslog(LOG_CRIT,"[%s]: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
+						syslog(LOG_CRIT,"[%s]: %s ;%u (%s)",title.c_str(),path.c_str(),bp,log->syslogbuffer.str().c_str());
 					} break;
-					case syntax : { 
-						syslog(LOG_ERR,"[%s]: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
+					case Log::syntax : { 
+						syslog(LOG_ERR,"[%s]: %s ;%u (%s)",title.c_str(),path.c_str(),bp,log->syslogbuffer.str().c_str());
 					} break;
-					case error : { 
-						syslog(LOG_ERR,"[%s]: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
+					case Log::error : { 
+						syslog(LOG_ERR,"[%s]: %s ;%u (%s)",title.c_str(),path.c_str(),bp,log->syslogbuffer.str().c_str());
 					} break;
 					case timing : 
 					case even : 
@@ -301,7 +304,7 @@ Logger& Logger::operator<< (const bracketing bkt) {
 					case headline : 
 					case notify:
 					case subhead : { 
-						syslog(LOG_NOTICE,"[%s]: %s (%s)",title.c_str(),path.c_str(),log->syslogbuffer.str().c_str());
+						syslog(LOG_NOTICE,"[%s]: %s ;%u (%s)",title.c_str(),path.c_str(),bp,log->syslogbuffer.str().c_str());
 					} break;
 					default : break;
 				}

@@ -396,9 +396,9 @@ bool ItemStore::get(const DataItem* namepath_di, DataItem*& item, bool release,s
 											errorstr = "Item '" + name + "' is of kind 'fragment'. so xpath '" + path + "' was unused.";
 											string bvalue = *basis;	
 											if (bvalue.empty()) {
-												errorstr = "The item is empty. Maybe a previous xpath failed?";
+												errorstr = " The item is empty. Maybe a previous xpath failed?";
 											} else {
-												errorstr =  "It's value is '" + bvalue + "'";
+												errorstr +=  "It's value is '" + bvalue + "'";
 											}
 										}
 									}

@@ -23,6 +23,7 @@
 #include <iostream>
 #include "commons/httphead/httphead.h"
 #include "commons/string/strings.h"
+#include "core/obyxelement.h"
 #include "httplogger.h"
 
 bool HTTPLogger::minititle = true;
@@ -142,22 +143,22 @@ void HTTPLogger::extra(extratype t) {
 		case urli:  { 
 			*o << "<a onclick=\"window.open(this.href,'_log'); return false;\"";
 			switch ( type_stack.top()  ) {
-				case headline: { *o << " class=\"headline\""; } break;
-				case subhead: { *o << " class=\"subhead\""; } break;
-				case even: { 
+				case Log::headline: { *o << " class=\"headline\""; } break;
+				case Log::subhead: { *o << " class=\"subhead\""; } break;
+				case Log::even: { 
 					if ( evenodd ) 
 						*o << " class=\"even\""; 
 					else
 						*o << " class=\"odd\""; 
 				} break;
-				case warn: { *o << " class=\"warning\""; } break;
-				case timing: { *o << " class=\"timing\""; } break;  
-				case debug: 
-				case info:  { *o << " class=\"info\""; } break;
-				case fatal: { *o << " class=\"error\""; } break;
-				case error: { *o << " class=\"error\""; } break;
-				case syntax: { *o << " class=\"syntax\""; } break;
-				case notify: { *o << " class=\"notify\""; } break;
+				case Log::warn: { *o << " class=\"warning\""; } break;
+				case Log::timing: { *o << " class=\"timing\""; } break;  
+				case Log::debug: 
+				case Log::info:  { *o << " class=\"info\""; } break;
+				case Log::fatal: { *o << " class=\"error\""; } break;
+				case Log::error: { *o << " class=\"error\""; } break;
+				case Log::syntax: { *o << " class=\"syntax\""; } break;
+				case Log::notify: { *o << " class=\"notify\""; } break;
 				default: break;
 			} 
 			*o << " href=\"";
@@ -194,7 +195,12 @@ void HTTPLogger::bracket(bracketing bkt) {
 				evenodd = ! evenodd;
 			} 
 			if (minititle) {
-				*o << ">▶ ";
+				if (type() == Log::fatal || type() == Log::error || type() == Log::warn) {
+					unsigned long long int bp = ObyxElement::breakpoint(); 
+					*o << ">▶ (" << bp << ") ";
+				} else {
+					*o << ">▶ ";
+				}
 				minititle=false;
 			} else {
 				*o << ">";
@@ -255,10 +261,8 @@ void HTTPLogger::wrap(bool io) {
 			case notify: { 
 				*o << "<ol class=\"notify\" >";
 			} break;			
-			case fatal: { 
-				*o << "<ol class=\"error\" >";
-			} break;
-			case error: { 
+			case fatal:  
+			case Log::error: { 
 				*o << "<ol class=\"error\" >";
 			} break;
 			case syntax: { 
