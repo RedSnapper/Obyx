@@ -92,7 +92,7 @@ public:
 	static bool wasfatal() { return log->hadfatal;}
 	static bool debugging() {return log->debugflag;}
 	static bool logging_available() {return log->logging_on;}
-	static void syslogging(bool t) { log->syslogging = t; }
+	static void set_syslogging(bool t) { log->syslogging = t; }
 	Logger& operator<< (const bool);
 	Logger& operator<< (const double);
 	Logger& operator<< (const int);
