@@ -281,7 +281,7 @@ Logger& Logger::operator<< (const bracketing bkt) {
 	} else {
 		if (bkt == LO && log->top_line && !log->syslogbuffer.str().empty() && estrm_stack.size() < 3 ) {
 			if (log->syslogging) {
-				unsigned long long int bp = ObyxElement::breakpoint(); 
+				unsigned int bp = (unsigned int)ObyxElement::breakpoint(); 
 				switch ( type_stack.top() ) {
 					case debug : { 
 						syslog(LOG_DEBUG,"[%s]: %s ;%u (%s)",title.c_str(),path.c_str(),bp,log->syslogbuffer.str().c_str());
