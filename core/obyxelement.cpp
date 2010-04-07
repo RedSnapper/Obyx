@@ -180,6 +180,7 @@ ObyxElement::ObyxElement(ObyxElement* parent,const qxml::elemtype et,const qxml:
 void ObyxElement::do_breakpoint() {
 	eval_count++;		//global..
 	if (eval_count == break_point) {
+		break_happened = true;
 		Logger::set_syslogging(false);
 		std::stack<std::ostream*> tmp_stack; //error streams from Logger.
 		while (Logger::depth() > 1) {
@@ -222,7 +223,6 @@ void ObyxElement::do_breakpoint() {
 			Logger::set_stream(tmp_stack.top());
 			tmp_stack.pop();
 		}
-		break_happened = true;
 	}
 }
 

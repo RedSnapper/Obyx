@@ -66,7 +66,7 @@ public:
 	virtual operator xercesc::DOMDocument*() const;	
 	virtual operator xercesc::DOMNode*() const;	
 	virtual void copy(DataItem*&) const;
-	virtual kind_type kind() const { return di_object; }
+	virtual kind_type kind() const { return di_fragment; }
 	virtual long long size() const;
 	virtual bool empty() const;
 	virtual bool find(const DataItem*,std::string&) const;

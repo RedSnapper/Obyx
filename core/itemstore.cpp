@@ -362,17 +362,18 @@ bool ItemStore::get(const DataItem* namepath_di, DataItem*& item, bool release,s
 							item = NULL;
 						} else {
 							kind_type basis_kind = basis->kind();
-							if (basis_kind == di_object) {
-								XMLObject* xml_document = (XMLObject*)basis;
-								if (!xml_document->empty()) {
-									retval = xml_document->xp(path,item,node_expected,errorstr); //will make a copy.
-								} else {
-									if (node_expected) {
-										errorstr = "Item " + name + " exists but is empty.";
+							switch(basis_kind) {
+								case di_object: {
+									XMLObject* xml_document = (XMLObject*)basis;
+									if (!xml_document->empty()) {
+										retval = xml_document->xp(path,item,node_expected,errorstr); //will make a copy.
+									} else {
+										if (node_expected) {
+											errorstr = "Item " + name + " exists but is empty.";
+										}
 									}
-								}
-							} else {
-								if (basis_kind == di_text) {
+								} break;
+								case di_text: {
 									if (path.compare("text()") == 0) {
 										item = basis; 
 									} else {
@@ -386,11 +387,28 @@ bool ItemStore::get(const DataItem* namepath_di, DataItem*& item, bool release,s
 											}
 										}
 									}
-								} else {
+								} break;
+								case di_fragment: {
+									if (path.compare("text()") == 0) {
+										item = basis; 
+									} else {
+										if (node_expected) {
+											errorstr = "Item '" + name + "' is of kind 'fragment'. so xpath '" + path + "' was unused.";
+											string bvalue = *basis;	
+											if (bvalue.empty()) {
+												errorstr = "The item is empty. Maybe a previous xpath failed?";
+											} else {
+												errorstr =  "It's value is '" + bvalue + "'";
+											}
+										}
+									}
+								} break;
+								case di_null: 
+								case di_auto: {
 									if (node_expected) {
 										errorstr = "Item " + name + " is null.";
 									}
-								}
+								} break;
 							}
 						}
 					} else {

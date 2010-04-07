@@ -305,20 +305,22 @@ void Document::process( xercesc::DOMNode*& n,ObyxElement* par) {
 			for (DOMNode* child=n->getFirstChild(); child != NULL; child=child->getNextSibling()) {				
 				process(child,ce);  //carry on down..
 			}
-			Function* fn = dynamic_cast<Function*>(ce);
-			if (fn != NULL) {
-				if (fn->pre_evaluate()) {
-					delete ce; ce = NULL;
-				} // else it's deferred.
-			} 
-			if ( (ce != NULL) && (par == doc_par || (par == this) )) {
-				if ( ce->evaluate() )  {
-					DataItem* rs = NULL;
-					ce->results.takeresult(rs);
-					results.setresult(rs);
+			if (!ObyxElement::break_happened) {			
+				Function* fn = dynamic_cast<Function*>(ce);
+				if (fn != NULL) {
+					if (fn->pre_evaluate()) {
+						delete ce; ce = NULL;
+					} // else it's deferred.
+				} 
+				if ( (ce != NULL) && (par == doc_par || (par == this) )) {
+					if ( ce->evaluate() )  {
+						DataItem* rs = NULL;
+						ce->results.takeresult(rs);
+						results.setresult(rs);
+					}
+		//			delete ce;  //YES there's a bug here. It's happening inside functions. somewhere.
+		//			ce = NULL;
 				}
-	//			delete ce;  //YES there's a bug here. It's happening inside functions. somewhere.
-	//			ce = NULL;
 			}
 		}
 	}

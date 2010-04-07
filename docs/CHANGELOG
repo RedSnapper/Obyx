@@ -18,10 +18,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 ------------------------------------------------------------------------------------
 CHANGELOG file
 v1.100407
+	Bugfix. Introspection failure for fragments. 
 	Tidy.	Turning syslogging off during a debug.
 	Bugfix. compile bug (missing files reported) 
 v1.100402
-	Tidy.   Added debugger support.
+	Tidy.   Added better debugger support.
 v1.100329
 	Tidy.   Removed USE_DEPRECATED (wasn't meant to be released)
 v1.100324
