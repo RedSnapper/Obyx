@@ -276,20 +276,14 @@ void ObyxElement::trace() const { //always called within a block
 			t_node = NULL;
 		}
 	}
+	*Logger::log << Log::LI << Log::even ;
 	while (fps.size() > 0) {
 		string fp= fps.back().first;
 		string xp= fps.back().second;
-		*Logger::log << Log::LI << Log::even ;
-		if (!fp.empty()) {
-			*Logger::log << Log::LIFP << fp << Log::LOFP;
-		}
-		if (!xp.empty()) {
-			*Logger::log << Log::LIXP << xp << Log::LOXP;
-		}
-		*Logger::log << Log::LIPP << (unsigned int)eval_count << Log::LOPP;
-		*Logger::log << Log::LO; 
+		*Logger::log << Log::LI << Log::II << fp << Log::IO << Log::II << xp << Log::IO << Log::LO;
 		fps.pop_back();
 	}
+	*Logger::log << Log::blockend << Log::LO;
 }
 
 //------------------- static methods - once only thank-you very much -----------------------
