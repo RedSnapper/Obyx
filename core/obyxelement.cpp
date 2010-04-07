@@ -263,6 +263,8 @@ void ObyxElement::trace() const { //always called within a block
 			filepath = t_node->owner->own_filepath(); //shouldn't include the filesystem part.
 			if (filepath.find(filesys) == 0) {
 				filepath.erase(0,filesys.size());
+			} else {
+				filepath.erase(0,1+filepath.rfind('/'));
 			}
 		}
 		if (t_node->node != NULL) { 
