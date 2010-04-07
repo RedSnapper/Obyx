@@ -279,7 +279,7 @@ void ObyxElement::trace() const { //always called within a block
 	while (fps.size() > 0) {
 		string fp= fps.back().first;
 		string xp= fps.back().second;
-		*Logger::log << Log::LI; 
+		*Logger::log << Log::LI << Log::even ;
 		if (!fp.empty()) {
 			*Logger::log << Log::LIFP << fp << Log::LOFP;
 		}
