@@ -100,24 +100,23 @@ bool Document::getparm(u_str const docname,const DataItem*& container) const {
 void Document::list() const {
 	if (parm_map != NULL && ! parm_map->empty() ) {
 		type_parm_map::iterator it = parm_map->begin();
-		*Logger::log << Log::subhead << Log::LI << "Current parms" << Log::LO << Log::LI;
+		*Logger::log << Log::subhead << Log::LI << "List of fnparms" << Log::LO;
+		*Logger::log << Log::LI << Log::even;
 		while (it != parm_map->end() ) {
 			if ( ! it->first.empty() ) {
-				string err_msg; transcode(it->first.c_str(),err_msg);
-				
-				*Logger::log << Log::even << Log::LI << "[" << err_msg << "]"; 
+				string name,value;
+				transcode(it->first.c_str(),name);
 				DataItem* x= it->second;
 				if ( x == NULL) {
-					*Logger::log <<  " -- which is NULL!"; 
+					value = "[NULL]"; 
 				} else {
-					string result_doc = *x;
-					*Logger::log << Log::rule << result_doc << Log::rule; 
+					value = *x;
 				}
-				*Logger::log << Log::LO << Log::blockend; 	//even
+				*Logger::log << Log::LI << Log::II << name << Log::IO << Log::II << value << Log::IO << Log::LO;
 			}
 			it++;
 		}
-		*Logger::log << Log::LO << Log::blockend; //subhead
+		*Logger::log << Log::blockend << Log::LO << Log::blockend ; //even .. subhead.
 	}
 }
 
