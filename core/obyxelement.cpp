@@ -181,6 +181,7 @@ ObyxElement::ObyxElement(ObyxElement* parent,const qxml::elemtype et,const qxml:
 void ObyxElement::do_breakpoint() {
 	eval_count++;		//global..
 	if (eval_count == break_point) {
+		unsigned int the_bp = (unsigned int)breakpoint();
 		break_happened = true;
 		Logger::set_syslogging(false);
 		std::stack<std::ostream*> tmp_stack; //error streams from Logger.
@@ -204,7 +205,7 @@ void ObyxElement::do_breakpoint() {
 		}
 		string src_doc_str;
 		XML::Manager::parser()->writedoc(src,src_doc_str);
-		*Logger::log << Log::fatal << Log::LI << "BREAKPOINT " << (unsigned int)eval_count << Log::LO;
+		*Logger::log << Log::fatal << Log::LI << Log::II << "BREAKPOINT" << Log::IO << Log::II << the_bp << Log::IO << Log::LO;
 		*Logger::log << Log::LI << Log::info ;
 		trace();
 		*Logger::log << Log::blockend << Log::LO;
