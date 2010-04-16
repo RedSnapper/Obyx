@@ -316,6 +316,7 @@ void Document::process( xercesc::DOMNode*& n,ObyxElement* par) {
 						*Logger::log << Log::syntax << Log::LI << "Syntax Error. While loading flow-function. " << errs << Log::LO;	
 						par->trace();
 						*Logger::log << Log::blockend;
+						delete ce; ce = NULL;
 					}
 				} 
 				if ( (ce != NULL) && (par == doc_par || (par == this) )) {
