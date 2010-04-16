@@ -225,9 +225,7 @@ void Iteration::list(const ObyxElement* base) { //static.
 					*Logger::log << Log::LI << note << Log::LO;
 				} 
 				*Logger::log << Log::LI << qery << Log::LO;
-				curr->trace();
 				*Logger::log << Log::blockend << Log::LO;   //even
-				*Logger::log << Log::blockend << Log::LO;   //subhead Information
 				*Logger::log << Log::LI << Log::subhead << Log::LI << "Fields" << Log::LO ;
 				*Logger::log << Log::LI << Log::even;
 				for (vector<string>::const_iterator it = fl.begin(); it != fl.end(); it++) {
@@ -238,6 +236,7 @@ void Iteration::list(const ObyxElement* base) { //static.
 				}
 				*Logger::log << Log::blockend << Log::LO;   //even
 				*Logger::log << Log::blockend << Log::LO;   //subhead Fields
+				*Logger::log << Log::blockend << Log::LO;   //subhead Information
 				*Logger::log << Log::blockend << Log::LO; 	//subhead SQL Query
 			}
 		}
