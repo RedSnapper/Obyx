@@ -66,13 +66,15 @@ void OsiMessage::identify_nl(string& msg) {
 	}
 }
 void OsiMessage::split_msg(string& msg_str) {
-	string nlnl = nl + nl;
-	string::size_type pos = nl.size() + msg_str.find(nlnl); 
-	if (pos == string::npos) {
-		head = msg_str;
-	} else {
-		head = msg_str.substr(0, pos - nl.size());
-		body = msg_str.substr(pos + nl.size(), string::npos);
+	if(!msg_str.empty()) {
+		string nlnl = nl + nl;
+		string::size_type pos = nl.size() + msg_str.find(nlnl); 
+		if (pos == string::npos) {
+			head = msg_str;
+		} else {
+			head = msg_str.substr(0, pos - nl.size());
+			body = msg_str.substr(pos + nl.size(), string::npos);
+		}
 	}
 }
 void OsiMessage::split_header_value(string& v,string& s) { //splits value at the first ;
