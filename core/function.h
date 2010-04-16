@@ -46,8 +46,7 @@ private:
 	
 	virtual bool may_eval_outputs() =0;					//is it ok to evaluate the outputs
 	virtual bool evaluate_this() =0;					//private evaluation
-	bool pre_evaluate();
-
+	bool pre_evaluate(string&);
 	bool deferred;										//
 	bool finalised;
 	bool stream_is_set;									//semaphore for catching errors.

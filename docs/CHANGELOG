@@ -17,6 +17,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.100416
+	Bugfix. Match: When value is set, additional values cause hidden error. 
+	Bugfix. Major problem with OSI compile. CGI needs to be correctly mapped to RFC headers. 
 v1.100407
 	Bugfix. Introspection failure for fragments. 
 	Tidy.	Turning syslogging off during a debug.

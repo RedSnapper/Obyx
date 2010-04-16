@@ -67,6 +67,7 @@ private:
 	static std::string empty;
 	static std::string parmprefix;
 	typedef hash_map<const string,string, hash<const string&> > var_map_type;
+	static var_map_type cgi_rfc_map;							//CGI_NAME rfc Header map (ro)
 	static var_map_type env_map;								//System environment (ro)
 //-- The following are RESPONSE cookies
 	static var_map_type ck_map;									//store the cookie values  (rw)
@@ -138,6 +139,7 @@ public:
 	static void init(int argc, char *argv[]);	//include parameters (option) bool true=process POST
 	static void initwlogger(int argc, char *argv[]);
 	static void initwlogger();						//Does any init that needs to wait on logger.
+	static void init_cgi_rfc_map();
 	
 	static void getlanguage(Vdb::Connection*);		//This was nicked from rs404
 	static void getfilename(Vdb::Connection*,string);

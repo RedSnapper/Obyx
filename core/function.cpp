@@ -78,7 +78,7 @@ Function::Function(xercesc::DOMNode* const& n,elemtype el,ObyxElement* par) :
 
 Endqueue::Endqueue(ObyxElement* par,const Endqueue* orig) : Function(par,orig) {}
 
-bool Function::pre_evaluate() {
+bool Function::pre_evaluate(string& errs) {
 	bool retval = false; //returns true if it has been evaluated (and may be deleted)
 	if ( !deferred || p->wotzit == xmldocument ) {
 		Function* fn = NULL;
@@ -94,13 +94,13 @@ bool Function::pre_evaluate() {
 				p->results.append(di);
 				retval = true; 
 			} else {
-				p->results.append(this);
+				p->results.append(this,errs);
 			}
 		 } else {
-			p->results.append(this);
+			p->results.append(this,errs);
 		 }
 	} else {
-		p->results.append(this);
+		p->results.append(this,errs);
 		deferred = true;		//wait until they are evaluated before running!!
 	}
 	return retval;

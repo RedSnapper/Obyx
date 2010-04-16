@@ -237,8 +237,9 @@ void OsiAPP::compile_http_response(string& head, string& body, string& the_resul
 		res << " reason=\"OK\"";
 	}
 	res << ">";
-	string msg = head+body;
-	compile_message(msg,res);
+	string msg_str = head+body;
+	OsiMessage msg;
+	msg.compile(msg_str,res,true);
 	res << "</osi:response></osi:http>";
 	the_result = res.str();
 }
@@ -248,7 +249,6 @@ void OsiAPP::compile_http_request(string& head, string& body, string& the_result
 	string res_vals[3];
 	res << "<osi:http xmlns:osi=\"http://www.obyx.org/osi-application-layer\">";
 	size_t hd_endLinePos = head.find(crlf);
-//	size_t hd_endLinePos = head.find(crlf);
 	string res_val = head.substr(0,hd_endLinePos);
 	if(hd_endLinePos != string::npos) {
 		head.erase(0, hd_endLinePos+2);
@@ -268,15 +268,11 @@ void OsiAPP::compile_http_request(string& head, string& body, string& the_result
 	if ( !res_vals[1].empty()) { res << " url=\"" << res_vals[1] << "\""; }
 	if ( !res_vals[2].empty()) { res << " version=\"" << res_vals[2] << "\""; }
 	res << ">";
-	string msg = head+crlfcrlf+body;
-	compile_message(msg,res);
+	string msg_str = head+crlfcrlf+body;
+	OsiMessage msg;
+	msg.compile(msg_str,res,true);
 	res << "</osi:request></osi:http>";
 	the_result = res.str();
-}
-
-void OsiAPP::compile_message(string& msg_str, ostringstream& res, bool do_namespace) {
-	OsiMessage msg;
-	msg.compile(msg_str,res,do_namespace);
 }
 
 //Take an xml osi message and turn it into an RFC standard message.

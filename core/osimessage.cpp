@@ -67,12 +67,12 @@ void OsiMessage::identify_nl(string& msg) {
 }
 void OsiMessage::split_msg(string& msg_str) {
 	string nlnl = nl + nl;
-	string::size_type pos = msg_str.find(nlnl); 
+	string::size_type pos = nl.size() + msg_str.find(nlnl); 
 	if (pos == string::npos) {
 		head = msg_str;
 	} else {
-		head = msg_str.substr(0, pos);
-		body = msg_str.substr(pos + nlsize + nlsize, string::npos);
+		head = msg_str.substr(0, pos - nl.size());
+		body = msg_str.substr(pos + nl.size(), string::npos);
 	}
 }
 void OsiMessage::split_header_value(string& v,string& s) { //splits value at the first ;
@@ -610,7 +610,7 @@ void OsiMessage::compile(string& msg_str, ostringstream& res, bool do_namespace)
 			res << " charset=\"UTF-8\"";
 		}
 		if ( isnt_multipart ) {
-			if ( body_type.compare("text")!=0 || body.find_first_of("<&\x00") != string::npos) {
+			if ( !body_type.empty() && (body_type.compare("text")!=0 || body.find_first_of("<&\x00") != string::npos)) {
 				String::urlencode(body);
 				res << " urlencoded=\"true\"";
 			}
@@ -632,7 +632,7 @@ void OsiMessage::compile(string& msg_str, ostringstream& res, bool do_namespace)
 				if (blockend == string::npos) bodydone = true;
 				if (! bodydone ) {
 					string mp_head,mp_body;
-					string msg_block = body.substr(blockstart + startboundary.length() + nlsize, blockend - blockstart - startboundary.length() - (nlsize+nlsize));
+					string msg_block = body.substr(blockstart + startboundary.length() + nlsize, blockend - blockstart - startboundary.length() - (nlsize+nlsize+nlsize));
 					OsiMessage msg;
 					msg.compile(msg_block,res,false);
 				}

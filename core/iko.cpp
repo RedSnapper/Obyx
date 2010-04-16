@@ -46,6 +46,7 @@
 #include "xmlobject.h"
 #include "itemstore.h"
 #include "osiapp.h"
+#include "osimessage.h"
 
 using namespace Log;
 using namespace qxml;
@@ -329,7 +330,8 @@ void IKO::process_encoding(DataItem*& basis) {
 					*Logger::log << Log::blockend;
 				} else {
 					ostringstream msgres;
-					OsiAPP::compile_message(encoded,msgres,true);
+					OsiMessage msg;
+					msg.compile(encoded,msgres,true);
 					basis = DataItem::factory(msgres.str(),di_object); //always xml..
 				}
 			} break;

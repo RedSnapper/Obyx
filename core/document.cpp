@@ -308,9 +308,15 @@ void Document::process( xercesc::DOMNode*& n,ObyxElement* par) {
 			if (!ObyxElement::break_happened) {			
 				Function* fn = dynamic_cast<Function*>(ce);
 				if (fn != NULL) {
-					if (fn->pre_evaluate()) {
+					string errs;
+					if (fn->pre_evaluate(errs)) {
 						delete ce; ce = NULL;
 					} // else it's deferred.
+					if (!errs.empty()) {
+						*Logger::log << Log::syntax << Log::LI << "Error. While loading flow-function. " << errs << Log::LO;	
+						par->trace();
+						*Logger::log << Log::blockend;
+					}
 				} 
 				if ( (ce != NULL) && (par == doc_par || (par == this) )) {
 					if ( ce->evaluate() )  {

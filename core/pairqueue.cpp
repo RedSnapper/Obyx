@@ -195,17 +195,17 @@ void PairQueue::append(std::string stuff,kind_type kind) { //from xmlnode / xmle
 	}
 }
 
-void PairQueue::append(Function* ins) { //used a lot.
+void PairQueue::append(Function* ins,std::string& errs) { //used a lot.
 	if ( ins != pqendthing ) {
 		if (finalised) {
 			if (!queue.empty()) {
-				*Logger::log << Log::info << Log::LI << "Finalised result has a non empty queue in append function!" << Log::LO << Log::blockend; 
+				errs = "There is already a value set for the result."; 
 			} else {
 				queue.push_back(pqpair(theresult,ins));
 				queue.push_back(pqpair(NULL,pqendthing));
 				theresult = NULL;
+				finalised = false;
 			}
-			finalised = false;
 		} else {
 			queue.back().second = ins; //->unique(); //This should NOT be unique. this is the join for the instructiontypes
 			queue.push_back(pqpair(NULL,pqendthing));

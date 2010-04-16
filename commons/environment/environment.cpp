@@ -54,6 +54,7 @@ using namespace ImageInfo;
 
 typedef hash_map<const string,string, hash<const string&> > var_map_type;
 var_map_type Environment::env_map;
+var_map_type Environment::cgi_rfc_map;
 
 var_map_type Environment::ck_map;
 var_map_type Environment::ck_expires_map;
@@ -105,6 +106,7 @@ void Environment::init(int argc, char *argv[]) {
 	cke_path_map.clear();
 	cke_domain_map.clear();
 	parm_map.clear();
+	init_cgi_rfc_map();
 	getenvvars();
 	if ( gDevelop && envexists("LOG_DEBUG")) {
 		dosetdebugger = true;
@@ -609,20 +611,9 @@ bool Environment::getenv(string const name,string& container) {
 			if (split != string::npos && split > 0 ) {
 				string n = parmstring.substr(0,split);
 				string v = parmstring.substr(split+1,string::npos);
-				if ( n.find("HTTP_",0,5) != string::npos) {
-					string hn = n.substr(5,string::npos);
-					String::tolower(hn);
-					String::fandr(hn,'_','-');
-					pair<var_map_type::iterator, bool> ins = httphead_map.insert(var_map_type::value_type(hn,v));
-				} else {
-					if ( n.find("CONTENT_",0,8) != string::npos) {
-						if ( n.compare("CONTENT_LENGTH") != 0) {
-							string hn = n;
-							String::tolower(hn);
-							String::fandr(hn,'_','-');
-							pair<var_map_type::iterator, bool> ins = httphead_map.insert(var_map_type::value_type(hn,v));
-						}
-					}
+				var_map_type::iterator it = cgi_rfc_map.find(n);
+				if (it != env_map.end()) {
+					pair<var_map_type::iterator, bool> ins = httphead_map.insert(var_map_type::value_type(it->second,v));
 				}
 				setenv(n,v);
 			}
@@ -1375,3 +1366,20 @@ void Environment::setparm(string name,string value) {
 		parm_map.insert(var_map_type::value_type(name, value));
 	}
 }
+
+void Environment::init_cgi_rfc_map() { 
+//	cgi_rfc_map.insert(var_map_type::value_type("REQUEST_METHOD","Method"));					//meta
+//	cgi_rfc_map.insert(var_map_type::value_type("AUTH_TYPE","Authorization_T"));				//partial
+//	cgi_rfc_map.insert(var_map_type::value_type("REMOTE_USER","Authorization_U"));				//partial
+	cgi_rfc_map.insert(var_map_type::value_type("CONTENT_TYPE","Content-Type"));				//precise
+	cgi_rfc_map.insert(var_map_type::value_type("CONTENT_LENGTH","Content-Length"));			//precise
+	cgi_rfc_map.insert(var_map_type::value_type("HTTP_HOST","Host"));							//precise
+	cgi_rfc_map.insert(var_map_type::value_type("HTTP_ACCEPT","Accept"));						//precise
+	cgi_rfc_map.insert(var_map_type::value_type("HTTP_ACCEPT_ENCODING","Accept-Encoding"));		//precise
+	cgi_rfc_map.insert(var_map_type::value_type("HTTP_ACCEPT_LANGUAGE","Accept-Language"));		//precise
+	cgi_rfc_map.insert(var_map_type::value_type("HTTP_CONNECTION","Connection"));				//precise
+	cgi_rfc_map.insert(var_map_type::value_type("HTTP_COOKIE","Cookie"));						//precise
+	cgi_rfc_map.insert(var_map_type::value_type("HTTP_REFERER","Referer"));						//precise
+	cgi_rfc_map.insert(var_map_type::value_type("HTTP_USER_AGENT","User-Agent"));				//precise
+}
+

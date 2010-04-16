@@ -370,7 +370,7 @@ void Httphead::doheader(ostream* x,bool explaining,const response_format& f) {
 						ostringstream y;
 						y << "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">";
 						y << "<html xmlns=\"http://www.w3.org/1999/xhtml\" >";
-						y << "<head><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />";
+						y << "<head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />";
 						y << "<title>302 Found</title></head><body><div class=\"subhead\">";
 						y << "<a class=\"redirect\" href=\"" << locavalue << "\">" << locavalue << "</a></div>";
 						y << "</body></html>" ; 
