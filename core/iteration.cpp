@@ -218,16 +218,8 @@ void Iteration::list(const ObyxElement* base) { //static.
 			if (!fl.empty()) {
 				string qery = i->query->getquery();
 				string note = i->note();
-				*Logger::log << Log::LI << Log::subhead << Log::LI << Log::II << "Query at row" << Log::IO << Log::II << (unsigned int)i->currentrow << Log::IO << Log::LO;
-				*Logger::log << Log::LI << Log::subhead << Log::LI << "Information" << Log::LO;
-				*Logger::log << Log::LI << Log::even;
-				if (!note.empty()) {
-					*Logger::log << Log::LI << note << Log::LO;
-				} 
-				*Logger::log << Log::LI << qery << Log::LO;
-				*Logger::log << Log::blockend << Log::LO;   //even
-				*Logger::log << Log::LI << Log::subhead << Log::LI << "Fields" << Log::LO ;
-				*Logger::log << Log::LI << Log::even;
+				*Logger::log << Log::LI << Log::II << qery << Log::IO;
+				*Logger::log << Log::even;
 				for (vector<string>::const_iterator it = fl.begin(); it != fl.end(); it++) {
 					string container,errstring,fname;
 					fname = *it;
@@ -235,9 +227,6 @@ void Iteration::list(const ObyxElement* base) { //static.
 					*Logger::log << Log::LI << Log::II << fname << Log::IO << Log::II << container << Log::IO << Log::LO;
 				}
 				*Logger::log << Log::blockend << Log::LO;   //even
-				*Logger::log << Log::blockend << Log::LO;   //subhead Fields
-				*Logger::log << Log::blockend << Log::LO;   //subhead Information
-				*Logger::log << Log::blockend << Log::LO; 	//subhead SQL Query
 			}
 		}
 	}
