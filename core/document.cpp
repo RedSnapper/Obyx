@@ -313,7 +313,7 @@ void Document::process( xercesc::DOMNode*& n,ObyxElement* par) {
 						delete ce; ce = NULL;
 					} // else it's deferred.
 					if (!errs.empty()) {
-						*Logger::log << Log::syntax << Log::LI << "Error. While loading flow-function. " << errs << Log::LO;	
+						*Logger::log << Log::syntax << Log::LI << "Syntax Error. While loading flow-function. " << errs << Log::LO;	
 						par->trace();
 						*Logger::log << Log::blockend;
 					}
