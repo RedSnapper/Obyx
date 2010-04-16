@@ -220,6 +220,7 @@ void ObyxElement::do_breakpoint() {
 		Environment::listResCookies();
 		owner->list();
 		ItemStore::list();
+		Iteration::list(this);		
 		*Logger::log << Log::LO << Log::blockend;
 		while (! tmp_stack.empty()) {
 			Logger::set_stream(tmp_stack.top());
