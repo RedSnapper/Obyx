@@ -836,19 +836,29 @@ bool IKO::evaltype(inp_type the_space, bool release, bool eval,kind_type ikind,D
 					exists = true;
 					break_happened = true;
 					std::string err_msg; transcode(input_name.c_str(),err_msg); //This really should be converted - being internal.
-					if (err_msg.compare("halt") == 0) {
+					if (err_msg.compare(0,6,"fatal#") == 0) {
 						break_happened = true;
+						err_msg.erase(0,6);
+						*Logger::log << Log::fatal << Log::LI << "Fatal '" << err_msg << "'" << Log::LO;
+						trace();
+						*Logger::log << Log::blockend;
+					} else {
+						if (err_msg.compare(0,6,"debug#") == 0) {
+							err_msg.erase(0,6);
+							*Logger::log << Log::warn << Log::LI << "Debug '" << err_msg << "'" << Log::LO;
+							trace();
+							*Logger::log << Log::LI ;
+							Environment::list();
+							owner->list();
+							ItemStore::list();
+							Iteration::list(this);		//available fields from here.
+							*Logger::log << Log::LO << Log::blockend;
+						} else {
+							*Logger::log << Log::warn << Log::LI << "Throw '" << err_msg << "'" << Log::LO;
+							trace();
+							*Logger::log << Log::blockend;
+						}
 					}
-					*Logger::log << Log::warn << Log::LI << "Break  '" << err_msg << "'" << Log::LO;
-					*Logger::log << Log::LI << Log::notify ;
-					trace();
-					*Logger::log << Log::blockend << Log::LO;
-					*Logger::log << Log::LI ;
-					Environment::list();
-					owner->list();
-					ItemStore::list();
-					Iteration::list(this);		//available fields from here.
-					*Logger::log << Log::LO << Log::blockend;
 				} break;
 				default: { //uncaught input_spaces will hit here.
 					exists = false;
