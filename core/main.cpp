@@ -46,6 +46,7 @@ int main(int argc, char *argv[]) {
    if (argc == 2 && argv[1][0]=='-' && argv[1][1]=='V' ) {
 		string compiledate(__DATE__);
 		string compiletime(__TIME__);
+	    std::cout << "Status: 200 OK\r\nContent-Type: text/plain\r\n\r\n";
 		std::cout << version << ", Build:" << compiledate << " " << compiletime;
 	} else {
 		Logger::set_title(version);
