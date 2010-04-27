@@ -107,6 +107,7 @@ void Environment::init(int argc, char *argv[]) {
 	cke_domain_map.clear();
 	parm_map.clear();
 	init_cgi_rfc_map();
+	XMLChar::init();
 	getenvvars();
 	if ( gDevelop && envexists("LOG_DEBUG")) {
 		dosetdebugger = true;
