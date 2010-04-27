@@ -43,11 +43,7 @@ using namespace qxml;
 int main(int argc, char *argv[]) {
  	string v_number = "1.100427";
 	string version  = "Obyx v"+v_number+" Supported (Xerces 3.0/XQilla 2.2)";
-	char x='-';
-	if (argc == 2 && argv[1][0]=='-') {
-		x = argv[1][1];
-	}
-	if ( x =='V' ) {
+	if (argc == 2 && argv[1][0]=='-' && argv[1][1]=='V' ) {
 		string compiledate(__DATE__);
 		string compiletime(__TIME__);
 	    std::cout << "Status: 200 OK\r\nContent-Type: text/plain\r\n\r\n";
@@ -63,53 +59,46 @@ int main(int argc, char *argv[]) {
 		OsiMessage::init();
 		Vdb::ServiceFactory* dbsf = Vdb::ServiceFactory::startup(Environment::envexists("OBYX_SQLSERVICE_REQ"));	//Create a service, initialising it.
 		string sourcefilepath="";
-		if (x != 'I') {
-			if ( Environment::getenv("PATH_TRANSLATED",sourcefilepath)) {
-				size_t wdp = sourcefilepath.rfind('/');
-				if ( wdp != string::npos) {
-					FileUtils::Path::push_wd(sourcefilepath.substr(0,wdp));
-				} 
-				string errorstr="",sourcefile="";
-				kind_type kind = di_null;
-				if (Filer::getfile(sourcefilepath,sourcefile,errorstr)) {
-					ObyxElement::init(dbsf);
-					DataItem* sfile = DataItem::factory(sourcefile,di_text); //will parse as object inside logging.
-					string out_str = "Loaded but not run.";	
-					if (x != 'J') {
-						if (true) { // used to delete document before finalising stuff
-							DataItem* result = NULL;
-							Document* obyxdoc = new Document(sfile,Document::Main,sourcefilepath);	//Main = called from here!
-							obyxdoc->results.takeresult(result);
-							if (result != NULL) { 
-								out_str = *result; 
-								kind = result->kind();
-								delete result;
-							}
-							delete obyxdoc;
-						}
+		if ( Environment::getenv("PATH_TRANSLATED",sourcefilepath)) {
+			size_t wdp = sourcefilepath.rfind('/');
+			if ( wdp != string::npos) {
+				FileUtils::Path::push_wd(sourcefilepath.substr(0,wdp));
+			} 
+			string errorstr="",sourcefile="";
+			kind_type kind = di_null;
+			if (Filer::getfile(sourcefilepath,sourcefile,errorstr)) {
+				ObyxElement::init(dbsf);
+				DataItem* sfile = DataItem::factory(sourcefile,di_text); //will parse as object inside logging.
+				string out_str;				
+				if (true) { // used to delete document before finalising stuff
+					DataItem* result = NULL;
+					Document* obyxdoc = new Document(sfile,Document::Main,sourcefilepath);	//Main = called from here!
+					obyxdoc->results.takeresult(result);
+					if (result != NULL) { 
+						out_str = *result; 
+						kind = result->kind();
+						delete result;
 					}
-					Filer::output(out_str,kind);
-					delete sfile;
-					ObyxElement::finalise();	
-				} else {
-					Httphead::setcode(404);
-					string wd = FileUtils::Path::wd();
-					*Logger::log << Log::fatal << Log::LI << "Error loading main file. ";
-					*Logger::log << errorstr;
-					*Logger::log << "Path: [" << sourcefilepath << "], Directory: [" << wd << "]. Obyx needs a source file to parse." << Log::LO << blockend;	
-					Httphead::doheader();
+					delete obyxdoc;
 				}
-				if ( wdp != string::npos) {
-					FileUtils::Path::pop_wd();
-				}
+				Filer::output(out_str,kind);
+				delete sfile;
+				ObyxElement::finalise();	
 			} else {
-				Httphead::setcode(404);		
-				*Logger::log << Log::fatal << Log::LI << "Error. PATH_TRANSLATED was not set. Obyx needs a source file to parse." << Log::LO << blockend;	
+				Httphead::setcode(404);
+				string wd = FileUtils::Path::wd();
+				*Logger::log << Log::fatal << Log::LI << "Error loading main file. ";
+				*Logger::log << errorstr;
+				*Logger::log << "Path: [" << sourcefilepath << "], Directory: [" << wd << "]. Obyx needs a source file to parse." << Log::LO << blockend;	
 				Httphead::doheader();
 			}
+			if ( wdp != string::npos) {
+				FileUtils::Path::pop_wd();
+			}
 		} else {
-			std::cout << "Status: 200 OK\r\nContent-Type: text/plain\r\n\r\n";
-			std::cout << version << " Initialised";			
+			Httphead::setcode(404);		
+			*Logger::log << Log::fatal << Log::LI << "Error. PATH_TRANSLATED was not set. Obyx needs a source file to parse." << Log::LO << blockend;	
+			Httphead::doheader();
 		}
 		Vdb::ServiceFactory::shutdown();	//Remove the database service, disposing of the dbs at the same time.
 		Document::shutdown();		
