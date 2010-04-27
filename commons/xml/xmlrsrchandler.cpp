@@ -57,7 +57,6 @@ namespace XML {
 			grammar_map_type::iterator it = the_grammar_map.find(name);
 			if (it == the_grammar_map.end() ) {
 				GrammarRecord* record = new GrammarRecord(name,grammar,type);
-//				DOMConfiguration* dc = Manager::parser()->parser->getDomConfig();
 				record->grx = Manager::parser()->parser->loadGrammar(record->inp, type, true); 
 				if ( Manager::parser()->errorHandler->hadErrors() ) {
 					string err_name; transcode(name.c_str(),err_name);

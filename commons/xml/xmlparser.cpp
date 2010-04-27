@@ -188,19 +188,19 @@ namespace XML {
 		//See http://xerces.apache.org/xerces-c/program-dom-3.html for full list of parameters/features
 
 		//the 'SystemId' values nust be the namespace urls.
-		resourceHandler->setGrammar(xmlxsd,UCS2(L"http://www.w3.org/XML/1998/namespace"),Grammar::SchemaGrammarType);
-		resourceHandler->setGrammar(xlinkxsd,UCS2(L"http://www.w3.org/1999/xlink"),Grammar::SchemaGrammarType);
 		
 		resourceHandler->setGrammar(obyxxsd,UCS2(L"http://www.obyx.org"),Grammar::SchemaGrammarType);      //And this.
-		
 		resourceHandler->setGrammar(messagexsd,UCS2(L"http://www.obyx.org/message"),Grammar::SchemaGrammarType);
 		resourceHandler->setGrammar(oalxsd,UCS2(L"http://www.obyx.org/osi-application-layer"),Grammar::SchemaGrammarType);
 		resourceHandler->setGrammar(xhtml1dtd,UCS2(L"http://www.w3.org/1999/xhtml"),Grammar::DTDGrammarType);      //And this.
 
-		resourceHandler->setGrammar(soapxsd,UCS2(L"http://schemas.xmlsoap.org/soap/envelope/"),Grammar::SchemaGrammarType);
-		resourceHandler->setGrammar(soapencodingxsd,UCS2(L"http://schemas.xmlsoap.org/soap/encoding/"),Grammar::SchemaGrammarType);
-		resourceHandler->setGrammar(wsdlxsd,UCS2(L"http://schemas.xmlsoap.org/wsdl/"),Grammar::SchemaGrammarType);
-		resourceHandler->setGrammar(wsdlmimexsd,UCS2(L"http://schemas.xmlsoap.org/wsdl/mime/"),Grammar::SchemaGrammarType);
+//These are all better handled at runtime. The performance hit of preloading them against every request is not so good
+//		resourceHandler->setGrammar(xmlxsd,UCS2(L"http://www.w3.org/XML/1998/namespace"),Grammar::SchemaGrammarType);
+//		resourceHandler->setGrammar(xlinkxsd,UCS2(L"http://www.w3.org/1999/xlink"),Grammar::SchemaGrammarType);
+//		resourceHandler->setGrammar(soapxsd,UCS2(L"http://schemas.xmlsoap.org/soap/envelope/"),Grammar::SchemaGrammarType);
+//		resourceHandler->setGrammar(soapencodingxsd,UCS2(L"http://schemas.xmlsoap.org/soap/encoding/"),Grammar::SchemaGrammarType);
+//		resourceHandler->setGrammar(wsdlxsd,UCS2(L"http://schemas.xmlsoap.org/wsdl/"),Grammar::SchemaGrammarType);
+//		resourceHandler->setGrammar(wsdlmimexsd,UCS2(L"http://schemas.xmlsoap.org/wsdl/mime/"),Grammar::SchemaGrammarType);
 	}
 
 	DOMDocument* Parser::newDoc(const DOMNode* n) {

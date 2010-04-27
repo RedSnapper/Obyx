@@ -102,7 +102,7 @@ int main(int argc, char *argv[]) {
 		}
 		Vdb::ServiceFactory::shutdown();	//Remove the database service, disposing of the dbs at the same time.
 		Document::shutdown();		
-		Logger::shutdown();			
+		Logger::shutdown();
 	}
 	return 0;
 }

@@ -17,6 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.100427
+	Prof.   Stopped preloading the SOAP/WSDL grammars. The existing performance hit is too great.
 v1.100419
 	Enh.    Added support for fatal# and debug# on itype space="error"
 v1.100416
