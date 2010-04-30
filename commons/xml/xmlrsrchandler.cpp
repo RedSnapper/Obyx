@@ -144,6 +144,8 @@ namespace XML {
 		}
 		grammar_map_type::iterator it = the_grammar_map.find(grammarkey);
 		if (it != the_grammar_map.end()) {
+			retval = NULL;
+/*			
 			GrammarRecord* grec =  it->second;
 			string r_gra = grec->gra;
 			XMLByte* xmlraw = (XMLByte*)(r_gra.c_str());
@@ -152,6 +154,7 @@ namespace XML {
 			mem->setCopyBufToStream(false);
 			retval->setByteStream(mem);
 			retval->setEncoding(XMLUni::fgUTF8EncodingString); //This must be done.
+ */
 		} else {
 			string a_nsu="-",a_pid="-",a_sid="-";
 			if (namespaceUri != NULL) transcode(namespaceUri,a_nsu); 
