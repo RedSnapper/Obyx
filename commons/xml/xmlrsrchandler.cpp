@@ -29,14 +29,18 @@ using namespace Log;
 using namespace xercesc;
 
 namespace XML {
-
-	GrammarRecord::GrammarRecord(const u_str& n,const string& f,Grammar::GrammarType t) : 
-		inp(NULL),mem(NULL),key(n),gra(f),grx(NULL),typ(t) {
+	
+	GrammarRecord::GrammarRecord(const u_str& n,const u_str& s,const u_str& p,const string& f,Grammar::GrammarType t) : 
+	inp(NULL),mem(NULL),key(n),gra(f),grx(NULL),typ(t) {
 		XMLByte* xmlraw = (XMLByte*)(gra.c_str());
 		inp = ((DOMImplementationLS*)Manager::parser()->impl)->createLSInput();	
 		mem = new MemBufInputSource(xmlraw,gra.size(),key.c_str());
 		mem->setCopyBufToStream(false);
 		inp->setByteStream(mem);
+		if (t == Grammar::DTDGrammarType) {
+			inp->setPublicId(p.c_str());
+			inp->setSystemId(s.c_str());
+		}
 		inp->setEncoding(XMLUni::fgUTF8EncodingString); //This must be done.
 	}
 	
@@ -56,7 +60,35 @@ namespace XML {
 		if ( !grammar.empty() ) {
 			grammar_map_type::iterator it = the_grammar_map.find(name);
 			if (it == the_grammar_map.end() ) {
-				GrammarRecord* record = new GrammarRecord(name,grammar,type);
+				u_str sysIDstr,pubIDstr;
+				if( type == Grammar::DTDGrammarType) { // Ideally, we would access the SystemID / PublicID here using grx.
+					if ( String::Regex::available() ) {
+						size_t s = String::Regex::after("\\s+SYSTEM\\s*=?\\s*[\"']",grammar);
+						if ( s == string::npos ) {
+							string err_name; transcode(name.c_str(),err_name);
+							*Logger::log << Log::error << Log::LI << "When loading the DTD:" << err_name << " there was no xml comment found " <<  Log::LO;
+							*Logger::log << Log::LI << " at the beginning of the document indicating the SYSTEM ID." << Log::LO;
+							*Logger::log << Log::blockend;
+						} else {
+							string::size_type q = grammar.find(grammar[s-1],s); //Get the end of the trick.
+							string sysIdDecl=grammar.substr(s,q-s);
+							transcode(sysIdDecl,sysIDstr);
+						}
+						size_t p = String::Regex::after("\\s+PUBLIC\\s*=?\\s*[\"']",grammar);
+						if ( p == string::npos ) {
+							string err_name; transcode(name.c_str(),err_name);
+							*Logger::log << Log::error << Log::LI << "When loading the DTD:" << err_name << " there was no xml comment found " <<  Log::LO;
+							*Logger::log << Log::LI << " at the beginning of the document indicating the PUBLIC ID." << Log::LO;
+							*Logger::log << Log::blockend;
+						} else {
+							string::size_type q = grammar.find(grammar[p-1],p); //Get the end of the trick.
+							string pubIdDecl=grammar.substr(p,q-p);
+							transcode(pubIdDecl,pubIDstr);
+						}
+						
+					} 
+				}
+				GrammarRecord* record = new GrammarRecord(name,sysIDstr,pubIDstr,grammar,type);
 				record->grx = Manager::parser()->parser->loadGrammar(record->inp, type, true); 
 				if ( Manager::parser()->errorHandler->hadErrors() ) {
 					string err_name; transcode(name.c_str(),err_name);
@@ -66,29 +98,14 @@ namespace XML {
 					Manager::parser()->errorHandler->resetErrors();
 				} else {
 					pair<grammar_map_type::iterator, bool> ins = the_grammar_map.insert(grammar_map_type::value_type(name,record));
-					if (record->grx != NULL) {
-						if( type == Grammar::DTDGrammarType) { // Ideally, we would access the SystemID / PublicID here using grx.
-							if ( String::Regex::available() ) {
-								size_t p = String::Regex::after("\\s+PUBLIC\\s*=?\\s*[\"']",grammar);
-								if ( p == string::npos ) {
-									string err_name; transcode(name.c_str(),err_name);
-									*Logger::log << Log::error << Log::LI << "When loading the DTD:" << err_name << " there was no xml comment found " <<  Log::LO;
-									*Logger::log << Log::LI << " at the beginning of the document indicating the PUBLIC ID." << Log::LO;
-									*Logger::log << Log::blockend;
-								} else {
-									string::size_type q = grammar.find(grammar[p-1],p); //Get the end of the trick.
-									string pubIdDecl=grammar.substr(p,q-p);
-									u_str publicIDstr; transcode(pubIdDecl,publicIDstr);
-									pair<grammar_map_type::iterator, bool> ins = the_grammar_map.insert(grammar_map_type::value_type(publicIDstr,record));
-								}
-							} 
-						}
+					if( type == Grammar::DTDGrammarType) { 
+						pair<grammar_map_type::iterator, bool> ins = the_grammar_map.insert(grammar_map_type::value_type(sysIDstr,record));
 					}
 				}
 			} 
 		}
 	}
-
+	
 	void XMLResourceHandler::getGrammar(string& grammarfile,const string name,bool release) {
 		if (!name.empty()) {
 			u_str gname; transcode(name,gname);
@@ -121,40 +138,43 @@ namespace XML {
 		return retval;
 	}
 	
-//	XMLEntityResolver
+	//	XMLEntityResolver
 	
 	//With DTD, we must bind our namespace to the publicId.
 	//This means we must extract the publicId during grammar load.
 	DOMLSInput* XMLResourceHandler::resolveResource(
-			const XMLCh* const,  //resourceType
-			const XMLCh* const namespaceUri , 
-			const XMLCh* const publicId, 
-			const XMLCh* const systemId, 
-			const XMLCh* const /*baseURI*/ ) { //
+													const XMLCh* const,  //resourceType
+													const XMLCh* const namespaceUri , 
+													const XMLCh* const publicId, 
+													const XMLCh* const systemId, 
+													const XMLCh* const /*baseURI*/ ) { //
 		DOMLSInput* retval=NULL;
 		const XMLCh* grammarkey = NULL;
 		if ( namespaceUri != NULL ) {
 			grammarkey = namespaceUri;
 		} 
 		if ( grammarkey == NULL || XMLString::stringLen(grammarkey) == 0 ) { // test for length!
-			if (publicId != NULL) { grammarkey = publicId; }
-		}
-		if ( grammarkey == NULL || XMLString::stringLen(grammarkey) == 0 ) { // test for length!
 			if (systemId != NULL) { grammarkey = systemId; }
 		}
+		//		if ( grammarkey == NULL || XMLString::stringLen(grammarkey) == 0 ) { // test for length!
+		//			if (publicId != NULL) { grammarkey = publicId; }
+		//		}
 		grammar_map_type::iterator it = the_grammar_map.find(grammarkey);
 		if (it != the_grammar_map.end()) {
 			retval = NULL;
-/*			
-			GrammarRecord* grec =  it->second;
-			string r_gra = grec->gra;
-			XMLByte* xmlraw = (XMLByte*)(r_gra.c_str());
-			retval = ((DOMImplementationLS*)Manager::parser()->impl)->createLSInput();	
-			MemBufInputSource* mem = new MemBufInputSource(xmlraw,r_gra.size(),grammarkey);
-			mem->setCopyBufToStream(false);
-			retval->setByteStream(mem);
-			retval->setEncoding(XMLUni::fgUTF8EncodingString); //This must be done.
- */
+			/*
+			 //This is causing a reparse of the grammar every time 
+			 GrammarRecord* grec =  it->second;
+			 string r_gra = grec->gra;
+			 XMLByte* xmlraw = (XMLByte*)(r_gra.c_str());
+			 retval = ((DOMImplementationLS*)Manager::parser()->impl)->createLSInput();	
+			 MemBufInputSource* mem = new MemBufInputSource(xmlraw,r_gra.size(),grammarkey);
+			 mem->setPublicId(publicId);
+			 mem->setSystemId(systemId);
+			 //			mem->setCopyBufToStream(false);
+			 retval->setByteStream(mem);
+			 retval->setEncoding(XMLUni::fgUTF8EncodingString); //This must be done.
+			 */
 		} else {
 			string a_nsu="-",a_pid="-",a_sid="-";
 			if (namespaceUri != NULL) transcode(namespaceUri,a_nsu); 
@@ -164,8 +184,8 @@ namespace XML {
 			*Logger::log << Log::LI << Log::subhead << Log::LI << "Grammar details follow:" << Log::LO; 
 			*Logger::log << Log::LI << a_nsu << Log::LO << Log::LI << a_pid << Log::LO << Log::LI << a_sid << Log::LO; 
 			*Logger::log << Log::blockend << Log::LO << Log::blockend;
-		 }
+		}
 		return retval;
 	}
-
+	
 }

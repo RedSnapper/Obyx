@@ -40,25 +40,26 @@ namespace XML {
 		MemBufInputSource*		mem;
 		u_str					key; //namespaceUri for a schema or systemID for a DTD.
 		std::string 			gra; //original grammar
-//		XMLCh*					gky; //key as XMLCh;
+		//		XMLCh*					gky; //key as XMLCh;
 		Grammar*				grx; //Xercesc Grammar object that was loaded.
 		Grammar::GrammarType	typ; //
-		GrammarRecord(const u_str&,const string&,Grammar::GrammarType);		
+		GrammarRecord(const u_str&,const u_str&,const u_str&,const string&,Grammar::GrammarType); 
+		//		GrammarRecord(const u_str&,const string&,Grammar::GrammarType);		
 	public:
 		~GrammarRecord();
 	};
 	
 	typedef map<const u_str,GrammarRecord*> grammar_map_type;
-
+	
 	class XMLResourceHandler : public DOMLSResourceResolver {
 	private:
 		friend class Parser;
 		grammar_map_type the_grammar_map;
-			
+		
 	public:
 		void getGrammar(string&,const string,bool);
 		bool existsGrammar(const string,bool);
-		void setGrammar(const string,const u_str&,Grammar::GrammarType type);
+		void setGrammar(const string,const u_str&,Grammar::GrammarType);
 		DOMLSInput* resolveResource(const XMLCh* const,const XMLCh* const,const XMLCh* const,const XMLCh* const, const XMLCh* const);
 		
 		XMLResourceHandler();
