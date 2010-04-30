@@ -42,7 +42,7 @@ using namespace qxml;
 
 int main(int argc, char *argv[]) {
  	string v_number = "1.100430";
-	string version  = "Obyx v"+v_number+"Supported (Xerces 3.0/XQilla 2.2)";
+	string version  = "Obyx v"+v_number+" Supported (Xerces 3.0/XQilla 2.2)";
 	if (argc == 2 && argv[1][0]=='-' && argv[1][1]=='V' ) {
 		string compiledate(__DATE__);
 		string compiletime(__TIME__);
