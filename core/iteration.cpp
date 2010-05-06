@@ -150,24 +150,27 @@ bool Iteration::evaluate_this() { //This can be run as an evaluated iteration wi
 bool Iteration::fieldexists(const string& fname,string& errstring) const {
 	bool retval = false;
 	if (query != NULL && operation == it_sql) {
-		retval = query->hasfield(fname);
+		if ( fname.find("#row") != string::npos || fname.find("#fieldcount") != string::npos ) {
+			retval = true;
+		} else {
+			retval = query->hasfield(fname);
+		}
 	} else {
 		size_t hashpos = fname.find('#');
 		if (hashpos != string::npos) {
-			if (fname.compare(hashpos,9,"#rowcount") == 0  ) {
+			if (fname.find("#rowcount") != string::npos ) {
 				if ( operation == it_repeat) {
 					retval = true;
 				} else {
 					errstring = "Field #rowcount not allowed here. In while only the field #row is valid";
 				}
 			} else {
-				if ( fname.compare(hashpos,4,"#row") == 0 ) {
+				if ( fname.find("#row") != string::npos ) {
 					retval = true;
-				} else {
-					if ( fname.compare(hashpos,11,"#fieldcount") == 0 ) {
-						errstring = "Field #fieldcount not allowed here. In while and repeat only the fields #rowcount and #row are valid";
-					} 
-				}
+				} 
+				if ( fname.find("#fieldcount") != string::npos ) {
+					errstring = "Field #fieldcount not allowed here. In while and repeat only the fields #rowcount and #row are valid";
+				} 
 			}
 		} else {
 			if (operation == it_sql) {
