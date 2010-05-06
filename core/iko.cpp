@@ -492,7 +492,6 @@ bool IKO::evaltype(inp_type the_space, bool release, bool eval,kind_type ikind,D
 						const Mapping* mpp = dynamic_cast<const Mapping *>(par);
 						finished = false;
 						while (par != NULL && !finished ) {
-//							errstring = "";
 							if (ite != NULL && !ite->active()) {
 								ite = NULL;
 							}
