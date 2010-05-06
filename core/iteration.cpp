@@ -148,37 +148,38 @@ bool Iteration::evaluate_this() { //This can be run as an evaluated iteration wi
 	return evaluated;
 }
 bool Iteration::fieldexists(const string& fname,string& errstring) const {
-	bool retval = false;
-	if (query != NULL && operation == it_sql) {
-		if ( fname.find("#row") != string::npos || fname.find("#fieldcount") != string::npos ) {
-			retval = true;
-		} else {
-			retval = query->hasfield(fname);
-		}
-	} else {
-		size_t hashpos = fname.find('#');
-		if (hashpos != string::npos) {
-			if (fname.find("#rowcount") != string::npos ) {
-				if ( operation == it_repeat) {
-					retval = true;
+	bool retval = false,rcfound = false,rfound=false,fcfound=false;
+	bool hashfound = fname.find('#');
+	if (hashfound) {
+		rcfound = fname.find("#rowcount") != string::npos;
+		rfound = fname.find("#row") != string::npos;
+		fcfound = fname.find("#fieldcount") != string::npos;
+	}
+	switch (operation) {
+		case it_sql: {
+			if (rcfound || rfound || fcfound) {
+				retval = true;
+			} else {
+				if (query != NULL) {
+					retval = query->hasfield(fname);
 				} else {
-					errstring = "Field #rowcount not allowed here. In while only the field #row is valid";
+					errstring = "The field was not found.";
 				}
-			} else {
-				if ( fname.find("#row") != string::npos ) {
-					retval = true;
-				} 
-				if ( fname.find("#fieldcount") != string::npos ) {
-					errstring = "Field #fieldcount not allowed here. In while and repeat only the fields #rowcount and #row are valid";
-				} 
 			}
-		} else {
-			if (operation == it_sql) {
-				errstring = "The field was not found.";
-			} else {
-				errstring = "The field " + fname + " is not allowed here. In while and repeat only the fields #rowcount and #row are valid";
+		} break;
+		case it_repeat: {
+			if (rcfound || rfound) {
+				retval = true;
 			}
-		}
+		} break;
+		case it_while_not:
+		case it_while: {
+			if (rcfound || fcfound) {
+				errstring = "Field #rowcount and #fieldcount not allowed in while and while_not. Only the field #row is valid";
+			} else {
+				retval = true;
+			}
+		} break;
 	}
 	return retval;
 }
@@ -195,15 +196,17 @@ bool Iteration::field(const string& fname,string& container,string& errstring) c
 				if ( operation == it_repeat) {
 					String::tostring(tmpval,numreps);
 					container.replace(hashpos,9,tmpval);
+					hashpos--;
 					retval = true; 
 				} 
 			} 
 			if ( container.compare(hashpos,4,"#row") == 0 ) {
 				String::tostring(tmpval,currentrow);
 				container.replace(hashpos,4,tmpval);
+				hashpos--;
 				retval = true;
 			}
-			hashpos = container.find('#',hashpos);
+			hashpos = container.find('#',++hashpos);
 		}
 		if (!retval) {
 			container = "";
