@@ -151,6 +151,7 @@ Document::Document(DataItem* inputfile,load_type use_loader, std::string fp, Oby
 	if (inputfile == NULL) {
 		*Logger::log << Log::error << Log::LI << "Error. Document " << filepath << " failed to be parsed or did not exist. " << Log::LO ;
 		trace();
+		*Logger::log << Log::blockend ;
 		results.clear();
 	} else {
 		switch ( use_loader ) {
