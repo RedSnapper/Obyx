@@ -257,10 +257,6 @@
 			B57419CD119463CD0046BE0B /* PBXTextBookmark */ = B57419CD119463CD0046BE0B /* PBXTextBookmark */;
 			B57419CE119463CD0046BE0B /* PBXTextBookmark */ = B57419CE119463CD0046BE0B /* PBXTextBookmark */;
 			B57419CF119463CD0046BE0B /* PBXTextBookmark */ = B57419CF119463CD0046BE0B /* PBXTextBookmark */;
-			B57419D21194646C0046BE0B /* PBXTextBookmark */ = B57419D21194646C0046BE0B /* PBXTextBookmark */;
-			B57419D31194646C0046BE0B /* PBXTextBookmark */ = B57419D31194646C0046BE0B /* PBXTextBookmark */;
-			B57419D4119464740046BE0B /* PBXTextBookmark */ = B57419D4119464740046BE0B /* PBXTextBookmark */;
-			B57419D8119464900046BE0B /* PBXTextBookmark */ = B57419D8119464900046BE0B /* PBXTextBookmark */;
 			B580DF45114902B300A49926 = B580DF45114902B300A49926 /* PBXTextBookmark */;
 			B580DFE91149134B00A49926 = B580DFE91149134B00A49926 /* PBXTextBookmark */;
 			B5AB19EE1153952A005BB97C = B5AB19EE1153952A005BB97C /* PBXTextBookmark */;
@@ -2055,8 +2051,8 @@
 		path = /Users/ben/Documents/Projects/RS/Obyx/version1/obyx.xcodeproj/ben.pbxuser;
 		sourceTree = "<absolute>";
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {942, 70245}}";
-			sepNavSelRange = "{97347, 0}";
+			sepNavIntBoundsRect = "{{0, 0}, {1582, 68817}}";
+			sepNavSelRange = "{94679, 0}";
 			sepNavVisRange = "{0, 1256}";
 		};
 	};
@@ -2276,46 +2272,6 @@
 		name = "ben.pbxuser: 3254";
 		rLen = 0;
 		rLoc = 94679;
-		rType = 0;
-		vrLen = 1256;
-		vrLoc = 0;
-	};
-	B57419D21194646C0046BE0B /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = B574198811945AC80046BE0B /* ben.pbxuser */;
-		name = "ben.pbxuser: 3310";
-		rLen = 0;
-		rLoc = 96346;
-		rType = 0;
-		vrLen = 1256;
-		vrLoc = 0;
-	};
-	B57419D31194646C0046BE0B /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = B574198811945AC80046BE0B /* ben.pbxuser */;
-		name = "ben.pbxuser: 3310";
-		rLen = 0;
-		rLoc = 96346;
-		rType = 0;
-		vrLen = 1256;
-		vrLoc = 0;
-	};
-	B57419D4119464740046BE0B /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = B574198811945AC80046BE0B /* ben.pbxuser */;
-		name = "ben.pbxuser: 3332";
-		rLen = 0;
-		rLoc = 97013;
-		rType = 0;
-		vrLen = 1256;
-		vrLoc = 0;
-	};
-	B57419D8119464900046BE0B /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = B574198811945AC80046BE0B /* ben.pbxuser */;
-		name = "ben.pbxuser: 3343";
-		rLen = 0;
-		rLoc = 97347;
 		rType = 0;
 		vrLen = 1256;
 		vrLoc = 0;
