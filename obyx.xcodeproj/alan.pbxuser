@@ -58,7 +58,7 @@
 				PBXFileTableDataSourceColumnWidthsKey = (
 					22,
 					300,
-					603,
+					589,
 				);
 				PBXFileTableDataSourceColumnsKey = (
 					PBXExecutablesDataSource_ActiveFlagID,
@@ -71,7 +71,7 @@
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
-					715,
+					701,
 					20,
 					48,
 					43,
@@ -146,8 +146,8 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 294936892;
-			PBXWorkspaceStateSaveDate = 294936892;
+			PBXPerProjectTemplateStateSaveDate = 294938027;
+			PBXWorkspaceStateSaveDate = 294938027;
 		};
 		perUserProjectItems = {
 			B50F6459111851D50045437C = B50F6459111851D50045437C /* PBXTextBookmark */;
@@ -235,28 +235,28 @@
 			B574198411945AC80046BE0B = B574198411945AC80046BE0B /* PBXTextBookmark */;
 			B574198511945AC80046BE0B = B574198511945AC80046BE0B /* PBXTextBookmark */;
 			B574198711945AC80046BE0B = B574198711945AC80046BE0B /* PBXTextBookmark */;
-			B57419A91194613E0046BE0B /* PBXTextBookmark */ = B57419A91194613E0046BE0B /* PBXTextBookmark */;
-			B57419AF1194615D0046BE0B /* PBXTextBookmark */ = B57419AF1194615D0046BE0B /* PBXTextBookmark */;
-			B57419B61194616D0046BE0B /* PBXTextBookmark */ = B57419B61194616D0046BE0B /* PBXTextBookmark */;
-			B57419B7119461810046BE0B /* PBXTextBookmark */ = B57419B7119461810046BE0B /* PBXTextBookmark */;
-			B57419B8119461860046BE0B /* PBXTextBookmark */ = B57419B8119461860046BE0B /* PBXTextBookmark */;
-			B57419B9119461BD0046BE0B /* PBXTextBookmark */ = B57419B9119461BD0046BE0B /* PBXTextBookmark */;
-			B57419BA119461DE0046BE0B /* PBXTextBookmark */ = B57419BA119461DE0046BE0B /* PBXTextBookmark */;
-			B57419BB119461EC0046BE0B /* PBXTextBookmark */ = B57419BB119461EC0046BE0B /* PBXTextBookmark */;
-			B57419BC119462130046BE0B /* PBXTextBookmark */ = B57419BC119462130046BE0B /* PBXTextBookmark */;
-			B57419BD1194624D0046BE0B /* PBXTextBookmark */ = B57419BD1194624D0046BE0B /* PBXTextBookmark */;
-			B57419BE119462770046BE0B /* PBXTextBookmark */ = B57419BE119462770046BE0B /* PBXTextBookmark */;
-			B57419BF119462850046BE0B /* PBXTextBookmark */ = B57419BF119462850046BE0B /* PBXTextBookmark */;
-			B57419C0119462980046BE0B /* PBXTextBookmark */ = B57419C0119462980046BE0B /* PBXTextBookmark */;
-			B57419C3119462E70046BE0B /* PBXTextBookmark */ = B57419C3119462E70046BE0B /* PBXTextBookmark */;
-			B57419C4119462E70046BE0B /* PBXTextBookmark */ = B57419C4119462E70046BE0B /* PBXTextBookmark */;
-			B57419C5119462E70046BE0B /* PBXTextBookmark */ = B57419C5119462E70046BE0B /* PBXTextBookmark */;
-			B57419C6119462E70046BE0B /* PBXTextBookmark */ = B57419C6119462E70046BE0B /* PBXTextBookmark */;
-			B57419C7119462F20046BE0B /* PBXTextBookmark */ = B57419C7119462F20046BE0B /* PBXTextBookmark */;
-			B57419C8119462F20046BE0B /* PBXTextBookmark */ = B57419C8119462F20046BE0B /* PBXTextBookmark */;
-			B57419CD119463CD0046BE0B /* PBXTextBookmark */ = B57419CD119463CD0046BE0B /* PBXTextBookmark */;
-			B57419CE119463CD0046BE0B /* PBXTextBookmark */ = B57419CE119463CD0046BE0B /* PBXTextBookmark */;
-			B57419CF119463CD0046BE0B /* PBXTextBookmark */ = B57419CF119463CD0046BE0B /* PBXTextBookmark */;
+			B57419A91194613E0046BE0B = B57419A91194613E0046BE0B /* PBXTextBookmark */;
+			B57419AF1194615D0046BE0B = B57419AF1194615D0046BE0B /* PBXTextBookmark */;
+			B57419B61194616D0046BE0B = B57419B61194616D0046BE0B /* PBXTextBookmark */;
+			B57419B7119461810046BE0B = B57419B7119461810046BE0B /* PBXTextBookmark */;
+			B57419B8119461860046BE0B = B57419B8119461860046BE0B /* PBXTextBookmark */;
+			B57419B9119461BD0046BE0B = B57419B9119461BD0046BE0B /* PBXTextBookmark */;
+			B57419BA119461DE0046BE0B = B57419BA119461DE0046BE0B /* PBXTextBookmark */;
+			B57419BB119461EC0046BE0B = B57419BB119461EC0046BE0B /* PBXTextBookmark */;
+			B57419BC119462130046BE0B = B57419BC119462130046BE0B /* PBXTextBookmark */;
+			B57419BD1194624D0046BE0B = B57419BD1194624D0046BE0B /* PBXTextBookmark */;
+			B57419BE119462770046BE0B = B57419BE119462770046BE0B /* PBXTextBookmark */;
+			B57419BF119462850046BE0B = B57419BF119462850046BE0B /* PBXTextBookmark */;
+			B57419C0119462980046BE0B = B57419C0119462980046BE0B /* PBXTextBookmark */;
+			B57419C3119462E70046BE0B = B57419C3119462E70046BE0B /* PBXTextBookmark */;
+			B57419C4119462E70046BE0B = B57419C4119462E70046BE0B /* PBXTextBookmark */;
+			B57419C5119462E70046BE0B = B57419C5119462E70046BE0B /* PBXTextBookmark */;
+			B57419C6119462E70046BE0B = B57419C6119462E70046BE0B /* PBXTextBookmark */;
+			B57419C7119462F20046BE0B = B57419C7119462F20046BE0B /* PBXTextBookmark */;
+			B57419C8119462F20046BE0B = B57419C8119462F20046BE0B /* PBXTextBookmark */;
+			B57419CD119463CD0046BE0B = B57419CD119463CD0046BE0B /* PBXTextBookmark */;
+			B57419CE119463CD0046BE0B = B57419CE119463CD0046BE0B /* PBXTextBookmark */;
+			B57419CF119463CD0046BE0B = B57419CF119463CD0046BE0B /* PBXTextBookmark */;
 			B580DF45114902B300A49926 = B580DF45114902B300A49926 /* PBXTextBookmark */;
 			B580DFE91149134B00A49926 = B580DFE91149134B00A49926 /* PBXTextBookmark */;
 			B5AB19EE1153952A005BB97C = B5AB19EE1153952A005BB97C /* PBXTextBookmark */;
@@ -2050,11 +2050,6 @@
 		name = ben.pbxuser;
 		path = /Users/ben/Documents/Projects/RS/Obyx/version1/obyx.xcodeproj/ben.pbxuser;
 		sourceTree = "<absolute>";
-		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1582, 68817}}";
-			sepNavSelRange = "{94679, 0}";
-			sepNavVisRange = "{0, 1256}";
-		};
 	};
 	B57419A91194613E0046BE0B /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
@@ -2430,7 +2425,7 @@
 			{
 				active = YES;
 				name = PATH_TRANSLATED;
-				value = /Library/WebServer/Documents/pubroot/tinyiter.obyx;
+				value = /Library/WebServer/Documents/pubroot/longtest/longtest.obyx;
 			},
 			{
 				active = YES;
@@ -2533,8 +2528,8 @@
 		);
 		showTypeColumn = 0;
 		sourceDirectories = (
-			"/Users/ben/Documents/Projects/SoftwareLibraries/xerces-c-3.0.1/src",
-			/Users/ben/Documents/Projects/SoftwareLibraries/xqilla/src,
+			"/Users/alan/Downloads/XQilla-2.2.4/src",
+			"/Users/alan/Downloads/xerces-c-3.1.1/src",
 		);
 		startupPath = "/Library/WebServer/CGI-Executables";
 		variableFormatDictionary = {
@@ -2550,7 +2545,7 @@
 		scmConfiguration = {
 			repositoryName = "svn.obyx.org  (dharma23)";
 			repositoryNamesForRoots = {
-				"" = "dev.svn.obyx.org  (yam===76)";
+				"" = obyx;
 			};
 		};
 	};
