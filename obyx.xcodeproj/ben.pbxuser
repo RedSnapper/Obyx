@@ -8,16 +8,7 @@
 			B541F1E611941E1E0099F07C /* obyx.fcgi */,
 		);
 		breakpoints = (
-			B59CC3CC105551DD005286CD /* malloc_error_break */,
-			B5FBC38E1105E8B30033AC52 /* xmlobject.cpp:185 */,
-			B5F988951148089C00DB37C3 /* xmlobject.cpp:36 */,
-			B5F988971148089E00DB37C3 /* xmlobject.cpp:40 */,
-			B5F9895F11481FF000DB37C3 /* fragmentobject.cpp:65 */,
-			B5F9896111481FF700DB37C3 /* fragmentobject.cpp:89 */,
-			B5F9896311481FFE00DB37C3 /* fragmentobject.cpp:95 */,
-			B580DF431149011F00A49926 /* xmlerrhandler.cpp:42 */,
-			B574193711944ADC0046BE0B /* logger.cpp:235 */,
-			B574193911944AF60046BE0B /* iko.cpp:511 */,
+			B57419DC119464F10046BE0B /* logger.cpp:235 */,
 		);
 		codeSenseManager = B5ABDD6F0FBD693D00DFCED4 /* Code sense */;
 		executables = (
@@ -34,11 +25,11 @@
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
 					20,
-					554,
+					454,
 					20,
-					253,
-					222,
-					10,
+					153,
+					123,
+					114,
 					20,
 				);
 				PBXFileTableDataSourceColumnsKey = (
@@ -261,6 +252,16 @@
 			B57419D31194646C0046BE0B /* PBXTextBookmark */ = B57419D31194646C0046BE0B /* PBXTextBookmark */;
 			B57419D4119464740046BE0B /* PBXTextBookmark */ = B57419D4119464740046BE0B /* PBXTextBookmark */;
 			B57419D8119464900046BE0B /* PBXTextBookmark */ = B57419D8119464900046BE0B /* PBXTextBookmark */;
+			B57419E1119465010046BE0B /* PBXTextBookmark */ = B57419E1119465010046BE0B /* PBXTextBookmark */;
+			B57419E2119465010046BE0B /* PBXTextBookmark */ = B57419E2119465010046BE0B /* PBXTextBookmark */;
+			B57419E3119465010046BE0B /* PBXTextBookmark */ = B57419E3119465010046BE0B /* PBXTextBookmark */;
+			B57419E4119465010046BE0B /* PBXTextBookmark */ = B57419E4119465010046BE0B /* PBXTextBookmark */;
+			B57419E5119465010046BE0B /* PBXTextBookmark */ = B57419E5119465010046BE0B /* PBXTextBookmark */;
+			B57419E6119465010046BE0B /* PBXTextBookmark */ = B57419E6119465010046BE0B /* PBXTextBookmark */;
+			B57419E7119465010046BE0B /* PBXTextBookmark */ = B57419E7119465010046BE0B /* PBXTextBookmark */;
+			B57419E8119465330046BE0B /* PBXTextBookmark */ = B57419E8119465330046BE0B /* PBXTextBookmark */;
+			B57419E9119465330046BE0B /* PBXTextBookmark */ = B57419E9119465330046BE0B /* PBXTextBookmark */;
+			B57419EA119465330046BE0B /* PBXTextBookmark */ = B57419EA119465330046BE0B /* PBXTextBookmark */;
 			B580DF45114902B300A49926 = B580DF45114902B300A49926 /* PBXTextBookmark */;
 			B580DFE91149134B00A49926 = B580DFE91149134B00A49926 /* PBXTextBookmark */;
 			B5AB19EE1153952A005BB97C = B5AB19EE1153952A005BB97C /* PBXTextBookmark */;
@@ -521,8 +522,8 @@
 		uiCtxt = {
 			sepNavFolds = "{\n    c =     (\n                {\n            r = \"{3529, 1021}\";\n            s = 0;\n        },\n                {\n            r = \"{4698, 472}\";\n            s = 0;\n        }\n    );\n    r = \"{0, 9834}\";\n    s = 0;\n}";
 			sepNavIntBoundsRect = "{{0, 0}, {1202, 6258}}";
-			sepNavSelRange = "{5789, 0}";
-			sepNavVisRange = "{5005, 982}";
+			sepNavSelRange = "{3975, 0}";
+			sepNavVisRange = "{3760, 705}";
 			sepNavWindowFrame = "{{171, 63}, {1749, 1070}}";
 		};
 	};
@@ -1632,9 +1633,9 @@
 	};
 	B555978A0F8A0D3E003C3BE0 /* xmlobject.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1372, 10353}}";
-			sepNavSelRange = "{14711, 0}";
-			sepNavVisRange = "{13698, 1013}";
+			sepNavIntBoundsRect = "{{0, 0}, {893, 9660}}";
+			sepNavSelRange = "{1660, 45}";
+			sepNavVisRange = "{804, 1085}";
 			sepNavWindowFrame = "{{186, 131}, {1734, 1047}}";
 		};
 	};
@@ -1935,42 +1936,6 @@
 		vrLen = 2403;
 		vrLoc = 50632;
 	};
-	B574193711944ADC0046BE0B /* logger.cpp:235 */ = {
-		isa = PBXFileBreakpoint;
-		actions = (
-		);
-		breakpointStyle = 0;
-		continueAfterActions = 0;
-		countType = 0;
-		delayBeforeContinue = 0;
-		fileReference = B50F50A009939223002FC561 /* logger.cpp */;
-		functionName = "Logger::operator << (const msgtype mtype)";
-		hitCount = 1;
-		ignoreCount = 0;
-		lineNumber = 235;
-		location = obyx.cgi;
-		modificationTime = 294931169.924187;
-		originalNumberOfMultipleMatches = 1;
-		state = 1;
-	};
-	B574193911944AF60046BE0B /* iko.cpp:511 */ = {
-		isa = PBXFileBreakpoint;
-		actions = (
-		);
-		breakpointStyle = 0;
-		continueAfterActions = 0;
-		countType = 0;
-		delayBeforeContinue = 0;
-		fileReference = B5DA48C00CFC48BE0060FFB1 /* iko.cpp */;
-		functionName = "IKO::evaltype(inp_type the_space, bool release, bool eval,kind_type ikind,DataItem*& name_item, DataItem*& container)";
-		hitCount = 1;
-		ignoreCount = 0;
-		lineNumber = 511;
-		location = obyx.cgi;
-		modificationTime = 294931192.686246;
-		originalNumberOfMultipleMatches = 1;
-		state = 1;
-	};
 	B574194111944B2E0046BE0B /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
 		fRef = B541F1D4119414330099F07C /* fast.cpp */;
@@ -2055,9 +2020,9 @@
 		path = /Users/ben/Documents/Projects/RS/Obyx/version1/obyx.xcodeproj/ben.pbxuser;
 		sourceTree = "<absolute>";
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {942, 70245}}";
-			sepNavSelRange = "{97347, 0}";
-			sepNavVisRange = "{0, 1256}";
+			sepNavIntBoundsRect = "{{0, 0}, {942, 68670}}";
+			sepNavSelRange = "{939, 0}";
+			sepNavVisRange = "{0, 966}";
 		};
 	};
 	B57419A91194613E0046BE0B /* PBXTextBookmark */ = {
@@ -2320,7 +2285,7 @@
 		vrLen = 1256;
 		vrLoc = 0;
 	};
-	B580DF431149011F00A49926 /* xmlerrhandler.cpp:42 */ = {
+	B57419DC119464F10046BE0B /* logger.cpp:235 */ = {
 		isa = PBXFileBreakpoint;
 		actions = (
 		);
@@ -2328,15 +2293,114 @@
 		continueAfterActions = 0;
 		countType = 0;
 		delayBeforeContinue = 0;
-		fileReference = B5E3219C09BC6D0100F7FC96 /* xmlerrhandler.cpp */;
-		functionName = "XMLErrorHandler::handleError(const xercesc::DOMError& domError)";
+		fileReference = B50F50A009939223002FC561 /* logger.cpp */;
+		functionName = "Logger::operator << (const msgtype mtype)";
 		hitCount = 0;
 		ignoreCount = 0;
-		lineNumber = 42;
-		location = obyx.cgi;
-		modificationTime = 294931169.3687111;
-		originalNumberOfMultipleMatches = 1;
+		lineNumber = 235;
+		modificationTime = 294937841.872069;
+		originalNumberOfMultipleMatches = 0;
 		state = 1;
+	};
+	B57419E1119465010046BE0B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = B574198811945AC80046BE0B /* ben.pbxuser */;
+		name = "ben.pbxuser: 24";
+		rLen = 0;
+		rLoc = 939;
+		rType = 0;
+		vrLen = 1256;
+		vrLoc = 0;
+	};
+	B57419E2119465010046BE0B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = B5DA48C00CFC48BE0060FFB1 /* iko.cpp */;
+		name = "iko.cpp: 511";
+		rLen = 76;
+		rLoc = 16226;
+		rType = 0;
+		vrLen = 1247;
+		vrLoc = 15686;
+	};
+	B57419E3119465010046BE0B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = B555978A0F8A0D3E003C3BE0 /* xmlobject.cpp */;
+		name = "xmlobject.cpp: 41";
+		rLen = 45;
+		rLoc = 1660;
+		rType = 0;
+		vrLen = 1085;
+		vrLoc = 804;
+	};
+	B57419E4119465010046BE0B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = B58DA8C11104B05E00C34661 /* fragmentobject.cpp */;
+		name = "fragmentobject.cpp: 95";
+		rLen = 18;
+		rLoc = 3367;
+		rType = 0;
+		vrLen = 1026;
+		vrLoc = 2870;
+	};
+	B57419E5119465010046BE0B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = B5E3219C09BC6D0100F7FC96 /* xmlerrhandler.cpp */;
+		name = "xmlerrhandler.cpp: 42";
+		rLen = 95;
+		rLoc = 1842;
+		rType = 0;
+		vrLen = 1377;
+		vrLoc = 1266;
+	};
+	B57419E6119465010046BE0B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = B50F50A009939223002FC561 /* logger.cpp */;
+		name = "logger.cpp: 235";
+		rLen = 19;
+		rLoc = 5512;
+		rType = 0;
+		vrLen = 944;
+		vrLoc = 4955;
+	};
+	B57419E7119465010046BE0B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = B50F50A009939223002FC561 /* logger.cpp */;
+		name = "logger.cpp: 177";
+		rLen = 0;
+		rLoc = 5466;
+		rType = 0;
+		vrLen = 705;
+		vrLoc = 5251;
+	};
+	B57419E8119465330046BE0B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = B50F50A009939223002FC561 /* logger.cpp */;
+		name = "logger.cpp: 177";
+		rLen = 0;
+		rLoc = 5466;
+		rType = 0;
+		vrLen = 705;
+		vrLoc = 5251;
+	};
+	B57419E9119465330046BE0B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = B574198811945AC80046BE0B /* ben.pbxuser */;
+		name = "ben.pbxuser: 30";
+		rLen = 0;
+		rLoc = 939;
+		rType = 0;
+		vrLen = 966;
+		vrLoc = 0;
+	};
+	B57419EA119465330046BE0B /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = B574198811945AC80046BE0B /* ben.pbxuser */;
+		name = "ben.pbxuser: 30";
+		rLen = 0;
+		rLoc = 939;
+		rType = 0;
+		vrLen = 966;
+		vrLoc = 0;
 	};
 	B580DF45114902B300A49926 /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
@@ -2383,27 +2447,11 @@
 	};
 	B58DA8C11104B05E00C34661 /* fragmentobject.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1432, 4956}}";
-			sepNavSelRange = "{6537, 0}";
-			sepNavVisRange = "{5574, 963}";
+			sepNavIntBoundsRect = "{{0, 0}, {1432, 4200}}";
+			sepNavSelRange = "{3367, 18}";
+			sepNavVisRange = "{2870, 1026}";
 			sepNavWindowFrame = "{{252, 101}, {1668, 977}}";
 		};
-	};
-	B59CC3CC105551DD005286CD /* malloc_error_break */ = {
-		isa = PBXSymbolicBreakpoint;
-		actions = (
-		);
-		breakpointStyle = 1;
-		continueAfterActions = 0;
-		countType = 0;
-		delayBeforeContinue = 0;
-		hitCount = 0;
-		ignoreCount = 0;
-		location = libSystem.B.dylib;
-		modificationTime = 294931169.412469;
-		originalNumberOfMultipleMatches = 1;
-		state = 1;
-		symbolName = malloc_error_break;
 	};
 	B5A68B3B09CEF76B00D69316 /* pairqueue.h */ = {
 		uiCtxt = {
@@ -2949,10 +2997,10 @@
 	};
 	B5DA48C00CFC48BE0060FFB1 /* iko.cpp */ = {
 		uiCtxt = {
-			sepNavFolds = "{\n    c =     (\n                {\n            r = \"{13914, 147}\";\n            s = 0;\n        },\n                {\n            r = \"{14174, 115}\";\n            s = 0;\n        },\n                {\n            r = \"{14312, 112}\";\n            s = 0;\n        },\n                {\n            r = \"{14720, 661}\";\n            s = 0;\n        },\n                {\n            r = \"{15463, 3133}\";\n            s = 0;\n        },\n                {\n            r = \"{18629, 558}\";\n            s = 0;\n        },\n                {\n            r = \"{19218, 593}\";\n            s = 0;\n        },\n                {\n            r = \"{19837, 885}\";\n            s = 0;\n        },\n                {\n            r = \"{20749, 589}\";\n            s = 0;\n        },\n                {\n            r = \"{21368, 2449}\";\n            s = 0;\n        },\n                {\n            r = \"{23841, 1904}\";\n            s = 0;\n        },\n                {\n            r = \"{25772, 827}\";\n            s = 0;\n        },\n                {\n            r = \"{26627, 789}\";\n            s = 0;\n        },\n                {\n            r = \"{27443, 1315}\";\n            s = 0;\n        }\n    );\n    r = \"{0, 33953}\";\n    s = 0;\n}";
-			sepNavIntBoundsRect = "{{0, 0}, {1812, 12054}}";
-			sepNavSelRange = "{15251, 0}";
-			sepNavVisRange = "{15359, 1054}";
+			sepNavFolds = "{\n    c =     (\n                {\n            r = \"{13914, 147}\";\n            s = 0;\n        },\n                {\n            r = \"{14174, 115}\";\n            s = 0;\n        },\n                {\n            r = \"{14312, 112}\";\n            s = 0;\n        },\n                {\n            r = \"{14720, 661}\";\n            s = 0;\n        },\n                {\n            r = \"{18629, 558}\";\n            s = 0;\n        },\n                {\n            r = \"{19218, 593}\";\n            s = 0;\n        },\n                {\n            r = \"{19837, 885}\";\n            s = 0;\n        },\n                {\n            r = \"{20749, 589}\";\n            s = 0;\n        },\n                {\n            r = \"{21368, 2449}\";\n            s = 0;\n        },\n                {\n            r = \"{23841, 1904}\";\n            s = 0;\n        },\n                {\n            r = \"{25772, 827}\";\n            s = 0;\n        },\n                {\n            r = \"{26627, 789}\";\n            s = 0;\n        },\n                {\n            r = \"{27443, 1315}\";\n            s = 0;\n        }\n    );\n    r = \"{0, 33953}\";\n    s = 0;\n}";
+			sepNavIntBoundsRect = "{{0, 0}, {1382, 13755}}";
+			sepNavSelRange = "{15195, 76}";
+			sepNavVisRange = "{14655, 1247}";
 		};
 	};
 	B5DE56C31158C28D00432CEF /* PBXTextBookmark */ = {
@@ -3043,9 +3091,9 @@
 	};
 	B5E3219C09BC6D0100F7FC96 /* xmlerrhandler.cpp */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1312, 1680}}";
-			sepNavSelRange = "{1842, 0}";
-			sepNavVisRange = "{1266, 1717}";
+			sepNavIntBoundsRect = "{{0, 0}, {1312, 1617}}";
+			sepNavSelRange = "{1842, 95}";
+			sepNavVisRange = "{1266, 1377}";
 		};
 	};
 	B5E3219D09BC6D0100F7FC96 /* xmlerrhandler.h */ = {
@@ -3157,42 +3205,6 @@
 		vrLen = 1165;
 		vrLoc = 1180;
 	};
-	B5F988951148089C00DB37C3 /* xmlobject.cpp:36 */ = {
-		isa = PBXFileBreakpoint;
-		actions = (
-		);
-		breakpointStyle = 0;
-		continueAfterActions = 0;
-		countType = 0;
-		delayBeforeContinue = 0;
-		fileReference = B555978A0F8A0D3E003C3BE0 /* xmlobject.cpp */;
-		functionName = "XMLObject::XMLObject(const XMLObject* s)";
-		hitCount = 0;
-		ignoreCount = 0;
-		lineNumber = 36;
-		location = obyx.cgi;
-		modificationTime = 294931169.2410451;
-		originalNumberOfMultipleMatches = 1;
-		state = 1;
-	};
-	B5F988971148089E00DB37C3 /* xmlobject.cpp:40 */ = {
-		isa = PBXFileBreakpoint;
-		actions = (
-		);
-		breakpointStyle = 0;
-		continueAfterActions = 0;
-		countType = 0;
-		delayBeforeContinue = 0;
-		fileReference = B555978A0F8A0D3E003C3BE0 /* xmlobject.cpp */;
-		functionName = "XMLObject::XMLObject(const xercesc::DOMDocument* s)";
-		hitCount = 0;
-		ignoreCount = 0;
-		lineNumber = 40;
-		location = obyx.cgi;
-		modificationTime = 294931169.26537;
-		originalNumberOfMultipleMatches = 1;
-		state = 1;
-	};
 	B5F988B111480ACB00DB37C3 /* DOMImplementation.hpp */ = {
 		isa = PBXFileReference;
 		lastKnownFileType = sourcecode.cpp.h;
@@ -3277,77 +3289,5 @@
 		rType = 0;
 		vrLen = 1793;
 		vrLoc = 1090;
-	};
-	B5F9895F11481FF000DB37C3 /* fragmentobject.cpp:65 */ = {
-		isa = PBXFileBreakpoint;
-		actions = (
-		);
-		breakpointStyle = 0;
-		continueAfterActions = 0;
-		countType = 0;
-		delayBeforeContinue = 0;
-		fileReference = B58DA8C11104B05E00C34661 /* fragmentobject.cpp */;
-		functionName = "FragmentObject::FragmentObject(const xercesc::DOMNode* n)";
-		hitCount = 0;
-		ignoreCount = 0;
-		lineNumber = 65;
-		location = obyx.cgi;
-		modificationTime = 294931169.283322;
-		originalNumberOfMultipleMatches = 1;
-		state = 1;
-	};
-	B5F9896111481FF700DB37C3 /* fragmentobject.cpp:89 */ = {
-		isa = PBXFileBreakpoint;
-		actions = (
-		);
-		breakpointStyle = 0;
-		continueAfterActions = 0;
-		countType = 0;
-		delayBeforeContinue = 0;
-		fileReference = B58DA8C11104B05E00C34661 /* fragmentobject.cpp */;
-		functionName = "FragmentObject::FragmentObject(const DataItem& s)";
-		hitCount = 0;
-		ignoreCount = 0;
-		lineNumber = 89;
-		location = obyx.cgi;
-		modificationTime = 294931169.322951;
-		originalNumberOfMultipleMatches = 1;
-		state = 1;
-	};
-	B5F9896311481FFE00DB37C3 /* fragmentobject.cpp:95 */ = {
-		isa = PBXFileBreakpoint;
-		actions = (
-		);
-		breakpointStyle = 0;
-		continueAfterActions = 0;
-		countType = 0;
-		delayBeforeContinue = 0;
-		fileReference = B58DA8C11104B05E00C34661 /* fragmentobject.cpp */;
-		functionName = "FragmentObject::append(DataItem*& s)";
-		hitCount = 0;
-		ignoreCount = 0;
-		lineNumber = 95;
-		location = obyx.cgi;
-		modificationTime = 294931169.347527;
-		originalNumberOfMultipleMatches = 1;
-		state = 1;
-	};
-	B5FBC38E1105E8B30033AC52 /* xmlobject.cpp:185 */ = {
-		isa = PBXFileBreakpoint;
-		actions = (
-		);
-		breakpointStyle = 0;
-		continueAfterActions = 0;
-		countType = 0;
-		delayBeforeContinue = 0;
-		fileReference = B555978A0F8A0D3E003C3BE0 /* xmlobject.cpp */;
-		functionName = "XMLObject::xp(const DataItem* ins,const std::string& path,DOMLSParser::ActionType action,bool node_expected,std::string& error_str)";
-		hitCount = 0;
-		ignoreCount = 0;
-		lineNumber = 185;
-		location = obyx.cgi;
-		modificationTime = 294931169.227118;
-		originalNumberOfMultipleMatches = 1;
-		state = 0;
 	};
 }
