@@ -199,12 +199,13 @@ bool Iteration::field(const string& fname,string& container,string& errstring) c
 					hashpos--;
 					retval = true; 
 				} 
-			} 
-			if ( container.compare(hashpos,4,"#row") == 0 ) {
-				String::tostring(tmpval,currentrow);
-				container.replace(hashpos,4,tmpval);
-				hashpos--;
-				retval = true;
+			} else {
+				if ( container.compare(hashpos,4,"#row") == 0 ) {
+					String::tostring(tmpval,currentrow);
+					container.replace(hashpos,4,tmpval);
+					hashpos--;
+					retval = true;
+				}
 			}
 			hashpos = container.find('#',++hashpos);
 		}
