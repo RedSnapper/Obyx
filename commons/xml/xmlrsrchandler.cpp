@@ -137,9 +137,6 @@ namespace XML {
 		}
 		return retval;
 	}
-	
-	//	XMLEntityResolver
-	
 	//With DTD, we must bind our namespace to the publicId.
 	//This means we must extract the publicId during grammar load.
 	DOMLSInput* XMLResourceHandler::resolveResource(
