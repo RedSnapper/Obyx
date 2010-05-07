@@ -143,12 +143,11 @@ namespace XML {
 	//With DTD, we must bind our namespace to the publicId.
 	//This means we must extract the publicId during grammar load.
 	DOMLSInput* XMLResourceHandler::resolveResource(
-													const XMLCh* const,  //resourceType
-													const XMLCh* const namespaceUri , 
-													const XMLCh* const publicId, 
-													const XMLCh* const systemId, 
-													const XMLCh* const /*baseURI*/ ) { //
-		DOMLSInput* retval=NULL;
+			const XMLCh* const,  //resourceType
+			const XMLCh* const namespaceUri , 
+			const XMLCh* const publicId, 
+			const XMLCh* const systemId, 
+			const XMLCh* const /*baseURI*/ ) { //
 		const XMLCh* grammarkey = NULL;
 		if ( namespaceUri != NULL ) {
 			grammarkey = namespaceUri;
@@ -156,26 +155,8 @@ namespace XML {
 		if ( grammarkey == NULL || XMLString::stringLen(grammarkey) == 0 ) { // test for length!
 			if (systemId != NULL) { grammarkey = systemId; }
 		}
-		//		if ( grammarkey == NULL || XMLString::stringLen(grammarkey) == 0 ) { // test for length!
-		//			if (publicId != NULL) { grammarkey = publicId; }
-		//		}
 		grammar_map_type::iterator it = the_grammar_map.find(grammarkey);
-		if (it != the_grammar_map.end()) {
-			retval = NULL;
-			/*
-			 //This is causing a reparse of the grammar every time 
-			 GrammarRecord* grec =  it->second;
-			 string r_gra = grec->gra;
-			 XMLByte* xmlraw = (XMLByte*)(r_gra.c_str());
-			 retval = ((DOMImplementationLS*)Manager::parser()->impl)->createLSInput();	
-			 MemBufInputSource* mem = new MemBufInputSource(xmlraw,r_gra.size(),grammarkey);
-			 mem->setPublicId(publicId);
-			 mem->setSystemId(systemId);
-			 //			mem->setCopyBufToStream(false);
-			 retval->setByteStream(mem);
-			 retval->setEncoding(XMLUni::fgUTF8EncodingString); //This must be done.
-			 */
-		} else {
+		if (it == the_grammar_map.end()) {
 			string a_nsu="-",a_pid="-",a_sid="-";
 			if (namespaceUri != NULL) transcode(namespaceUri,a_nsu); 
 			if (publicId != NULL ) transcode(publicId,a_pid);  //Currently we only bind on publicID.
@@ -185,7 +166,7 @@ namespace XML {
 			*Logger::log << Log::LI << a_nsu << Log::LO << Log::LI << a_pid << Log::LO << Log::LI << a_sid << Log::LO; 
 			*Logger::log << Log::blockend << Log::LO << Log::blockend;
 		}
-		return retval;
+		return NULL; // DOMLSInput* 
 	}
 	
 }
