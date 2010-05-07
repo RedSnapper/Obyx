@@ -41,9 +41,10 @@ using namespace XML;
 namespace Filer {
 	
 	bool getfile(string filepathstring,string& filecontainer,string& error_str) {
+		Environment* env = Environment::service();
 		bool success = false;
 		if (filepathstring[0] != '/') { //we don't want to use file root, but site root.
-			filepathstring = Environment::getpathforroot() + '/' +filepathstring;
+			filepathstring = env->getpathforroot() + '/' +filepathstring;
 		}
 		FileUtils::Path destination; 
 		destination.cd(filepathstring);
@@ -55,42 +56,46 @@ namespace Filer {
 				file.readFile(filecontainer);
 				success = true;
 			}
+			if (filecontainer.empty()) {
+				error_str = "File appears empty. Check file-read permission. ";
+				success = false;
+			}
 		} else {
 			error_str = "File does not exist. ";
 		}
-		if (filecontainer.empty()) {
-			error_str = "File appears empty. Check file-read permission. ";
-			success = false;
-		}
 		return success;
 	}
-
+	
 	void output(const string finalfile,kind_type kind) {
+		Environment* env = Environment::service();
+		Httphead* http = Httphead::service();	
 		if ( ! Logger::wasfatal() ) {	  //This means there were some bugs...
-			if (! Httphead::mime_changed() && (kind != di_object)) {
-				Httphead::setmime("text/plain");
+			if (! http->mime_changed() && (kind != di_object)) {
+				http->setmime("text/plain");
 			}
 			string temp_var;
-			if (Environment::getenv("REQUEST_METHOD",temp_var) && temp_var.compare("HEAD") == 0) {
-				Httphead::doheader();
+			if (env->getenv("REQUEST_METHOD",temp_var) && temp_var.compare("HEAD") == 0) {
+				http->doheader();
 			} else {
-				Httphead::setcontent(finalfile);
-				Httphead::doheader();
+				http->setcontent(finalfile);
+				http->doheader();
 			}
 		}
 	}
 	
 	//get the values that we found in the store, if there are any.
 	void outputRedirect() {
-		Httphead::setcode(302);	
-		Httphead::doheader(); 
+		Httphead* http = Httphead::service();	
+		http->setcode(302);	
+		http->doheader(); 
 	}
-		
+	
 	void defaultHTTPHeader(bool complete) {
-		Httphead::setcode(200);	
+		Httphead* http = Httphead::service();	
+		http->setcode(200);	
 		if (complete) { 
-			Httphead::doheader();
+			http->doheader();
 		}
 	}
-
+	
 }	// namespace Filer

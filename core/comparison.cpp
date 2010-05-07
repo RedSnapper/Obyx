@@ -46,9 +46,9 @@ using namespace qxml;
 cmp_type_map Comparison::cmp_types;
 
 Comparison::Comparison(ObyxElement* par,const Comparison* orig) : Function(par,orig),
-	operation(orig->operation),invert(orig->invert),scope(orig->scope),
-	eval_found(orig->eval_found),cmp_evaluated(orig->cmp_evaluated),
-	def_evaluated(orig->def_evaluated),operation_result(orig->operation_result) {}
+operation(orig->operation),invert(orig->invert),scope(orig->scope),
+eval_found(orig->eval_found),cmp_evaluated(orig->cmp_evaluated),
+def_evaluated(orig->def_evaluated),operation_result(orig->operation_result) {}
 
 Comparison::Comparison(xercesc::DOMNode* const& n,ObyxElement* par) :
 Function(n,comparison,par),operation(equivalent_to),invert(false),scope(qxml::all),eval_found(false),
@@ -194,7 +194,7 @@ bool Comparison::evaluate_this() {
 									compare_test = (inpval != NULL && ! inpval->empty());
 								}
 							} break;
-							
+								
 							case equivalent_to: { 
 								if (acc == NULL) {
 									compare_test = (inpval == NULL);
@@ -274,7 +274,7 @@ bool Comparison::evaluate_this() {
 						} else {
 							compare_bool = compare_bool || compare_test; 
 						}
-
+						
 					}
 				}
 			}
@@ -294,7 +294,7 @@ bool Comparison::evaluate_this() {
 		def_evaluated = true; 
 		for ( unsigned int i = 0; i < definputs.size(); i++ ) {		//only one of the definputs will be evaluated here, if it exists.
 			if ( (operation_result=='T' && definputs[i]->wotzit == ontrue  ) 
-			||   (operation_result=='F' && definputs[i]->wotzit == onfalse ) ) {
+				||   (operation_result=='F' && definputs[i]->wotzit == onfalse ) ) {
 				eval_found = true;
 				def_evaluated = definputs[i]->evaluate();
 				if (def_evaluated) { 
@@ -377,8 +377,14 @@ void Comparison::addDefInpType(DefInpType* i) {
 	}
 }
 
-//static methods - once only thank-you very much..
+//static methods - once only (either per main doc, or per process) thank-you very much..
 void Comparison::init() {
+}
+
+void Comparison::finalise() {
+}
+
+void Comparison::startup() {
 	cmp_types.insert(cmp_type_map::value_type(UCS2(L"equal"), std::pair<cmp_type,bool>::pair(equivalent_to,false) ));
 	cmp_types.insert(cmp_type_map::value_type(UCS2(L"existent"), std::pair<cmp_type,bool>::pair(exists,false)));
 	cmp_types.insert(cmp_type_map::value_type(UCS2(L"empty"), std::pair<cmp_type,bool>::pair(is_empty,false) ));
@@ -386,5 +392,10 @@ void Comparison::init() {
 	cmp_types.insert(cmp_type_map::value_type(UCS2(L"greater"), std::pair<cmp_type,bool>::pair(greater_than,false) ));
 	cmp_types.insert(cmp_type_map::value_type(UCS2(L"lesser"), std::pair<cmp_type,bool>::pair(less_than,false) ));
 	cmp_types.insert(cmp_type_map::value_type(UCS2(L"true"), std::pair<cmp_type,bool>::pair(cmp_true,false) ));
-
 }
+
+void Comparison::shutdown() {
+	cmp_types.clear();
+}	
+
+

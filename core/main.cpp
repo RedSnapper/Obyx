@@ -24,85 +24,157 @@
 #include <string>
 #include <ctime>
 
+#ifdef FAST
+#include "commons/fast/fast.h"
+#endif
 #include "commons/httphead/httphead.h"
+#include "commons/httpfetch/httpfetch.h"
 #include "commons/environment/environment.h"
 #include "commons/logger/logger.h"
 #include "commons/filing/filing.h"
 #include "commons/vdb/vdb.h"
 
+#include "itemstore.h"
 #include "filer.h"
 #include "document.h"
 #include "strobject.h"
 #include "osimessage.h"
+#include "dataitem.h"
 
 using namespace std;
 using namespace Vdb;
 using namespace Log;
 using namespace qxml;
 
+void startup(std::string&,std::string&);
+void init(ostream*&,int,char**,char**);
+void finalise();
+void shutdown();
+
 int main(int argc, char *argv[]) {
- 	string v_number = "1.100506";
+ 	string v_number = "1.100507";
+#ifdef FAST
+	string version  = "Obyx v"+v_number+"F Supported (Xerces 3.0/XQilla 2.2)";
+#else
 	string version  = "Obyx v"+v_number+" Supported (Xerces 3.0/XQilla 2.2)";
+#endif
 	if (argc == 2 && argv[1][0]=='-' && argv[1][1]=='V' ) {
 		string compiledate(__DATE__);
 		string compiletime(__TIME__);
 	    std::cout << "Status: 200 OK\r\nContent-Type: text/plain\r\n\r\n";
 		std::cout << version << ", Build:" << compiledate << " " << compiletime;
 	} else {
-		Logger::set_title(version);
-		Environment::init(argc,argv);							//yes, process post please!
-		Environment::setenv("OBYX_VERSION",version);			//Let coders know what version we are in!
-		Environment::setenv("OBYX_VERSION_NUMBER",v_number);	//Let coders know what version number we are in!
-		ostream* os = Logger::startup();		//Logger
-		Httphead::init(os);
-		Document::init();
-		OsiMessage::init();
-		Vdb::ServiceFactory* dbsf = Vdb::ServiceFactory::startup(Environment::envexists("OBYX_SQLSERVICE_REQ"));	//Create a service, initialising it.
-		string sourcefilepath="";
-		if ( Environment::getenv("PATH_TRANSLATED",sourcefilepath)) {
-			size_t wdp = sourcefilepath.rfind('/');
-			if ( wdp != string::npos) {
-				FileUtils::Path::push_wd(sourcefilepath.substr(0,wdp));
-			} 
-			string errorstr="",sourcefile="";
-			kind_type kind = di_null;
-			if (Filer::getfile(sourcefilepath,sourcefile,errorstr)) {
-				ObyxElement::init(dbsf);
-				DataItem* sfile = DataItem::factory(sourcefile,di_text); //will parse as object inside logging.
-				string out_str;				
-				if (true) { // used to delete document before finalising stuff
-					DataItem* result = NULL;
-					Document* obyxdoc = new Document(sfile,Document::Main,sourcefilepath);	//Main = called from here!
-					obyxdoc->results.takeresult(result);
-					if (result != NULL) { 
-						out_str = *result; 
-						kind = result->kind();
-						delete result;
+		startup(version,v_number);
+		ostream* f_out = NULL;
+		char** ienv = NULL;
+#ifdef FAST
+		while (Fast::ready(f_out,ienv))   {
+#endif
+			init(f_out,argc,argv,ienv);
+			Httphead* http = Httphead::service();
+			Environment* env = Environment::service();
+			string sourcefilepath="";
+			if ( env->getenv("PATH_TRANSLATED",sourcefilepath)) {
+				size_t wdp = sourcefilepath.rfind('/');
+				if ( wdp != string::npos) {
+					FileUtils::Path::push_wd(sourcefilepath.substr(0,wdp));
+				} 
+				string errorstr="",sourcefile="";
+				kind_type kind = di_null;
+				if (Filer::getfile(sourcefilepath,sourcefile,errorstr)) {
+					ObyxElement::init();
+					DataItem* sfile = DataItem::factory(sourcefile,di_text); //will parse as object inside logging.
+					string out_str;				
+					if (true) { // used to delete document before finalising stuff
+						DataItem* result = NULL;
+						Document* obyxdoc = new Document(sfile,Document::Main,sourcefilepath);	//Main = called from here!
+						obyxdoc->results.takeresult(result);
+						if (result != NULL) { 
+							out_str = *result; 
+							kind = result->kind();
+							delete result;
+						}
+						delete obyxdoc;
 					}
-					delete obyxdoc;
+					Filer::output(out_str,kind);
+					delete sfile;
+					ObyxElement::finalise();	
+				} else {
+					http->setcode(404);
+					string wd = FileUtils::Path::wd();
+					*Logger::log << Log::fatal << Log::LI << "Error loading main file. ";
+					*Logger::log << errorstr;
+					*Logger::log << "Path: [" << sourcefilepath << "], Directory: [" << wd << "]. Obyx needs a source file to parse." << Log::LO << blockend;	
+					http->doheader();
 				}
-				Filer::output(out_str,kind);
-				delete sfile;
-				ObyxElement::finalise();	
+				if ( wdp != string::npos) {
+					FileUtils::Path::pop_wd();
+				}
 			} else {
-				Httphead::setcode(404);
-				string wd = FileUtils::Path::wd();
-				*Logger::log << Log::fatal << Log::LI << "Error loading main file. ";
-				*Logger::log << errorstr;
-				*Logger::log << "Path: [" << sourcefilepath << "], Directory: [" << wd << "]. Obyx needs a source file to parse." << Log::LO << blockend;	
-				Httphead::doheader();
+				http->setcode(404);	
+				*Logger::log << Log::fatal << Log::LI << "Error. PATH_TRANSLATED was not set. Obyx needs a source file to parse." << Log::LO << blockend;
+				http->doheader();
 			}
-			if ( wdp != string::npos) {
-				FileUtils::Path::pop_wd();
-			}
-		} else {
-			Httphead::setcode(404);		
-			*Logger::log << Log::fatal << Log::LI << "Error. PATH_TRANSLATED was not set. Obyx needs a source file to parse." << Log::LO << blockend;	
-			Httphead::doheader();
-		}
-		Vdb::ServiceFactory::shutdown();	//Remove the database service, disposing of the dbs at the same time.
-		Document::shutdown();		
-		Logger::shutdown();
+			finalise();
+#ifdef FAST
+		}	// finish fast loop
+#endif
+		shutdown();
 	}
 	return 0;
 }
+
+void startup(std::string& version,std::string& v_number) {
+	Environment::startup(version,v_number);				//unchanging environment stuff.
+#ifdef FAST
+	Fast::startup();
+#endif
+	Vdb::ServiceFactory::startup();
+	String::Regex::startup();
+	Httphead::startup();
+	Logger::startup(version);								//Logger
+	OsiMessage::startup();
+	Document::startup();
+	ObyxElement::startup();
+	DataItem::startup();
+	ItemStore::startup();
+	Fetch::HTTPFetch::startup();
+	XMLChar::startup();
+}
+void init(ostream*& f_out,int argc,char** argv,char** env) {
+	Environment::init(argc,argv,env);	//
+	Environment* e = Environment::service();
+	ostream* os = Logger::init(f_out);	//Instance Logger
+	Httphead::init(os);					//Instance head
+	e->initwlogger();					//Continue environment load.
+	OsiMessage::init();
+	Document::init();					//Instance Document
+	DataItem::init();
+	ItemStore::init();
+}
+void finalise() {
+	ItemStore::finalise();
+	DataItem::finalise();
+	OsiMessage::finalise();
+	Document::finalise();		
+	Logger::finalise();
+	Httphead::finalise();
+	Environment::finalise();
+}
+void shutdown() {
+	ItemStore::shutdown();
+	DataItem::shutdown();
+	ObyxElement::shutdown();
+	OsiMessage::shutdown();
+ 	XMLChar::shutdown();
+	Fetch::HTTPFetch::shutdown();
+	Document::shutdown();		
+	Httphead::shutdown();
+	String::Regex::shutdown();
+	Vdb::ServiceFactory::shutdown();	//Remove the database service
+	Environment::shutdown();
+#ifdef FAST
+	Fast::shutdown();
+#endif
+}
+

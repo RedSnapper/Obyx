@@ -32,10 +32,11 @@ using namespace std;
 //belongs to that group.  see http://www.w3.org/TR/xml/#CharClasses for an idea of each list.
 class XMLChar {
 private:
-		static map<unsigned long, char> Lo;
+	static map<unsigned long, char> Lo;
 	static map<unsigned long, char> Hi;
 public:	
-	static void init();
+	static void startup();
+	static void shutdown();
 	static bool is(unsigned long);
 	static void convert(std::string &);
 	static void encode(std::string &);
@@ -46,7 +47,8 @@ private:
 	static map<unsigned long, char> Lo;
 	static map<unsigned long, char> Hi;
 public:	
-	static void init();
+	static void startup();
+	static void shutdown();
 	static bool is(unsigned long);
 };
 
@@ -55,7 +57,8 @@ private:
 	static map<unsigned long, char> Lo;
 	static map<unsigned long, char> Hi;
 public:	
-	static void init();
+	static void startup();
+	static void shutdown();
 	static bool is(unsigned long);
 };
 
@@ -64,7 +67,8 @@ private:
 	static map<unsigned long, char> Lo;
 	static map<unsigned long, char> Hi;
 public:	
-	static void init();
+	static void startup();
+	static void shutdown();
 	static bool is(unsigned long);
 };
 
@@ -73,7 +77,8 @@ private:
 	static map<unsigned long, char> Lo;
 	static map<unsigned long, char> Hi;
 public:	
-	static void init();
+	static void startup();
+	static void shutdown();
 	static bool is(unsigned long);
 };
 
@@ -83,14 +88,16 @@ private:
 	static map<unsigned long, char> Lo;
 	static map<unsigned long, char> Hi;
 public:	
-	static void init();
+	static void startup();
+	static void shutdown();
 	static bool is(unsigned long);
 };
 
 
 class Ideographic {
 public:	
-	static void init();
+	static void startup();
+	static void shutdown();
 	static bool is(unsigned long);
 };
 

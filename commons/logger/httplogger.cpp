@@ -29,10 +29,11 @@
 bool HTTPLogger::minititle = true;
 
 void HTTPLogger::dofatal() {
-	Httphead::setcode(200);	
-	Httphead::setmime("text/html; charset=utf-8");
-	Httphead::setdisposition("");
-	Httphead::doheader(); 
+	Httphead* http = Httphead::service();	
+	http->setcode(200);	
+	http->setmime("text/html; charset=utf-8");
+	http->setdisposition("");
+	http->doheader(); 
 	string top_str;
 	top(top_str);
 	*fo << top_str;
@@ -119,6 +120,7 @@ void HTTPLogger::ltail(string& container) {		//tail log document
 }
 
 void HTTPLogger::open() {	//This should always be called ..
+	minititle = true;
 	if (debugflag || hadfatal) {
 		string top_str;
 		top(top_str);
@@ -132,6 +134,7 @@ void HTTPLogger::close() {
 		tail(tail_str);
 		*o << tail_str;
 	}
+	minititle = false;
 }
 
 void HTTPLogger::extra(extratype t) {

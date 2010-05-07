@@ -40,7 +40,7 @@ namespace Fetch {
 	struct HTTPFetchHeader;
 	
 	class HTTPFetch {
-private:
+	private:
 		static void* lib_handle;
 		static bool loadattempted;	//used to show if the service is up or down.
 		static bool loaded;			//used to show if the service is up or down.
@@ -51,7 +51,7 @@ private:
 		static void (*curl_slist_free_all)(struct curl_slist *);
 		static struct curl_slist* (*curl_slist_append)(struct curl_slist*,const char *);
 		
-//-- End of dll stuff		
+		//-- End of dll stuff		
 		struct curl_slist *headers;		
 		std::string cookies;
 		std::string* body;
@@ -61,8 +61,8 @@ private:
 		
 		class PageFetcher;
 		class HeaderFetcher;
-
-private:
+		
+	private:
 		friend class HTTPFetchPage;	
 		friend class HTTPFetchHead;	
 		void processErrorCode(CURLcode, std::string&);
@@ -70,8 +70,9 @@ private:
 		void setBody(std::string&);
 		bool retrievePage(const std::string&, HTTPFetchHeader&, std::string&, std::string&);
 		bool retrieveHeader(const std::string&, HTTPFetchHeader&, std::string&); 
+		static void dlerr(std::string&);
 		
-public:
+	public:
 		HTTPFetch(string&);
 		~HTTPFetch();
 		HTTPFetch(string&,string&,string&,string*,string&);

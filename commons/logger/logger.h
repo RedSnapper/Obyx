@@ -70,12 +70,14 @@ protected:
 	virtual void ltop(string&) =0;		//top log document
 	virtual void ltail(string&) =0;		//tail log document
 	virtual void dofatal() =0; //handle fatal.
-
+	
 	
 public:
 	int bdepth;									//bracketing depth
 	static Logger* log;
-	static ostream*& startup();
+	static ostream* init(ostream*&);
+	static void finalise();
+	static void startup(string&);
 	static void shutdown();
 	static void set_title(const string newtitle) { title = newtitle; } 
 	static void get_title(string& container) { container = title; } 
@@ -83,9 +85,9 @@ public:
 	static void set_stream(ostringstream*&); 
 	static void get_stream(ostream*&); 
 	static size_t depth() { return log->estrm_stack.size(); } 
-
+	
 	static void unset_stream(); //  { log->unset_estream(); }
-
+	
 	static void top(string&);		//top log document
 	static void tail(string&);		//tail log document
 	
@@ -104,7 +106,7 @@ public:
 	Logger& operator<< (const Log::msgtype);
 	Logger& operator<< (const Log::extratype);
 	Logger& operator<< (const Log::bracketing);
-	virtual ~Logger() {};						//Destructor.
+	virtual ~Logger();						//Destructor.
 };
 
 #endif

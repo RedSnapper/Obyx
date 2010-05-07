@@ -29,21 +29,9 @@
 
 using namespace std;
 
-ostream*		Httphead::o					= NULL;	//output stream
-bool			Httphead::isdone			= false;
-bool			Httphead::mime_is_changed	= false;
-const string	Httphead::crlf				= "\r\n";
-/*
-	Note about the distinction between HTTPD (nph-) and CGI.
-	When outputting CGI back to the server, the HTTP/1.1 signature is 
-	replaced with Status.  The 'advantage' of nph- being spawned is no
-	longer present with Apache 2, as everything is handled as a child.
-	This would also mean stripping the nph- prefix from our CGI.
-*/
-	  string	Httphead::httpsig	= "Status";	//or cgi or nph- see init()
+const string	Httphead::crlf		= "\r\n";
 const string	Httphead::datesig	= "Date";
 const string	Httphead::serversig	= "Server";
-//const string	Httphead::cookiesig	= "Set-Cookie";
 const string	Httphead::cookiesig	= "Set-Cookie";
 const string	Httphead::cookie2sig= "Set-Cookie2";
 const string	Httphead::expirysig	= "Expires";
@@ -57,6 +45,7 @@ const string	Httphead::lengthsig = "Content-Length";
 const string	Httphead::disposig	= "Content-Disposition"; 
 const string	Httphead::p3psig	= "P3P";
 const string	Httphead::connsig	= "Connection";
+Httphead::http_msg_map	Httphead::http_msgs;
 
 Httphead::response_format Httphead::http_fmt = {
 	"",			//response_i
@@ -84,7 +73,6 @@ Httphead::response_format Httphead::http_fmt = {
 	"",			//body_i
 	""			//body_o
 };
-
 Httphead::response_format Httphead::xml_fmt = {
 	"<osi:http xmlns:osi=\"http://www.obyx.org/osi-application-layer\">",	//response_i
 	"</osi:http>",		//response_o
@@ -112,52 +100,24 @@ Httphead::response_format Httphead::xml_fmt = {
 	"</m:body>"		//body_o	
 };
 
-//httphead settings
-unsigned int	Httphead::httpcode			= 200;
-size_t			Httphead::content_length	= 0;
-bool			Httphead::nocaching			= true;		//true - no cache by default.
-bool			Httphead::nodate			= false;	//true - no cache by default.
-bool			Httphead::nocodeline		= false;	
-bool			Httphead::noheaders			= false;	
-bool			Httphead::http_req_method	= false;
-string			Httphead::codemessage		= "OK";
-string			Httphead::cacheline			= "s-maxage=0, max-age=0, must-revalidate, no-cache";
-string			Httphead::cacheprivacy		= "public";
-string			Httphead::pragmaline		= "no-cache";
-//string			Httphead::mimevalue			= "application/xhtml+xml; charset=utf-8";
-string			Httphead::mimevalue			= "text/html; charset=utf-8";
-string			Httphead::servervalue		= "Obyx/version1";
-string			Httphead::rangevalue		= "bytes";
-string			Httphead::p3pline			= "";
+unsigned int Httphead::instances = 0;
+Httphead* Httphead::singleton = NULL;
 
-string			Httphead::expiresline		= "";
-string			Httphead::defaultdatevalue	= "";
-string			Httphead::datevalue			= "";
-string			Httphead::moddatevalue		= "";
-string			Httphead::locavalue			= "";
-string			Httphead::dispvalue			= "";
-string			Httphead::content			= "";
-string			Httphead::connectionvalue	= "close";
-
-Httphead::type_nv_map	Httphead::customlines;
-Httphead::http_msg_map	Httphead::http_msgs;
 
 void Httphead::nocache(bool nocach ) { 
 	nocaching = nocach;
 }						//nocache=true is default.
 
-
 void Httphead::doheader() {
 	if (!isdone || ( Logger::debugging() && httpcode != 200 ) ) {
 		if ( http_req_method ) {
 			doheader(o,false,http_fmt);
-//			Logger::localheader(true);
 		} else {
 			if ( o == NULL ) { 
-				o = &cout; //this happens when LOG_DEBUG is on
+				cout << content << flush;
+			} else {
+				*o << content;
 			}
-			*o << content;
-//			Logger::localheader(true);
 		}
 		isdone=true;
 	}
@@ -231,56 +191,8 @@ void Httphead::setcode(unsigned int code) {
 	httpcode = code;
 }
 
-
-//so this now sends out the header AFTER the xml.
-void Httphead::init(ostream* output) {
-	if (output == NULL) {
-		addcustom("x-broken","ostream broken in Httphead::init");
-		Httphead::doheader();
-		exit(0);
-	} 
-	o = output;	
-	string req_method_str,cgi_type;
-	if ( Environment::getenv("REQUEST_METHOD",req_method_str)) {
-		if ( req_method_str.compare("CONSOLE") != 0 && req_method_str.compare("XML") != 0 ) {
-			http_req_method = true;
-		}
-	}
-	if ( http_req_method && Environment::getenv("SCRIPT_NAME",cgi_type)) {
-		if ( cgi_type.find("/nph-") != string::npos ) {
-			httpsig = "HTTP/1.0";
-		} else {
-			http_fmt.version_o = ": ";
-			httpsig = "Status";
-		}
-	}
-	
-	DateUtils::Date date;
-	date.getNowDateStr("%a, %d %b %Y %H:%M:%S %Z",defaultdatevalue);
-
-//Default mime switched if MSIE.
-	string dct;
-	if (Environment::getenv("OBYX_CONTENT_TYPE",dct) ) {
-		mimevalue = dct;
-	} else {
-		if (Environment::getenv("HTTP_USER_AGENT",dct) ) {
-			if ( dct.find("MSIE") != string::npos ) {
-				mimevalue = "text/html; charset=utf-8";
-			} else {
-				mimevalue = "application/xhtml+xml; charset=utf-8";
-			}
-		}
-	}
-	string p3penv;
-	if (Environment::getenv("OBYX_P3P",p3penv)) {
-		p3pline = "CP=\"";
-		p3pline.append(p3penv); 
-		p3pline.append("\", policyref=\"/w3c/p3p.xml\"");
-	} 
-	
-	noheaders = Environment::envexists("OBYX_NO_HEADERS");
-
-	std::ios_base::sync_with_stdio(true);
+void Httphead::startup() {
+	instances = 0;
 	http_msgs.insert(http_msg_map::value_type("Date", httpdate));
 	http_msgs.insert(http_msg_map::value_type("Server", server));
 	http_msgs.insert(http_msg_map::value_type("Set-Cookie", cookie));
@@ -298,7 +210,130 @@ void Httphead::init(ostream* output) {
 	http_msgs.insert(http_msg_map::value_type("Connection", connection));
 }
 
+void Httphead::shutdown() {
+	instances = 0;
+	http_msgs.clear();
+}
+
+//so this now sends out the header AFTER the xml.
+void Httphead::init(ostream* output) {
+	instances++;
+	if (singleton == NULL) {
+		singleton = new Httphead(output);	// instantiate singleton
+	} 
+}	
+void Httphead::finalise() {
+	instances--;
+	if (instances == 0) {
+		delete singleton;
+		singleton = NULL;
+	} 
+}
+
+Httphead::Httphead(ostream* output) {
+	Environment* env = Environment::service();
+	httpcode			= 200;
+	content_length		= 0;
+	nocaching			= true;		//true - no cache by default.
+	nodate				= false;	//true - no cache by default.
+	nocodeline			= false;	
+	noheaders			= false;	
+	http_req_method		= false;
+	codemessage			= "OK";
+	cacheline			= "s-maxage=0, max-age=0, must-revalidate, no-cache";
+	cacheprivacy		= "public";
+	pragmaline			= "no-cache";
+	mimevalue			= "application/xhtml+xml; charset=utf-8";
+	mimevalue			= "text/html; charset=utf-8";
+	servervalue			= "Obyx/version1";
+	rangevalue			= "bytes";
+	p3pline				= "";
+	expiresline			= "";
+	defaultdatevalue	= "";
+	datevalue			= "";
+	moddatevalue		= "";
+	locavalue			= "";
+	dispvalue			= "";
+	content				= "";
+	connectionvalue		= "close";
+	isdone				= false;
+	mime_is_changed		= false;
+	httpsig				= "Status";
+	o = output;	
+	string req_method_str,cgi_type;
+	if ( env->getenv("REQUEST_METHOD",req_method_str)) {
+		if ( req_method_str.compare("CONSOLE") != 0 && req_method_str.compare("XML") != 0 ) {
+			http_req_method = true;
+		}
+	}
+	if ( http_req_method && env->getenv("SCRIPT_NAME",cgi_type)) {
+		if ( cgi_type.find("/nph-") != string::npos ) {
+			httpsig = "HTTP/1.0";
+		} else {
+			http_fmt.version_o = ": ";
+			httpsig = "Status";
+		}
+	}
+	DateUtils::Date date;
+	date.getNowDateStr("%a, %d %b %Y %H:%M:%S %Z",defaultdatevalue);
+	//Default mime switched if MSIE.
+	string dct;
+	if (env->getenv("OBYX_CONTENT_TYPE",dct) ) {
+		mimevalue = dct;
+	} else {
+		if (env->getenv("HTTP_USER_AGENT",dct) ) {
+			if ( dct.find("MSIE") != string::npos ) {
+				mimevalue = "text/html; charset=utf-8";
+			} else {
+				mimevalue = "application/xhtml+xml; charset=utf-8";
+			}
+		}
+	}
+	string p3penv;
+	if (env->getenv("OBYX_P3P",p3penv)) {
+		p3pline = "CP=\"";
+		p3pline.append(p3penv); 
+		p3pline.append("\", policyref=\"/w3c/p3p.xml\"");
+	} 
+	noheaders = env->envexists("OBYX_NO_HEADERS");
+	//	std::ios_base::sync_with_stdio(true);
+}
+
+Httphead::~Httphead() {
+	customlines.clear();
+	o = NULL;
+}
+
+const bool Httphead::mime_changed()			{ return mime_is_changed; } 
+const bool Httphead::done()					{ return isdone; } 
+void Httphead::setmime(string newmime)		{ 
+	mimevalue = newmime; 
+	mime_is_changed=true; 
+}
+void Httphead::setdisposition(string newdisp) { dispvalue = newdisp; }	
+void Httphead::setconnection(string newconn)	{ connectionvalue=newconn;}
+void Httphead::setcontent(string c)			{ content=c; content_length = c.length();}	//Use to drive content for 5xx and 4xx
+void Httphead::setcontentlength(size_t l)     { content_length = l;}						//Use to drive content for 5xx and 4xx
+void Httphead::setcode(unsigned int);
+void Httphead::setdate(string dl)				{ datevalue = dl; }
+void Httphead::setexpires(string dl)			{ expiresline = dl; }
+void Httphead::setlocation(string loc)		{ locavalue = loc; }
+void Httphead::setmoddate(string dl)			{ moddatevalue = dl; }
+void Httphead::setserver(string srv)			{ servervalue = srv; }
+void Httphead::setrange(string rng)			{ rangevalue = rng; }
+void Httphead::setcache(string cl)			{ cacheline = cl; }
+void Httphead::setp3p(string pl)				{ p3pline = pl; }
+void Httphead::setpragma(string pl)			{ pragmaline = pl; }
+void Httphead::setlength(unsigned int newlen)	{ content_length = newlen;}	
+void Httphead::setprivate(bool priv)			{ cacheprivacy = priv ? "private": "public"; }	//privacy=false is default.
+void Httphead::nocode(bool codeline_q) 		{ nocodeline = codeline_q;}					//nocode= false is default.
+void Httphead::nocache(bool); 			//{ nocaching = nocach;}						//nocache=true is default.
+void Httphead::noheader(bool);			//{ noheaders = codeline_q;}					//noheaders= false is default.
+void Httphead::nodates(bool dateline_q) 		{ nodate = dateline_q;}						//nodates= false is default.
+
+
 void Httphead::doheader(ostream* x,bool explaining,const response_format& f) {
+	Environment* env = Environment::service();
 	if (datevalue.empty()) { 			
 		datevalue=defaultdatevalue;
 	}
@@ -355,17 +390,17 @@ void Httphead::doheader(ostream* x,bool explaining,const response_format& f) {
 					*x << f.header_i << f.name_i << cachesig << f.name_o << f.value_i << cacheprivacy << ", " << cacheline << f.value_o << f.header_o;	// Cache-Control: [public|private], no-cache, must-revalidate
 					*x << f.header_i << f.name_i << pragmasig << f.name_o << f.value_i << pragmaline << f.value_o << f.header_o;     // Pragma: no-cache
 				}
-				if ( Environment::cookiecount() != 0 ) {					//cookiecount will not be set if doheader is called by Logger.
-					*x << Environment::response_cookies(explaining);		// Set-Cookie: xx=yy; aa=bb;
+				if ( env->cookiecount() != 0 ) {					//cookiecount will not be set if doheader is called by Logger.
+					*x << env->response_cookies(explaining);		// Set-Cookie: xx=yy; aa=bb;
 				}				
 				break;
 			case 302: {
 				*x << f.header_i << f.name_i << locasig << f.name_o << f.value_i << locavalue << f.value_o << f.header_o;			// Forgot the ever-important extra return..
-				if ( Environment::cookiecount() != 0 ) {
-					*x << Environment::response_cookies(explaining);		//cookiecount will not be set if doheader is called by Logger.
+				if ( env->cookiecount() != 0 ) {
+					*x << env->response_cookies(explaining);		//cookiecount will not be set if doheader is called by Logger.
 				}
 				string req_method;
-				if (Environment::getenv("REQUEST_METHOD",req_method)) {
+				if (env->getenv("REQUEST_METHOD",req_method)) {
 					if (req_method.compare("HEAD") != 0 && content.empty() ) {
 						ostringstream y;
 						y << "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">";
@@ -394,27 +429,28 @@ void Httphead::doheader(ostream* x,bool explaining,const response_format& f) {
 		}		
 		*x << f.headers_o; // now do message -- body
 	}
-		if (!content.empty()) {
-			if ( (!noheaders) || explaining) {
-				*x <<  f.body_i;
-			}
-			if (explaining) {
-				string value(content);
-				String::urlencode(value);
-				*x << value;
-			} else {
-				*x << content;
-			}
-			if ( (!noheaders) || explaining) {
-				*x <<  f.body_o;
-			}
+	if (!content.empty()) {
+		if ( (!noheaders) || explaining) {
+			*x <<  f.body_i;
 		}
+		if (explaining) {
+			string value(content);
+			String::urlencode(value);
+			*x << value;
+		} else {
+			*x << content;
+		}
+		if ( (!noheaders) || explaining) {
+			*x <<  f.body_o;
+		}
+	}
 	if ( (!noheaders) || explaining) {
 		*x << f.message_o << f.protocol_o << f.response_o;
 	}
 }
 
 void Httphead::objectparse(xercesc::DOMNode* const& n) {
+	Environment* env = Environment::service();
 	std::string elname;
 	XML::transcode(n->getLocalName(),elname);
 	if (elname.compare("header") == 0) {
@@ -435,78 +471,78 @@ void Httphead::objectparse(xercesc::DOMNode* const& n) {
 				if (subhead.compare("subhead") == 0) {
 					if (name_attr_val.compare("Set-Cookie") != 0) {
 						if ( ! value_attr_val.empty() ) value_attr_val.append("; ");
-							while (ch != NULL && subhead.compare("subhead") == 0) {
-								std::string shvalue,shname,encoded_s;
-								bool url_encoded=false;
-								if (XML::Manager::attribute(ch,"name",shname)) value_attr_val.append(shname);
-								if( XML::Manager::attribute(ch,"urlencoded",encoded_s)) { //subhead value
-									if ( encoded_s.compare("true") == 0 ) url_encoded=true;
-								}
-								if(! XML::Manager::attribute(ch,"value",shvalue)) { //subhead value
-									DOMNode* shvo=ch->getFirstChild();
-									while ( shvo != NULL ) {
-										if (shvo->getNodeType() == DOMNode::ELEMENT_NODE) {
-											string sh; XML::Manager::parser()->writenode(shvo,sh);
-											shvalue.append(sh);
-										}
-										shvo=shvo->getNextSibling();
+						while (ch != NULL && subhead.compare("subhead") == 0) {
+							std::string shvalue,shname,encoded_s;
+							bool url_encoded=false;
+							if (XML::Manager::attribute(ch,"name",shname)) value_attr_val.append(shname);
+							if( XML::Manager::attribute(ch,"urlencoded",encoded_s)) { //subhead value
+								if ( encoded_s.compare("true") == 0 ) url_encoded=true;
+							}
+							if(! XML::Manager::attribute(ch,"value",shvalue)) { //subhead value
+								DOMNode* shvo=ch->getFirstChild();
+								while ( shvo != NULL ) {
+									if (shvo->getNodeType() == DOMNode::ELEMENT_NODE) {
+										string sh; XML::Manager::parser()->writenode(shvo,sh);
+										shvalue.append(sh);
 									}
-								}
-								if (! shvalue.empty() ) {
-									if (url_encoded) String::urldecode(shvalue);
-									value_attr_val.append("='");
-									value_attr_val.append(shvalue);
-									value_attr_val.push_back('\'');								
-								}
-								ch=ch->getNextSibling();
-								while (ch != NULL && ch->getNodeType() != DOMNode::ELEMENT_NODE) ch=ch->getNextSibling();
-								if (ch != NULL) {
-									value_attr_val.append("; ");
-									XML::transcode(ch->getLocalName(),subhead);
-								} else {
-									subhead.clear();
+									shvo=shvo->getNextSibling();
 								}
 							}
+							if (! shvalue.empty() ) {
+								if (url_encoded) String::urldecode(shvalue);
+								value_attr_val.append("='");
+								value_attr_val.append(shvalue);
+								value_attr_val.push_back('\'');								
+							}
+							ch=ch->getNextSibling();
+							while (ch != NULL && ch->getNodeType() != DOMNode::ELEMENT_NODE) ch=ch->getNextSibling();
+							if (ch != NULL) {
+								value_attr_val.append("; ");
+								XML::transcode(ch->getLocalName(),subhead);
+							} else {
+								subhead.clear();
+							}
 						}
+					}
 					else {
 						bool in_cookie = false;
 						string cookie_name;
 						string sh_name,sh_value,sh_enc;
 						while (ch != NULL && subhead.compare("subhead") == 0) {
-								if (XML::Manager::attribute(ch,"name",sh_name))
+							if (XML::Manager::attribute(ch,"name",sh_name))
 								if( XML::Manager::attribute(ch,"value",sh_value) ) {
 									if( XML::Manager::attribute(ch,"urlencoded",sh_enc) && (sh_enc.compare("true") == 0 )) {
 										String::urldecode(sh_value);
 									}
 								}
-								if (!in_cookie) {
-									cookie_name = sh_name;
-									Environment::setcookie_res(cookie_name,sh_value);
-									in_cookie = true;
+							if (!in_cookie) {
+								cookie_name = sh_name;
+								env->setcookie_res(cookie_name,sh_value);
+								in_cookie = true;
+							} else {
+								if (sh_name.compare("domain") == 0 ) {
+									env->setcookie_res_domain(cookie_name,sh_value);
 								} else {
-									if (sh_name.compare("domain") == 0 ) {
-										Environment::setcookie_res_domain(cookie_name,sh_value);
+									if (sh_name.compare("path") == 0 ) {
+										env->setcookie_res_path(cookie_name,sh_value); 
 									} else {
-										if (sh_name.compare("path") == 0 ) {
-											Environment::setcookie_res_path(cookie_name,sh_value); 
+										if (sh_name.compare("expires") == 0 ) {
+											env->setcookie_res_expires(cookie_name,sh_value);
 										} else {
-											if (sh_name.compare("expires") == 0 ) {
-												Environment::setcookie_res_expires(cookie_name,sh_value);
-											} else {
-												cookie_name = sh_name;
-												Environment::setcookie_res(cookie_name,sh_value);
-											}
+											cookie_name = sh_name;
+											env->setcookie_res(cookie_name,sh_value);
 										}
 									}
 								}
-								ch=ch->getNextSibling();
-								while (ch != NULL && ch->getNodeType() != DOMNode::ELEMENT_NODE) ch=ch->getNextSibling();
-								if (ch != NULL) {
-									XML::transcode(ch->getLocalName(),subhead);
-								} else {
-									subhead.clear();
-								}
 							}
+							ch=ch->getNextSibling();
+							while (ch != NULL && ch->getNodeType() != DOMNode::ELEMENT_NODE) ch=ch->getNextSibling();
+							if (ch != NULL) {
+								XML::transcode(ch->getLocalName(),subhead);
+							} else {
+								subhead.clear();
+							}
+						}
 					}
 				}
 			}

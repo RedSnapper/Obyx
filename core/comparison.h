@@ -29,28 +29,36 @@ using namespace qxml;
 
 class Comparison : public Function {
 private:
+	
 	static cmp_type_map  cmp_types;
-
+	
 	cmp_type  operation;			   // instruction operation
 	bool invert;					   // are we using the complement operation?
 	scope_t scope;					   // any/all
-
+	
 	bool eval_found;					//did we find a comparator to evaluate?
 	bool cmp_evaluated;					//have we evaluated the comparators
 	bool def_evaluated;					//have we evaluated the deferred inputs (ontrue/onfalse)
 	char operation_result;				//'T' 'F' or 'X' <-- unevaluated
-
+	
 	bool may_eval_outputs();			//{return operation_result=='X';} 
 	bool evaluate_this();				//private evaluation
 	
+private:
+	friend class Function;
+	static void init();
+	static void finalise();
+	static void startup(); 
+	static void shutdown();	
+	
 public:
-	static void init();					//set up maps
 	Comparison(ObyxElement*,const Comparison*); // : Function(par,orig) { copy(orig); }
 	Comparison(xercesc::DOMNode* const&,ObyxElement*); 
 	virtual void addInputType(InputType*);
 	virtual void addDefInpType(DefInpType*);	
 	const cmp_type op() const {return operation;}
 	virtual ~Comparison() {}
+	
 };
 
 #endif

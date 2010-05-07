@@ -41,18 +41,25 @@ using namespace Log;
 using namespace std;
 
 namespace XML {
-// for information regarding transcoders, see
-// http://xerces.apache.org/xerces-c/faq-parse-3.html#faq-19
-
+	// for information regarding transcoders, see
+	// http://xerces.apache.org/xerces-c/faq-parse-3.html#faq-19
+	
 	Parser*					Manager::xparser = NULL;
 	ostream*				Manager::serial_ostream = NULL;
 	
-	void transcode(const XMLCh* src,std::string& result) {
-		if (src != NULL && src[0] != 0) {
-			result.assign((const char*)(TranscodeToStr(src,"UTF-8").str()));
+	//u_str	to std::string.
+	void transcode(const u_str& source, std::string& result) {
+		if (!source.empty()) {
+			char* buff = NULL;
+			const XMLCh* src=(const XMLCh*)(source.c_str());
+			buff = (char*)(TranscodeToStr(src,source.size(),"UTF-8").adopt());
+			if (buff != NULL) { 
+				result = buff; 
+				XMLString::release(&buff);
+			}
 		}
 	}
-
+	
 	void transcode(const std::string& source,u_str& result,const std::string encoding) {
 		if (!source.empty()) {
 			XMLCh* buf = NULL;
@@ -65,14 +72,16 @@ namespace XML {
 		}
 	}
 	
-	XMLCh* transcode(const std::string& source,const std::string encoding) {
-		if (source.empty()) {
-			return NULL;
-		} else {
-			const XMLByte* src=(const XMLByte*)(source.c_str());
-			return TranscodeFromStr(src,source.size(),encoding.c_str()).adopt();	
-		}
-	}
+	/*	
+	 XMLCh* transcode(const std::string& source,const std::string encoding) {
+	 if (source.empty()) {
+	 return NULL;
+	 } else {
+	 const XMLByte* src=(const XMLByte*)(source.c_str());
+	 return TranscodeFromStr(src,source.size(),encoding.c_str()).adopt();	
+	 }
+	 }
+	 */
 	
 	bool Manager::attribute(const DOMNode* n,const std::string attrname, std::string& attrval) {
 		bool result=false;
@@ -115,7 +124,7 @@ namespace XML {
 	
 	Manager::Manager() {
 		try {
-//			XMLPlatformUtils::Initialize(); 
+			//			XMLPlatformUtils::Initialize(); 
 			XQillaPlatformUtils::initialize(); //if using XQilla..
 			xparser = new Parser();
 			xparser->makerw();
@@ -125,9 +134,9 @@ namespace XML {
 			throw XercesInitExn(); // pass on the error
 		}
 	}
-		
+	
 	Manager::~Manager() {
-//		XMLPlatformUtils::Terminate();
+		//		XMLPlatformUtils::Terminate();
 		XQillaPlatformUtils::terminate();
 	}
 }

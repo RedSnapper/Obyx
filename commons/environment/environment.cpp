@@ -53,88 +53,52 @@ using namespace FileUtils;
 using namespace ImageInfo;
 
 typedef hash_map<const string,string, hash<const string&> > var_map_type;
-var_map_type Environment::env_map;
+
+var_map_type Environment::benv_map;
 var_map_type Environment::cgi_rfc_map;
+Environment* Environment::instance;
 
-var_map_type Environment::ck_map;
-var_map_type Environment::ck_expires_map;
-var_map_type Environment::ck_path_map;
-var_map_type Environment::ck_domain_map;
+Environment::Environment() {
+	gDevelop = false;
+	gSQLport = 0;
+	gDatabase="";
+	gRootDir="";
+	gScriptsDir="";
+	gScratchDir="/tmp/";
+	gScratchName="";
+	gSQLhost="";
+	gSQLuser="";
+	gSQLuserPW="";
+	basetime = 0;		 //used for timing.
+	parmprefix="";		//used to prefix parameter numbers
+	gArgc=0;
+	gArgv=NULL;
+}
 
-var_map_type Environment::cke_map;
-var_map_type Environment::cke_expires_map;
-var_map_type Environment::cke_path_map;
-var_map_type Environment::cke_domain_map;
-
-var_map_type Environment::parm_map;
-var_map_type Environment::httphead_map;
-
-bool Environment::gDevelop = false;
-int Environment::gSQLport = 0;
-string Environment::gDatabase="";
-string Environment::gRootDir="";
-string Environment::gScriptsDir="";
-string Environment::gScratchDir="/tmp/";
-string Environment::gScratchName="";
-string Environment::gSQLhost="";
-string Environment::gSQLuser="";
-string Environment::gSQLuserPW="";
-
-Environment::buildarea_type Environment::the_area = Console;
-
-bool Environment::dosetdebugger = false;
-double Environment::basetime = 0;	//used for timing.
-std::string Environment::empty = "";	//used for environment.
-std::string Environment::parmprefix= ""; //used to prefix parameter numbers
-
-int Environment::gArgc=0;
-char **Environment::gArgv=NULL;
+Environment::~Environment() {
+	ienv_map.clear();	
+	ck_map.clear();								//store the cookie values  (rw)
+	ck_expires_map.clear();						//store the cookie expires  (rw)
+	ck_path_map.clear();						//store the cookie values  (rw)
+	ck_domain_map.clear();						//store the cookie values  (rw)
+	cke_map.clear();							//store the cookie values  (r)
+	cke_expires_map.clear();					//store the cookie expires (r)
+	cke_path_map.clear();						//store the cookie values  (r)
+	cke_domain_map.clear();						//store the cookie values  (r)
+	parm_map.clear();							//Application parms  (ro)
+	httphead_map.clear();						//Request HTTP headers  (ro)
+}
 
 //public methods
 //---------------------------------------------------------------------------
-
-void Environment::init(int argc, char *argv[]) {
-	gArgc=argc;
-	gArgv=argv;
-	setbasetime();
-	ck_map.clear();
-	ck_expires_map.clear();
-	ck_path_map.clear();
-	ck_domain_map.clear();
-	cke_map.clear();
-	cke_expires_map.clear();
-	cke_path_map.clear();
-	cke_domain_map.clear();
-	parm_map.clear();
-	init_cgi_rfc_map();
-	XMLChar::init();
-	getenvvars();
-	if ( gDevelop && envexists("LOG_DEBUG")) {
-		dosetdebugger = true;
-	}
-}
-
 //called by Logger. - Can use Logger messaging here.
 void Environment::initwlogger() {
 	setparm("_count","0");	//Just in case there are none.
 	doparms(gArgc,gArgv);
 	dodocument();
-
-//-- new inserts done	
-	if (dosetdebugger) {
-		Httphead::doheader();
-		switch (the_area) {
-			case Root:		*Logger::log << Log::debug << Log::LI << "Site area: Root " << Log::LO << Log::blockend; break;
-			case Public:	*Logger::log << Log::debug << Log::LI << "Site area: Public " << Log::LO << Log::blockend; break;
-			case Console:	*Logger::log << Log::debug << Log::LI << "Site area: Console "  << Log::LO << Log::blockend; break;
-			default: break;
-		}
-	}
-	Environment::do_request_cookies();
+	do_request_cookies();
 	dopostparms();	
-	if (dosetdebugger) { list(); }
 }
-
 
 //-------------------------------- COOKIES ---------------------------------
 //Request cookies: GET
@@ -563,39 +527,71 @@ bool Environment::getparm(string const name,string& container) {
 
 bool Environment::envexists(string const name) {
 	bool retval = false;
-	if ( env_map.empty() ) {
-		string dummy;
-		retval = Environment::getenv(name,dummy);
-	}
-	var_map_type::iterator it = env_map.find(name);
-	if (it != env_map.end()) {
+	//	if ( ienv_map.empty() ) {
+	//		string dummy;
+	//		retval = Environment::getenv(name,dummy);
+	//	}
+	var_map_type::iterator it = ienv_map.find(name);
+	if (it != ienv_map.end()) {
 		retval = true;
-	} 
+	} else {
+		var_map_type::iterator it = benv_map.find(name);
+		if (it != benv_map.end()) {
+			retval = true;
+		} 
+	}
 	return retval;
 }
 
 void Environment::dodocument() { //for POST values
-	string input,test_filename;
+	string input,inputlen,test_filename;
 	if (getenv("TEST_FILE",test_filename)) {
 		File test_file(test_filename);
 		test_file.readFile(input);
 		setparm("THIS_REQ_BODY",input);	
-		setenv("INF","testfile");	
 	} else {
-		if (envexists("GATEWAY_INTERFACE")) { //this is a cgi.
-			ostringstream sb;
-			while ( std::cin >> sb.rdbuf() );			
-			input = sb.str();
-			setparm("THIS_REQ_BODY",input);	
-			setenv("INF","cgi");	
-		} else {
-			struct termios tio;
-			if( tcgetattr(0,&tio) < 0) { //basically, if we cannot get the struct for cin, we can read this from the buffer. weird.
-				ostringstream sb;
-				while ( std::cin >> sb.rdbuf() );			
-				input = sb.str();
-				setparm("THIS_REQ_BODY",input);	
-				setenv("INF","cin");	
+		if (getenv("CONTENT_LENGTH",inputlen)) {
+			pair<unsigned long long,bool> lenpr = String::znatural(inputlen);
+			if (lenpr.second) { //very bad if it weren't a number!!
+				unsigned long long clen = lenpr.first;
+				try {
+					char* content = new char[clen];
+					cin.read(content, clen);
+					clen = cin.gcount();
+					input = string(content,clen);
+					setparm("THIS_REQ_BODY",input);	
+					delete content;
+				} catch (...) { /*mem error*/ }
+			}
+		} else { 
+			if (! envexists("GATEWAY_INTERFACE")) { //not cgi.
+				struct termios tio;
+				if( tcgetattr(0,&tio) < 0) { //basically, if we cannot get the struct for cin, we can read this from the buffer. weird.
+					ostringstream sb;
+					while ( std::cin >> sb.rdbuf() );			
+					input = sb.str();
+					setparm("THIS_REQ_BODY",input);	
+				}
+			}
+		}
+	}
+}
+
+void Environment::setienvmap(char ** environment) {
+	unsigned int eit = 0;
+	while ( environment[eit] != NULL ) {
+		string parmstring = environment[eit++];
+		size_t split =  parmstring.find('=');
+		if (split != string::npos && split > 0 ) {
+			string n = parmstring.substr(0,split);
+			string v = parmstring.substr(split+1,string::npos);
+			if(v.size() > 0 && v[v.size()-1] == '=') { //weird fastcgi shite.
+				v.resize(v.size()-1);
+			}
+			setienv(n,v);
+			var_map_type::iterator it = cgi_rfc_map.find(n);
+			if (it != cgi_rfc_map.end()) {
+				pair<var_map_type::iterator, bool> ins = httphead_map.insert(var_map_type::value_type(it->second,v));
 			}
 		}
 	}
@@ -604,28 +600,18 @@ void Environment::dodocument() { //for POST values
 //Called before LOGGER installed.
 bool Environment::getenv(string const name,string& container) {
 	bool retval = false;
-	if ( env_map.empty() ) {
-		unsigned int eit = 0;
-		while ( environ[eit] != NULL ) {
-			string parmstring = environ[eit++];
-			size_t split =  parmstring.find('=');
-			if (split != string::npos && split > 0 ) {
-				string n = parmstring.substr(0,split);
-				string v = parmstring.substr(split+1,string::npos);
-				var_map_type::iterator it = cgi_rfc_map.find(n);
-				if (it != env_map.end()) {
-					pair<var_map_type::iterator, bool> ins = httphead_map.insert(var_map_type::value_type(it->second,v));
-				}
-				setenv(n,v);
-			}
-		}
-	}
 	container.clear();  //should we clear this?
-	var_map_type::iterator it = env_map.find(name);
-	if (it != env_map.end()) {
+	var_map_type::iterator it = ienv_map.find(name);
+	if (it != ienv_map.end()) {
 		container = ((*it).second);
 		retval = true;
-	} 
+	} else {
+		var_map_type::iterator bt = benv_map.find(name);
+		if (bt != benv_map.end()) {
+			container = ((*bt).second);
+			retval = true;
+		} 
+	}
 	return retval;
 }
 
@@ -643,7 +629,7 @@ void Environment::listParms() {
 	if (!vmp.empty()) {
 		*Logger::log << Log::subhead << Log::LI << "List of sysparms" << Log::LO;
 		*Logger::log << Log::LI << Log::even ;
-		std::sort(vmp.begin(), vmp.end(), sortvps); 
+		std::sort(vmp.begin(),vmp.end(), sortvps); 
 		for(vector<pair<string,string> >::iterator vmpi = vmp.begin(); vmpi != vmp.end(); vmpi++) {
 			*Logger::log << Log::LI << Log::II << vmpi->first << Log::IO << Log::II << vmpi->second << Log::IO << Log::LO;
 		}
@@ -657,26 +643,24 @@ void Environment::listReqCookies() {
 		vmc.push_back(pair<string,string>(imt->first,imt->second));
 	}
 	if (!vmc.empty()) {
-	*Logger::log << Log::subhead  << Log::LI << "List of request cookies" << Log::LO;
-	*Logger::log << Log::LI << Log::even;
-	std::sort(vmc.begin(), vmc.end(), sortvps); 
-	for(vector<pair<string,string> >::iterator vmci = vmc.begin(); vmci != vmc.end(); vmci++) {
-		*Logger::log << Log::LI << Log::II << vmci->first << Log::IO << Log::II << vmci->second << Log::IO << Log::LO;
-/*		
-		ostringstream vck; var_map_type::iterator itd;
-		vck << "Request Cookie name=\"" << vmci->first <<  "\" value=\"" << vmci->second << "\"";
-		itd = cke_domain_map.find(vmci->first);
-		if (itd != cke_domain_map.end()) vck << " domain=\"" << ((*itd).second) << "\"";
-		itd = cke_path_map.find(vmci->first);
-		if (itd != cke_path_map.end()) vck << " path=\"" << ((*itd).second) << "\"";
-		itd = cke_expires_map.find(vmci->first);
-		if (itd != cke_expires_map.end()) { 
-			vck << " expires=\"" << ((*itd).second) << "\"";
+		*Logger::log << Log::subhead  << Log::LI << "List of request cookies" << Log::LO;
+		*Logger::log << Log::LI << Log::even;
+		std::sort(vmc.begin(), vmc.end(), sortvps); 
+		for(vector<pair<string,string> >::iterator vmci = vmc.begin(); vmci != vmc.end(); vmci++) {
+			*Logger::log << Log::LI << Log::II << vmci->first << Log::IO << Log::II << vmci->second << Log::IO << Log::LO;
+			ostringstream vck; var_map_type::iterator itd;
+			vck << "Request Cookie name=\"" << vmci->first <<  "\" value=\"" << vmci->second << "\"";
+			itd = cke_domain_map.find(vmci->first);
+			if (itd != cke_domain_map.end()) vck << " domain=\"" << ((*itd).second) << "\"";
+			itd = cke_path_map.find(vmci->first);
+			if (itd != cke_path_map.end()) vck << " path=\"" << ((*itd).second) << "\"";
+			itd = cke_expires_map.find(vmci->first);
+			if (itd != cke_expires_map.end()) { 
+				vck << " expires=\"" << ((*itd).second) << "\"";
+			}
+			*Logger::log << Log::LI << vck.str() << Log::LO;
 		}
-		*Logger::log << Log::LI << vck.str() << Log::LO;
- */
-	}
-	*Logger::log << Log::blockend << Log::LO << Log::blockend ; //even .. subhead.
+		*Logger::log << Log::blockend << Log::LO << Log::blockend ; //even .. subhead.
 	}
 }
 
@@ -717,7 +701,10 @@ void Environment::list() {
 
 void Environment::listEnv() {
 	vector<pair<string,string> >vme;
-	for(var_map_type::iterator imt = env_map.begin(); imt != env_map.end(); imt++) {
+	for(var_map_type::iterator imt = ienv_map.begin(); imt != ienv_map.end(); imt++) {
+		vme.push_back(pair<string,string>(imt->first,imt->second));
+	}
+	for(var_map_type::iterator imt = benv_map.begin(); imt != benv_map.end(); imt++) {
 		vme.push_back(pair<string,string>(imt->first,imt->second));
 	}
 	if (!vme.empty()) {
@@ -735,9 +722,12 @@ void Environment::listEnv() {
 
 void  Environment::list(string& result) {
 	ostringstream buffer;
-
+	
 	vector<pair<string,string> >vme;
-	for(var_map_type::iterator imt = env_map.begin(); imt != env_map.end(); imt++) {
+	for(var_map_type::iterator imt = ienv_map.begin(); imt != ienv_map.end(); imt++) {
+		vme.push_back(pair<string,string>(imt->first,imt->second));
+	}
+	for(var_map_type::iterator imt = benv_map.begin(); imt != benv_map.end(); imt++) {
 		vme.push_back(pair<string,string>(imt->first,imt->second));
 	}
 	std::sort(vme.begin(), vme.end(), sortvps); 
@@ -801,9 +791,6 @@ void Environment::dopostparms() {
 	string input;
 	if (getenv("REQUEST_METHOD",req_method)) { //if REQ_METHOD
 		if ( req_method.compare("POST") == 0 ) {
-			if ( Logger::debugging() ) {
-				*Logger::log << subhead << LI << "POST Processing Initiated" << LO << debug;
-			}
 			getparm("THIS_REQ_BODY",input);
 			string contenttype;
 			if ( getenv("CONTENT_TYPE",contenttype) ) { //if it exists..
@@ -835,7 +822,7 @@ void Environment::dopostparms() {
 				}
 				//multipart/form-data mime follows
 				// text/xml; charset="utf-8"
-//				CONTENT_TYPE]=[multipart/form-data; boundary=Message_Boundary_000002]
+				//				CONTENT_TYPE]=[multipart/form-data; boundary=Message_Boundary_000002]
 				string boundary;
 				string startboundary;
 				string endboundary;
@@ -858,26 +845,26 @@ void Environment::dopostparms() {
 				}
 				size_t blockstart = 0;
 				size_t blockend = 0;
-				setenv("POST_BOUNDARY",boundary);
+				setienv("POST_BOUNDARY",boundary);
 				// BLOCK LOOP
 				bool postfinished = false;
 				while(! postfinished) {
 					string name(""), number(""), value(""), filename(""), mimetype(""); 
 					blockstart = input.find(startboundary, blockend);  // find the boundary at blockend (intis at 0)
 					if (blockstart == string::npos) {
-//						*Logger::log << Log::LI << "Finished Post" << Log::LO << Log::blockend;
+						//						*Logger::log << Log::LI << "Finished Post" << Log::LO << Log::blockend;
 						postfinished = true;
 					}
 					blockend = input.find(startboundary, blockstart + 1);
 					if (blockend == string::npos)
 						blockend = input.find(endboundary, blockstart + 1);
 					if (blockend == string::npos) {
-//						*Logger::log << Log::LI << "Finished Post" << Log::LO << Log::blockend;
+						//						*Logger::log << Log::LI << "Finished Post" << Log::LO << Log::blockend;
 						postfinished = true;
 					} 
 					if (! postfinished ) {
 						string block = input.substr(blockstart + startboundary.length() + 2, blockend - blockstart - startboundary.length() - 4);
-//						*Logger::log << Log::debug << Log::LI << "Input block" << Log::LO;
+						//						*Logger::log << Log::debug << Log::LI << "Input block" << Log::LO;
 						//A typical block is below.
 						/*
 						 --#312999087#multipart#boundary#1049282996#
@@ -934,14 +921,14 @@ void Environment::dopostparms() {
 										typestart += 14;    //Length of "Content-Type: "
 										size_t typep = line.find_first_of("\" \f\r\n\t\v\0", typestart) - typestart;
 										mimetype = line.substr(typestart,typep);   //We have now grabbed a content-type.
-//										*Logger::log << name <<" Content-Type:[" << mimetype << "] (must be set for media to be identified)." << Log::LO;
+										//										*Logger::log << name <<" Content-Type:[" << mimetype << "] (must be set for media to be identified)." << Log::LO;
 										lineend += 2;
 									}
 									// THIRD LINE. The value line.
 									value = block.substr(lineend + 2, block.npos );  //The rest of the block is the value.
-//									*Logger::log <<  name <<" value:[" << value << "]" << Log::LO;
+									//									*Logger::log <<  name <<" value:[" << value << "]" << Log::LO;
 									if ( value.length() > 0 ) {
-//									*Logger::log << LI << "Posting parm:[" << name << "]=[" << value << "]" << LO; //should be in debug here..
+										//									*Logger::log << LI << "Posting parm:[" << name << "]=[" << value << "]" << LO; //should be in debug here..
 										setparm(parmprefix+"_n["+String::tostring(numparms+1)+"]",name); 
 										setparm(parmprefix+"_v["+String::tostring(numparms+1)+"]",value); 
 										setparm(name,value);
@@ -964,7 +951,7 @@ void Environment::dopostparms() {
 											string fbase(name+"_base");
 											string fext(name+"_ext");
 											string fname(name+"_name");
-//										*Logger::log << Log::LI << "Posting parm:[" << fname << "]=[" << fbase << "." << fext << "] file:[" << filename << "]=[" << base << "].[" << ext << "]" << Log::LO;
+											//										*Logger::log << Log::LI << "Posting parm:[" << fname << "]=[" << fbase << "." << fext << "] file:[" << filename << "]=[" << base << "].[" << ext << "]" << Log::LO;
 											setparm(parmprefix+"_n["+String::tostring(numparms+1)+"]",fname); 
 											setparm(parmprefix+"_v["+String::tostring(numparms+1)+"]",filename); 
 											setparm(fname,filename);
@@ -980,7 +967,7 @@ void Environment::dopostparms() {
 										}
 										if (! mimetype.empty() ) {
 											string lenval = String::tostring(static_cast<long long>(value.length()));
-//											*Logger::log << Log::LI <<  name <<" Length of file:[" << lenval << "]" << Log::LO;
+											//											*Logger::log << Log::LI <<  name <<" Length of file:[" << lenval << "]" << Log::LO;
 											string flength(name+"_length");
 											setparm(parmprefix+"_n["+String::tostring(numparms+1)+"]",flength); 
 											setparm(parmprefix+"_v["+String::tostring(numparms+1)+"]",lenval); 
@@ -1008,31 +995,31 @@ void Environment::dopostparms() {
 													String::tostring(swidth,width);
 													string sheight;
 													String::tostring(sheight,height);
-//													*Logger::log << Log::LI << "Posting parm width: " << fwidth << "=" << swidth <<  Log::LO;
+													//													*Logger::log << Log::LI << "Posting parm width: " << fwidth << "=" << swidth <<  Log::LO;
 													setparm(parmprefix+"_n["+String::tostring(numparms+1)+"]",fwidth); 
 													setparm(parmprefix+"_v["+String::tostring(numparms+1)+"]",swidth); 
 													setparm(fwidth,swidth);
 													numparms++;
 													
-//													*Logger::log <<  Log::LI << "Posting parm height: " << fheight << "=" << sheight <<  Log::LO;
+													//													*Logger::log <<  Log::LI << "Posting parm height: " << fheight << "=" << sheight <<  Log::LO;
 													setparm(parmprefix+"_n["+String::tostring(numparms+1)+"]",fheight); 
 													setparm(parmprefix+"_v["+String::tostring(numparms+1)+"]",sheight); 
 													setparm(fheight,sheight);
 													numparms++;
 												} else {
-//													*Logger::log << Log::LI << "File failed media info.check " << Log::LO;													
+													//													*Logger::log << Log::LI << "File failed media info.check " << Log::LO;													
 												}
 											} catch ( exception e ) {
-//												*Logger::log << Log::LI << "Media Error exception : " << e.what() << Log::LO;
+												//												*Logger::log << Log::LI << "Media Error exception : " << e.what() << Log::LO;
 												// Need to be silent here generally. Except for debugging..
 											}
 											//----- media info finishes.									
 										} else {
-//											*Logger::log <<"Content-Type is empty, so no file details were discovered." << Log::LO;											
+											//											*Logger::log <<"Content-Type is empty, so no file details were discovered." << Log::LO;											
 										}
 									} else { // still add empty, if it isn't a file.
 										if ( mimetype.empty() && filename.empty() ) {
-//											*Logger::log << LI << "Empty Field:[" << name << "]=[" << value << "]" << LO;
+											//											*Logger::log << LI << "Empty Field:[" << name << "]=[" << value << "]" << LO;
 											setparm(parmprefix+"_n["+String::tostring(numparms+1)+"]",name); 
 											setparm(parmprefix+"_v["+String::tostring(numparms+1)+"]",value); 
 											setparm(name,value);
@@ -1042,9 +1029,9 @@ void Environment::dopostparms() {
 								}
 							} //end of find name test
 						} else { 
-							setenv("POST_NON_FORM_DATA",line);
+							setienv("POST_NON_FORM_DATA",line);
 						}
-//						*Logger::log << Log::LO << Log::blockend;;
+						//						*Logger::log << Log::LO << Log::blockend;;
 					} // end of postfinished test
 				} // end of while
 				setparm(parmprefix+"_count",String::tostring(numparms)); 
@@ -1064,28 +1051,19 @@ void Environment::setnamedparm(string parmstring,unsigned long long pnum) {
 		ostringstream nameparm;
 		if (split > 0) {
 			string splitparm = parmstring.substr(0,split);
-			if (gDevelop && splitparm.compare("LOG_DEBUG") == 0) {
-				dosetdebugger = true;
-			} else {
-				nameparm << splitparm << flush;
-				ostringstream parmnstr;
-				parmnstr << parmprefix << "_n[" << numparm.str() << "]";
-				setparm(nameparm.str(),parmstring.substr(split+1,string::npos));
-				setparm(parmnstr.str(),nameparm.str()); 
-			}
+			nameparm << splitparm << flush;
+			ostringstream parmnstr;
+			parmnstr << parmprefix << "_n[" << numparm.str() << "]";
+			setparm(nameparm.str(),parmstring.substr(split+1,string::npos));
+			setparm(parmnstr.str(),nameparm.str()); 
 		} 
 		setparm(parmprefix+"_v["+numparm.str()+"]",parmstring.substr(split+1,string::npos));
 	} else {
-		if (gDevelop && parmstring.compare("LOG_DEBUG") == 0) {
-			dosetdebugger = true;
-		} else {
-			setparm(parmstring,"");
-			setparm(parmprefix+"_n["+numparm.str()+"]",parmstring); 
-			setparm(parmprefix+"_v["+numparm.str()+"]",""); 
-		}
+		setparm(parmstring,"");
+		setparm(parmprefix+"_n["+numparm.str()+"]",parmstring); 
+		setparm(parmprefix+"_v["+numparm.str()+"]",""); 
 	}
 }
-
 
 void Environment::doparms(int argc, char *argv[]) {
 	string qstr;
@@ -1117,9 +1095,9 @@ void Environment::doparms(int argc, char *argv[]) {
 				}
 				do_query_string(qstr);
 				string console_file;
-				if ( (the_area==Console) && (!envexists("PATH_TRANSLATED")) && (getparm("_n[1]",console_file)) ) {
-					setenv("PATH_TRANSLATED",console_file);
-					setenv("OBYX_DEVELOPMENT","true");
+				if ( !envexists("REQUEST_METHOD") && (getparm("_n[1]",console_file)) ) {
+					setienv("PATH_TRANSLATED",console_file);
+					setienv("OBYX_DEVELOPMENT","true");
 					gDevelop = true;
 				}	
 			}
@@ -1185,7 +1163,8 @@ void Environment::gettiming(string& result) {
 }
 
 void Environment::getresponsehttp(string& result) {
-	Httphead::explain(result);
+	Httphead* http = Httphead::service();	
+	http->explain(result);
 }
 
 //This is recomposited from environment. 
@@ -1214,24 +1193,10 @@ void Environment::getrequesthttp(string& head,string& body) {
 	getparm("THIS_REQ_BODY",body);
 }
 
-//Called before LOGGER is initialised.
-void Environment::getenvvars() { 
-	pair<unsigned long long,bool> tmp;
+//Called once for every instance!
+void Environment::getenvvars_base() {
 	string envtmp;
-	if (gArgc > 0) {
-		bool this_one = false;
-		for(int i = 1; i < gArgc; i++) {
-			string av = gArgv[i];
-			if (av.compare("-c") == 0) {
-				this_one = true;
-			} else {
-				if (this_one) {
-					do_config_file(av);
-					this_one=false;
-				}
-			}
-		}
-	}
+	pair<unsigned long long,bool> tmp;
 	if (getenv("OBYX_CONFIG_FILE",envtmp)) {
 		do_config_file(envtmp);
 	} 
@@ -1242,7 +1207,6 @@ void Environment::getenvvars() {
 			if ( gRootDir[gRootDir.size()-1] != '/') gRootDir+='/';
 		}
 	}
-	getenv("LOG_DEBUG",envtmp);
 	if (getenv("OBYX_SQLPORT",envtmp)) {
 		tmp = String::znatural(envtmp);
 		if (tmp.second) gSQLport = (unsigned int)tmp.first;
@@ -1261,7 +1225,7 @@ void Environment::getenvvars() {
 	}
 	pid_t pid = getpid();
 	if (pid < 0) {
-//Need to add some sort of unique thing for this process here..		
+		//Need to add some sort of unique thing for this process here..		
 	} else {
 		string pidnum;
 		String::tostring(pidnum,(unsigned long long)pid); 
@@ -1269,7 +1233,33 @@ void Environment::getenvvars() {
 	}
 	getenv("OBYX_SQLUSERPW",gSQLuserPW);
 	getenv("OBYX_PARM_PREFIX",parmprefix); //Used to prevent ambiguity - someone may need parmxxx
-	the_area = do_area();
+}
+
+//Called before LOGGER is initialised.
+void Environment::getenvvars() {
+	string ps;
+	if (!getenv("PATH_TRANSLATED",ps)) { //FAST is more likely to be called via script.
+		if (getenv("SCRIPT_FILENAME",ps)) {
+			size_t pslen = ps.size();
+			if (ps.substr(pslen-3,3).compare("cgi") != 0) {
+				setienv("PATH_TRANSLATED",ps);
+			}
+		}
+	}
+	if (gArgc > 0) {
+		bool this_one = false;
+		for(int i = 1; i < gArgc; i++) {
+			string av = gArgv[i];
+			if (av.compare("-c") == 0) {
+				this_one = true;
+			} else {
+				if (this_one) {
+					do_config_file(av);
+					this_one=false;
+				}
+			}
+		}
+	}
 }
 
 void Environment::do_config_file(string& filepathstring) {
@@ -1297,7 +1287,7 @@ void Environment::do_config_file(string& filepathstring) {
 					if (!envname.empty() && envname[0] != '#') {
 						envval = env_setting.substr(env_setting.find_first_not_of("\t \r\n",pos+1), string::npos);
 						String::strip(envval);
-						setenv(envname,envval);
+						setbenv(envname,envval);
 					}
 				}
 			}
@@ -1314,48 +1304,12 @@ string Environment::getpathforroot() {
 	return the_result;
 }
 
-//Called before LOGGER is initialised. Default area is public
-Environment::buildarea_type Environment::do_area() {
-	Environment::buildarea_type retval = Console;
-	string req_method;
-	if ( getenv("REQUEST_METHOD",req_method) ) {
-		if ( req_method.compare("CONSOLE") == 0) {
-			retval = Console;
-		} else {
-			string srvroot;
-			if (! getenv("DOCUMENT_ROOT",srvroot)) {
-				string fpath;
-				if ( getenv("PATH_TRANSLATED",fpath)) {
-					string fpathd(fpath,0,fpath.find_last_of('/') ); 
-					if ( fpathd.find(gRootDir) != string::npos ) {
-						retval = Public;
-					} else {
-						retval = Root;
-					}
-				}
-			} else {
-				string rootdir = srvroot.substr(1+srvroot.find_last_of('/')); 
-				if (rootdir.compare(gRootDir) == 0 ) {
-					retval = Public;
-				} else {
-					if (rootdir.compare(gRootDir) == 0 ) {
-						retval = Web;
-					} else {
-						retval = Root;
-					}
-				}
-			}
-		}
-	}
-	return retval;
-}
-
-//Called before LOGGER is initialised.
-void Environment::setenv(string name,string value) {
-	pair<var_map_type::iterator, bool> ins = env_map.insert(var_map_type::value_type(name, value));
+//Called before LOGGER is initialised (but still goes into ienv)
+void Environment::setienv(string name,string value) {
+	pair<var_map_type::iterator, bool> ins = ienv_map.insert(var_map_type::value_type(name, value));
 	if (!ins.second)	{ // Cannot insert (something already there with same ref
-		env_map.erase(ins.first);
-		env_map.insert(var_map_type::value_type(name, value));
+		ienv_map.erase(ins.first);
+		ienv_map.insert(var_map_type::value_type(name, value));
 	}
 }
 
@@ -1368,10 +1322,61 @@ void Environment::setparm(string name,string value) {
 	}
 }
 
+// ####################################### STATIC METHODS ####################################
+// ####################################### STATIC METHODS: PUBLIC ############################
+void Environment::startup(string& v,string& vn) {					//everything that doesn't change across multiple runs
+	init_cgi_rfc_map();
+	setbenvmap();
+	setbenv("OBYX_VERSION",v);			//Let coders know what version we are in!
+	setbenv("OBYX_VERSION_NUMBER",vn);	//Let coders know what version number we are in!
+}
+
+void Environment::shutdown() {
+	cgi_rfc_map.clear();
+	benv_map.clear();
+}
+
+//so this now sends out the header AFTER the xml.
+void Environment::init(int argc, char **argv, char** env) {
+	if (instance == NULL) {
+		instance = new Environment();	// instantiate singleton
+		instance->gArgc=argc;
+		instance->gArgv=argv;
+		if (env != NULL) {
+			instance->setienvmap(env);
+		}
+		instance->getenvvars_base();
+		instance->getenvvars();
+		instance->setbasetime();
+	} 
+}	
+void Environment::finalise() {	
+	if (instance != NULL) {
+		delete instance;
+		instance = NULL;
+	}
+}
+
+Environment* Environment::service() { 
+	return instance;
+}
+
+bool Environment::getbenv(string const name,string& container) {	//used for base configuration settings.
+	bool retval = false;
+	container.clear();  //should we clear this?
+	var_map_type::iterator it = benv_map.find(name);
+	if (it != benv_map.end()) {
+		container = ((*it).second);
+		retval = true;
+	} 
+	return retval;
+}
+
+// ####################################### STATIC METHODS: PRIVATE #############################
 void Environment::init_cgi_rfc_map() { 
-//	cgi_rfc_map.insert(var_map_type::value_type("REQUEST_METHOD","Method"));					//meta
-//	cgi_rfc_map.insert(var_map_type::value_type("AUTH_TYPE","Authorization_T"));				//partial
-//	cgi_rfc_map.insert(var_map_type::value_type("REMOTE_USER","Authorization_U"));				//partial
+	//	cgi_rfc_map.insert(var_map_type::value_type("REQUEST_METHOD","Method"));					//meta
+	//	cgi_rfc_map.insert(var_map_type::value_type("AUTH_TYPE","Authorization_T"));				//partial
+	//	cgi_rfc_map.insert(var_map_type::value_type("REMOTE_USER","Authorization_U"));				//partial
 	cgi_rfc_map.insert(var_map_type::value_type("CONTENT_TYPE","Content-Type"));				//precise
 	cgi_rfc_map.insert(var_map_type::value_type("CONTENT_LENGTH","Content-Length"));			//precise
 	cgi_rfc_map.insert(var_map_type::value_type("HTTP_HOST","Host"));							//precise
@@ -1383,4 +1388,32 @@ void Environment::init_cgi_rfc_map() {
 	cgi_rfc_map.insert(var_map_type::value_type("HTTP_REFERER","Referer"));						//precise
 	cgi_rfc_map.insert(var_map_type::value_type("HTTP_USER_AGENT","User-Agent"));				//precise
 }
+void Environment::setbenv(string name,string value) {
+	pair<var_map_type::iterator, bool> ins = benv_map.insert(var_map_type::value_type(name, value));
+	if (!ins.second)	{ // Cannot insert (something already there with same ref
+		benv_map.erase(ins.first);
+		benv_map.insert(var_map_type::value_type(name, value));
+	}
+}
+void Environment::setbenvmap() {//per box/process environment
+	unsigned int eit = 0;
+	while ( environ[eit] != NULL ) {
+		string parmstring = environ[eit++];
+		size_t split =  parmstring.find('=');
+		if (split != string::npos && split > 0 ) {
+			string n = parmstring.substr(0,split);
+			string v = parmstring.substr(split+1,string::npos);
+			if(v.size() > 0 && v[v.size()-1] == '=') { //weird fastcgi name_mangle
+				v.resize(v.size()-1);
+//				string problem="fastcgi_name_mangle_"+n;
+//				setbenv(problem,v);
+			}
+			setbenv(n,v);
+			if (n.compare("OBYX_CONFIG_FILE") == 0) { //for virtual hosts shouldn't be set here.
+				do_config_file(v);
+			} 
+		}
+	}
+}
+// ####################################### FILE ENDS ####################################
 

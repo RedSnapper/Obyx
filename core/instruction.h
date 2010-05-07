@@ -30,18 +30,14 @@ using namespace qxml;
 
 class Instruction : public Function {
 private:
-	friend class Function;
-	
 	static op_type_map  op_types;
-	static void init();					//set up map
-	
 	op_type  operation;					// instruction operation
 	unsigned int precision;				// for floating point output
 	unsigned int bitpadding;
 	bool base_convert;
 	bool inputsfinal;
-
-//necessary fulfilment of abstract virtual functions..	
+	
+	//necessary fulfilment of abstract virtual functions..	
 	bool may_eval_outputs() {return inputsfinal && results.final();} //{return inputsfinal;} //
 	bool evaluate_this();				//private evaluation
 	
@@ -58,6 +54,14 @@ public:
 	virtual void addInputType(InputType*);
 	virtual void addDefInpType(DefInpType*);	
 	virtual ~Instruction() {}
+	
+private:
+	friend class Function;
+	static void init();
+	static void finalise();
+	static void startup(); 
+	static void shutdown();	
+	
 };
 #endif
 

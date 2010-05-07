@@ -43,134 +43,147 @@ namespace Vdb {
 
 class Environment {
 public:
-	typedef enum {Root,Public,Console,Scripts,Logs,Web} buildarea_type;
-
+//	typedef enum {Root,Public,Console,Scripts,Logs,Web} buildarea_type;
+	
 private:
-	static int gArgc;
-	static char** gArgv;
-
-//what used to be 'admin.h' values.
-	static bool gDevelop;
-	static int gSQLport;
-	static buildarea_type the_area;
-	static string gDatabase;
-	static string gRootDir;
-	static string gScriptsDir;
-	static string gScratchDir;
-	static string gScratchName;
-	static string gSQLhost;
-	static string gSQLuser;
-	static string gSQLuserPW;
-
-	static bool dosetdebugger;	//this is set in init, to allow for logger to load first.
-	static double basetime;	//used for timing.
-	static std::string empty;
-	static std::string parmprefix;
 	typedef hash_map<const string,string, hash<const string&> > var_map_type;
-	static var_map_type cgi_rfc_map;							//CGI_NAME rfc Header map (ro)
-	static var_map_type env_map;								//System environment (ro)
-//-- The following are RESPONSE cookies
-	static var_map_type ck_map;									//store the cookie values  (rw)
-	static var_map_type ck_expires_map;							//store the cookie expires  (rw)
-	static var_map_type ck_path_map;							//store the cookie values  (rw)
-	static var_map_type ck_domain_map;							//store the cookie values  (rw)
-//-- The following are REQUEST cookies
-	static var_map_type cke_map;								//store the cookie values  (r)
-	static var_map_type cke_expires_map;						//store the cookie expires (r)
-	static var_map_type cke_path_map;							//store the cookie values  (r)
-	static var_map_type cke_domain_map;							//store the cookie values  (r)
-//--
-	static var_map_type parm_map;								//Application parms  (ro)
-	static var_map_type httphead_map;							//Request HTTP headers  (ro)
-
-	static bool sortvps(pair<string,string>,pair<string,string>);
-	static void setbasetime();
 	
-	static void getenvvars();
-	static void dodocument();
-	static void doparms(int argc, char *argv[]);
-	static void dopostparms();
-	static void setnamedparm(string,unsigned long long);
-
-	static buildarea_type do_area();
-	static void do_request_cookies();
-
-	static void setcookie_req(string,string);
-	static void setcookie_req_path(string,string);
-	static void setcookie_req_domain(string,string);
-	static void setcookie_req_expires(string,string);
+	Environment();
+	~Environment();
+	static Environment* instance;
 	
-	static bool getcookie_req_domain(string const,string&);			//domain,path,expires not available from GET/POST
-	static bool getcookie_req_path(string const,string&);
-	static bool getcookie_req_expires(string const,string&);
-
-	static bool getcookie_res(string const,string&);				//both pre-existing and new cookies
-	static bool getcookie_res_domain(string const,string&);			//domain,path,expires not available from GET/POST
-	static bool getcookie_res_path(string const,string&);
-	static bool getcookie_res_expires(string const,string&);
+	static var_map_type cgi_rfc_map;			//CGI_NAME rfc Header map (ro)
+	static var_map_type benv_map;				//Base     System environment (ro)
+	var_map_type ienv_map;				//Instance System environment (ro)
 	
-	static bool getcookie(string const,string&);				//both pre-existing and new cookies
-	static bool getcookie_domain(string const,string&);			//domain,path,expires not available from GET/POST
-	static bool getcookie_path(string const,string&);
-	static bool getcookie_expires(string const,string&);
+	int gArgc;
+	char** gArgv;
+	bool gDevelop;
+	int gSQLport;
+//	buildarea_type the_area;
+	string gDatabase;
+	string gRootDir;
+	string gScriptsDir;
+	string gScratchDir;
+	string gScratchName;
+	string gSQLhost;
+	string gSQLuser;
+	string gSQLuserPW;
+	double basetime;	//used for timing.
+	std::string empty;
+	std::string parmprefix;
+	//-- The following are RESPONSE cookies
+	var_map_type ck_map;								//store the cookie values  (rw)
+	var_map_type ck_expires_map;						//store the cookie expires  (rw)
+	var_map_type ck_path_map;							//store the cookie values  (rw)
+	var_map_type ck_domain_map;							//store the cookie values  (rw)
+	//-- The following are REQUEST cookies
+	var_map_type cke_map;								//store the cookie values  (r)
+	var_map_type cke_expires_map;						//store the cookie expires (r)
+	var_map_type cke_path_map;							//store the cookie values  (r)
+	var_map_type cke_domain_map;						//store the cookie values  (r)
+	//--
+	var_map_type parm_map;								//Application parms  (ro)
+	var_map_type httphead_map;							//Request HTTP headers  (ro)
 	
-public:
-	static void gettiming(string&);
-	static void do_response_cookies(string&);					//
-
-	static void getresponsehttp(string&); //returns an osi::http response
-	static void getrequesthttp(string&,string&);  //returns this http request
-
-	static buildarea_type get_area() { return the_area; }
-	static unsigned long cookiecount() { return ck_map.size() + ck_expires_map.size(); }
-	static string response_cookies(bool = false);					//if bool = true, then output xml instead
-
-	static void do_query_string(string& qstr);
-	static void do_config_file(string& file);
+	void setbasetime();
 	
-	static void delcookie_res(string);
-	static void setcookie_res(string,string);
-	static void setcookie_res_path(string,string);
-	static void setcookie_res_domain(string,string);
-	static void setcookie_res_expires(string,string);
-			
-	static void setparm(string,string);
-	static void setenv(string,string);
-	static void init(int argc, char *argv[]);	//include parameters (option) bool true=process POST
-	static void initwlogger(int argc, char *argv[]);
-	static void initwlogger();						//Does any init that needs to wait on logger.
+	void getenvvars_base();
+	void getenvvars();
+	void dodocument();
+	void doparms(int argc, char *argv[]);
+	void dopostparms();
+	void setnamedparm(string,unsigned long long);
+	
+//	buildarea_type do_area();
+	void do_request_cookies();
+	
+	void setcookie_req(string,string);
+	void setcookie_req_path(string,string);
+	void setcookie_req_domain(string,string);
+	void setcookie_req_expires(string,string);
+	
+	bool getcookie_req_domain(string const,string&);			//domain,path,expires not available from GET/POST
+	bool getcookie_req_path(string const,string&);
+	bool getcookie_req_expires(string const,string&);
+	
+	bool getcookie_res(string const,string&);				//both pre-existing and new cookies
+	bool getcookie_res_domain(string const,string&);			//domain,path,expires not available from GET/POST
+	bool getcookie_res_path(string const,string&);
+	bool getcookie_res_expires(string const,string&);
+	
+	bool getcookie(string const,string&);					//both pre-existing and new cookies
+	bool getcookie_domain(string const,string&);			//domain,path,expires not available from GET/POST
+	bool getcookie_path(string const,string&);
+	bool getcookie_expires(string const,string&);
+	
+	
+	//private statics
+	static void setbenv(string,string); //should be private..
+	static void setbenvmap();
 	static void init_cgi_rfc_map();
+	static bool sortvps(pair<string,string>,pair<string,string>);
+	static void do_config_file(string&);
+public:
+	//statics
+	static void startup(string&,string&);		//everything that doesn't change across multiple runs
+	static void shutdown();
+	static void init(int,char **,char **);
+	static void finalise();
+	static Environment* service(); 
+	static bool getbenv(string const,string&);
 	
-	static void getlanguage(Vdb::Connection*);		//This was nicked from rs404
-	static void getfilename(Vdb::Connection*,string);
-	static void gettechnology(Vdb::Connection*);
-
-	static string getpathforroot();
-	static bool getparm(string const,string&);
-	static bool getcookie_req(string const,string&);	//only pre-existing cookies
-	static bool envexists(string const);
-	static bool getenv(string const,string&);
-	static bool getenvd(const string,string& , const string);
-	static unsigned long long pid() { return getpid(); }
-	static int SQLport() { return gSQLport; }
-	static string Database() { return gDatabase; }
-	static string Path() { return gRootDir; }
-	static string ScriptsDir() { return gScriptsDir; }
-	static string ScratchDir() { return gScratchDir; }
-	static string ScratchName() { return gScratchName; }
+	void setienvmap(char ** environment);
+	void gettiming(string&);
+	void do_response_cookies(string&);					//
 	
-	static string SQLhost() { return gSQLhost; }
-	static string SQLuser() { return gSQLuser; }
-	static string SQLuserPW() { return gSQLuserPW; }
+	void getresponsehttp(string&); //returns an osi::http response
+	void getrequesthttp(string&,string&);  //returns this http request
 	
-	static void list();						//for debugging
-	static void listEnv();					//for debugging
-	static void listParms();
-	static void listReqCookies();
-	static void listResCookies();
+	unsigned long cookiecount() { return ck_map.size() + ck_expires_map.size(); }
+	string response_cookies(bool = false);					//if bool = true, then output xml instead
 	
-	static void list(string&);
-
+	void do_query_string(string& qstr);
+	
+	void delcookie_res(string);
+	void setcookie_res(string,string);
+	void setcookie_res_path(string,string);
+	void setcookie_res_domain(string,string);
+	void setcookie_res_expires(string,string);
+	
+	void setparm(string,string);
+	void setienv(string,string);
+	void initwlogger(int argc, char *argv[]);
+	void initwlogger();						//Does any init that needs to wait on logger.
+	
+	void getlanguage(Vdb::Connection*);		//This was nicked from rs404
+	void getfilename(Vdb::Connection*,string);
+	void gettechnology(Vdb::Connection*);
+	
+	string getpathforroot();
+	bool getparm(string const,string&);
+	bool getcookie_req(string const,string&);	//only pre-existing cookies
+	bool envexists(string const);
+	bool getenv(string const,string&);
+	bool getenvd(const string,string& , const string);
+	unsigned long long pid() { return getpid(); }
+	int SQLport() { return gSQLport; }
+	string Database() { return gDatabase; }
+	string Path() { return gRootDir; }
+	string ScriptsDir() { return gScriptsDir; }
+	string ScratchDir() { return gScratchDir; }
+	string ScratchName() { return gScratchName; }
+	
+	string SQLhost() { return gSQLhost; }
+	string SQLuser() { return gSQLuser; }
+	string SQLuserPW() { return gSQLuserPW; }
+	
+	void list();						//for debugging
+	void listEnv();					//for debugging
+	void listParms();
+	void listReqCookies();
+	void listResCookies();
+	void list(string&);
 };
 
 #endif

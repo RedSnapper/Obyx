@@ -41,6 +41,7 @@ CC_OBJECT_FLAG  =-o
 CC_ARGS      = -fshort-wchar -I /usr/local/xerc/include $(CC_INCLUDES) -I. $(CC_FLAGS) $(CC_DEFINES)	
 ###############################################################################
 #commons
+FAST_SRCS        =fast/fast.h fast/fast.cpp 
 HTTPF_SRCS       =httpfetch/httpfetch.cpp httpfetch/httpfetcher.cpp httpfetch/httpfetchleaf.cpp httpfetch/httpfetchheadparser.cpp 
 FILE_SRCS        =filing/device.cpp filing/file.cpp filing/path.cpp filing/utils.cpp 
 VDB_MYSQLSRCS    =vdb/mysql/mysqlservice.cpp vdb/mysql/mysqlconnection.cpp vdb/mysql/mysqlquery.cpp 
@@ -52,15 +53,18 @@ STRING_SRCS      =string/chars.cpp string/comparison.cpp string/convert.cpp stri
 ENV_SRCS         =environment/environment.cpp environment/IInfImageBase.cpp environment/IInfImageTypes.cpp environment/IInfInfo.cpp environment/IInfNetworkGraphics.cpp environment/IInfReader.cpp
 XML_SRCS         =xml/manager.cpp xml/xmlerrhandler.cpp xml/xmlparser.cpp xml/xmlrsrchandler.cpp
 HEAD_SRCS        =httphead/httphead.cpp
-ALL_SRCS	 =${FILE_SRCS} ${ENV_SRCS} ${VDB_SRCS} ${LOG_SRCS} ${STRING_SRCS} ${DATE_SRCS} ${HEAD_SRCS} ${XML_SRCS}
+BASE_SRCS        =${HTTPF_SRCS} ${FILE_SRCS} ${ENV_SRCS} ${VDB_SRCS} ${LOG_SRCS} ${STRING_SRCS} ${DATE_SRCS} ${HEAD_SRCS} ${XML_SRCS}
 ###############################################################################
-OBYX_USES =${ALL_SRCS} ${HTTPF_SRCS}
+OBYX_USES =${BASE_SRCS}
 OBYX_LIBS =
 OBYX_SRCS = \
      fragmentobject.cpp strobject.cpp xmlobject.cpp dataitem.cpp itemstore.cpp pairqueue.cpp \
      obyxelement.cpp function.cpp comparison.cpp instruction.cpp mapping.cpp iteration.cpp \
      iko.cpp output.cpp inputtype.cpp osiapp.cpp osimessage.cpp document.cpp filer.cpp main.cpp 
 
+FOBYX_USES =${BASE_SRCS} ${FAST_SRCS}
+FOBYX_LIBS =-lfcgi -lfcgi++
+FOBYX_SRCS =${OBYX_SRCS}
 ###############################################################################
 OBJDIR 	  =obj
 DEPDIR 	  =dep
@@ -70,12 +74,16 @@ setobjs   =$(call objs,$($(1)_USES),commons) \
 		   $(call objs,$($(1)_SRCS),$(2)) 
 ###############################################################################
 # parm1 = %1_USES,%_SRCS  parm2 is the application directory. 
-OBYX_OBJ     = $(call setobjs,OBYX,core)
+OBYX_OBJ      = $(call setobjs,OBYX,core)
+FOBYX_OBJ     = $(call setobjs,FOBYX,core)
 ###############################################################################
 build     =@echo "Installing $(2)"; $(CC_EXEC) $(1) $(LIBDIRS) $($(3)_LIBI) $(CC_LIBS) $(ALL_LIBS) $($(3)_LIBS) $(CC_OBJECT_FLAG) $(2)
 ###############################################################################
-$(CGIHOME)/obyx.cgi        : $(OBYX_OBJ) ; $(call build,$+,$@,OBYX)
-$(CGIHOMEDEV)/obyx.cgi     : $(OBYX_OBJ) ; $(call build,$+,$@,OBYX)
+$(CGIHOME)/obyx.cgi        : $(OBYX_OBJ)  ; $(call build,$+,$@,OBYX)
+$(CGIHOMEDEV)/obyx.cgi     : $(OBYX_OBJ)  ; $(call build,$+,$@,OBYX)
+###############################################################################
+$(CGIHOME)/obyx.fcgi       : $(FOBYX_OBJ) ; $(call build,$+,$@,FOBYX_OBJ)
+$(CGIHOMEDEV)/obyx.fcgi    : $(FOBYX_OBJ) ; $(call build,$+,$@,FOBYX_OBJ)
 ###############################################################################
 .PHONY: clean all test
 clean: 
@@ -96,6 +104,7 @@ $(OBJDIR)/%.o : %.cpp
           rm -f $(OBJDIR)/$(dir $*)$(*F).d
 ###############################################################################
 #now do the dependencies by the gcc -MD above <-- can the methods below be improved??
+-include $(FAST_SRCS:%.cpp=$(DEPDIR)/commons/%.P)
 -include $(XML_SRCS:%.cpp=$(DEPDIR)/commons/%.P)
 -include $(VDB_SRCS:%.cpp=$(DEPDIR)/commons/%.P)
 -include $(FILE_SRCS:%.cpp=$(DEPDIR)/commons/%.P)
@@ -105,6 +114,8 @@ $(OBJDIR)/%.o : %.cpp
 -include $(HEAD_SRCS:%.cpp=$(DEPDIR)/commons/%.P)
 -include $(STRING_SRCS:%.cpp=$(DEPDIR)/commons/%.P)
 #two lines below for each target
--include $(OBYX_USES:%.cpp=$(DEPDIR)/commons/%.P)
--include $(OBYX_SRCS:%.cpp=$(DEPDIR)/core/%.P)
+-include $(OBYX_USES:%.cpp=$(DEPDIR)/ocommons/%.P)
+-include $(OBYX_SRCS:%.cpp=$(DEPDIR)/ocore/%.P)
+-include $(FOBYX_USES:%.cpp=$(DEPDIR)/fcommons/%.P)
+-include $(FOBYX_SRCS:%.cpp=$(DEPDIR)/fcore/%.P)
 ###############################################################################

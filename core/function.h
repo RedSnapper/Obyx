@@ -63,18 +63,20 @@ public:
 	static Function* FnFactory(ObyxElement*,const Function*);
 	Function(xercesc::DOMNode* const&,elemtype,ObyxElement* = NULL);
 	Function(ObyxElement*,const Function*);// : ObyxElement(par,orig) { copy(orig); }
-
+	
 	virtual void addInputType(InputType*) = 0;
 	virtual void addDefInpType(DefInpType*) = 0;
-
+	static void init();
+	static void finalise();
+	static void startup(); 
+	static void shutdown();	
+	
 	virtual ~Function();
 	bool final();
 	const string note() const { return fnnote; }
 	
 	bool evaluate(size_t=0,size_t=0);		// new context one..
 	
-	static  void init();				//set up maps
-	static  void finalise();			//shut things down
 };
 
 //--------------------------------------------------------- //
@@ -89,7 +91,7 @@ public:
 	Endqueue() : Function(NULL,endqueue,NULL) {} 
 	virtual void addInputType(InputType*);
 	virtual void addDefInpType(DefInpType*);	
-	~Endqueue() {}
+	virtual ~Endqueue();
 };
 //--------------------------------------------------------- //
 

@@ -30,8 +30,8 @@ using namespace Log;
 
 //need to move config stuff into this class.
 namespace XML {
-
-//load up the schema strings.
+	
+	//load up the schema strings.
 #include "grammars/xmlxsd.h"
 #include "grammars/messagexsd.h"
 #include "grammars/obyxxsd.h"
@@ -42,12 +42,12 @@ namespace XML {
 #include "grammars/xhtml1dtd.h"
 #include "grammars/wsdlxsd.h"
 #include "grammars/wsdlmimexsd.h"
-
-//#define u_str u_str
-//#define UCS2(x) (const XMLCh*)(x)
+	
+	//#define u_str u_str
+	//#define UCS2(x) (const XMLCh*)(x)
 	
 	const u_str Parser::memfile = UCS2(L"[xsd]"); // "[xsd]"
-		
+	
 	Parser::Parser() : errorHandler(NULL),resourceHandler(NULL),impl(NULL),writer(NULL),xfmt(NULL),grpool(NULL),parser(NULL),validation(false) {
 		const u_str imptype = UCS2(L"XPath2 3.0");	// "XPath2 3.0"
 		impl = DOMImplementationRegistry::getDOMImplementation( imptype.c_str() );
@@ -60,7 +60,7 @@ namespace XML {
 		makeReader();
 		makeWriter();
 	}
-
+	
 	void Parser::writenode(const DOMNode* const& n, u_str& result) {
 		if ( n != NULL ) {
 			AutoRelease<DOMLSOutput> output(((DOMImplementationLS*)impl)->createLSOutput());	
@@ -88,7 +88,7 @@ namespace XML {
 			delete mbft;
 		} // else {} //node was NULL
 	}
-		
+	
 	void Parser::writenode(const DOMNode* const& n, std::string& result) {
 		if ( n != NULL ) {
 			AutoRelease<DOMLSOutput> output(((DOMImplementationLS*)impl)->createLSOutput());	
@@ -102,7 +102,7 @@ namespace XML {
 			delete mbft;
 		} // else {} //node was NULL
 	}
-
+	
 	void Parser::writedoc(const DOMDocument* const& n,std::string& result) {
 		if ( n != NULL ) {
 			AutoRelease<DOMLSOutput> output(((DOMImplementationLS*)impl)->createLSOutput());	
@@ -115,7 +115,8 @@ namespace XML {
 			}
 			delete mbft;
 			if ( ! result.empty() ) {
-				if (Environment::envexists("OBYX_PRETTY_PRINT")) {
+				Environment* env = Environment::service();
+				if (env->envexists("OBYX_PRETTY_PRINT")) {
 					result.erase(0,result.find_first_not_of("\n\r\t "));
 				} 
 				if ( String::Regex::available()) {
@@ -137,24 +138,25 @@ namespace XML {
 		delete errorHandler;
 		delete resourceHandler;
 	}
-
+	
 	void Parser::makeWriter() {
+		string dummy;
 		writer = ((DOMImplementationLS*)impl)->createLSSerializer();
 		DOMConfiguration* dc = writer->getDomConfig();
 		dc->setParameter(XMLUni::fgDOMErrorHandler,errorHandler);
 		dc->setParameter(XMLUni::fgDOMWRTDiscardDefaultContent,true);
-		if (Environment::envexists("OBYX_PRETTY_PRINT")) {
+		if (Environment::getbenv("OBYX_PRETTY_PRINT",dummy)) {
 			dc->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint,true);
 		} else {
 			dc->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint,false);
 		}
 		dc->setParameter(XMLUni::fgDOMXMLDeclaration,false);
-//		dc->setParameter(XMLUni::fgDOMWRTWhitespaceInElementContent,true); //always true, false not supported.
+		//		dc->setParameter(XMLUni::fgDOMWRTWhitespaceInElementContent,true); //always true, false not supported.
 		dc->setParameter(XMLUni::fgDOMWRTBOM,false);
 	}
-
+	
 	void Parser::makeReader() {
-//	Xerces-c v3.0 and up.	Val_Auto 
+		//	Xerces-c v3.0 and up.	Val_Auto 
 		parser = ((DOMImplementationLS*)impl)->createLSParser(DOMImplementationLS::MODE_SYNCHRONOUS, NULL,XMLPlatformUtils::fgMemoryManager,grpool);
 		DOMConfiguration* dc = parser->getDomConfig();
 		dc->setParameter(XMLUni::fgDOMErrorHandler,errorHandler);
@@ -170,8 +172,8 @@ namespace XML {
 		dc->setParameter(XMLUni::fgXercesLoadExternalDTD, false);
 		dc->setParameter(XMLUni::fgXercesIgnoreCachedDTD, false);
 		dc->setParameter(XMLUni::fgXercesIdentityConstraintChecking,true);
-		
-		if (Environment::envexists("OBYX_VALIDATE_ALWAYS")) {
+		string dummy;
+		if (Environment::getbenv("OBYX_VALIDATE_ALWAYS",dummy)) {
 			if (dc->canSetParameter(XMLUni::fgDOMValidate, true)) {
 				dc->setParameter(XMLUni::fgDOMValidate, true);
 				validation = true;
@@ -186,23 +188,22 @@ namespace XML {
 		dc->setParameter(XMLUni::fgXercesDOMHasPSVIInfo,false);			//Otherwise we are in trouble.
 		
 		//See http://xerces.apache.org/xerces-c/program-dom-3.html for full list of parameters/features
-
 		//the 'SystemId' values nust be the namespace urls.
 		
 		resourceHandler->setGrammar(obyxxsd,UCS2(L"http://www.obyx.org"),Grammar::SchemaGrammarType);      //And this.
 		resourceHandler->setGrammar(messagexsd,UCS2(L"http://www.obyx.org/message"),Grammar::SchemaGrammarType);
 		resourceHandler->setGrammar(oalxsd,UCS2(L"http://www.obyx.org/osi-application-layer"),Grammar::SchemaGrammarType);
 		resourceHandler->setGrammar(xhtml1dtd,UCS2(L"http://www.w3.org/1999/xhtml"),Grammar::DTDGrammarType);      //And this.
-
-//These are all better handled at runtime. The performance hit of preloading them against every request is not so good
-//		resourceHandler->setGrammar(xmlxsd,UCS2(L"http://www.w3.org/XML/1998/namespace"),Grammar::SchemaGrammarType);
-//		resourceHandler->setGrammar(xlinkxsd,UCS2(L"http://www.w3.org/1999/xlink"),Grammar::SchemaGrammarType);
-//		resourceHandler->setGrammar(soapxsd,UCS2(L"http://schemas.xmlsoap.org/soap/envelope/"),Grammar::SchemaGrammarType);
-//		resourceHandler->setGrammar(soapencodingxsd,UCS2(L"http://schemas.xmlsoap.org/soap/encoding/"),Grammar::SchemaGrammarType);
-//		resourceHandler->setGrammar(wsdlxsd,UCS2(L"http://schemas.xmlsoap.org/wsdl/"),Grammar::SchemaGrammarType);
-//		resourceHandler->setGrammar(wsdlmimexsd,UCS2(L"http://schemas.xmlsoap.org/wsdl/mime/"),Grammar::SchemaGrammarType);
+		
+		//These are all better handled at runtime. The performance hit of preloading them against every request is not so good
+		//		resourceHandler->setGrammar(xmlxsd,UCS2(L"http://www.w3.org/XML/1998/namespace"),Grammar::SchemaGrammarType);
+		//		resourceHandler->setGrammar(xlinkxsd,UCS2(L"http://www.w3.org/1999/xlink"),Grammar::SchemaGrammarType);
+		//		resourceHandler->setGrammar(soapxsd,UCS2(L"http://schemas.xmlsoap.org/soap/envelope/"),Grammar::SchemaGrammarType);
+		//		resourceHandler->setGrammar(soapencodingxsd,UCS2(L"http://schemas.xmlsoap.org/soap/encoding/"),Grammar::SchemaGrammarType);
+		//		resourceHandler->setGrammar(wsdlxsd,UCS2(L"http://schemas.xmlsoap.org/wsdl/"),Grammar::SchemaGrammarType);
+		//		resourceHandler->setGrammar(wsdlmimexsd,UCS2(L"http://schemas.xmlsoap.org/wsdl/mime/"),Grammar::SchemaGrammarType);
 	}
-
+	
 	DOMDocument* Parser::newDoc(const DOMNode* n) {
 		DOMDocument* doc = NULL;
 		if (n != NULL) {
@@ -255,7 +256,7 @@ namespace XML {
 	DOMDocumentFragment* Parser::newDocFrag(DOMDocument* doc) {
 		return doc->createDocumentFragment(); //no root element.
 	}
-
+	
 	//non-releasing the doc result is not good...
 	DOMDocument* Parser::loadDoc(const std::string& xfile) {
 		DOMDocument* rslt = NULL;
@@ -301,7 +302,7 @@ namespace XML {
 				*Logger::log << error << Log::LI << "Some load error occured with an xml file of length " << (unsigned int)xmlfile.size() << Log::LO << Log::blockend;
 			}
 			if ( errorHandler->hadErrors() ) {	
-				*Logger::log << syntax << Log::LI << "Text that failed parse" << Log::LO << Log::LI << xmlfile << Log::LO << Log::blockend;
+				*Logger::log << error << Log::LI << "Text that failed parse" << Log::LO << Log::LI << xmlfile << Log::LO << Log::blockend;
 				rslt=NULL;
 				errorHandler->resetErrors();
 			} 
@@ -328,7 +329,7 @@ namespace XML {
 			if (dc->canSetParameter(XMLUni::fgDOMValidate, true)) dc->setParameter(XMLUni::fgDOMValidate, true);
 		} 
 	}
-		
+	
 	DOMDocument* Parser::loadDoc(const u_str& xmlfile) {
 		DOMDocument* rslt = NULL;
 		if ( ! xmlfile.empty() ) {
@@ -410,7 +411,7 @@ namespace XML {
 		}
 		return xpath;
 	}
-// DOMDocumentFragment	
+	// DOMDocumentFragment	
 	/* All the following could probably be replaced with parser->parseWithContext(input,pt,action); */
 	void Parser::insertContext(DOMDocument*& doc,DOMNode*& pt,const basic_string<XMLCh>& ins,DOMLSParser::ActionType action) {
 		if (pt != NULL) {
@@ -763,7 +764,7 @@ namespace XML {
 		}
 		return retval;
 	}
-
+	
 	void Parser::setGrammar(const std::string& grammarfile,const u_str& namespaceuri, Grammar::GrammarType type) {
 		if ( !namespaceuri.empty() ) {
 			resourceHandler->setGrammar(grammarfile,namespaceuri,type);
@@ -833,7 +834,7 @@ namespace XML {
 			pt->getParentNode()->insertBefore(vt,pt); 
 		}
 	}
- 
+	
 	void Parser::do_maybenode_following_gap(DOMDocument*& doc,DOMNode*& pt,const basic_string<XMLCh>& v) {
 		if (! v.empty() ) {
 			DOMText* vt = doc->createTextNode(v.c_str());
@@ -845,7 +846,7 @@ namespace XML {
 			}
 		}
 	}
-		
+	
 	void Parser::do_maybenode_set(DOMDocument*& doc,DOMNode*& pt,const basic_string<XMLCh>& v) {
 		DOMNode *xr = pt->getParentNode();
 		bool released=false;
@@ -862,38 +863,30 @@ namespace XML {
 	//now DOMDocument ones..
 	void Parser::do_mustbetext_following_gap(DOMNode*& pt, DOMNode* rv) {
 		if ( rv != NULL ) {
-			string v; writenode(rv,v); //writedoc(rv,v);
+			u_str v; writenode(rv,v); //writedoc(rv,v);
 			if (!v.empty()) {
-				std::string nodevalue;
-				transcode(pt->getNodeValue(),nodevalue);
-				nodevalue.append(v);
-				XMLCh* nv = XML::transcode(nodevalue);
-				pt->setNodeValue(nv);
-				XMLString::release(&nv);
+				u_str nodeval = pt->getNodeValue();
+				nodeval.append(v);
+				pt->setNodeValue(nodeval.c_str());
 			}
 		}
 	}
 	
 	void Parser::do_mustbetext_preceding_gap(DOMNode*& pt, DOMNode* rv) {
 		if ( rv != NULL ) {
-			string v; writenode(rv,v); //writedoc(rv,v);
+			u_str v; writenode(rv,v); //writedoc(rv,v);
 			if (!v.empty()) {
-				std::string nodevalue;
-				transcode(pt->getNodeValue(),nodevalue);
-				v.append(nodevalue);
-				XMLCh* nv = XML::transcode(v);
-				pt->setNodeValue(nv);
-				XMLString::release(&nv);
+				u_str nodeval = pt->getNodeValue();
+				v.append(nodeval);
+				pt->setNodeValue(nodeval.c_str());
 			}
 		}
 	}
 	
 	void Parser::do_mustbetext_set(DOMNode*& pt, DOMNode* rv) {
 		if ( rv != NULL ) {
-			string v; writenode(rv,v); //writedoc(rv,v);
-			XMLCh* newval = XML::transcode(v);		
-			pt->setNodeValue(newval);
-			XMLString::release(&newval);
+			u_str v; writenode(rv,v); //writedoc(rv,v);
+			pt->setNodeValue(v.c_str());
 		}
 	}
 	

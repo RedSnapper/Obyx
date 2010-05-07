@@ -38,16 +38,18 @@ using namespace std;
 using namespace __gnu_cxx; //hashmap namespace.
 
 class Httphead {
-
+	
 private:
 	typedef hash_map<const string, string, hash<const string&> > type_nv_map;	//hashmap of name-values
 	typedef enum { httpdate, server, cookie, cookie2, expires, cache, pragma, modified, range, mime, location, contentlength, disposition, p3p, connection, custom } http_msg;	
 	typedef map<string, http_msg > http_msg_map; 
 	
-	static ostream*	o;									//output stream
-	static bool isdone;
-	static bool mime_is_changed;
-	static		 string	httpsig;
+	Httphead(ostream*);
+	~Httphead();
+	
+	static const string	cookiesig;
+	static const string	cookie2sig;
+	static const string crlf;
 	static const string	datesig;
 	static const string	serversig;
 	static const string	expirysig;
@@ -61,35 +63,41 @@ private:
 	static const string	disposig; 
 	static const string	p3psig; 
 	static const string connsig;
+	static http_msg_map	http_msgs;
 	
-//httphead settings
-	static unsigned int		httpcode;
-	static size_t			content_length;
-	static bool				nodate;
-	static bool				nocaching;	
-	static bool				nocodeline;	
-	static bool				noheaders;	
-	static bool				http_req_method;
-	static string			servervalue;
-	static string			rangevalue;
-	static string			codemessage;
-	static string			defaultdatevalue;
-	static string			datevalue;
-	static string			moddatevalue;
-	static string			expiresline;
-	static string			cacheprivacy;	//	= "private"; or "public"
-	static string			cacheline;		//	= "s-maxage=0, max-age=0, must-revalidate";
-	static string			pragmaline;		//	= "no-cache";
-	static string			mimevalue;
-	static string			dispvalue;
-	static string			locavalue;
-	static string			content;
-	static string			connectionvalue;
-	static string			p3pline;
-	static http_msg_map		http_msgs;
-	static type_nv_map		customlines;
-
-	static void objectwrite(DOMNode* const&,string&);
+	ostream*	o;									//output stream
+	bool isdone;
+	bool mime_is_changed;
+	
+	//httphead settings
+	unsigned int	httpcode;
+	size_t			content_length;
+	bool			nodate;
+	bool			nocaching;	
+	bool			nocodeline;	
+	bool			noheaders;	
+	bool			http_req_method;
+	string			servervalue;
+	string			rangevalue;
+	string			codemessage;
+	string			defaultdatevalue;
+	string			datevalue;
+	string			moddatevalue;
+	string			expiresline;
+	string			cacheprivacy;	//	= "private"; or "public"
+	string			cacheline;		//	= "s-maxage=0, max-age=0, must-revalidate";
+	string			pragmaline;		//	= "no-cache";
+	string			mimevalue;
+	string			dispvalue;
+	string			locavalue;
+	string			content;
+	string			connectionvalue;
+	string			p3pline;
+	string			httpsig;
+	
+	type_nv_map		customlines;
+	
+	void objectwrite(DOMNode* const&,string&);
 	
 protected:
 	friend class Environment;
@@ -101,7 +109,7 @@ protected:
 		const string protoval_i;
 		const string protoval_o;
 		const string version_i;
-			  string version_o;
+		string version_o;
 		const string code_i;
 		const string code_o;
 		const string reason_i;
@@ -119,46 +127,49 @@ protected:
 		const string body_i;
 		const string body_o;		
 	} response_format; 
-
+	
 private:
+	static unsigned int instances;				//used to deal with multiple startup/shutdowns..
+	static Httphead* singleton;
 	//Standard http head sigs
 	static response_format http_fmt;
 	static response_format xml_fmt;
-//	static void init(); //legacy
 	
 public:
-	static const string	cookiesig;
-	static const string	cookie2sig;
-	static const string crlf;
+	static void startup();
+	static void shutdown();
 	static void init(ostream*);
-	static void addcustom(string, string);
-	static const bool mime_changed()			{ return mime_is_changed; } 
-	static const bool done()					{ return isdone; } 
-	static void setmime(string newmime)			{ mimevalue = newmime; mime_is_changed=true; }
-	static void setdisposition(string newdisp)  { dispvalue = newdisp; }	
-	static void setconnection(string newconn)	{connectionvalue=newconn;}
-	static void setcontent(string c)			{content=c; content_length = c.length();}	//Use to drive content for 5xx and 4xx
-	static void setcontentlength(size_t l)      {content_length = l;}						//Use to drive content for 5xx and 4xx
-	static void setcode(unsigned int);
-	static void setdate(string dl)				{ datevalue = dl; }
-	static void setexpires(string dl)			{ expiresline = dl; }
-	static void setlocation(string loc)			{ locavalue = loc; }
-	static void setmoddate(string dl)			{ moddatevalue = dl; }
-	static void setserver(string srv)			{ servervalue = srv; }
-	static void setrange(string rng)			{ rangevalue = rng; }
-	static void setcache(string cl)				{ cacheline = cl; }
-	static void setp3p(string pl)				{ p3pline = pl; }
-	static void setpragma(string pl)			{ pragmaline = pl; }
-	static void setlength(unsigned int newlen)	{ content_length = newlen;}	
-	static void setprivate(bool priv)			{ cacheprivacy = priv ? "private": "public"; }	//privacy=false is default.
-	static void nocode(bool codeline_q) 		{ nocodeline = codeline_q;}					//nocode= false is default.
-	static void nocache(bool); 			//{ nocaching = nocach;}						//nocache=true is default.
-	static void noheader(bool);			//{ noheaders = codeline_q;}					//noheaders= false is default.
-	static void nodates(bool dateline_q) 		{ nodate = dateline_q;}						//nodates= false is default.
-	static void doheader();
-	static void explain(string&);
-	static void doheader(ostream*,bool,const response_format&);
-	static void objectparse(xercesc::DOMNode* const&);
+	static void finalise();
+	static Httphead* service() { return singleton; }
+	
+	void addcustom(string, string);
+	const bool mime_changed();			
+	const bool done();					
+	void setmime(string newmime);
+	void setdisposition(string newdisp); 
+	void setconnection(string newconn);	
+	void setcontent(string c);			//Use to drive content for 5xx and 4xx
+	void setcontentlength(size_t l);     //Use to drive content for 5xx and 4xx
+	void setcode(unsigned int);
+	void setdate(string dl);			
+	void setexpires(string dl);			
+	void setlocation(string loc);		
+	void setmoddate(string dl);			
+	void setserver(string srv);			
+	void setrange(string rng);			
+	void setcache(string cl);			
+	void setp3p(string pl);				
+	void setpragma(string pl);			
+	void setlength(unsigned int newlen);
+	void setprivate(bool priv);			
+	void nocode(bool codeline_q); 		
+	void nocache(bool);					
+	void noheader(bool);				
+	void nodates(bool dateline_q); 
+	void doheader();
+	void explain(string&);
+	void doheader(ostream*,bool,const response_format&);
+	void objectparse(xercesc::DOMNode* const&);
 };
 
 #endif

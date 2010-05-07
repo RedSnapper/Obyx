@@ -37,14 +37,14 @@
 #include "pairqueue.h"
 
 namespace qxml {
-
+	
 	typedef enum { encode,decode } process_t;	//what sort of process
-
+	
 	typedef enum { any,all } scope_t;	//what sort of scope (comparison)
 	
 	typedef enum { e_sql,e_url,e_xml,e_name,e_digits,e_none,e_base64,e_hex,e_message,e_qp } enc_type;	//
 	typedef std::map<u_str, enc_type > enc_type_map; 
-
+	
 	typedef enum { flowfunction,parm,defparm,other } elemclass;	//what sort of object
 	
 	typedef enum { endqueue,iteration,control,body,instruction,comparison,output,input,comparate,ontrue,onfalse,mapping,domain,match,key,comment,xmlnode,xmldocument,shortsequence} elemtype;	//
@@ -62,10 +62,10 @@ namespace qxml {
 	
 	typedef enum { move,append,substring,position,length,left,right,reverse,upper,lower,kind,add,subtract,multiply,divide,maximum,minimum,remainder,quotient,shell_command,query_command,function} op_type;	//transform
 	typedef std::map<u_str, op_type > op_type_map; 
-
+	
 	typedef enum { equivalent_to,exists,is_empty,substring_of,significant,cmp_true,cmp_or,cmp_and,cmp_xor,less_than,greater_than,natural,email} cmp_type;	//
 	typedef std::map<u_str, std::pair< cmp_type, bool > > cmp_type_map; 
-
+	
 	typedef enum { m_substitute, m_switch, m_state } map_type;	//
 	typedef std::map<u_str, map_type > map_type_map; 
 	
@@ -82,11 +82,11 @@ class Iteration;
 
 class ObyxElement {
 private:
-	static long_map ce_map;
 	static nametype_map ntmap;
+	static long_map ce_map;
 	void do_alloc();
 	void do_dealloc();
-
+	
 protected:
 	friend class Document;
 	friend class Environment;
@@ -97,7 +97,6 @@ protected:
 	static unsigned long long int eval_count;
 	static std::stack<elemtype> eval_type; 
 	static unsigned long long int break_point;
-	static Vdb::ServiceFactory*	dbsf;		//this is managed by main.
 	static Vdb::Service*		dbs;		//this is managed by the factory.
 	static Vdb::Connection*		dbc;		//this is generated at startup.
 	const Document* owner;					//so we can find stuff out about the document.
@@ -105,17 +104,17 @@ protected:
 	xercesc::DOMNode* node;					//should be a const (but we manipulate it in breakpoint)
 	void do_breakpoint();
 	void prep_breakpoint(); 
-
+	
 	//statics
 public:
 	PairQueue results;
 	qxml::elemclass wottype;													//what elemclass is this.
 	qxml::elemtype  wotzit;														//what elemtype is this.
-
+	
 	ObyxElement(ObyxElement*,const ObyxElement*);// : p(par) { copy(orig); doalloc(); }
 	ObyxElement(ObyxElement*,qxml::elemtype,qxml::elemclass,xercesc::DOMNode*);
 	virtual ~ObyxElement();
-
+	
 	void trace() const;
 	static unsigned long long int breakpoint(); 
 	
@@ -124,8 +123,11 @@ public:
 	virtual bool evaluate(size_t=0,size_t=0) = 0 ;	
 	static void setbreak(bool broke) { break_happened = broke; }
 	static ObyxElement* Factory(xercesc::DOMNode* const&,ObyxElement*);
-	static void init(Vdb::ServiceFactory*&);
-	static void finalise();
+	
+	static void startup();		//per process
+	static void init();			//per instance
+	static void finalise();		//per instance
+	static void shutdown();		//per process
 };
 class XMLNode : public ObyxElement {
 	bool doneit;

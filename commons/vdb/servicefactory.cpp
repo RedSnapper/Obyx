@@ -31,10 +31,10 @@
 #include "postgresql/postgresqlservice.h"
 #endif
 namespace Vdb {
-
+	
 	ServiceFactory* ServiceFactory::singleton = NULL;
 	unsigned int ServiceFactory::instances = 0;
-
+	
 	ServiceFactory::ServiceFactory(bool fatal_necessity) : serviceMap() {
 #ifdef ALLOW_MYSQL
 		MySQLService* mysql = new MySQLService(fatal_necessity);
@@ -42,9 +42,6 @@ namespace Vdb {
 			serviceMap.insert(ServiceMap::value_type("mysql", mysql));
 		} else {
 			delete mysql; //service not available.
-			if (fatal_necessity) {
-				*Logger::log <<  Log::fatal << Log::LI << "MySQLService failed to be installed." << Log::LO << Log::blockend; 
-			}
 		}
 #endif
 #ifdef ALLOW_POSTGRESQL
@@ -53,54 +50,41 @@ namespace Vdb {
 			serviceMap.insert(ServiceMap::value_type("postgresql", postgresql));
 		} else {
 			delete postgresql; //service not available.
-			if (fatal_necessity) {
-				*Logger::log <<  Log::fatal << Log::LI << "MySQLService failed to be installed." << Log::LO << Log::blockend; 
-			}
 		}
-#endif
-		if (serviceMap.empty() && fatal_necessity) {
-			*Logger::log <<  Log::fatal << Log::LI << "No SQLServices were installed.";
-#ifndef ALLOW_MYSQL
-			*Logger::log  << " ALLOW_MYSQL was not defined at build time.";
-#endif
-#ifndef ALLOW_POSTGRESQL
-			*Logger::log  << " ALLOW_POSTGRESQL was not defined at build time.";
-#endif
-			*Logger::log<< Log::LO << Log::blockend; 
-		}
-		
+#endif	
 	}
-
+	
 	ServiceFactory::~ServiceFactory() {
 		for(ServiceMap::iterator it = serviceMap.begin(); it != serviceMap.end(); it++) {
 			delete it->second;
 		}
 		serviceMap.clear();
 	}
-
-	ServiceFactory*& ServiceFactory::startup(bool fatal_necessity) { //fatal_necessity = true if we MUST have sql to operate.
+	
+	void ServiceFactory::startup() { //fatal_necessity = true if we MUST have sql to operate.
 		instances++;
 		if (singleton == NULL) {
-			singleton = new ServiceFactory(fatal_necessity);	// instantiate singleton
+			singleton = new ServiceFactory(false);	// instantiate singleton
 		} 
-		return singleton;	
 	}
-
+	
 	void ServiceFactory::shutdown() {
 		instances--;
 		if (instances == 0) {
 			delete singleton;
 		}
 	}
-
+	
 	Service* ServiceFactory::getService(const std::string& service_name) {
 		Service* retval = NULL;
-		ServiceMap::iterator it = serviceMap.find(service_name);
-		if (it != serviceMap.end()) {
-			retval = it->second;
+		if (singleton != NULL) {
+			ServiceMap::iterator it = singleton->serviceMap.find(service_name);
+			if (it != singleton->serviceMap.end()) {
+				retval = it->second;
+			}
 		}
 		return retval;
 	}
-
+	
 }
 

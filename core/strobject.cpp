@@ -26,15 +26,29 @@
 #include "xmlobject.h"
 #include "dataitem.h"
 
-StrObject::StrObject(const std::string& s) : DataItem(),o_str(s) {}
+StrObject::StrObject(const std::string& s) : DataItem(),o_str(s) {
+	//	do_alloc("1 "+o_str);
+}
 StrObject::StrObject(u_str s) : DataItem(),o_str("") { 
 	XML::transcode(s.c_str(),o_str);
+	//	do_alloc("2 "+o_str);
 }
-StrObject::StrObject(std::string& s) : DataItem(),o_str(s) {}
+StrObject::StrObject(std::string& s) : DataItem(),o_str(s) {
+	//	do_alloc("3 "+o_str);
+}
 
-StrObject::StrObject(const char* s) : DataItem(),o_str(s) {}
+StrObject::StrObject(const char* s) : DataItem(),o_str(s) {
+	//	do_alloc("4 "+o_str);
+}
 
-StrObject::StrObject(const DataItem& s) : DataItem(),o_str(s) {}
+StrObject::StrObject(const DataItem& s) : DataItem(),o_str(s) {
+	//	do_alloc("5 "+o_str);
+}
+
+StrObject::~StrObject() {
+	//	do_dealloc();
+	o_str.clear();
+}
 
 StrObject::operator XMLObject*() {
 	return new XMLObject(o_str);
@@ -108,7 +122,3 @@ long long StrObject::size() const {
 	return result;
 }
 
-StrObject::~StrObject() {
-	o_str.clear();
-	o_str.reserve(0);
-}

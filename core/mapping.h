@@ -46,8 +46,7 @@ private:
 	bool matched;					//and was there a match?
 	std::string sdom;
 	std::string skey;
-
-	static void init();				// set up map	
+	
 	bool may_eval_outputs() {return !(mat_evaluated && !matched && (operation==m_switch)); } //{return sub_evaluated && def_evaluated;} //
 	bool evaluate_this();				//private evaluation
 	
@@ -60,6 +59,13 @@ public:
 	virtual void addInputType(InputType*);
 	virtual void addDefInpType(DefInpType*);	
 	virtual ~Mapping() {}
+	
+private:
+	static void init();
+	static void finalise();
+	static void startup(); 
+	static void shutdown();	
+	
 };
 
 #endif

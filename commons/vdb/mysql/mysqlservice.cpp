@@ -42,20 +42,19 @@ namespace Vdb {
 	 All Services are accessed from ServiceFactory.
 	 Responsibilities of Service are to supply Connection instances for a given service, and to load/unload libraries for that service.
 	 */
-//	otool -Rv  /usr/local/mysql/lib/libmysqlclient_r.dylib | grep -v undefined | grep -v private | sort
+	//	otool -Rv  /usr/local/mysql/lib/libmysqlclient_r.dylib | grep -v undefined | grep -v private | sort
 	
 	MySQLService::MySQLService(bool fatal_necessity) : 
-		Service(),zip_lib_handle(NULL),mysql_lib_handle(NULL),serviceHandle(NULL),
-		library_init(NULL),library_end(NULL),select_db(NULL),close(NULL),data_seek(NULL),my_errno(NULL),error(NULL),
-		fetch_field_direct(NULL),
-		fetch_lengths(NULL),fetch_row(NULL),free_result(NULL),init(NULL),insert_id(NULL),list_fields(NULL),
-		list_tables(NULL),num_fields(NULL),num_rows(NULL),options(NULL),real_connect(NULL),real_escape_string(NULL),
-		real_query(NULL),row_seek(NULL),row_tell(NULL),character_set_name(NULL),set_character_set(NULL),store_result(NULL)
+	Service(),zip_lib_handle(NULL),mysql_lib_handle(NULL),serviceHandle(NULL),
+	library_init(NULL),library_end(NULL),select_db(NULL),close(NULL),data_seek(NULL),my_errno(NULL),error(NULL),
+	fetch_field_direct(NULL),
+	fetch_lengths(NULL),fetch_row(NULL),free_result(NULL),init(NULL),insert_id(NULL),list_fields(NULL),
+	list_tables(NULL),num_fields(NULL),num_rows(NULL),options(NULL),real_connect(NULL),real_escape_string(NULL),
+	real_query(NULL),row_seek(NULL),row_tell(NULL),character_set_name(NULL),set_character_set(NULL),store_result(NULL)
 	{ 
-		string ziplib;
-		if (!Environment::getenv("OBYX_LIBZIPSO",ziplib)) ziplib = "libz.so";
-		string mysqllib;
-		if (!Environment::getenv("OBYX_LIBMYSQLCRSO",mysqllib)) mysqllib = "libmysqlclient_r.so";
+		string ziplib, mysqllib;
+		if (!Environment::getbenv("OBYX_LIBZIPSO",ziplib)) ziplib = "libz.so";
+		if (!Environment::getbenv("OBYX_LIBMYSQLCRSO",mysqllib)) mysqllib = "libmysqlclient_r.so";
 		zip_lib_handle = dlopen(ziplib.c_str(),RTLD_LAZY | RTLD_GLOBAL);  //dlopen MUST have one of RTLD_LAZY,RTLD_NOW
 		if (zip_lib_handle != NULL ) {
 			mysql_lib_handle = dlopen(mysqllib.c_str(),RTLD_LAZY);
@@ -140,7 +139,7 @@ namespace Vdb {
 			}
 		}
 	}
-
+	
 	MySQLService::~MySQLService() {
 		if (serviceHandle != NULL) {
 			close(serviceHandle);
@@ -152,7 +151,7 @@ namespace Vdb {
 			dlclose(zip_lib_handle);
 		}
 	}
-
+	
 	Connection* MySQLService::instance() {
 		return new MySQLConnection(this);
 	}

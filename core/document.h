@@ -30,8 +30,8 @@
 #include <ext/hash_map>
 #include <xercesc/dom/DOMDocument.hpp>
 
-#include "commons/xml/xml.h"
 #include "commons/string/strings.h"
+#include "commons/xml/xml.h"
 #include "commons/vdb/vdb.h"
 
 #include "obyxelement.h"
@@ -41,16 +41,16 @@ using namespace __gnu_cxx; //hashmap namespace.
 
 class InputType;
 class Document : public ObyxElement  {
-		
+	
 private:
 	friend class UnknownElement;
 	friend class Output;
 	friend class Instruction;
 	friend class InputType;
 	friend class Iteration;
-
+	
 	typedef hash_map<const u_str, DataItem*, hash<const u_str&> > type_parm_map;
-
+	
 	static XML::Manager* xmlmanager;
 	static std::string curr_http_req;
 	
@@ -59,13 +59,13 @@ private:
 	std::string filepath;
 	u_str ownprefix;			//used for really special cases.
 	type_parm_map*					parm_map;
-
+	
 	static std::stack<u_str>		prefix_stack;
 	static std::stack<std::string>  filepath_stack;
 	
 	void pushprefix(const u_str);
 	void popprefix();
-
+	
 protected:
 	friend class ObyxElement;
 	friend class XMLNode;
@@ -79,11 +79,11 @@ public:
 	typedef enum {File,URL,Main,URLText} load_type;	//how to load a file		
 	Document(ObyxElement*,const Document*);//
 	Document(DataItem*,load_type,std::string,ObyxElement* par = NULL,bool = true);
-
+	
 	virtual ~Document();
-
+	
 	static bool const prefix(u_str&);
-
+	
 	static std::string const currentname();
 	static std::string const currenthttpreq();
 	void setparms(type_parm_map*& ps) { parm_map = ps; }
@@ -96,10 +96,12 @@ public:
 	bool eval();
 	bool evaluate(size_t,size_t) { return true; }	
  	void process(xercesc::DOMNode*&,ObyxElement* = NULL);
+	static void startup();
 	static void init();
+	static void finalise();
 	static void shutdown();
 };
-	
+
 
 
 #endif

@@ -54,25 +54,25 @@ namespace String {
 	}
 	
 	bool Regex::startup() {	
-		const char *err = NULL; //necessary IFF script uses pcre.
+		std::string err=""; //necessary IFF script uses pcre.
 		if ( ! loadattempted ) {
 			loadattempted = true;
 			loaded = false;
 			string pcrelib;
-			if (!Environment::getenv("OBYX_LIBPCRESO",pcrelib)) pcrelib = "libpcre.so";
+			if (!Environment::getbenv("OBYX_LIBPCRESO",pcrelib)) pcrelib = "libpcre.so";
 			pcre_lib_handle = dlopen(pcrelib.c_str(),RTLD_GLOBAL | RTLD_NOW);
-			err = dlerr(false); //debug only.
-			if (err == NULL && pcre_lib_handle != NULL ) {
-				pcre_compile = (pcre* (*)(const char*, int, const char**, int*,const unsigned char*)) dlsym(pcre_lib_handle,"pcre_compile"); err = dlerr();
-				pcre_exec = (int (*)(const pcre*,const pcre_extra*,PCRE_SPTR,int,int,int,int*,int)) dlsym(pcre_lib_handle,"pcre_exec"); err = dlerr();
-				pcre_config = (int (*)(int,void *)) dlsym(pcre_lib_handle,"pcre_config");  err = dlerr();
-				pcre_study = (pcre_extra* (*)(const pcre*,int,const char**)) dlsym(pcre_lib_handle,"pcre_study");  err = dlerr();
-				if ( err == NULL) {
+			dlerr(err); //debug only.
+			if (err.empty() && pcre_lib_handle != NULL ) {
+				pcre_compile = (pcre* (*)(const char*, int, const char**, int*,const unsigned char*)) dlsym(pcre_lib_handle,"pcre_compile"); dlerr(err);
+				pcre_exec = (int (*)(const pcre*,const pcre_extra*,PCRE_SPTR,int,int,int,int*,int)) dlsym(pcre_lib_handle,"pcre_exec"); dlerr(err);
+				pcre_config = (int (*)(int,void *)) dlsym(pcre_lib_handle,"pcre_config");  dlerr(err);
+				pcre_study = (pcre_extra* (*)(const pcre*,int,const char**)) dlsym(pcre_lib_handle,"pcre_study");  dlerr(err);
+				if ( err.empty() ) {
 					if ( pcre_config != NULL && pcre_compile != NULL && pcre_exec!=NULL) {
 						int locr = 0;
 						int dobo = pcre_config(PCRE_CONFIG_UTF8, &locr);
 						if (locr != 1 || dobo != 0) { //dobo means that the flag is not supported...
-							*Logger::log << Log::debug << "Regex::startup() The pcre library was loaded, but utf-8 appears not to be supported." << Log::LO << Log::blockend;
+							//							*Logger::log << Log::debug << "Regex::startup() The pcre library was loaded, but utf-8 appears not to be supported." << Log::LO << Log::blockend;
 						}
 						loaded = true;
 					}
@@ -82,19 +82,14 @@ namespace String {
 		return loaded;
 	}
 	
-	const char* Regex::dlerr(bool fatal) {
+	void Regex::dlerr(std::string& container) {
 		const char *err = dlerror();
 		if (err != NULL) {
-			string msg = err;
-			if (fatal) {
-				*Logger::log << Log::fatal << "Regex::startup() dlsym reported '" << err << "'." << Log::LO << Log::blockend;
-			} else {
-				*Logger::log << Log::debug << "Regex::startup() dlsym reported '" << err << "'." << Log::LO << Log::blockend;
-			}
+			container.append(err);
 		}
-		return err;
 	}
-
+	
+	
 	bool Regex::shutdown() {											 //necessary IFF script uses pcre.
 		if (! regex_cache.empty() ) {
 			type_regex_cache::iterator it = regex_cache.begin();
@@ -110,7 +105,7 @@ namespace String {
 		}
 		return true;
 	}
-		
+	
 	//• --------------------------------------------------------------------------
 	//•	Return the number of replaces that took place.
 	//•	eg find "^foo([a-z]+)" against "foobar woobar" using substitute "\1 is bar" ==> "bar is bar"
@@ -125,7 +120,7 @@ namespace String {
 			string basis = scope;
 			size_t start = 0;
 			size_t base_len = basis.length();
-//			size_t sub_len = substitute.length();
+			//			size_t sub_len = substitute.length();
 			scope.clear();		
 			while (start <= base_len) {
 				size_t matches = matcher(pattern, basis, (int)start, ov, ovc);
@@ -226,7 +221,7 @@ namespace String {
 		}
 		return count;
 	}
-
+	
 	bool Regex::field(const string &pattern,const string &basis,unsigned int fieldnum,string &scope) {
 		bool retval=false;
 		if ( ! basis.empty() ) {
@@ -235,7 +230,7 @@ namespace String {
 			memset((int *) ov, 0, sizeof(ov));
 			size_t matches = matcher(pattern, basis, 0, ov, ovc);
 			if (matches > 0) {
-//				size_t matchstart = ov[0], matchend = ov[1];
+				//				size_t matchstart = ov[0], matchend = ov[1];
 				int st = ov[2 * fieldnum];
 				if (st >= 0) {
 					string newxbit;
@@ -266,7 +261,7 @@ namespace String {
 		}
 		return retval;
 	}
-		
+	
 	size_t Regex::after(const string &pattern, const string &scope) {
 		size_t retval = string::npos;
 		if ( !pattern.empty() ) {
@@ -358,7 +353,7 @@ namespace String {
 			}
 			*Logger::log << Log::error << "Regex::compile_re() " << errmsg;
 			if (erroffset > 0) *Logger::log << " at offset " << erroffset; 			
-			 *Logger::log << " while compiling pattern '" << pattern << "'." << Log::LO << Log::blockend; 
+			*Logger::log << " while compiling pattern '" << pattern << "'." << Log::LO << Log::blockend; 
 			retval = false;	//could report the actual error here.
 		} else {
 			extra = pcre_study(container,0,&error);	

@@ -48,15 +48,15 @@ using namespace XML;
 using namespace qxml;
 
 /*
-  c++ Note  
+ c++ Note  
  'break' may only be used inside a loop, such as a for or while loop, or a switch statement. it breaks out of that loop. 
  'continue' terminates the current iteration of a loop and proceeds directly to the next. 
-  In the case of a for loop it jumps to its increment-expression.
+ In the case of a for loop it jumps to its increment-expression.
  */
 
 Function::Function(xercesc::DOMNode* const& n,elemtype el,ObyxElement* par) : 
-	ObyxElement(par,el,flowfunction,n),deferred(false),finalised(false),
-	stream_is_set(false),fnnote(),outputs(),inputs(),definputs() {
+ObyxElement(par,el,flowfunction,n),deferred(false),finalised(false),
+stream_is_set(false),fnnote(),outputs(),inputs(),definputs() {
 	ObyxElement* ft = par; 
 	while (ft != NULL && ft->wotzit != xmldocument ) {
 		if (ft->wottype == defparm) {
@@ -76,7 +76,19 @@ Function::Function(xercesc::DOMNode* const& n,elemtype el,ObyxElement* par) :
 	}
 }
 
-Endqueue::Endqueue(ObyxElement* par,const Endqueue* orig) : Function(par,orig) {}
+
+Endqueue::Endqueue(ObyxElement* par,const Endqueue* orig) : Function(par,orig) {
+	
+}
+
+Endqueue::~Endqueue()  {
+	if ( outputs.size() != 0) {
+		outputs.clear();
+	}
+	results.clear();
+}
+
+
 
 bool Function::pre_evaluate(string& errs) {
 	bool retval = false; //returns true if it has been evaluated (and may be deleted)
@@ -87,8 +99,8 @@ bool Function::pre_evaluate(string& errs) {
 		} else {
 			fn = dynamic_cast<Function*>(p->p);
 		}
-		 if ( fn != NULL && (! fn->deferred || (p->wotzit == xmldocument && p->p == NULL))) {
-			 if ( evaluate() ) {
+		if ( fn != NULL && (! fn->deferred || (p->wotzit == xmldocument && p->p == NULL))) {
+			if ( evaluate() ) {
 				DataItem* di = NULL;
 				results.takeresult(di);
 				p->results.append(di);
@@ -96,9 +108,9 @@ bool Function::pre_evaluate(string& errs) {
 			} else {
 				p->results.append(this,errs);
 			}
-		 } else {
+		} else {
 			p->results.append(this,errs);
-		 }
+		}
 	} else {
 		p->results.append(this,errs);
 		deferred = true;		//wait until they are evaluated before running!!
@@ -132,8 +144,8 @@ Function* Function::FnFactory(ObyxElement* par,const Function* orig) {
 }
 
 Function::Function(ObyxElement* par,const Function* orig) : 
-	ObyxElement(par,orig),deferred(orig->deferred),finalised(orig->finalised),
-	stream_is_set(orig->stream_is_set),fnnote(orig->fnnote),outputs(),inputs(),definputs() { 
+ObyxElement(par,orig),deferred(orig->deferred),finalised(orig->finalised),
+stream_is_set(orig->stream_is_set),fnnote(orig->fnnote),outputs(),inputs(),definputs() { 
 	if (wotzit != endqueue) {
 		for ( unsigned int i = 0; i < orig->inputs.size(); i++ )
 			inputs.push_back(new InputType(this,orig->inputs[i]));
@@ -237,20 +249,42 @@ Function::~Function() {
 	results.clear();
 }
 
-//static methods - once only thank-you very much..
+//init once per main document..
 void Function::init() {
-	PairQueue::pqendthing =  new Endqueue();  
 	Instruction::init();
 	Comparison::init();
 	Iteration::init();
 	Mapping::init();	
 }
 
+//finalise once per main document..
 void Function::finalise() {
+	Instruction::finalise();
+	Comparison::finalise();
 	Iteration::finalise();
-	delete PairQueue::pqendthing;  
+	Mapping::finalise();
 }
 
+//startup once per process..
+void Function::startup() {
+	Instruction::startup();
+	Comparison::startup();
+	Iteration::startup();
+	Mapping::startup();	
+	PairQueue::pqendthing = new Endqueue();  
+}
+
+//shutdown once per process..
+void Function::shutdown() {
+	if (PairQueue::pqendthing != NULL) {
+		delete PairQueue::pqendthing;  
+		PairQueue::pqendthing = NULL;  
+	}
+	Instruction::shutdown();
+	Comparison::shutdown();
+	Iteration::shutdown();
+	Mapping::shutdown();	
+}
 
 void Endqueue::addInputType(InputType*) {
 	*Logger::log << Log::error << Log::LI << "Internal Error. Endqueue cannot accept InputTypes." << Log::LO; 
@@ -262,4 +296,5 @@ void Endqueue::addDefInpType(DefInpType*) {
 	trace();
 	*Logger::log << Log::blockend;	
 }
+
 

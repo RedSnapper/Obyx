@@ -50,7 +50,7 @@ map_type_map Mapping::map_types;
 
 Mapping::Mapping(xercesc::DOMNode* const& n,ObyxElement* par) : 
 Function(n,mapping,par),operation(m_switch),repeated(false),keys_evaluated(false),dom_evaluated(false),mat_evaluated(false),matched(false),sdom(""),skey("") {
-
+	
 	u_str do_repeat,op_string;
 	XML::Manager::attribute(n,UCS2(L"operation"),op_string);
 	map_type_map::const_iterator i = map_types.find(op_string);
@@ -85,9 +85,9 @@ Function(n,mapping,par),operation(m_switch),repeated(false),keys_evaluated(false
 }
 
 Mapping::Mapping(ObyxElement* par,const Mapping* orig) : Function(par,orig),operation(orig->operation),
-	repeated(orig->repeated),keys_evaluated(orig->keys_evaluated),
-	dom_evaluated(orig->dom_evaluated),mat_evaluated(orig->mat_evaluated),
-	matched(orig->matched),sdom(orig->sdom),skey(orig->skey) {
+repeated(orig->repeated),keys_evaluated(orig->keys_evaluated),
+dom_evaluated(orig->dom_evaluated),mat_evaluated(orig->mat_evaluated),
+matched(orig->matched),sdom(orig->sdom),skey(orig->skey) {
 }
 
 bool Mapping::evaluate_this() {
@@ -355,7 +355,6 @@ void Mapping::addDefInpType(DefInpType* i) {
 	}
 }
 
-
 bool Mapping::field(const string& field_name,string& container) const {
 	pair<long long, bool> i_res = String::integer(field_name);
 	bool retval=i_res.second;
@@ -365,10 +364,20 @@ bool Mapping::field(const string& field_name,string& container) const {
 	return retval;
 }
 
-//static methods - once only thank-you very much..
+//static methods - once only (either per main doc, or per process) thank-you very much..
 void Mapping::init() {
+}
+
+void Mapping::finalise() {
+}
+
+void Mapping::startup() {
 	map_types.insert(map_type_map::value_type(UCS2(L"switch"), m_switch));
 	map_types.insert(map_type_map::value_type(UCS2(L"substitute"), m_substitute));
 	map_types.insert(map_type_map::value_type(UCS2(L"state"), m_state));
 }
+
+void Mapping::shutdown() {
+	map_types.clear();
+}	
 

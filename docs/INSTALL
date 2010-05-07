@@ -156,6 +156,12 @@ Http (Apache2) Configuration.
 Apache needs to know how to handle .obyx files. 
 The following basic apache server configuration file can be used as a basis.
 
+FASTCGI
+Although the binary should work with either module, the following details are 
+for the module as described at
+
+http://httpd.apache.org/mod_fcgid/mod/mod_fcgid.html 
+
 <VirtualHost YOUR-IP-ADDRESS:80>
 	DocumentRoot  /WWW_ROOT/public
 	ServerName    host.yourdomain.com
@@ -165,16 +171,63 @@ The following basic apache server configuration file can be used as a basis.
 #####  Obyx configuration ########
 	<IfModule mime_module>
 		AddHandler  cgi-script				.cgi
-		AddType		application/obyx+xml	.obyx
-		Action      application/obyx+xml	/o/obyx.cgi
-	</IfModule>
 
+#**********************************************
+#comment these to allow fcgi to take obyx files.
+#		AddType		application/obyx+xml	.obyx
+#		Action      application/obyx+xml	/o/obyx.cgi
+#**********************************************
+
+	</IfModule>
 	ScriptAlias  /o/			  /WWW_ROOT/cgi
 	<LocationMatch "^/o/" >
 		Order Deny,Allow
 		Deny from All
 		Allow from env=REDIRECT_STATUS
 	</LocationMatch>
+
+#**********************************************
+#ADD these to allow fcgi to take obyx files.
+AddHandler  fcgid-script	.fcgi .obyx
+FcgidWrapper /WWW_ROOT/cgi/obyx.fcgi .obyx
+
+#The following are global. though OBYX_CONFIG_FILE can be done at virtualhost level.
+FcgidInitialEnv OBYX_CONFIG_FILE=/WWW_ROOT/include/obyx.cf
+FcgidInitialEnv OBYX_SQLSERVICE=mysql
+FcgidInitialEnv OBYX_DEVELOPMENT=true
+FcgidInitialEnv OBYX_VALIDATE_ALWAYS=true
+
+#The following are only necessary if they are dylibs or on custom paths.
+FcgidInitialEnv OBYX_LIBCURLSO=libcurl.dylib
+FcgidInitialEnv OBYX_LIBPCRESO=/usr/local/lib/libpcre.dylib
+FcgidInitialEnv OBYX_LIBMYSQLCRSO=/usr/local/mysql/lib/libmysqlclient_r.dylib
+FcgidInitialEnv OBYX_LIBPQSO=/usr/local/pgsql/lib/libpq.dylib
+FcgidInitialEnv OBYX_LIBZIPSO=libz.dylib
+#**********************************************
+
+###############################################################
+#### IF you want to have both normal cgi and fastcgi instances of obyx, 
+#### you will need a different  obyx suffix for one or the other.
+#### The following is an example:
+#Normal obyx cgi
+AddHandler    cgi-script            .cgi
+ScriptAlias  /o/	/Library/WebServer/CGI-Executables/
+Action       application/obyx+xml   /o/obyx.cgi
+AddType		 application/obyx+xml	.obyx
+
+#Fast obyx fcgi
+AddHandler  fcgid-script		 .fcgi .fbyx
+FcgidInitialEnv OBYX_CONFIG_FILE=/Library/WebServer/include/obyx.fcf
+FcgidInitialEnv OBYX_SQLSERVICE=mysql
+FcgidInitialEnv OBYX_DEVELOPMENT=true
+FcgidInitialEnv OBYX_VALIDATE_ALWAYS=true
+FcgidInitialEnv OBYX_LIBCURLSO=libcurl.dylib
+FcgidInitialEnv OBYX_LIBPCRESO=/usr/local/lib/libpcre.dylib
+FcgidInitialEnv OBYX_LIBMYSQLCRSO=/usr/local/mysql/lib/libmysqlclient_r.dylib
+FcgidInitialEnv OBYX_LIBPQSO=/usr/local/pgsql/lib/libpq.dylib
+FcgidInitialEnv OBYX_LIBZIPSO=libz.dylib
+FcgidWrapper /Library/WebServer/CGI-Executables/obyx.fcgi .fbyx
+###############################################################
 
 #obyx runtime will be able to access any files/directories under the OBYX_ROOT_DIR directory
 #eg using filename /foo.html will actually be pointing to /OBYX_ROOT_DIR/foo.html

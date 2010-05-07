@@ -36,10 +36,10 @@ extern "C" {
 
 namespace String {
 	class Regex {
-private:
+	private:
 		typedef hash_map<const string, pair<pcre*,pcre_extra*>, hash<const string&> > type_regex_cache;
 		static type_regex_cache regex_cache;
-
+		
 		static void * pcre_lib_handle;
 		static bool loadattempted;	//used to show if the service is up or down.
 		static bool loaded;	//used to show if the service is up or down.
@@ -50,7 +50,7 @@ private:
 		static bool compile(const string &, pcre*&, pcre_extra*&);
 		static size_t matcher(const string&, const string&,const int, int*&,int&);
 		static void reporterror(int);
-		static const char* dlerr(bool = true);
+		static void dlerr(std::string&);
 		
 		//The pcre API that we use.		
 		static pcre* (*pcre_compile)(const char*, int, const char**, int*,const unsigned char*);
@@ -59,7 +59,7 @@ private:
 		static pcre_extra* (*pcre_study)(const pcre*,int,const char**);
 		//		static void (*pcre_free)(void *); // appears to be causing crashes.
 		
-public:
+	public:
 		static bool startup();
 		static bool available();
 		static bool shutdown();

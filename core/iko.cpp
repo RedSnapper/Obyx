@@ -24,6 +24,7 @@
 #include <string>
 #include <xercesc/dom/DOMNode.hpp>
 
+#include "commons/string/strings.h"
 #include "commons/date/date.h"
 #include "commons/environment/environment.h"
 #include "commons/filing/filing.h"
@@ -52,14 +53,15 @@ using namespace Log;
 using namespace qxml;
 using namespace Fetch;
 
+
 enc_type_map IKO::enc_types;
 inp_type_map IKO::ctx_types;
 kind_type_map IKO::kind_types;
 current_type_map IKO::current_types;
 
 IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : 
-	ObyxElement(par,el,parm,n),kind(di_auto),encoder(e_none),context(immediate),
-	process(qxml::encode),wsstrip(true),exists(false),name_v() {
+ObyxElement(par,el,parm,n),kind(di_auto),encoder(e_none),context(immediate),
+process(qxml::encode),wsstrip(true),exists(false),name_v() {
 	u_str str_context;
 	if ( XML::Manager::attribute(n,UCS2(L"context"),str_context) ) {
 		inp_type_map::const_iterator j = ctx_types.find(str_context);
@@ -74,12 +76,11 @@ IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) :
 		}
 	}
 	if (context == immediate) exists=true;
-
 	u_str str_encoder,str_process,str_kind;
 	XML::Manager::attribute(n,UCS2(L"kind"),str_kind);
 	XML::Manager::attribute(n,UCS2(L"encoder"),str_encoder);
 	XML::Manager::attribute(n,UCS2(L"process"),str_process);
-
+	
 	if ( ! str_kind.empty() ) {
 		kind_type_map::const_iterator j = kind_types.find(str_kind);
 		if( j != kind_types.end() ) {
@@ -90,7 +91,7 @@ IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) :
 			*Logger::log << Log::blockend;
 		}
 	}
-		
+	
 	if ( ! str_encoder.empty() ) {
 		enc_type_map::const_iterator j = enc_types.find(str_encoder);
 		if( j != enc_types.end() ) {
@@ -101,7 +102,7 @@ IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) :
 			*Logger::log << Log::blockend;
 		}
 	}
-
+	
 	if ( ! str_process.empty() ) {
 		if( str_process.compare(UCS2(L"decode")) == 0 ) {
 			switch (encoder) {
@@ -159,18 +160,22 @@ IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) :
 		wsstrip = false;
 	}
 	if ( has_val_attr ) {
-		DataItem* attrval = NULL;
-		attrval = DataItem::factory(svalue,di_text);
+		DataItem* attrval = DataItem::factory(svalue,di_text);
 		results.setresult(attrval, wsstrip);
 	}
 }
 
+IKO::~IKO() {
+	
+}
+
 IKO::IKO(ObyxElement* par,const IKO* orig) : ObyxElement(par,orig),
-	kind(orig->kind),encoder(orig->encoder),context(orig->context),
-	process(orig->process),wsstrip(orig->wsstrip),exists(orig->exists),name_v(orig->name_v) {
+kind(orig->kind),encoder(orig->encoder),context(orig->context),
+process(orig->process),wsstrip(orig->wsstrip),exists(orig->exists),name_v(orig->name_v) {
 }
 
 bool IKO::currentenv(const string& req,const usage_tests exist_test, const IKO* iko,DataItem*& container) {
+	Environment* env = Environment::service();
 	bool exists = false;
 	string result;
 	container = NULL;
@@ -178,11 +183,11 @@ bool IKO::currentenv(const string& req,const usage_tests exist_test, const IKO* 
 	if( j != current_types.end() ) {
 		switch (j->second) {
 			case c_vnumber: {
-				exists = Environment::getenv("OBYX_VERSION_NUMBER",result);
+				exists = env->getenv("OBYX_VERSION_NUMBER",result);
 				container = DataItem::factory(result,di_text);
 			} break;
 			case c_version: {
-				exists = Environment::getenv("OBYX_VERSION",result);
+				exists = env->getenv("OBYX_VERSION",result);
 				container = DataItem::factory(result,di_text);
 			} break;
 			case c_object: {
@@ -243,7 +248,7 @@ bool IKO::currentenv(const string& req,const usage_tests exist_test, const IKO* 
 						container = DataItem::factory(req,di_text);
 					} break;
 					case ut_value: {
-						Environment::gettiming(result);
+						env->gettiming(result);
 						container = DataItem::factory(result,di_text);
 					} break;
 				}
@@ -285,7 +290,7 @@ bool IKO::currentenv(const string& req,const usage_tests exist_test, const IKO* 
 						container = DataItem::factory(req,di_text);
 					} break;
 					case ut_value: {
-						Environment::do_response_cookies(result);
+						env->do_response_cookies(result);
 						container = DataItem::factory(result,di_object);
 					} break;
 				}
@@ -298,14 +303,15 @@ bool IKO::currentenv(const string& req,const usage_tests exist_test, const IKO* 
 						container = DataItem::factory(req,di_text);
 					} break;
 					case ut_value: {
-						Httphead::explain(result);
+						Httphead* http = Httphead::service();	
+						http->explain(result);
 						container = DataItem::factory(result,di_object);
 					} break;
 				}
 			} break;
 		}
 	} else {
-		exists = Environment::getenv("CURRENT_" + req,result);		
+		exists = env->getenv("CURRENT_" + req,result);		
 		switch (exist_test) {
 			case ut_existence: break;
 			case ut_significant: 
@@ -417,22 +423,23 @@ void IKO::process_encoding(DataItem*& basis) {
 //exists is evaluated. significant is tested by comparision and will be looking for a value.
 //the basic logic for existence / significance is..
 /*
-exists = type.exists();
-if (exist_test != ut_existence) {
-	if (exists) { 
-		if (exist_test == significant) {
-			return a text value.
-		} else {
-			return value (ikind)
-		}
-	} else {
-	 if (exist_test == value) {
-		 post an error.
-	}
-}
-
-*/
+ exists = type.exists();
+ if (exist_test != ut_existence) {
+ if (exists) { 
+ if (exist_test == significant) {
+ return a text value.
+ } else {
+ return value (ikind)
+ }
+ } else {
+ if (exist_test == value) {
+ post an error.
+ }
+ }
+ 
+ */
 bool IKO::evaltype(inp_type the_space, bool release, bool eval,kind_type ikind,DataItem*& name_item, DataItem*& container) {
+	Environment* env = Environment::service();
 	exists = false; 
 	if (container != NULL) {
 		*Logger::log << Log::error << Log::LI << "Internal Error. container should be empty!" << Log::LO; 
@@ -450,8 +457,8 @@ bool IKO::evaltype(inp_type the_space, bool release, bool eval,kind_type ikind,D
 		case none: {
 			// nothing exists in space 'none'
 			exists = false;
-			delete name_item;
-			name_item = NULL; 
+			//			delete name_item;
+			//			name_item = NULL; 
 		} break;
 		default: { //all the remaining input spaces have a name to access their value.
 			u_str input_name;  
@@ -616,12 +623,6 @@ bool IKO::evaltype(inp_type the_space, bool release, bool eval,kind_type ikind,D
 						}
 					} else {
 						exists = ItemStore::exists(name_item,release,errstring); //ignore errors - just testing for existence.
-//						if (!errstring.empty()) {
-//							std::string err_msg; transcode(input_name.c_str(),err_msg);
-//							*Logger::log << Log::error << Log::LI << "Error. Store " << err_msg  << " "  << errstring << Log::LO;	
-//							trace();
-//							*Logger::log << Log::blockend;
-//						}
 					}
 				} break;
 				case fnparm: {
@@ -642,9 +643,9 @@ bool IKO::evaltype(inp_type the_space, bool release, bool eval,kind_type ikind,D
 					}
 				} break;					
 				case file: {
-					std::string file_path; transcode(input_name.c_str(),file_path);
+					std::string file_path; transcode(input_name,file_path);
 					if (file_path[0] == '/') { //we don't want to use file root, but site root.
-						file_path = Environment::getpathforroot()  + file_path;
+						file_path = env->getpathforroot()  + file_path;
 					} else {
 						string opath = owner->filepath;
 						size_t pathpos = opath.find_last_of('/');
@@ -689,7 +690,7 @@ bool IKO::evaltype(inp_type the_space, bool release, bool eval,kind_type ikind,D
 							} // else container remains null.
 						} else {
 							if (exist_test == ut_value) {
-								string root(Environment::getpathforroot());
+								string root(env->getpathforroot());
 								string wd(FileUtils::Path::wd());
 								if ( wd.find(root) == 0 ) {
 									wd.erase(0,root.length());
@@ -742,8 +743,8 @@ bool IKO::evaltype(inp_type the_space, bool release, bool eval,kind_type ikind,D
 						}
 					} else {
 						*Logger::log << Log::error << Log::LI << "Error. Url requires libcurl and this was not found. ";
-						if (Environment::envexists("OBYX_LIBCURLSO")) {
-							string val; Environment::getenv("OBYX_LIBCURLSO",val); 
+						if (env->envexists("OBYX_LIBCURLSO")) {
+							string val; env->getenv("OBYX_LIBCURLSO",val); 
 							*Logger::log << "The environment 'OBYX_LIBCURLSO' of '" << val << "' is not working.";
 						} else {
 							*Logger::log << "Set the environment 'OBYX_LIBCURLSO'.";
@@ -757,7 +758,7 @@ bool IKO::evaltype(inp_type the_space, bool release, bool eval,kind_type ikind,D
 				case cookie: {
 					std::string cookie_name; transcode(input_name.c_str(),cookie_name); //This really should be converted - being internal.
 					string cookie_value;
-					exists = Environment::getcookie_req(cookie_name,cookie_value);
+					exists = env->getcookie_req(cookie_name,cookie_value);
 					if( exist_test != ut_existence  ) {
 						if( exists ) {
 							if (exist_test == ut_significant) {
@@ -777,7 +778,7 @@ bool IKO::evaltype(inp_type the_space, bool release, bool eval,kind_type ikind,D
 				case sysparm: {
 					string fresult;
 					std::string sysparm_name; transcode(input_name.c_str(),sysparm_name); //This really should be converted - being internal.
-					exists = Environment::getparm(sysparm_name,fresult);
+					exists = env->getparm(sysparm_name,fresult);
 					if ( exist_test != ut_existence ) {
 						if ( exists ) {
 							if (! fresult.empty()) {
@@ -802,7 +803,7 @@ bool IKO::evaltype(inp_type the_space, bool release, bool eval,kind_type ikind,D
 					string errmsg = "does not exist.";
 					if ( sysenv_name.find("OBYX_",0,5) == string::npos) {
 						if ( sysenv_name.find("CURRENT_",0,8) == string::npos) { //it's something.
-							exists = Environment::getenv(sysenv_name,fresult);
+							exists = env->getenv(sysenv_name,fresult);
 						} else { //it's a CURRENT_
 							exists = currentenv(sysenv_name.substr(8,string::npos),exist_test,this,container);
 						}
@@ -847,7 +848,7 @@ bool IKO::evaltype(inp_type the_space, bool release, bool eval,kind_type ikind,D
 							*Logger::log << Log::warn << Log::LI << "Debug '" << err_msg << "'" << Log::LO;
 							trace();
 							*Logger::log << Log::LI ;
-							Environment::list();
+							env->list();
 							owner->list();
 							ItemStore::list();
 							Iteration::list(this);		//available fields from here.
@@ -865,7 +866,7 @@ bool IKO::evaltype(inp_type the_space, bool release, bool eval,kind_type ikind,D
 					trace();
 					*Logger::log << Log::blockend;
 				} break;
-			}			
+			}	
 		}
 	}
 	if (finished && eval) {
@@ -900,10 +901,20 @@ bool IKO::evaltype(inp_type the_space, bool release, bool eval,kind_type ikind,D
 			*Logger::log << Log::blockend;
 		}
 	}
+	if (name_item != NULL) {
+		delete name_item;
+		name_item = NULL; 
+	}
 	return finished;
 }
 
 void IKO::init() {
+}
+void IKO::finalise() {
+}
+void IKO::startup() {
+	InputType::startup();
+	Output::startup();
 	current_types.insert(current_type_map::value_type("OBJECT",c_object));
 	current_types.insert(current_type_map::value_type("NAME",c_name));
 	current_types.insert(current_type_map::value_type("REQUEST",c_request));
@@ -919,7 +930,7 @@ void IKO::init() {
 	kind_types.insert(kind_type_map::value_type(UCS2(L"auto"), di_auto));
 	kind_types.insert(kind_type_map::value_type(UCS2(L"text"), di_text));
 	kind_types.insert(kind_type_map::value_type(UCS2(L"object"), di_object));
-
+	
 	enc_types.insert(enc_type_map::value_type(UCS2(L"none"), e_none));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"qp"), e_qp));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"sql"), e_sql));
@@ -930,7 +941,7 @@ void IKO::init() {
 	enc_types.insert(enc_type_map::value_type(UCS2(L"base64"), e_base64));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"hex"), e_hex));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"message"), e_message));
-
+	
 	ctx_types.insert(inp_type_map::value_type(UCS2(L"none"), immediate));
 	ctx_types.insert(inp_type_map::value_type(UCS2(L"field"), field ));
 	ctx_types.insert(inp_type_map::value_type(UCS2(L"url"), url ));
@@ -941,5 +952,13 @@ void IKO::init() {
 	ctx_types.insert(inp_type_map::value_type(UCS2(L"cookie"), cookie)); 
 	ctx_types.insert(inp_type_map::value_type(UCS2(L"store"), store));
 	ctx_types.insert(inp_type_map::value_type(UCS2(L"namespace"), xmlnamespace));
-	
 }
+void IKO::shutdown() {
+	InputType::shutdown();
+	Output::shutdown();
+	current_types.clear();
+	kind_types.clear();
+	enc_types.clear();
+	ctx_types.clear();
+}
+

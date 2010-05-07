@@ -40,7 +40,7 @@ private:
 	typedef std::map<u_str, part_type > part_type_map; 
 	typedef enum { location, privacy, cache, pragma, custom, connection, server, p3p, range, content_length, code, content_type, h_expires, date, content_disposition, nocache, remove_http, remove_nocache, remove_date, http_object} http_line_type;	//
 	typedef std::map<u_str, http_line_type > http_line_type_map; 
-
+	
 	friend class Function;
 	static output_type_map output_types;
 	static http_line_type_map httplinetypes;
@@ -49,16 +49,17 @@ private:
 	part_type		part;
 	bool errowner;				//so we can delete the stream just once.
 	ostringstream* errs;		//error holder - used for type=error
-
+	
 	void sethttp(const http_line_type,const string&);
-
+	
 public:
 	ostringstream*& geterrs()  { return errs; }
 	output_type gettype() const { return type; }
 	bool evaluate(size_t,size_t);
-	static void init();			//set up maps
 	Output(xercesc::DOMNode* const&,ObyxElement* = NULL,elemtype = output);
 	Output(ObyxElement*,const Output*); //
+	static void startup(); 
+	static void shutdown();	
 	virtual ~Output();
 };
 

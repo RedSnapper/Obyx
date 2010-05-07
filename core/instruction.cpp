@@ -167,8 +167,8 @@ void Instruction::do_function() {
 		if ( ! eval_doc.results.final()  ) { //if it is STILL not final..
 			*Logger::log << Log::error << Log::LI << "Error. Function was not fully evaluated." << Log::LO ;
 			trace();
-//			string troubled_doc;
-//			XML::Manager::parser()->writedoc(eval_doc,troubled_doc);
+			//			string troubled_doc;
+			//			XML::Manager::parser()->writedoc(eval_doc,troubled_doc);
 			*Logger::log << Log::LI << "The document that failed is:" << Log::LO;
 			*Logger::log << Log::LI << Log::info << Log::LI << document << Log::LO << Log::blockend << Log::LO; 
 			*Logger::log << Log::blockend; //Error
@@ -653,12 +653,13 @@ void Instruction::call_sql(DataItem* di_query) {
 }
 
 void Instruction::call_system(DataItem* di_cmd) {
+	Environment* env = Environment::service();
 	if (di_cmd != NULL) {
-		string command(Environment::ScriptsDir());
+		string command(env->ScriptsDir());
 		if (!command.empty() ) {
 			std::string cmd = *di_cmd;
 			string mypid;
-			String::tostring(mypid,Environment::pid());
+			String::tostring(mypid,env->pid());
 			String::trim(cmd);
 			if ( ! cmd.empty() ) {
 				pair<string,string> command_parms;
@@ -691,8 +692,8 @@ void Instruction::call_system(DataItem* di_cmd) {
 								command.append(" ");
 								command.append(command_parms.second);
 							}							
-							string resultfile= Environment::ScratchDir();
-							resultfile.append(Environment::ScratchName());
+							string resultfile= env->ScratchDir();
+							resultfile.append( env->ScratchName());
 							resultfile.append("obyx_call");
 							resultfile.append(mypid);
 							command.append(" > ");
@@ -740,9 +741,15 @@ void Instruction::addDefInpType(DefInpType*) {
 	trace();
 	*Logger::log << Log::blockend;
 }
-	
-//static methods - once only thank-you very much.. 
+
+//static methods - once only (either per main doc, or per process) thank-you very much..
 void Instruction::init() {
+}
+
+void Instruction::finalise() {
+}
+
+void Instruction::startup() {
 	op_types.insert(op_type_map::value_type(UCS2(L"add"), qxml::add));
 	op_types.insert(op_type_map::value_type(UCS2(L"append"), qxml::append));
 	op_types.insert(op_type_map::value_type(UCS2(L"assign"), move));
@@ -765,5 +772,9 @@ void Instruction::init() {
 	op_types.insert(op_type_map::value_type(UCS2(L"substring"), substring));
 	op_types.insert(op_type_map::value_type(UCS2(L"subtract"), subtract));
 	op_types.insert(op_type_map::value_type(UCS2(L"upper"), qxml::upper));	
-	
 }
+
+void Instruction::shutdown() {
+	op_types.clear();
+}	
+

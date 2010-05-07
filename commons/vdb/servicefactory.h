@@ -29,7 +29,7 @@
 /*
  ServiceFactory is a Singleton Factory pattern. It initialises a set of Services, and then handles
  requests for Service instances. 
-
+ 
  A Service here is a database CLIENT service - used to load up what is necessary to connect to a SERVER.
  A service is identified by a 'name' signature -- eg a mysql client service could be 'mysql'
  
@@ -41,18 +41,18 @@ namespace Vdb {
 	class Service;
 	
 	class ServiceFactory {
-private:
+	private:
 		static unsigned int instances;				//used to deal with multiple startup/shutdowns..
 		static ServiceFactory* singleton;
 		typedef std::map<std::string, Service*> ServiceMap;
 		ServiceMap serviceMap;
 		ServiceFactory(bool);
 		~ServiceFactory();
-				
-public: 
-		static ServiceFactory*& startup(bool = true);
+		
+	public: 
+		static void startup();
 		static void shutdown();
-		Service* getService(const std::string&);
+		static Service* getService(const std::string&);
 		
 	};
 	

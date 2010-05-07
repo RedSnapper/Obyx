@@ -35,6 +35,7 @@ class CLILogger : public Logger {
 protected:
 	friend class Logger;
 	CLILogger() : Logger(1)  { }
+	virtual ~CLILogger() {}
 	virtual void wrap(bool);
 	virtual void extra(extratype); 
 	virtual void open();

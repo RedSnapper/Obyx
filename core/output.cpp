@@ -113,26 +113,26 @@ Output::~Output() {
 	}
 }
 
-void Output::sethttp(const http_line_type line_type,const string& val) {
-	string value(val);
+void Output::sethttp(const http_line_type line_type,const string& value) {
+	Httphead* http = Httphead::service();	
 	switch ( line_type ) {
-		case cache:					Httphead::setcache(value); break;
-		case code:					Httphead::setcode(String::natural(value)); break;
-		case connection:			Httphead::setconnection(value); break;
-		case content_disposition:	Httphead::setdisposition(value); break;
-		case content_length:		Httphead::setlength(String::natural(value)); break; 
-		case content_type:			Httphead::setmime(value); break;
-		case date:					Httphead::setdate(value); break;
-		case h_expires:				Httphead::setexpires(value); break;
-		case location:				Httphead::setlocation(value); break;
-		case p3p:					Httphead::setp3p(value); break;
-		case pragma:				Httphead::setpragma(value); break;
-		case range:					Httphead::setrange(value); break;
-		case server:				Httphead::setserver(value); break;
+		case cache:					http->setcache(value); break;
+		case code:					http->setcode(String::natural(value)); break;
+		case connection:			http->setconnection(value); break;
+		case content_disposition:	http->setdisposition(value); break;
+		case content_length:		http->setlength(String::natural(value)); break; 
+		case content_type:			http->setmime(value); break;
+		case date:					http->setdate(value); break;
+		case h_expires:				http->setexpires(value); break;
+		case location:				http->setlocation(value); break;
+		case p3p:					http->setp3p(value); break;
+		case pragma:				http->setpragma(value); break;
+		case range:					http->setrange(value); break;
+		case server:				http->setserver(value); break;
 		case custom: { 
 			pair<string,string> nvpair;
 			if ( String::split(':',value, nvpair) ) {
-				Httphead::addcustom(nvpair.first,nvpair.second); 
+				http->addcustom(nvpair.first,nvpair.second); 
 			} else {
 				*Logger::log << Log::error << Log::LI << "Error. Output: http custom must be name-value separated by a colon 'name:value'" << Log::LO;
 				trace();
@@ -141,10 +141,10 @@ void Output::sethttp(const http_line_type line_type,const string& val) {
 		} break;
 		case remove_date: {
 			if ( value.compare("true") == 0) {
-				Httphead::nodates(true); //ie remove the date headerlines.
+				http->nodates(true); //ie remove the date headerlines.
 			} else {
 				if ( value.compare("false") == 0) {
-					Httphead::nodates(false); //ie remove the date headerlines.
+					http->nodates(false); //ie remove the date headerlines.
 				} else {
 					*Logger::log << Log::error << Log::LI << "Error. Output: http remove_date must be 'true' or 'false'" << Log::LO;
 					trace();
@@ -154,10 +154,10 @@ void Output::sethttp(const http_line_type line_type,const string& val) {
 		} break;
 		case remove_http: {
 			if (value.compare("true") == 0) {
-				Httphead::noheader(true); //ie remove the header
+				http->noheader(true); //ie remove the header
 			} else {
 				if ( value.compare("false") == 0) {
-					Httphead::noheader(false); //ie remove the header
+					http->noheader(false); //ie remove the header
 				} else {
 					*Logger::log << Log::error << Log::LI << "Error. Output: http remove_http must be 'true' or 'false'" << Log::LO;
 					trace();
@@ -167,10 +167,10 @@ void Output::sethttp(const http_line_type line_type,const string& val) {
 		} break;
 		case privacy: {
 			if (value.compare("true") == 0) {
-				Httphead::setprivate(true);  //ie add privacy
+				http->setprivate(true);  //ie add privacy
 			} else {
 				if ( value.compare("false") == 0) {
-					Httphead::setprivate(false); //ie remove the header
+					http->setprivate(false); //ie remove the header
 				} else {
 					*Logger::log << Log::error << Log::LI << "Error. Output: http privacy must be 'true' or 'false'" << Log::LO;
 					trace();
@@ -180,10 +180,10 @@ void Output::sethttp(const http_line_type line_type,const string& val) {
 		} break;
 		case remove_nocache: {
 			if (value.compare("true") == 0) {
-				Httphead::nocache(false); //ie remove the nocache headerlines.
+				http->nocache(false); //ie remove the nocache headerlines.
 			} else {
 				if ( value.compare("false") == 0) {
-					Httphead::nocache(true); //ie remove the header
+					http->nocache(true); //ie remove the header
 				} else {
 					*Logger::log << Log::error << Log::LI << "Error. Output: http remove_nocache must be 'true' or 'false'" << Log::LO;
 					trace();
@@ -283,20 +283,15 @@ bool Output::evaluate(size_t out_num,size_t out_count) {
 									*Logger::log << Log::blockend;
 								} else {
 									ItemStore::setns(name_part,value_comp);
-									value_comp = NULL; //taken by object.
-									deleteval = false;								
 								}
 							} break;
 							case out_xmlgrammar: { //what to do when value_comp is null?
 								ItemStore::setgrammar(name_part,value_comp);
-								value_comp = NULL; //taken by object. 
-								deleteval = false;								
 							} break;
 							case out_store: {             //0123456789
 								string errstring;
 								if ( ItemStore::set(name_part,value_comp,kind,errstring) ) { //returns true if all of it is used.
 									value_comp = NULL; //taken by object. 
-									deleteval = false;
 								}
 								if (!errstring.empty()) {
 									string err_msg; transcode(name_v.c_str(),err_msg);
@@ -333,13 +328,14 @@ bool Output::evaluate(size_t out_num,size_t out_count) {
 										trace();
 										*Logger::log << Log::blockend;
 									}
-//									cout << "-----------------\n";
-//									cout << err_result;
-//									cout << "-----------------\n";
+									//									cout << "-----------------\n";
+									//									cout << err_result;
+									//									cout << "-----------------\n";
 								}
 							} break;
 							case out_file: {
-								string root(Environment::getpathforroot());
+								Environment* env = Environment::service();
+								string root(env->getpathforroot());
 								string wd(FileUtils::Path::wd());
 								if (wd.empty()) wd = root;
 								string filename; if (name_part != NULL) { filename =  *name_part; }
@@ -383,7 +379,8 @@ bool Output::evaluate(size_t out_num,size_t out_count) {
 											if (doc != NULL) {
 												xercesc::DOMNode* obj_node = doc->getDocumentElement();
 												if (obj_node != NULL) {
-													Httphead::objectparse(obj_node); //ie remove the date headerlines.
+													Httphead* http = Httphead::service();	
+													http->objectparse(obj_node); //ie remove the date headerlines.
 												} else {
 													*Logger::log << Log::error << Log::LI << "Error. Http object had no root element." << Log::LO;	
 													trace();
@@ -412,26 +409,27 @@ bool Output::evaluate(size_t out_num,size_t out_count) {
 								}
 							} break;
 							case out_cookie: {
+								Environment* env = Environment::service();
 								switch (part) {
 									case value: {
 										string oname; if (name_part != NULL) { oname =  *name_part; }
 										string value; if (value_comp != NULL) { value = *value_comp; }
-										Environment::setcookie_res(oname,value); 
+										env->setcookie_res(oname,value); 
 									} break;
 									case domain: {
 										string oname; if (name_part != NULL) { oname =  *name_part; }
 										string value; if (value_comp != NULL) { value = *value_comp; }
-										Environment::setcookie_res_domain(oname,value);
+										env->setcookie_res_domain(oname,value);
 									} break;
 									case expires: {
 										string oname; if (name_part != NULL) { oname =  *name_part; }
 										string value; if (value_comp != NULL) { value = *value_comp; }
-										Environment::setcookie_res_expires(oname,value);
+										env->setcookie_res_expires(oname,value);
 									} break;
 									case path: {
 										string oname; if (name_part != NULL) { oname =  *name_part; }
 										string value; if (value_comp != NULL) { value = *value_comp; }
-										Environment::setcookie_res_path(oname,value);
+										env->setcookie_res_path(oname,value);
 									} break;
 								}
 							} break;
@@ -441,10 +439,12 @@ bool Output::evaluate(size_t out_num,size_t out_count) {
 								*Logger::log << Log::blockend;
 							} break; //out_immediate and out_none are dealt with already.
 						}
-						if ( deleteval ) {
+						if ( deleteval && value_comp != NULL ) {
 							delete value_comp;
 							value_comp = NULL;
 						}
+						delete name_part;
+						name_part = NULL;
 					} else {
 						*Logger::log << Log::error << Log::LI << "Error. Output: non-immediate, value-holding outputs must have a name!" << Log::LO;							
 						trace();
@@ -459,7 +459,7 @@ bool Output::evaluate(size_t out_num,size_t out_count) {
 }
 
 //if (Document::getstore("http::custom",temp_var)) { Httphead::addcustom(temp_var); }
-void Output::init() {
+void Output::startup() {
 	part_types.insert(part_type_map::value_type(UCS2(L"value"), value));
 	part_types.insert(part_type_map::value_type(UCS2(L"path"), path));
 	part_types.insert(part_type_map::value_type(UCS2(L"domain"), domain));
@@ -496,4 +496,9 @@ void Output::init() {
 	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"Custom"), custom));
 	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"object"), http_object));
 	
+}
+void Output::shutdown() {
+	part_types.clear();
+	output_types.clear();
+	httplinetypes.clear();
 }

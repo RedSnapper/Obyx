@@ -28,8 +28,27 @@
 #include "commons/environment/environment.h"
 #include "commons/logger/logger.h"
 
-DataItem::~DataItem() {
-}
+/*
+ DataItem::long_map			DataItem::ce_map;
+ 
+ void DataItem::do_alloc(const std::string v) {
+ unsigned long addr = (unsigned long)(this);
+ ce_map.insert(long_map::value_type(addr,v));
+ }
+ 
+ void DataItem::do_dealloc() {
+ unsigned long addr = (unsigned long)(this);
+ long_map::iterator it = ce_map.find(addr);
+ if ( it == ce_map.end() ) {
+ *Logger::log << Log::error << Log::LI << "Error. ce was already deleted."  << Log::LO << Log::blockend;	
+ } else {
+ ce_map.erase(it);
+ }
+ }
+ */
+
+DataItem::~DataItem() {}
+DataItem::DataItem() {}
 
 //results of b go into a, b is set to null. Both may start off as NULL!
 void DataItem::append(DataItem*& a,DataItem*& b) { //this is static
@@ -266,5 +285,25 @@ DataItem* DataItem::factory(u_str s,kind_type kind_it_is) {
 		}
 	}
 	return retval;
+}
+void DataItem::startup() {
+	FragmentObject::startup();
+}
+void DataItem::shutdown() {
+	FragmentObject::shutdown();
+}
+void DataItem::init() {
+	FragmentObject::init();
+}
+void DataItem::finalise() {
+	/*	
+	 if ( ! ce_map.empty() ) {
+	 *Logger::log << Log::error << Log::LI << "Error. Not all ObyxElements were deleted."  << Log::LO << Log::blockend;	
+	 for( long_map::iterator imt = ce_map.begin(); imt != ce_map.end(); imt++) {
+	 *Logger::log << Log::info << imt->second << Log::LO << Log::blockend;				
+	 }
+	 }
+	 */	
+	FragmentObject::finalise();
 }
 

@@ -35,10 +35,11 @@ using namespace Log;
 class HTTPLogger : public Logger {
 private:
 	static bool minititle;									//for show/hide
-
+	
 protected:
 	friend class Logger;
 	HTTPLogger() : Logger(1) {}
+	~HTTPLogger() {}
 	virtual void wrap(bool);
 	virtual void extra(extratype); 
 	virtual void open();
@@ -48,7 +49,7 @@ protected:
 	virtual void dofatal();
 	virtual void ltop(string&);		//top log document
 	virtual void ltail(string&);		//tail log document
-
+	
 };
 
 #endif

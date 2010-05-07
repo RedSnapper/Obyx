@@ -48,7 +48,7 @@ namespace Vdb {
 	PQconnectdb(NULL)
 	{ 
 		string postgresqllib;
-		if (!Environment::getenv("OBYX_LIBPQSO",postgresqllib)) postgresqllib = "libpq.so";
+		if (!Environment::getbenv("OBYX_LIBPQSO",postgresqllib)) postgresqllib = "libpq.so";
 		postgres_lib_handle = dlopen(postgresqllib.c_str(),RTLD_LAZY);
 		if (postgres_lib_handle != NULL ) {
 			PQconnectdb =             (PGconn* (*)(const char*)) dlsym(postgres_lib_handle,"PQconnectdb"); 

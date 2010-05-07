@@ -41,8 +41,7 @@ private:
 	XMLObject() {}
 	void setxp(const std::string&,const std::string&,xercesc::DOMLSParser::ActionType);
 	bool xp_result(const string&,DOMXPathResult*&,std::string&) const;
-
-
+	
 protected:
 	friend class DataItem;
 	friend class StrObject;
@@ -52,14 +51,13 @@ protected:
 	XMLObject(const xercesc::DOMNode*);
 	
 public:
-//	u_str
-//	typedef hash_map<const std::string,std::string, hash<const std::string&> > string_map_type;
+	//	u_str
 	typedef hash_map<const u_str,u_str, hash<const u_str&> > u_str_map_type;
 	static const u_str_map_type* get_ns_map() {return &object_ns_map;}
-
+	
 	static bool setns(const u_str&, const u_str&);
 	static bool getns(const u_str&, u_str&,bool);
-
+	
 	XMLObject(const std::string);
 	XMLObject(const u_str);
 	XMLObject(const XMLObject&);	
@@ -72,7 +70,7 @@ public:
 	void copy(DOMDocument*&) const;
 	void take(DOMDocument*&);
 	void take(DOMNode*&);
-
+	
 	//dataitem API.
 	virtual operator XMLObject*();
 	virtual operator u_str() const;	

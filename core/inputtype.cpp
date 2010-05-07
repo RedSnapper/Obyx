@@ -53,7 +53,7 @@ InputType::InputType(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) :
 IKO(n,par,el),eval(false),release(false),type(immediate),parm_name() {
 	
 	u_str str_type,eval_str,release_str;
-
+	
 	if ( Manager::attribute(n,UCS2(L"type"),str_type)  ) {
 		*Logger::log << Log::syntax << Log::LI << "Syntax Error. " << name() << ": attribute 'type' should be 'space'" << Log::LO;
 		trace();
@@ -123,8 +123,8 @@ IKO(n,par,el),eval(false),release(false),type(immediate),parm_name() {
 	if ( Manager::attribute(n,UCS2(L"release"),release_str) ) {
 		if (release_str.compare(UCS2(L"true")) == 0) release = true;
 		switch (type) {
-//			case url:	//cache
-//			case file:	//cache
+				//			case url:	//cache
+				//			case file:	//cache
 			case xmlgrammar:	
 			case xmlnamespace:	
 			case store: {
@@ -144,52 +144,52 @@ IKO(n,par,el),eval(false),release(false),type(immediate),parm_name() {
 		if ( wotzit == qxml::key) {
 			DefInpType* m = dynamic_cast<DefInpType *>(p);
 			if (m != NULL && m->wotzit == qxml::match) {
-					m->key = this;
-					
-					//break="false"
-					u_str attr_val,format_str;
-					Manager::attribute(n,UCS2(L"break"),attr_val);
-					if ( (! attr_val.empty()) && (attr_val.compare(UCS2(L"true")) == 0)) { 
-						m->k_break = true; 
-					}
-					attr_val.clear();
-					//scope="all|first"
-					Manager::attribute(n,UCS2(L"scope"),attr_val);
-					if ( !attr_val.empty()) {
-						Mapping* mp = dynamic_cast<Mapping *>(m->p);
-						if (mp != NULL) {
-							if (mp->op() == m_substitute) {
-								if ( attr_val.compare(UCS2(L"first")) == 0 ) {  
-									m->k_scope = false; 
-								} else {
-									if ( attr_val.compare(UCS2(L"all")) == 0 ) {  
-										m->k_scope = true; 
-									} else {
-										*Logger::log << Log::syntax << Log::LI << "Syntax Error. The scope attribute of a key must have the value 'first' or 'all' "  << Log::LO;
-										trace();
-										*Logger::log << Log::blockend;
-									}
-								}
+				m->key = this;
+				
+				//break="false"
+				u_str attr_val,format_str;
+				Manager::attribute(n,UCS2(L"break"),attr_val);
+				if ( (! attr_val.empty()) && (attr_val.compare(UCS2(L"true")) == 0)) { 
+					m->k_break = true; 
+				}
+				attr_val.clear();
+				//scope="all|first"
+				Manager::attribute(n,UCS2(L"scope"),attr_val);
+				if ( !attr_val.empty()) {
+					Mapping* mp = dynamic_cast<Mapping *>(m->p);
+					if (mp != NULL) {
+						if (mp->op() == m_substitute) {
+							if ( attr_val.compare(UCS2(L"first")) == 0 ) {  
+								m->k_scope = false; 
 							} else {
-								if ( attr_val.compare(UCS2(L"first")) == 0 ) {  
-									 *Logger::log << Log::syntax << Log::LI << "Syntax Error. The scope attribute of a key is only meaningful within a substitute mapping.  ";
-									 *Logger::log << "As keys within 'switch' mappings match the entire domain, the scope attribute can only be 'all'."  << Log::LO;
-									 trace();
-									 *Logger::log << Log::blockend;
+								if ( attr_val.compare(UCS2(L"all")) == 0 ) {  
+									m->k_scope = true; 
 								} else {
-									//Ignored. XML Parser may add in default attribute values, so we must ignore it if we are not in substitute.
+									*Logger::log << Log::syntax << Log::LI << "Syntax Error. The scope attribute of a key must have the value 'first' or 'all' "  << Log::LO;
+									trace();
+									*Logger::log << Log::blockend;
 								}
 							}
 						} else {
-							*Logger::log << Log::syntax << Log::LI << "Syntax Error. match with a key can only be a child of mapping."  << Log::LO;
-							trace();
-							*Logger::log << Log::blockend;
+							if ( attr_val.compare(UCS2(L"first")) == 0 ) {  
+								*Logger::log << Log::syntax << Log::LI << "Syntax Error. The scope attribute of a key is only meaningful within a substitute mapping.  ";
+								*Logger::log << "As keys within 'switch' mappings match the entire domain, the scope attribute can only be 'all'."  << Log::LO;
+								trace();
+								*Logger::log << Log::blockend;
+							} else {
+								//Ignored. XML Parser may add in default attribute values, so we must ignore it if we are not in substitute.
+							}
 						}
+					} else {
+						*Logger::log << Log::syntax << Log::LI << "Syntax Error. match with a key can only be a child of mapping."  << Log::LO;
+						trace();
+						*Logger::log << Log::blockend;
 					}
+				}
 				
-					//format="regex" // or literal... 'l' or 'r' 
-					Manager::attribute(n,UCS2(L"format"),format_str);
-					if ( ! format_str.empty() ) { m->k_format = format_str[0]; }
+				//format="regex" // or literal... 'l' or 'r' 
+				Manager::attribute(n,UCS2(L"format"),format_str);
+				if ( ! format_str.empty() ) { m->k_format = format_str[0]; }
 			} else {
 				*Logger::log << Log::syntax << Log::LI << "Syntax Error. " << name() << " can only be a child of match."  << Log::LO;
 				trace();
@@ -218,7 +218,7 @@ IKO(n,par,el),eval(false),release(false),type(immediate),parm_name() {
 }
 
 InputType::InputType(ObyxElement* par,const InputType* orig) : IKO(par,orig),
-	eval(orig->eval),release(orig->release),type(orig->type),parm_name(orig->parm_name) {
+eval(orig->eval),release(orig->release),type(orig->type),parm_name(orig->parm_name) {
 }
 
 bool InputType::evaluate(size_t /*item_num*/,size_t /*item_count*/) {
@@ -242,7 +242,8 @@ bool InputType::evaluate(size_t /*item_num*/,size_t /*item_count*/) {
 				//                   type   release eval           name/ref     container 
 				cresult = evaltype(context, false, false, di_text, context_part,name_part);
 				if ( cresult ) {
-					delete context_part;
+					delete context_part; 
+					context_part=NULL;
 					context = immediate;
 				} else {
 					results.setresult(context_part); 
@@ -258,6 +259,9 @@ bool InputType::evaluate(size_t /*item_num*/,size_t /*item_count*/) {
 					process_encoding(value_part);
 				}
 				results.setresult(value_part); //name_part is generated by evaltype, so we don't need to copy.
+				if (name_part != NULL) {
+					delete name_part; name_part=NULL;
+				}
 			} else {
 				results.setresult(name_part); //ie, roll back.
 			}			
@@ -268,7 +272,7 @@ bool InputType::evaluate(size_t /*item_num*/,size_t /*item_count*/) {
 }
 
 //static methods - once only thank-you very much..
-void InputType::init() {
+void InputType::startup() {
 	inp_types.insert(inp_type_map::value_type(UCS2(L"immediate"), immediate));
 	inp_types.insert(inp_type_map::value_type(UCS2(L"none"), none));
 	inp_types.insert(inp_type_map::value_type(UCS2(L"store"), store));
@@ -283,10 +287,13 @@ void InputType::init() {
 	inp_types.insert(inp_type_map::value_type(UCS2(L"namespace"), xmlnamespace));
 	inp_types.insert(inp_type_map::value_type(UCS2(L"grammar"), xmlgrammar));
 }
+void InputType::shutdown() {
+	inp_types.clear();
+}
 
 //this includes match and domain but not key.
 DefInpType::DefInpType(xercesc::DOMNode* const& n,ObyxElement* par,elemtype el) : 
-	InputType(n,par,el),k_break(false),k_scope(true),k_format('l'),key(NULL) {
+InputType(n,par,el),k_break(false),k_scope(true),k_format('l'),key(NULL) {
 	wottype=defparm;
 	Function* i = dynamic_cast<Function *>(par);
 	if (i != NULL) {
@@ -299,7 +306,7 @@ DefInpType::DefInpType(xercesc::DOMNode* const& n,ObyxElement* par,elemtype el) 
 }
 
 DefInpType::DefInpType(ObyxElement* par,const DefInpType* orig) : 
-	InputType(par,orig),k_break(orig->k_break),k_scope(orig->k_scope),k_format(orig->k_format),key(NULL) { 
+InputType(par,orig),k_break(orig->k_break),k_scope(orig->k_scope),k_format(orig->k_format),key(NULL) { 
 	if (wotzit == qxml::match && orig->key != NULL) {
 		key = new InputType(p,orig->key);
 	} else {

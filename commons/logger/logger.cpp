@@ -45,14 +45,12 @@ std::ostringstream* Logger::lstore = NULL;
 //startup identifies if we are outputting as a cgi script or as a commandline utility.
 //console is set to false if we are running in cgi mode, and true if we are in commandline mode.
 
-
 //should be the only way to set log->o
 void Logger::set_stream(std::ostringstream*& errstr) { 
 	if (errstr != NULL ) { 
 		log->storageused=true; //not always true.. if cout is set here...
 		log->estrm_stack.push(errstr);
 		log->o = log->estrm_stack.top();
-		log->o->sync_with_stdio();
 	}
 }	
 
@@ -61,14 +59,12 @@ void Logger::set_stream(std::ostream*& errstr) {
 		log->storageused=true; //not always true.. if cout is set here...
 		log->estrm_stack.push(errstr);
 		log->o = log->estrm_stack.top();
-		log->o->sync_with_stdio();
 	}
 }	
 
 void Logger::get_stream(ostream*& container) {
 	container = log->estrm_stack.top();
 }
-
 
 //should always be paired with a set_stream..
 void Logger::unset_stream() {
@@ -78,7 +74,6 @@ void Logger::unset_stream() {
 		} else {
 			log->storageused=false;
 			log->o = log->fo;
-	//		*log << error << LI << "Internal: unset_stream nesting failure." << LO << blockend;  
 		}
 		if (log->estrm_stack.empty() ) { 
 			log->storageused=false;
@@ -86,7 +81,6 @@ void Logger::unset_stream() {
 		} else {
 			log->o = log->estrm_stack.top();
 		}
-		log->o->sync_with_stdio();
 	}
 }	
 
@@ -104,17 +98,30 @@ Logger::Logger(int i) : syslogging(true),bdepth(i) {
 	type_stack.push(logger);    //current log type was static Log::msgtype itype;
 }
 
-ostream*& Logger::startup() {
-	string tmp_env;
-	setlocale(LC_CTYPE,"UTF-8");
-	Environment::buildarea_type area = Environment::get_area();
-	if ( (area != Environment::Console) ) {
-		log = new HTTPLogger();	// create new http reporter
-	} else {
-		log = new CLILogger();	// create new command line reporter
+Logger::~Logger() {
+	while (!estrm_stack.empty()) {
+		estrm_stack.pop();
 	}
+	while (!type_stack.empty()) {
+		type_stack.pop();
+	}
+	fo = NULL;		//final output stream
+	o = NULL;		//current output stream
+}
+
+void Logger::startup(string& t) {
+	setlocale(LC_CTYPE,"UTF-8");
+	title = t;
+}
+void Logger::shutdown() {
+}
+
+ostream* Logger::init(ostream*& final_out) {
+	Environment* env = Environment::service();
+	string tmp_env;
+	log = new HTTPLogger();	// create new http reporter
 	/*
-	 OBYX_DEVELOPMENT LOG_DEBUG OBYX_LOGGING_OFF OBYX_SYSLOG_OFF RESULT
+	 OBYX_DEVELOPMENT OBYX_DEBUG OBYX_LOGGING_OFF OBYX_SYSLOG_OFF RESULT
 	 on				on			off				on			syslog(debug) (syslog opened)
 	 on				off			off				on			syslog(warn)  (syslog opened)
 	 on				on			on				on			syslog(debug) (syslog opened)
@@ -132,38 +139,49 @@ ostream*& Logger::startup() {
 	 off			on			off				off			[no syslog]   (syslog not opened)		
 	 off			off			off				off			[no syslog]   (syslog not opened)	
 	 */
-	log->syslogging = ! Environment::getenv("OBYX_SYSLOG_OFF",tmp_env);
-	log->logging_on =   Environment::getenv("OBYX_DEVELOPMENT",tmp_env);
+	log->syslogging = ! env->getenv("OBYX_SYSLOG_OFF",tmp_env);
+	log->logging_on =   env->getenv("OBYX_DEVELOPMENT",tmp_env);
 	if (log->syslogging) {
 		if (log->logging_on) {
-			log->debugflag = Environment::getenv("LOG_DEBUG", tmp_env);
+			log->debugflag = env->getenv("OBYX_DEBUG", tmp_env);
 			if (log->debugflag) {
 				setlogmask(LOG_UPTO (LOG_DEBUG ));
 				openlog("Obyx",0,LOG_USER);
 			} else {
-				if (!Environment::getenv("OBYX_LOGGING_OFF",tmp_env)) {
+				if (!env->getenv("OBYX_LOGGING_OFF",tmp_env)) {
 					setlogmask(LOG_UPTO (LOG_WARNING));
 					openlog("Obyx",0,LOG_USER);
 				}
 			}
 		} else {
-			if (! Environment::getenv("OBYX_LOGGING_OFF",tmp_env)) {
+			if (! env->getenv("OBYX_LOGGING_OFF",tmp_env)) {
 				setlogmask(LOG_UPTO (LOG_WARNING));
 				openlog("Obyx",0,LOG_USER);
 			}
 		}
 	}
-	log->fo = &std::cout;					//set final output.
-	std::ios_base::sync_with_stdio(true);
+	if (final_out != NULL) {
+		log->fo = final_out;	//set final output.
+	} else {
+		log->fo = &cout;	    //set final output.
+	}
 	lstore = &(log->storage);
 	set_stream(lstore);				//set up storage.
 	log->open();
-	Environment::initwlogger(); //Continue environment load.
-	Environment::getenv("PATH_TRANSLATED",log->path);
-	if (area == Environment::Web) {
-		*log << Log::error << LI << "Obyx requires that you set up a public root directory to work." << LO << blockend;  
-	}
 	return log->fo;
+}
+
+void Logger::finalise() {
+	log->close();
+	if (log->logging_on) {
+		closelog();	 //system log!
+	}
+	if (! log->hadfatal) {
+		unset_stream();			//remove.
+	}
+	log->fo = NULL;	//set final output.
+	delete log;					// tidying up
+	log = NULL;
 }
 
 void Logger::top(string& container) {
@@ -172,18 +190,6 @@ void Logger::top(string& container) {
 
 void Logger::tail(string& container) {
 	log->ltail(container);
-}
-
-void Logger::shutdown() {
-	log->close();
-	if (log->logging_on) {
-		closelog();	 //system log!
-	}
-	
-	if (! log->hadfatal) {
-		unset_stream();			//remove.
-	}
-	delete log;					// tidying up
 }
 
 Logger& Logger::operator<< (const double val ) { 
@@ -224,7 +230,8 @@ Logger& Logger::operator<< (const unsigned int val ) {
 // estrm_stack.empty()
 Logger& Logger::operator << (const msgtype mtype) {
 	curr_type = mtype;
-	if ( !hadfatal && ((mtype == fatal || mtype == warn || mtype == syntax) || (mtype == Log::error && estrm_stack.size() == 1)) ) {
+	size_t ssize = estrm_stack.size();
+	if ( !hadfatal && ((mtype == fatal || mtype == warn || mtype == syntax) || (mtype == Log::error && ssize == 1)) ) {
 		hadfatal = true;
 		dofatal();
 		string messages = lstore->str();

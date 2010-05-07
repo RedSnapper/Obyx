@@ -48,8 +48,8 @@ using namespace Vdb;
 it_type_map Iteration::it_types;
 
 Iteration::Iteration(xercesc::DOMNode* const& n,ObyxElement* par) : 
-	Function(n,iteration,par),ctlevaluated(false),evaluated(false),query(NULL),
-	operation(it_repeat),lastrow(false),expanded(false),currentrow(1),numreps(1) {
+Function(n,iteration,par),ctlevaluated(false),evaluated(false),query(NULL),
+operation(it_repeat),lastrow(false),expanded(false),currentrow(1),numreps(1) {
 	u_str op_string;
 	Manager::attribute(n,UCS2(L"operation"),op_string);
 	it_type_map::const_iterator j = it_types.find(op_string);
@@ -67,15 +67,15 @@ Iteration::Iteration(xercesc::DOMNode* const& n,ObyxElement* par) :
 
 //deal with anything specific to this function
 Iteration::Iteration(ObyxElement* par,const Iteration* orig) : Function(par,orig),
-	ctlevaluated(orig->ctlevaluated),evaluated(orig->evaluated),query(orig->query),
-	operation(orig->operation),lastrow(orig->lastrow),expanded(orig->expanded),
-	currentrow(orig->currentrow),numreps(orig->numreps) {
+ctlevaluated(orig->ctlevaluated),evaluated(orig->evaluated),query(orig->query),
+operation(orig->operation),lastrow(orig->lastrow),expanded(orig->expanded),
+currentrow(orig->currentrow),numreps(orig->numreps) {
 }
 
 // evaluated returns true only if the control is successful, the body is expanded, and the expansion is successful.
 bool Iteration::evaluate_this() { //This can be run as an evaluated iteration within the current iteration.
-//IF this isn't finished and there is a control (then nothing else has happened so far)
-//first evaluate the control (not run it, just evaluate it!)
+	//IF this isn't finished and there is a control (then nothing else has happened so far)
+	//first evaluate the control (not run it, just evaluate it!)
 	if (!evaluated && ! ctlevaluated) { //legal inputs are control
 		ctlevaluated = true;
 		if ( ! inputs.empty() && (operation==it_sql || operation==it_repeat)) {
@@ -94,7 +94,7 @@ bool Iteration::evaluate_this() { //This can be run as an evaluated iteration wi
 			}
 		}
 	}
-///now deal with the body. the actual body exist to the end of the expansion - see output type=error.
+	///now deal with the body. the actual body exist to the end of the expansion - see output type=error.
 	if ( ctlevaluated && !evaluated && !expanded ) {  //1 body.
 		switch (operation) { 
 			case it_sql: { evaluated = operation_sql(); } break;
@@ -104,7 +104,7 @@ bool Iteration::evaluate_this() { //This can be run as an evaluated iteration wi
 		}
 		expanded = true;
 	} 
-// But we need to do it as a part of the evaluation. See test t00093.qxml
+	// But we need to do it as a part of the evaluation. See test t00093.qxml
 	if (ctlevaluated && !evaluated && expanded ) { //this is the body 
 		size_t n = definputs.size();
 		bool definputs_evaluated = true;
@@ -121,7 +121,7 @@ bool Iteration::evaluate_this() { //This can be run as an evaluated iteration wi
 					trace();
 					if (x != NULL) {
 						*Logger::log << Log::error << Log::LI;
-							x->explain();
+						x->explain();
 						*Logger::log << Log::LO;
 					}
 					*Logger::log << Log::blockend;
@@ -313,10 +313,10 @@ bool Iteration::operation_repeat() {
 	string controlstring;
 	unsigned long long forced_break = INT_MAX;
 	if ( ! inputs.empty() ) { 
-			const DataItem* res = inputs[0]->results.result();
-			if (res != NULL) {
-				controlstring = *res;
-			}
+		const DataItem* res = inputs[0]->results.result();
+		if (res != NULL) {
+			controlstring = *res;
+		}
 	}
 	numreps = 1;
 	if ( ItemStore::get("ITERATION_BREAK_COUNT",tmp_var) ) {
@@ -339,7 +339,9 @@ bool Iteration::operation_repeat() {
 			*Logger::log << Log::blockend;
 		}
 	}
-	if (forced_break < numreps) numreps = forced_break;
+	if (forced_break < numreps) { 
+		numreps = forced_break;
+	}
 	if (definputs.size() > 0) {
 		DefInpType* base_template = definputs[0];
 		definputs.clear();
@@ -350,7 +352,6 @@ bool Iteration::operation_repeat() {
 			for (currentrow = 1; currentrow <= numreps; currentrow++) {
 				if (currentrow != numreps) {
 					iter_input = new DefInpType(this,base_template);
-
 				} else {
 					iter_input = base_template;		
 					lastrow = true;
@@ -458,13 +459,20 @@ void Iteration::addDefInpType(DefInpType* i) {
 	}
 }
 
-void Iteration::init()  {
+//static methods - once only (either per main doc, or per process) thank-you very much..
+void Iteration::init() {
+}
+
+void Iteration::finalise() {
+}
+
+void Iteration::startup() {
 	it_types.insert(it_type_map::value_type(UCS2(L"sql"),it_sql));
 	it_types.insert(it_type_map::value_type(UCS2(L"repeat"),it_repeat));
 	it_types.insert(it_type_map::value_type(UCS2(L"while"),it_while));
 	it_types.insert(it_type_map::value_type(UCS2(L"while_not"),it_while_not));
 }
 
-void Iteration::finalise() {
+void Iteration::shutdown() {
 	it_types.clear();
-}
+}	

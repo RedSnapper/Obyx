@@ -55,15 +55,15 @@ void PairQueue::clear(bool add_endthing) {
 	size_t n = queue.size();
 	for ( size_t i = 0; i < n; i++) {
 		DataItem* di = queue[i].first;	
+		queue[i].first = NULL;
 		if ( di != NULL ) {
-			queue[i].first = NULL;
 			delete di;
 		}
-		Function* qic = queue[i].second;		
+		Function* qic = queue[i].second;
+		queue[i].second = NULL;
 		if ( qic != pqendthing) {
 			delete qic; //should get here when paths aren't followed...
 		}
-		queue[i].second = NULL;
 	}
 	queue.clear(); 
 	if (add_endthing) {
@@ -92,6 +92,7 @@ const DataItem* PairQueue::result() const {
 void PairQueue::takeresult(DataItem*& container) { 
 	container = theresult;
 	theresult = NULL;
+	clear(true);
 } 
 
 //typedef pair< DataItem*, Function* > pqpair; dynamic_cast<Output *>
@@ -100,7 +101,7 @@ void PairQueue::copy(ObyxElement* mypar,const PairQueue& orig) {	//Pointers are 
 	finalised = orig.finalised;
 	queue.clear();	//remove even the endthing - because we will be adding it here..
 	if (theresult != NULL) {
-			delete theresult; theresult = NULL;
+		delete theresult; theresult = NULL;
 	}	
 	if ( orig.theresult != NULL ) {
 		theresult = DataItem::factory(orig.theresult); //copy construction

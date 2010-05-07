@@ -43,27 +43,27 @@ using namespace XML;
 
 namespace {
 	size_t writeMemoryCallback(char *ptr, size_t size, size_t nmemb, void *data) {
-			std::string* s = static_cast<std::string*>(data);
-			size_t realSize = size * nmemb;
-			s->append(ptr, ptr + realSize);
-			return realSize;
+		std::string* s = static_cast<std::string*>(data);
+		size_t realSize = size * nmemb;
+		s->append(ptr, ptr + realSize);
+		return realSize;
 	}
 	
-/*
- Function pointer that should match the following prototype: 
- size_t function( void *ptr, size_t size, size_t nmemb, void *stream); 
- This function gets called by libcurl as soon as it needs to read data in order to send it to the peer. 
- The data area pointed at by the pointer ptr may be filled with at most size multiplied with nmemb number of bytes. 
- Your function must return the actual number of bytes that you stored in that memory area. 
- Returning 0 will signal end-of-file to the library and cause it to stop the current transfer.
- 
- If you stop the current transfer by returning 0 "prematurely" 
- (i.e before the server expected it, like when you've told you will upload N bytes and you upload less than N bytes),
- you may experience that the server "hangs" waiting for the rest of the data that won't come.
- 
- If you set the callback pointer to NULL, or doesn't set it at all, the default internal read 
- function will be used. It is simply doing an fread() on the FILE * stream set with CURLOPT_READDATA.	
-*/ 
+	/*
+	 Function pointer that should match the following prototype: 
+	 size_t function( void *ptr, size_t size, size_t nmemb, void *stream); 
+	 This function gets called by libcurl as soon as it needs to read data in order to send it to the peer. 
+	 The data area pointed at by the pointer ptr may be filled with at most size multiplied with nmemb number of bytes. 
+	 Your function must return the actual number of bytes that you stored in that memory area. 
+	 Returning 0 will signal end-of-file to the library and cause it to stop the current transfer.
+	 
+	 If you stop the current transfer by returning 0 "prematurely" 
+	 (i.e before the server expected it, like when you've told you will upload N bytes and you upload less than N bytes),
+	 you may experience that the server "hangs" waiting for the rest of the data that won't come.
+	 
+	 If you set the callback pointer to NULL, or doesn't set it at all, the default internal read 
+	 function will be used. It is simply doing an fread() on the FILE * stream set with CURLOPT_READDATA.	
+	 */ 
 	size_t readMemoryCallback(void *ptr, size_t size, size_t nmemb, void *stream) {
 		std::string* s = static_cast<std::string*>(stream); //we must actually change the string...
 		size_t realSize = size * nmemb;
@@ -75,11 +75,11 @@ namespace {
 }
 
 namespace Fetch {
-
+	
 	bool HTTPFetch::loadattempted = false;
 	bool HTTPFetch::loaded = false;
 	void* HTTPFetch::lib_handle = NULL;
-
+	
 	void (*HTTPFetch::curl_slist_free_all)(struct curl_slist *)= NULL;
 	struct curl_slist* (*HTTPFetch::curl_slist_append)(struct curl_slist*,const char *) = NULL;
 	CURL* (*HTTPFetch::curl_easy_init)() = NULL;
@@ -91,35 +91,41 @@ namespace Fetch {
 		if (!loadattempted) startup();
 		return loaded;
 	}
+	void HTTPFetch::dlerr(std::string& container) {
+		const char *err = dlerror();
+		if (err != NULL) {
+			container.append(err);
+		}
+	}
 	
 	bool HTTPFetch::startup() {	
-		char *err = NULL; //necessary IFF script uses pcre.
+		std::string err=""; //necessary IFF script uses pcre.
 		if ( ! loadattempted ) {
 			loadattempted = true;
 			loaded = false;
 			string curllib;
-			if (!Environment::getenv("OBYX_LIBCURLSO",curllib)) curllib = "libcurl.so";
+			if (!Environment::getbenv("OBYX_LIBCURLSO",curllib)) curllib = "libcurl.so";
 			lib_handle = dlopen(curllib.c_str(),RTLD_GLOBAL | RTLD_NOW);
-			err = dlerror();
-			if (err == NULL && lib_handle != NULL ) {
+			dlerr(err);
+			if (err.empty() && lib_handle != NULL ) {
 				curl_easy_init = (CURL* (*)()) dlsym(lib_handle,"curl_easy_init");
 				curl_easy_setopt = (CURLcode (*)(CURL *,CURLoption,...)) dlsym(lib_handle,"curl_easy_setopt");
 				curl_easy_perform = (CURLcode (*)(CURL *)) dlsym(lib_handle,"curl_easy_perform");
 				curl_easy_cleanup = (void (*)(CURL *)) dlsym(lib_handle,"curl_easy_cleanup");
 				curl_slist_free_all = (void (*)(struct curl_slist*)) dlsym(lib_handle,"curl_slist_free_all");
 				curl_slist_append = (curl_slist* (*)(struct curl_slist*,const char *)) dlsym(lib_handle,"curl_slist_append");
-				err = dlerror();
-				if ( err == NULL) {
+				dlerr(err);
+				if ( err.empty() ) {
 					if ( curl_slist_append != NULL && curl_slist_free_all != NULL && curl_easy_init != NULL && curl_easy_setopt!=NULL && curl_easy_perform!=NULL && curl_easy_cleanup!=NULL) {
 						loaded = true;
 					}
 				} else {
-					string msg = err;
-					*Logger::log << Log::debug << Log::LI << "HTTPFetch::startup() dlsym reported '" << err << "'." << Log::LO << Log::blockend;
+					//					string msg = err;
+					//					*Logger::log << Log::debug << Log::LI << "HTTPFetch::startup() dlsym reported '" << err << "'." << Log::LO << Log::blockend;
 				}
 			} else {
-				string msg = err;
-				*Logger::log << Log::debug << Log::LI << "HTTPFetch::startup() dlopen reported '" << err << "'." << Log::LO << Log::blockend;
+				//				string msg = err;
+				//				*Logger::log << Log::debug << Log::LI << "HTTPFetch::startup() dlopen reported '" << err << "'." << Log::LO << Log::blockend;
 			}
 		}
 		return loaded;
@@ -131,7 +137,7 @@ namespace Fetch {
 		}
 		return true;
 	}
- //	CURLE_SEND_FAIL_REWIND -- don't know what this is, or when it fails.
+	//	CURLE_SEND_FAIL_REWIND -- don't know what this is, or when it fails.
 	void HTTPFetch::processErrorCode(CURLcode errorCode, string& errstr) {
 		if (! had_error && errorCode != CURLE_OK && errorCode != CURLE_SEND_FAIL_REWIND) {
 			errstr.append(errorBuf);
@@ -144,7 +150,7 @@ namespace Fetch {
 	}
 	
 	// http://curl.haxx.se/libcurl/c/curl_easy_setopt.html
-
+	
 	HTTPFetch::HTTPFetch(string& u,string& m,string& v,string* b,string& errstr) : headers(NULL),cookies(),body(b),handle(NULL),errorBuf(new char[CURL_ERROR_SIZE]),had_error(false) {
 		errorBuf[0] = '\0'; 
 		handle = curl_easy_init();
@@ -168,7 +174,7 @@ namespace Fetch {
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_MAXREDIRS,maxRedirects), errstr);
 		}
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_NOSIGNAL, 1), errstr);
-//		processErrorCode(curl_easy_setopt(handle, CURLOPT_TIMEOUT_MS, timeout_milli_seconds));
+		//		processErrorCode(curl_easy_setopt(handle, CURLOPT_TIMEOUT_MS, timeout_milli_seconds));
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_TIMEOUT, timeout_seconds), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_NOBODY, 0), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_COOKIEFILE, ""), errstr);
@@ -197,8 +203,9 @@ namespace Fetch {
 	
 	//- HTTPFetch methods -//
 	HTTPFetch::HTTPFetch(std::string& errstr) : headers(NULL),cookies(),body(NULL),handle(NULL),errorBuf(new char[CURL_ERROR_SIZE]),had_error(false) {
+		Environment* env = Environment::service();
 		errorBuf[0] = '\0'; 
-		cookies = Environment::response_cookies(false); //We may want to think about this...
+		cookies = env->response_cookies(false); //We may want to think about this...
 		handle = curl_easy_init();
 		assert(handle != NULL);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_COOKIEFILE, ""), errstr);
@@ -215,12 +222,12 @@ namespace Fetch {
 		}
 		curl_easy_cleanup(handle);
 		delete [] errorBuf;
-//		body->clear(); //it's not ours to free...
+		//		body->clear(); //it's not ours to free...
 	}
-
-//used by OSI Request directly.
+	
+	//used by OSI Request directly.
 	bool HTTPFetch::doRequest(string& headerString,string& bodyString,string& errstr) {
-//		processErrorCode(curl_easy_setopt(handle, CURLOPT_VERBOSE, true));
+		//		processErrorCode(curl_easy_setopt(handle, CURLOPT_VERBOSE, true));
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_NOSIGNAL, 1), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_POSTFIELDSIZE, body->length()), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_FAILONERROR, false), errstr); //Prevents output on return values > 300
@@ -240,7 +247,7 @@ namespace Fetch {
 		}
 		return ! had_error; //This does NOT return an error if the return code is > 300.
 	}
-
+	
 	//used by space="url" indirectly
 	bool HTTPFetch::retrievePage(const string& urlString, HTTPFetchHeader& header, string& my_page, string& my_errors) {
 		std::string headerString;
@@ -287,5 +294,5 @@ namespace Fetch {
 		HTTPFetchPage fetcher(this, my_page, header, redirects, body_i, errmsg_i);
 		return fetcher();
 	}
-			
+	
 } //namespace Fetch

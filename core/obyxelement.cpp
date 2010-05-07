@@ -51,10 +51,9 @@ unsigned long long int	ObyxElement::eval_count =0;
 unsigned long long int	ObyxElement::break_point =0;
 std::stack<elemtype>	ObyxElement::eval_type; 
 
-bool						ObyxElement::break_happened = false;
-long_map				ObyxElement::ce_map;
+bool					ObyxElement::break_happened = false;
+//long_map				ObyxElement::ce_map;
 nametype_map			ObyxElement::ntmap;
-Vdb::ServiceFactory*	ObyxElement::dbsf = NULL;			//this is managed by main.
 Vdb::Service*			ObyxElement::dbs = NULL;				
 Vdb::Connection*		ObyxElement::dbc = NULL;
 
@@ -65,7 +64,7 @@ XMLNode::XMLNode(DOMNode* const& n,ObyxElement *par) : ObyxElement(par,xmlnode,o
 		u_str u_nodevalue = n->getNodeValue();
 		if ( Document::prefix_length == 0 ) {
 			if ( u_nodevalue[0] == ':' ) {  // [[: identification.
-				transcode(u_nodevalue.c_str(),nodevalue);
+				transcode(u_nodevalue,nodevalue);
 				p->results.append(nodevalue.substr(1,string::npos),di_text); 
 				doneit = true;
 			}
@@ -75,7 +74,7 @@ XMLNode::XMLNode(DOMNode* const& n,ObyxElement *par) : ObyxElement(par,xmlnode,o
 				*Logger::log << Log::error << Log::LI << "Error. Master Namespace prefix problem." << Log::LO << Log::blockend;	
 			} else {
 				if ( u_nodevalue.compare(0,Document::prefix_length,masterprefix) == 0) { // [[o: identification.
-					transcode(u_nodevalue.c_str(),nodevalue);
+					transcode(u_nodevalue,nodevalue);
 					p->results.append(nodevalue.substr(Document::prefix_length+1,string::npos),di_text); 				
 					doneit = true;
 				}
@@ -85,102 +84,105 @@ XMLNode::XMLNode(DOMNode* const& n,ObyxElement *par) : ObyxElement(par,xmlnode,o
 } 
 XMLNode::~XMLNode() {}
 /*
-//------------------- XMLElement -----------------------
-XMLElement::XMLElement(DOMNode* const& n,ObyxElement *par,unsigned long sib) : 
-ObyxElement(par,xmlelement,other),nodename() {
-	DataItem* elnode = DataItem::factory(n,di_object);
-	transcode(n->getLocalName(),nodename);
-	p->results.append( elnode ); //this TAKES elnode.
-} 
-
-bool XMLElement::evaluate(size_t,size_t) {
-	return true;
-}
-
-XMLElement::~XMLElement() {
-}
-*/
+ //------------------- XMLElement -----------------------
+ XMLElement::XMLElement(DOMNode* const& n,ObyxElement *par,unsigned long sib) : 
+ ObyxElement(par,xmlelement,other),nodename() {
+ DataItem* elnode = DataItem::factory(n,di_object);
+ transcode(n->getLocalName(),nodename);
+ p->results.append( elnode ); //this TAKES elnode.
+ } 
+ 
+ bool XMLElement::evaluate(size_t,size_t) {
+ return true;
+ }
+ 
+ XMLElement::~XMLElement() {
+ }
+ */
 //------------------- ObyxElement -----------------------
-
-void ObyxElement::do_alloc() {
-	//----------------for testing allocation ---
-	ostringstream oss;
-	const ObyxElement* t_node = this;
-	string el_name;
-    switch ( wotzit ) {
-		case comment:		el_name= "[comment]"; break;
-		case xmlnode:		el_name= "[xmlnode]"; break;
-		case xmldocument:	el_name= "[xmldocument]"; break;
-		case iteration:		el_name= "[iteration]"; break;
-		case instruction:	el_name= "[instruction]"; break;
-		case comparison:	el_name= "[comparison]"; break;
-		case mapping:		el_name= "[mapping]"; break;
-		case endqueue:		el_name= "[endqueue]"; break;
-		case output:		el_name= "[output]"; break;
-		case control:		el_name= "[control]"; break;
-		case body:			el_name= "[body]"; break;
-		case input:			el_name= "[input]"; break;
-		case comparate:		el_name= "[comparate]"; break;
-		case ontrue:		el_name= "[ontrue]"; break;
-		case onfalse:		el_name= "[onfalse]"; break;
-		case key:			el_name= "[key]"; break;
-		case match:			el_name= "[match]"; break;
-		case domain:		el_name= "[domain]"; break;
-		case shortsequence:	el_name= "[s]"; break;
-			
-	}
-	oss << el_name;
-	t_node = t_node->p;		
-	while (t_node != NULL) {
-		oss << "[" << t_node->name();
-		if (t_node->wottype == flowfunction) { //grab note, if there is one..
-			const Function* i = dynamic_cast<const Function *>(t_node);
-			const string note =  i->note();
-			if (!note.empty())	oss << " '" << i->note() << "' "; 
-		}
-		oss << "]";
-		if (t_node->p == NULL) {
-			if (t_node->wotzit == xmldocument) {
-				const Document* i = dynamic_cast<const Document *>(t_node);
-				t_node = i->doc_par;
-			} else {
-				t_node = t_node->p;
-			}
-		} else {
-			t_node = t_node->p;
-		}
-	}
-	string mytrace = oss.str();
-	unsigned long addr = (unsigned long)(this);
-	ce_map.insert(long_map::value_type(addr,mytrace));
-	//--------------------------------------------------------------
-}
-
-void ObyxElement::do_dealloc() {
-	unsigned long addr = (unsigned long)(this);
-	long_map::iterator it = ce_map.find(addr);
-	if ( it == ce_map.end() ) {
-		*Logger::log << Log::error << Log::LI << "Error. ce was already deleted."  << Log::LO << Log::blockend;	
-		trace();
-	} else {
-		ce_map.erase(it);
-	}
-}
-
+/*
+ void ObyxElement::do_alloc() {
+ //----------------for testing allocation ---
+ if (wotzit != qxml::endqueue) {
+ ostringstream oss;
+ const ObyxElement* t_node = this;
+ string el_name;
+ switch ( wotzit ) {
+ case comment:		el_name= "[comment]"; break;
+ case xmlnode:		el_name= "[xmlnode]"; break;
+ case xmldocument:	el_name= "[xmldocument]"; break;
+ case iteration:		el_name= "[iteration]"; break;
+ case instruction:	el_name= "[instruction]"; break;
+ case comparison:	el_name= "[comparison]"; break;
+ case mapping:		el_name= "[mapping]"; break;
+ case endqueue:		el_name= "[endqueue]"; break;
+ case output:		el_name= "[output]"; break;
+ case control:		el_name= "[control]"; break;
+ case body:			el_name= "[body]"; break;
+ case input:			el_name= "[input]"; break;
+ case comparate:		el_name= "[comparate]"; break;
+ case ontrue:		el_name= "[ontrue]"; break;
+ case onfalse:		el_name= "[onfalse]"; break;
+ case key:			el_name= "[key]"; break;
+ case match:			el_name= "[match]"; break;
+ case domain:		el_name= "[domain]"; break;
+ case shortsequence:	el_name= "[s]"; break;
+ }
+ oss << el_name;
+ t_node = t_node->p;		
+ while (t_node != NULL) {
+ oss << "[" << t_node->name();
+ if (t_node->wottype == flowfunction) { //grab note, if there is one..
+ const Function* i = dynamic_cast<const Function *>(t_node);
+ const string note =  i->note();
+ if (!note.empty())	oss << " '" << i->note() << "' "; 
+ }
+ oss << "]";
+ if (t_node->p == NULL) {
+ if (t_node->wotzit == xmldocument) {
+ const Document* i = dynamic_cast<const Document *>(t_node);
+ t_node = i->doc_par;
+ } else {
+ t_node = t_node->p;
+ }
+ } else {
+ t_node = t_node->p;
+ }
+ }
+ string mytrace = oss.str();
+ unsigned long addr = (unsigned long)(this);
+ ce_map.insert(long_map::value_type(addr,mytrace));
+ }
+ }
+ void ObyxElement::do_dealloc() {
+ if (wotzit != qxml::endqueue) {
+ unsigned long addr = (unsigned long)(this);
+ long_map::iterator it = ce_map.find(addr);
+ if ( it == ce_map.end() ) {
+ *Logger::log << Log::error << Log::LI << "Error. ce was already deleted."  << Log::LO << Log::blockend;	
+ trace();
+ } else {
+ ce_map.erase(it);
+ }
+ }
+ }
+ */
 ObyxElement::ObyxElement(ObyxElement* par,const ObyxElement* orig) : 
-	owner(orig->owner),p(par),node(orig->node),results(false),wottype(orig->wottype),wotzit(orig->wotzit) { 
+owner(orig->owner),p(par),node(orig->node),results(false),wottype(orig->wottype),wotzit(orig->wotzit) { 
 	results.copy(this,orig->results);
-//	do_alloc(); 
+	//	do_alloc(); 
 }
 
 ObyxElement::ObyxElement(ObyxElement* parent,const qxml::elemtype et,const qxml::elemclass tp,DOMNode* n) : 
-	owner(NULL),p(parent),node(n),results(),wottype(tp),wotzit(et) {
+owner(NULL),p(parent),node(n),results(),wottype(tp),wotzit(et) {
 	if ( p != NULL ) { owner = p->owner; }
+	//	do_alloc(); 
 }
 
 void ObyxElement::do_breakpoint() {
 	eval_count++;		//global..
 	if (eval_count == break_point) {
+		Environment* env = Environment::service();
 		unsigned int the_bp = (unsigned int)breakpoint();
 		break_happened = true;
 		Logger::set_syslogging(false);
@@ -214,10 +216,10 @@ void ObyxElement::do_breakpoint() {
 		results.explain(); 
 		*Logger::log << Log::LO;
 		*Logger::log << Log::LI ;
-		Environment::listEnv();					//for debugging
-		Environment::listParms();
-		Environment::listReqCookies();
-		Environment::listResCookies();
+		env->listEnv();					//for debugging
+		env->listParms();
+		env->listReqCookies();
+		env->listResCookies();
 		owner->list();
 		ItemStore::list();
 		Iteration::list(this);		
@@ -256,7 +258,7 @@ const string ObyxElement::name() const {
 		case mapping:		return "mapping"; break;
 		case endqueue:		return "endqueue"; break;
 		case xmldocument:	return "document"; break;
-//		case xmlelement:	return "xmlelement"; break;
+			//		case xmlelement:	return "xmlelement"; break;
 		case xmlnode:		return "xmlnode"; break;
 		case comment:		return "comment"; break;
 		case shortsequence:	return "s"; break;
@@ -266,9 +268,10 @@ const string ObyxElement::name() const {
 
 void ObyxElement::trace() const { //always called within a block
 	const ObyxElement* t_node = this;
+	Environment* env = Environment::service();
 	vector<pair<string,string> > fps;
 	while (t_node != NULL) {
-		string filesys = Environment::getpathforroot(); //need to remove this from filepath.
+		string filesys = env->getpathforroot(); //need to remove this from filepath.
 		string filepath;
 		string xpath;
 		if (t_node->owner != NULL) {
@@ -281,7 +284,7 @@ void ObyxElement::trace() const { //always called within a block
 		}
 		if (t_node->node != NULL) { 
 			basic_string<XMLCh> xp = Manager::parser()->xpath(t_node->node);
-			transcode(xp.c_str(),xpath);
+			transcode(xp,xpath);
 		}
 		fps.push_back(pair<string,string>(filepath,xpath));
 		if (t_node->owner != NULL) {
@@ -351,7 +354,7 @@ ObyxElement* ObyxElement::Factory(DOMNode* const& n,ObyxElement* parent) {
 					} else {
 						if (Document::prefix_length > 0) { 
 							std::string ele_name;
-							transcode(elname.c_str(),ele_name);
+							transcode(elname,ele_name);
 							*Logger::log << Log::error << Log::LI << "Error. " << ele_name << " is not a valid obyx element." << Log::LO;	
 							parent->trace();
 							*Logger::log << Log::blockend;
@@ -395,7 +398,7 @@ ObyxElement* ObyxElement::Factory(DOMNode* const& n,ObyxElement* parent) {
 			u_str u_nodevalue = n->getNodeValue();
 			if ( Document::prefix_length == 0 ) {
 				if ( u_nodevalue[0] == ':' ) {  // [[: identification.
-					transcode(u_nodevalue.c_str(),nodevalue);
+					transcode(u_nodevalue,nodevalue);
 					parent->results.append(nodevalue.substr(1,string::npos),di_text); 
 				} else {
 					DataItem* elcdata = DataItem::factory(n);
@@ -407,7 +410,7 @@ ObyxElement* ObyxElement::Factory(DOMNode* const& n,ObyxElement* parent) {
 					*Logger::log << Log::error << Log::LI << "Error. Namespace prefix problem in XMLCData." << Log::LO << Log::blockend;	
 				} else {
 					if ( u_nodevalue.compare(0,Document::prefix_length,masterprefix) == 0) { // [[o: identification.
-						transcode(u_nodevalue.c_str(),nodevalue);
+						transcode(u_nodevalue,nodevalue);
 						parent->results.append(nodevalue.substr(Document::prefix_length+1,string::npos),di_text); 				
 					} else {
 						DataItem* elcdata = DataItem::factory(n);
@@ -431,43 +434,18 @@ ObyxElement* ObyxElement::Factory(DOMNode* const& n,ObyxElement* parent) {
 }
 
 ObyxElement::~ObyxElement() {
-//	do_dealloc();
+	//	do_dealloc();
 }
 
-void ObyxElement::finalise() {
-	Function::finalise();
-	FragmentObject::finalise();
-	if ( ! ce_map.empty() ) {
-		*Logger::log << Log::error << Log::LI << "Error. Not all ObyxElements were deleted."  << Log::LO << Log::blockend;	
-		for( long_map::iterator imt = ce_map.begin(); imt != ce_map.end(); imt++) {
-			*Logger::log << Log::info << imt->second << Log::LO << Log::blockend;				
-		}
-	}
-
+void ObyxElement::shutdown() {
+	Function::shutdown();
+	IKO::shutdown();
 	ntmap.clear();
-	String::Regex::shutdown();
-	Fetch::HTTPFetch::shutdown();
-	if (dbc != NULL)  delete dbc;  //dbs is managed by vdb. Just look after Connections.
 }
 
-void ObyxElement::init(Vdb::ServiceFactory*& dbsf_i) {
-	eval_count = 0;
-	break_point=0;
-	bool ok_to_break= Environment::envexists("OBYX_DEVELOPMENT");
-	string BREAK_COUNT_val;
-	Environment::getcookie_req("BREAK_COUNT",BREAK_COUNT_val);
-	if (!BREAK_COUNT_val.empty() && ok_to_break ) {
-		pair<unsigned long long,bool> bp_value = String::znatural(BREAK_COUNT_val);
-		if  ( bp_value.second ) {
-			break_point = bp_value.first;
-		} else {
-			*Logger::log << Log::error << Log::LI << "Error. BREAK_COUNT: must be a natural." << Log::LO << Log::blockend; 
-		}
-	}	
-	
-	dbsf= dbsf_i;		//Now we have a service factory for database services.
+void ObyxElement::startup() {
 	string dbservice="none";
-	if (!Environment::getenv("OBYX_SQLSERVICE",dbservice)) {
+	if (!Environment::getbenv("OBYX_SQLSERVICE",dbservice)) {
 #ifdef ALLOW_POSTGRESQL
 		dbservice="postgresql";		//currently hard-coded here by default.
 #endif
@@ -475,23 +453,9 @@ void ObyxElement::init(Vdb::ServiceFactory*& dbsf_i) {
 		dbservice="mysql";			//currently hard-coded here by default.
 #endif
 	}
-	dbs = dbsf->getService(dbservice);
-	if (dbs != NULL)  {
-		dbc = dbs->instance();
-		dbc->open( Environment::SQLhost(),Environment::SQLuser(),Environment::SQLport(),Environment::SQLuserPW() );
-		if (dbc->isopen())  {
-			dbc->database(Environment::Database());
-		} else {
-			*Logger::log << Log::error << Log::LI << "SQL Service. The '" << dbservice << "' library was loaded, but the host connection failed using the current host, user, port, and userpassword settings." << Log::LO << Log::blockend; 					
-		}
-	} 
-	FragmentObject::init();
-	Function::init();
-	InputType::init();
-	Output::init();
-	Fetch::HTTPFetch::startup();
-	String::Regex::startup();
-	IKO::init();
+	dbs = Vdb::ServiceFactory::getService(dbservice);
+	Function::startup();
+	IKO::startup();
 	ntmap.insert(nametype_map::value_type(UCS2(L"iteration"), iteration));
 	ntmap.insert(nametype_map::value_type(UCS2(L"context"), iteration));
 	ntmap.insert(nametype_map::value_type(UCS2(L"control"), control));
@@ -509,5 +473,65 @@ void ObyxElement::init(Vdb::ServiceFactory*& dbsf_i) {
 	ntmap.insert(nametype_map::value_type(UCS2(L"domain"), domain));
 	ntmap.insert(nametype_map::value_type(UCS2(L"s"), shortsequence));
 	ntmap.insert(nametype_map::value_type(UCS2(L"comment"), comment));
+}
 
+void ObyxElement::init() {
+	Environment* env = Environment::service();
+	Function::init();
+	eval_count = 0;
+	break_point = 0;
+	break_happened = false;
+	bool ok_to_break= env->envexists("OBYX_DEVELOPMENT");
+	string BREAK_COUNT_val;
+	env->getcookie_req("BREAK_COUNT",BREAK_COUNT_val);
+	//	ce_map.clear();
+	
+	if (!BREAK_COUNT_val.empty() && ok_to_break ) {
+		pair<unsigned long long,bool> bp_value = String::znatural(BREAK_COUNT_val);
+		if  ( bp_value.second ) {
+			break_point = bp_value.first;
+		} else {
+			*Logger::log << Log::error << Log::LI << "Error. BREAK_COUNT: must be a natural." << Log::LO << Log::blockend; 
+		}
+	}	
+	if (dbs != NULL)  {
+		dbc = dbs->instance();
+		dbc->open( env->SQLhost(),env->SQLuser(),env->SQLport(),env->SQLuserPW() );
+		if (dbc->isopen())  {
+			dbc->database(env->Database());
+		} else { // mysql duffy -Hdob.blog.net -u ben -P 0 -p
+			*Logger::log << Log::error << Log::LI << "SQL Service."; 
+			*Logger::log << "The Service library was loaded, but the host connection failed using the current host, user, port, and userpassword settings. ";
+			*Logger::log << "If the host is on another box, check the database client configuration or host that networking is enabled. ";
+			*Logger::log << Log::LI << "mysql -D" << env->Database() << " -h" << env->SQLhost() << " -u" << env->SQLuser();
+			int pt = env->SQLport(); if (pt != 0) {
+				*Logger::log << " -P" << pt << Log::LO;
+			}
+			string up = env->SQLuserPW(); if (!up.empty()) {
+				*Logger::log << " -p" << up << Log::LO;
+			}
+			*Logger::log << Log::blockend; 					
+		}
+	} 
+}
+
+void ObyxElement::finalise() {
+	Function::finalise();
+	FragmentObject::finalise();
+	while (!eval_type.empty()) { eval_type.pop();}
+	if (dbc != NULL ) {
+		if (dbc->isopen())  { //dbs is managed by vdb. Just look after Connections.
+			dbc->close();
+			delete dbc; 
+		}
+		dbc = NULL;
+	} 
+	/*	
+	 if ( ! ce_map.empty() ) {
+	 *Logger::log << Log::error << Log::LI << "Error. Not all ObyxElements were deleted."  << Log::LO << Log::blockend;	
+	 for( long_map::iterator imt = ce_map.begin(); imt != ce_map.end(); imt++) {
+	 *Logger::log << Log::info << imt->second << Log::LO << Log::blockend;				
+	 }
+	 }
+	 */
 }

@@ -46,13 +46,20 @@ private:
 	bool operation_while(bool);						//private evaluation
 	
 	Vdb::Query *query;		//this is NOT the query -but a reference to it.
-
+	
+private:
+	friend class Function;
+	static void init();
+	static void finalise();
+	static void startup(); 
+	static void shutdown();	
+	
 protected:
 	friend class IKO;
 	friend class ItemStore;
 	
 	static it_type_map it_types;
-
+	
 	it_type	operation;					//sql, xpath, while, repeat 
 	bool		 lastrow;				//if this is true, it's the 'last row'
 	bool		 expanded;				//if this is true, it's the 'last row'
@@ -70,8 +77,6 @@ public:
 	virtual ~Iteration();
 	virtual void addInputType(InputType*);
 	virtual void addDefInpType(DefInpType*);	
-	static void init();
-	static void finalise();
 	static void list(const ObyxElement*);
 };
 

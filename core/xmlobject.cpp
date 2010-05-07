@@ -182,9 +182,10 @@ bool XMLObject::xp_result(const string& path,DOMXPathResult*& result,std::string
 			const u_str& nssig = s->first; const u_str& nsurl = s->second;
 			pnsr->addNamespaceBinding(nssig.c_str(),nsurl.c_str());
 		}
-		XMLCh* xpath = XML::transcode(path);		
+		u_str xpath;
+		XML::transcode(path,xpath);		
 		try {
-			AutoRelease<DOMXPathExpression>parsedExpression(x_doc->createExpression(xpath, pnsr));
+			AutoRelease<DOMXPathExpression>parsedExpression(x_doc->createExpression(xpath.c_str(), pnsr));
 			result = parsedExpression->evaluate(x_doc->getDocumentElement(),DOMXPathResult::SNAPSHOT_RESULT_TYPE, NULL);
 		} 
 		catch (XQException &e) {
@@ -207,7 +208,6 @@ bool XMLObject::xp_result(const string& path,DOMXPathResult*& result,std::string
 			err_message = "unknown xpath error.";
 			retval = false;
 		}
-		XMLString::release(&xpath);		
 	} 
 	return retval;
 }
@@ -266,11 +266,11 @@ bool XMLObject::xp(const std::string& path,DataItem*& container,bool node_expect
 						DataItem::append(container,item); //either/both could be NULL. and we may need to convert from one type to another.
 					}
 				}
+				delete result; result = NULL;
 				if (sslena == 0 && node_expected) {
 					error_str = "While attempting a get, the xpath " + path + " returned no nodes.";												
 					retval=false;
 				}
-				result->release();				
 			} else {
 				if (node_expected) {
 					error_str = "While attempting a get, the xpath " + path + " returned an empty result.";												
@@ -307,14 +307,8 @@ bool XMLObject::xp(const DataItem* ins,const std::string& path,DOMLSParser::Acti
 							if ( fg == NULL ) {  //ins is a string.
 								u_str insval;
 								if (ins != NULL) {
-									std::string insstr;
-									insstr = *ins;								
-									XMLCh* charbuf;
-									charbuf = XML::transcode(insstr);
-									if (charbuf != NULL) { 
-										insval = charbuf; 
-										XMLString::release(&charbuf);
-									}
+									std::string insstr = *ins;								
+									XML::transcode(insstr,insval);
 								}
 								XML::Manager::parser()->insertContext(x_doc,pt,insval,action);
 							} else { //fragment.
@@ -352,18 +346,17 @@ bool XMLObject::xp(const DataItem* ins,const std::string& path,DOMLSParser::Acti
 								if ( pt != NULL ) {
 									if ( pt->getNodeType() == DOMNode::ELEMENT_NODE ) {
 										DOMElement* enod = (DOMElement*)pt;
-										XMLCh* xaname = XML::transcode(aname);		
+										u_str xaname,xvalue;
+										XML::transcode(aname,xaname);		
 										if ( ins != NULL && ! ins->empty() ) {
 											string value = *ins;
-											XMLCh* xvalue = XML::transcode(value);		
-											DOMAttr* dnoda = x_doc->createAttribute(xaname);
-											dnoda->setNodeValue(xvalue);
+											XML::transcode(value,xvalue);		
+											DOMAttr* dnoda = x_doc->createAttribute(xaname.c_str());
+											dnoda->setNodeValue(xvalue.c_str());
 											enod->setAttributeNode(dnoda);
-											XMLString::release(&xvalue);
 										} else { //in obyx, setting an attribute to nothing deletes it.								
-											enod->removeAttribute(xaname);
+											enod->removeAttribute(xaname.c_str());
 										}
-										XMLString::release(&xaname);
 									}
 								} else {
 									// should never get here!
@@ -379,6 +372,7 @@ bool XMLObject::xp(const DataItem* ins,const std::string& path,DOMLSParser::Acti
 						}
 					}
 					xpra->release();
+					xpra = NULL;
 				} else {
 					if (node_expected) {
 						if (error_str.empty()) {
@@ -404,11 +398,11 @@ bool XMLObject::xp(const DataItem* ins,const std::string& path,DOMLSParser::Acti
 										DOMElement* enod = (DOMElement*)pt;
 										if ( ins != NULL && ! ins->empty() ) {
 											string value = *ins;
-											XMLCh* xvalue = XML::transcode(value);		
-											DOMNode* dnoda = x_doc->createComment(xvalue);
-											dnoda->setNodeValue(xvalue);
+											u_str xvalue;
+											XML::transcode(value,xvalue);		
+											DOMNode* dnoda = x_doc->createComment(xvalue.c_str());
+											dnoda->setNodeValue(xvalue.c_str());
 											enod->appendChild(dnoda);
-											XMLString::release(&xvalue);
 										} 
 									}
 								} else {
@@ -417,6 +411,7 @@ bool XMLObject::xp(const DataItem* ins,const std::string& path,DOMLSParser::Acti
 							}
 						}
 						xpra->release();
+						xpra = NULL;
 					} else {
 						if (node_expected) {
 							if (error_str.empty()) {
@@ -435,6 +430,8 @@ bool XMLObject::xp(const DataItem* ins,const std::string& path,DOMLSParser::Acti
 				}
 			}			
 		}
+		xpr->release();
+		xpr = NULL;
 	} else {
 		if (node_expected) {
 			if (error_str.empty()) {

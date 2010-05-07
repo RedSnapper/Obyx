@@ -37,43 +37,42 @@ namespace Fetch {
 	bool HTTPFetcher::operator()() {
 		bool found = false;
 		while(!found && retrieve(errstr) ) {
-				if(header.statusCode < 300 || header.statusCode >= 400) {
-					found = true; // no redirect
-				} else {	// redirect
-					string redirect_val;
-					unsigned long maxRedirects = 10;
-					if (ItemStore::get("REDIRECT_BREAK_COUNT",redirect_val)) {
-						pair<long long,bool> enval = String::integer(redirect_val);
-						maxRedirects = (unsigned long)enval.first;
-					} 
-					if( redirects.size() >= maxRedirects ) {
-						*Logger::log << Log::warn << Log::LI << "Stopped redirecting after maximum number ("
-						<< (double)maxRedirects << ") of redirects" << Log::LO << Log::blockend;
-						redirects.push_back(page);
-						return false;
-					}
-					HTTPFetchHeader::HeaderMap::const_iterator p = header.fields.find("Location");
-					if(p == header.fields.end()) { // failed to specify the location for the redirect
-						break; 
+			if(header.statusCode < 300 || header.statusCode >= 400) {
+				found = true; // no redirect
+			} else {	// redirect
+				string redirect_val;
+				unsigned long maxRedirects = 10;
+				if (ItemStore::get("REDIRECT_BREAK_COUNT",redirect_val)) {
+					pair<long long,bool> enval = String::integer(redirect_val);
+					maxRedirects = (unsigned long)enval.first;
+				} 
+				if( redirects.size() >= maxRedirects ) {
+					*Logger::log << Log::warn << Log::LI << "Stopped redirecting after maximum number ("
+					<< (double)maxRedirects << ") of redirects" << Log::LO << Log::blockend;
+					redirects.push_back(page);
+					return false;
+				}
+				HTTPFetchHeader::HeaderMap::const_iterator p = header.fields.find("Location");
+				if(p == header.fields.end()) { // failed to specify the location for the redirect
+					break; 
+				} else {
+					std::string relativeUri(String::fixUriSpaces(p->second));
+					if(relativeUri.empty()) {						
+						break; // empty redirect location
 					} else {
-						std::string relativeUri(String::fixUriSpaces(p->second));
-						if(relativeUri.empty()) {						
-							break; // empty redirect location
-						} else {
-							redirects.push_back(page);
-							XMLCh* relUri = XML::transcode(relativeUri);
-							XMLCh* xpage = XML::transcode(page);
-							XMLUri base(xpage);
-							XMLUri uri(&base, relUri);
-							transcode(uri.getUriText(),page);
-							XMLString::release(&relUri);
-							XMLString::release(&xpage);
-							if (Logger::debugging()) {
-								*Logger::log << Log::info << Log::LI << "Redirecting to: " << page << Log::LO << Log::blockend;
-							}
+						redirects.push_back(page);
+						u_str relUri,xpage;
+						XML::transcode(relativeUri,relUri);
+						XML::transcode(page,xpage);
+						XMLUri base(xpage.c_str());
+						XMLUri uri(&base,relUri.c_str());
+						transcode(uri.getUriText(),page);
+						if (Logger::debugging()) {
+							*Logger::log << Log::info << Log::LI << "Redirecting to: " << page << Log::LO << Log::blockend;
 						}
 					}
 				}
+			}
 			
 		}
 		if(found == false || header.statusCode < 200 || header.statusCode >= 300) {

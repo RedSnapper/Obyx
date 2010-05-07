@@ -49,6 +49,7 @@ std::string OsiAPP::last_response	= "";	//
 unsigned int OsiAPP::counter = 1;
 
 bool OsiAPP::request(const xercesc::DOMNode* n,DataItem*& the_result) {
+	Environment* env = Environment::service();
 	bool request_result = true;
 	std::string elname;
 	XML::transcode(n->getLocalName(),elname);
@@ -123,7 +124,7 @@ bool OsiAPP::request(const xercesc::DOMNode* n,DataItem*& the_result) {
 				if (XML::Manager::attribute(n,"sender",env_sender)) {
 					String::mailencode(env_sender);
 				}
-				if ( ! Environment::getenv("OBYX_MTA",send_path)) {
+				if ( ! env->getenv("OBYX_MTA",send_path)) {
 					*Logger::log << Log::error << Log::LI << "Error. OBYX_MTA must be defined which is a path to the sendmail binary." << Log::LO << Log::blockend;
 					request_result=false;
 				} else {
@@ -134,8 +135,8 @@ bool OsiAPP::request(const xercesc::DOMNode* n,DataItem*& the_result) {
 						n = n->getNextSibling();
 					}
 					decompile_message(n,heads,body);		//this is a message...
-					string mfil = Environment::ScratchDir();
-					mfil.append(Environment::ScratchName());
+					string mfil = env->ScratchDir();
+					mfil.append(env->ScratchName());
 					string resf = mfil;
 					mfil.append("osimail.file");
 					resf.append("osimail.res");
@@ -168,18 +169,18 @@ bool OsiAPP::request(const xercesc::DOMNode* n,DataItem*& the_result) {
 						srcfile.removeFile();
 					}					
 					request_result=true;
-//---------------- COMMENT  when NOT debugging
+					//---------------- COMMENT  when NOT debugging
 					/*
-						string logb = Environment::ScratchDir();
-						logb.append("osi.log");
-						ofstream logFile(logb.c_str()); 
-						for (unsigned int i=0; i < heads.size(); i++) {
-							logFile << heads[i] << crlf;
-						}
-						logFile << crlf << body; 
-						logFile.close(); 
+					 string logb = Environment::ScratchDir();
+					 logb.append("osi.log");
+					 ofstream logFile(logb.c_str()); 
+					 for (unsigned int i=0; i < heads.size(); i++) {
+					 logFile << heads[i] << crlf;
+					 }
+					 logFile << crlf << body; 
+					 logFile.close(); 
 					 */
-//---------------- COMMENT  when NOT debugging
+					//---------------- COMMENT  when NOT debugging
 				}
 			} else {
 				*Logger::log << Log::error << Log::LI << "Error. OSI 'mta' only supports send for the time being." << Log::LO << Log::blockend;
@@ -205,7 +206,7 @@ void OsiAPP::compile_http_response(string& head, string& body, string& the_resul
 			head = head.substr(splitpoint+4,string::npos);
 		}
 	}
-
+	
 	size_t hd_endLinePos = head.find(crlf);
 	string res_val = head.substr(0,hd_endLinePos);
 	if(hd_endLinePos != string::npos) {

@@ -40,13 +40,13 @@ private:
 protected:
 	friend class Document;
 	friend class ObyxElement;
-
+	
 	void process_encoding(DataItem*&);
 	static kind_type_map		kind_types;
 	static enc_type_map			enc_types;
 	static inp_type_map			ctx_types; //subset of input types.
 	static current_type_map		current_types;
-
+	
 	kind_type kind;				//derived from the kind attribute
 	enc_type  encoder;			//derived from the encoder attribute
 	inp_type  context;			//derived from the context attribute
@@ -59,13 +59,16 @@ protected:
 	bool evaltype(inp_type, bool, bool, kind_type, DataItem*&,DataItem*&); 
 	
 public:
-	static void init();
+	static void init(); 
+	static void finalise();
+	static void startup(); 
+	static void shutdown();	
 	static bool currentenv(const string&,const usage_tests,const IKO*,DataItem*&);
 	bool getexists() const {return exists;}
 	virtual bool evaluate(size_t,size_t)=0;
 	IKO(ObyxElement*,const IKO*); 
 	IKO(xercesc::DOMNode* const&,ObyxElement* = NULL, elemtype = endqueue);	
-	virtual ~IKO() {};
+	virtual ~IKO(); 
 };
 
 #endif

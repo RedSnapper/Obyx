@@ -28,9 +28,9 @@
 #include <map>
 
 class OsiMessage {	
-
+	
 private:
-		
+	
 	typedef enum {
 		//RFC 2822 Internet Message Format
 		trace,unstructured,date_time,mailbox,msg_id,
@@ -41,9 +41,9 @@ private:
 		//RFC 2369
 		list
 	} header_type;	//what kind of dataItem
-
+	
 	typedef std::map<std::string, header_type > header_type_map; 
-
+	
 	string nl;
 	size_t nlsize;
 	
@@ -91,7 +91,7 @@ private:
 		bool u;		//url_encoded
 		bool a;		//angled
 	};
-
+	
 	vector< header > headers;
 	
 	const static std::string boundary;	    // "Message_Boundary_";
@@ -114,8 +114,11 @@ private:
 	void construct_header_value(header&);
 public:
 	static void init();
+	static void finalise();
+	static void startup();
+	static void shutdown();
 	void compile(string&, ostringstream&, bool = true);
-
+	
 };
 
 #endif

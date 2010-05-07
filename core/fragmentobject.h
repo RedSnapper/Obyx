@@ -46,9 +46,11 @@ protected:
 	friend class XMLObject;
 	
 public:
-
+	
 	static void init();
 	static void finalise();
+	static void startup();
+	static void shutdown();
 	
 	FragmentObject(const std::string);
 	FragmentObject(u_str);
@@ -57,7 +59,7 @@ public:
 	FragmentObject(const xercesc::DOMNode*);
 	operator xercesc::DOMNode*&();
 	void take(DOMNode*&);
-
+	
 	//dataitem API.
 	virtual operator FragmentObject*();
 	virtual operator XMLObject*();

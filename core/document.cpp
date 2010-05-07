@@ -52,18 +52,32 @@ size_t						Document::prefix_length=0;		//Document wide specified
 
 string Document::curr_http_req;
 
-void Document::init() {
+void Document::startup() {
 	xmlmanager = new XML::Manager();
-	ItemStore::init();  //needs xerces
+}
+
+void Document::init() {
+	prefix_length = 0;
+}
+
+void Document::finalise() {
+	prefix_length = 0;
+	curr_http_req.clear();
+	while (! prefix_stack.empty()) {
+		prefix_stack.pop();
+	}
+	while (! filepath_stack.empty()) {
+		filepath_stack.pop();
+	}
 }
 
 void Document::shutdown() {
-	ItemStore::shutdown();  //needs xerces
 	delete xmlmanager;
 }
 
-const std::string Document::currentname() { 
-	string root = Environment::getpathforroot();
+const std::string Document::currentname() {
+	Environment* env = Environment::service();
+	string root = env->getpathforroot();
 	string fp = filepath_stack.top();
 	if ( fp.find(root) == 0 ) {
 		fp.erase(0,root.length());
@@ -72,7 +86,8 @@ const std::string Document::currentname() {
 }
 
 const std::string Document::name() const { 
-	string root = Environment::getpathforroot();
+	Environment* env = Environment::service();
+	string root = env->getpathforroot();
 	string fp = filepath;
 	if ( fp.find(root) == 0 ) {
 		fp.erase(0,root.length());
@@ -140,8 +155,8 @@ parm_map(NULL),doc_par(NULL) {
 }
 
 Document::Document(DataItem* inputfile,load_type use_loader, std::string fp, ObyxElement* par, bool evaluate_it) : 
-	ObyxElement(par,xmldocument,other,NULL), xdoc(NULL),root_node(NULL),filepath(fp),ownprefix(),
-	parm_map(NULL),doc_par(NULL) { 
+ObyxElement(par,xmldocument,other,NULL), xdoc(NULL),root_node(NULL),filepath(fp),ownprefix(),
+parm_map(NULL),doc_par(NULL) { 
 	bool loaded=false;
 	ostringstream* docerrs = NULL;
 	if (use_loader == Main) { //otherwise this is handled by output type = error.
@@ -181,9 +196,9 @@ Document::Document(DataItem* inputfile,load_type use_loader, std::string fp, Oby
 			if (inputfile != NULL) {
 				*Logger::log << Log::LI ;
 				*Logger::log << Log::notify;
-						*Logger::log << Log::LI << "The file that could not be parsed as xml" << Log::LO;
-						*Logger::log << Log::LI << Log::info << Log::LI << string(*inputfile) << Log::LO << Log::blockend << Log::LO;
-						*Logger::log << Log::blockend;
+				*Logger::log << Log::LI << "The file that could not be parsed as xml" << Log::LO;
+				*Logger::log << Log::LI << Log::info << Log::LI << string(*inputfile) << Log::LO << Log::blockend << Log::LO;
+				*Logger::log << Log::blockend;
 				*Logger::log << Log::LO;
 			}
 			*Logger::log << Log::blockend;
@@ -196,8 +211,8 @@ Document::Document(DataItem* inputfile,load_type use_loader, std::string fp, Oby
 			if (use_loader == URLText) {
 				string textstuff;
 				XML::transcode(root_node->getTextContent(),textstuff);
-			  String::trim(textstuff);
-			  results.append(textstuff,di_text);
+				String::trim(textstuff);
+				results.append(textstuff,di_text);
 			} else {
 				if (evaluate_it) {
 					if (par != NULL) {
@@ -245,7 +260,8 @@ Document::~Document() {
 std::string const Document::currenthttpreq() {
 	if ( curr_http_req.empty() ) {
 		string head,body;
-		Environment::getrequesthttp(head,body);
+		Environment* env = Environment::service();
+		env->getrequesthttp(head,body);
 		OsiAPP osi;
 		osi.compile_http_request(head,body,curr_http_req);
 	}
@@ -319,15 +335,14 @@ void Document::process( xercesc::DOMNode*& n,ObyxElement* par) {
 						*Logger::log << Log::blockend;
 						delete ce; ce = NULL;
 					}
+					fn = NULL;
 				} 
-				if ( (ce != NULL) && (par == doc_par || (par == this) )) {
-					if ( ce->evaluate() )  {
-						DataItem* rs = NULL;
-						ce->results.takeresult(rs);
-						results.setresult(rs);
+				if ( (ce != NULL) && (par == doc_par || (par == this) )) { //par = this then use results!
+					if (!results.evaluate(false)) {
+						*Logger::log << Log::syntax << Log::LI << "Error. Document wouln't evaluate." << Log::LO;	
+						par->trace();
+						*Logger::log << Log::blockend;
 					}
-		//			delete ce;  //YES there's a bug here. It's happening inside functions. somewhere.
-		//			ce = NULL;
 				}
 			}
 		}

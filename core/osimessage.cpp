@@ -156,7 +156,7 @@ void OsiMessage::do_comments(string& str,vector< comment >& comments) {
 	}
 }
 void OsiMessage::do_mailbox(string& str,vector< address >& addresses) {
-// mailbox= ([string] <addr-spec>) / (addr-spec) /  "," (and again)
+	// mailbox= ([string] <addr-spec>) / (addr-spec) /  "," (and again)
 	while (!str.empty()) {
 		size_t bp = str.find_first_of("<,");	//as soon as we see a , we have gone into another one.
 		if (str[bp] != ',') {				//hit <addr-spec> 
@@ -346,7 +346,7 @@ void OsiMessage::do_header_subheads(header& h) {
 		s.a = do_angled(s.v);
 		s.u = do_encoding(s.v);
 		String::trim(s.n);
-
+		
 		ostringstream hx;
 		if (!s.n.empty()) {
 			hx << " name=\"" << s.n << "\"";
@@ -642,11 +642,14 @@ void OsiMessage::compile(string& msg_str, ostringstream& res, bool do_namespace)
 		}
 		res << "</m:body>";
 	}
- res << "</m:message>";
+	res << "</m:message>";
 }
-
-void OsiMessage::init() { //(default is  unstructured)
-//RFC 2822 Internet Message Format 
+void OsiMessage::init() {
+}
+void OsiMessage::finalise() {
+}
+void OsiMessage::startup() { //(default is  unstructured)
+	//RFC 2822 Internet Message Format 
 	header_types.insert(header_type_map::value_type("Date", date_time));			//"Date:" date-time CRLF 3.6.1.
 	header_types.insert(header_type_map::value_type("From", mailbox));				//"From:" mailbox-list CRLF
 	header_types.insert(header_type_map::value_type("Sender", mailbox));			//"Sender:" mailbox CRLF
@@ -666,12 +669,12 @@ void OsiMessage::init() { //(default is  unstructured)
 	header_types.insert(header_type_map::value_type("Resent-Message-ID",msg_id));	//"Message-ID:" msg-id CRLF
 	header_types.insert(header_type_map::value_type("Return-Path",mailbox));		//
 	header_types.insert(header_type_map::value_type("Received",trace));				//
-//RFC 2045 Multipurpose Internet Mail Extensions
+	//RFC 2045 Multipurpose Internet Mail Extensions
 	header_types.insert(header_type_map::value_type("MIME-Version",version));				//RFC 2045 Section 5
 	header_types.insert(header_type_map::value_type("Content-Type",contenttype));			//RFC 2045 Section 6
 	header_types.insert(header_type_map::value_type("Content-Transfer-Encoding",cte));		//RFC 2045 Section 7
 	header_types.insert(header_type_map::value_type("Content-ID",msg_id));					//RFC 2045 Section 8
-//RFC 2616 Hypertext Transfer Protocol -- HTTP/1.1
+	//RFC 2616 Hypertext Transfer Protocol -- HTTP/1.1
 	header_types.insert(header_type_map::value_type("Accept",unstructured));			//; Section 14.1  Accept:		  text/*;q=0.3, text/html;q=0.7, text/html;level=1, text/html;level=2;q=0.4, */*;q=0.5
 	header_types.insert(header_type_map::value_type("Accept-Charset",unstructured));	//; Section 14.2  Accept-Charset:  iso-8859-5, unicode-1-1;q=0.8
 	header_types.insert(header_type_map::value_type("Accept-Encoding",unstructured));	//; Section 14.3  Accept-Encoding: gzip;q=1.0, identity; q=0.5, *;q=0
@@ -710,7 +713,7 @@ void OsiMessage::init() { //(default is  unstructured)
 	header_types.insert(header_type_map::value_type("Server",unstructured));			//; Section 14.38
 	header_types.insert(header_type_map::value_type("Vary",unstructured));				//; Section 14.44
 	header_types.insert(header_type_map::value_type("WWW-Authenticate",unstructured));	//; Section 14.47
-
+	
 	header_types.insert(header_type_map::value_type("Allow",unstructured));				//; Section 14.7
 	header_types.insert(header_type_map::value_type("Content-Encoding",unstructured));	//; Section 14.11
 	header_types.insert(header_type_map::value_type("Content-Language",unstructured));	//; Section 14.12
@@ -718,10 +721,10 @@ void OsiMessage::init() { //(default is  unstructured)
 	header_types.insert(header_type_map::value_type("Content-Location",unstructured));	//; Section 14.14
 	header_types.insert(header_type_map::value_type("Content-MD5",unstructured));		//; Section 14.15
 	header_types.insert(header_type_map::value_type("Content-Range",unstructured));		//; Section 14.16
-//	header_types.insert(header_type_map::value_type("Content-Type",contenttype));		//; Section 14.17 (but above also)
+	//	header_types.insert(header_type_map::value_type("Content-Type",contenttype));		//; Section 14.17 (but above also)
 	header_types.insert(header_type_map::value_type("Expires",unstructured));			//; Section 14.21
 	header_types.insert(header_type_map::value_type("Last-Modified",unstructured));		//; Section 14.29
-//Added List headers RFC 2369
+	//Added List headers RFC 2369
 	header_types.insert(header_type_map::value_type("List-Archive",list));				//Section 3.6
 	header_types.insert(header_type_map::value_type("List-Owner",list));				//Section 3.5
 	header_types.insert(header_type_map::value_type("List-Post",list));					//Section 3.4
@@ -729,7 +732,11 @@ void OsiMessage::init() { //(default is  unstructured)
 	header_types.insert(header_type_map::value_type("List-Unsubscribe",list));			//Section 3.2
 	header_types.insert(header_type_map::value_type("List-Help",list));					//Section 3.1
 	
-//Not sure what RFC.. (common broken headers)
+	//Not sure what RFC.. (common broken headers)
 	header_types.insert(header_type_map::value_type("Delivered-To",mailbox));		//
 	header_types.insert(header_type_map::value_type("Reply-to",mailbox));			//"
 }
+void OsiMessage::shutdown() {
+	header_types.clear();
+}
+

@@ -43,14 +43,23 @@ using namespace qxml;
 
 //base class for xml / text that appear in PairQueue.
 class DataItem {
-
-public:
 	
 protected:
-	DataItem() {}
+	//	typedef std::map<unsigned long, std::string > long_map; 
+	//	static long_map ce_map;
+	//	void do_alloc(const std::string);
+	//	void do_dealloc();
+	
+protected:
+	DataItem();
 	DataItem(const DataItem&);	
-
+	
 public:	
+	static void init();
+	static void finalise();
+	static void startup();
+	static void shutdown();
+	
 	static DataItem* factory(const std::string&,kind_type = di_auto);
 	static DataItem* factory(std::string&,kind_type = di_auto);
 	static DataItem* factory(const char*,kind_type = di_auto);
@@ -61,10 +70,10 @@ public:
 	static DataItem* factory(DataItem*,kind_type = di_auto);
 	
 	static void append(DataItem*&,DataItem*&);
-
+	
 	DataItem* operator=(const DataItem*&) { return this; } 
 	
-//Base Class API	
+	//Base Class API	
 	virtual operator XMLObject*() =0;	
 	virtual operator u_str() const =0;	
 	virtual operator std::string() const =0;	
@@ -81,7 +90,6 @@ public:
 	virtual void clear() =0;
 	virtual void trim() =0;
 	virtual ~DataItem();
-
 };
 
 #endif

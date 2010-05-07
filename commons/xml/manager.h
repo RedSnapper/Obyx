@@ -32,16 +32,15 @@
 namespace XML {
 	
 	class XercesInitExn { };
-		
-	void transcode(const XMLCh*,std::string&);
-	XMLCh* transcode(const std::string&,const std::string = "UTF-8");	
+	
+	void transcode(const u_str&, std::string&);
 	void transcode(const std::string&,u_str&,const std::string = "UTF-8");
 	
 	class Manager {
-private:
+	private:
 		friend class XMLObject;
 	    static std::ostream*			serial_ostream;
-
+		
 	public:
 		static XML::Parser*				xparser;
 		

@@ -33,18 +33,19 @@
 using namespace qxml;
 using namespace std;
 
-iter_stack_type*			ItemStore::the_iteration_stack=NULL; //stack of iterations
 item_map_type*				ItemStore::the_item_map = NULL;					
 item_map_stack_type*		ItemStore::the_item_map_stack = NULL;	//stack of itemmap controlled by isolated attr.	
 item_map_stack_map_type		ItemStore::the_item_map_stack_map;	
 
+void ItemStore::startup() {}
+void ItemStore::shutdown() {}
 void ItemStore::init() {
-	the_item_map = new item_map_type();
-	the_item_map_stack = new item_map_stack_type();
-	the_item_map_stack->push(the_item_map);
-	the_iteration_stack = new iter_stack_type();
+	//	the_item_map_stack = new item_map_stack_type();
+	//	the_item_map = new item_map_type();
+	//	the_item_map_stack->push(the_item_map);
 }
-void ItemStore::shutdown() {
+
+void ItemStore::finalise() {
 	item_map_stack_map_type::iterator it = the_item_map_stack_map.begin();
 	while ( it != the_item_map_stack_map.end()) {
 		item_map_stack_type* sstack = (*it).second;
@@ -55,6 +56,7 @@ void ItemStore::shutdown() {
 		delete (*it).second;
 		it++;
 	}
+	the_item_map_stack_map.clear();
 }
 bool ItemStore::setgrammar(const DataItem* sig, DataItem*& document) {
 	bool retval=false;
@@ -257,7 +259,7 @@ bool ItemStore::set(const DataItem* namepath_di, DataItem*& item,kind_type kind,
 								try {
 									xbase->xp(item,path,i_type,node_expected,errorstr);
 								} 
-//------------------------------								
+								//------------------------------								
 								catch (XQException &e) {
 									XML::transcode(e.getError(),errorstr);
 								}
@@ -419,8 +421,8 @@ bool ItemStore::get(const DataItem* namepath_di, DataItem*& item, bool release,s
 				}
 			} else {
 				retval = false; 
-//				retval returning false indicates lack of existence. Store handler above should deal with the msgs.
-//				errorstr << Log::error << Log::LI <<  "Store '" << name << "' does not exist." << Log::LO << Log::blockend;
+				//				retval returning false indicates lack of existence. Store handler above should deal with the msgs.
+				//				errorstr << Log::error << Log::LI <<  "Store '" << name << "' does not exist." << Log::LO << Log::blockend;
 			}
 		} else {
 			errorstr = "Store names must be legal. Maybe you missed a # in '" + namepath + "'" ;

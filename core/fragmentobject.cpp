@@ -41,6 +41,9 @@ void FragmentObject::finalise() {
 		frag_doc = NULL;
 	}	
 }
+void FragmentObject::startup() {}
+void FragmentObject::shutdown() {}
+
 FragmentObject::FragmentObject(const std::string s) : DataItem(),fragment(NULL) { 
 	fragment = frag_doc->createDocumentFragment();
 	if ( ! s.empty() ) {
@@ -65,8 +68,8 @@ FragmentObject::FragmentObject(const xercesc::DOMNode* n) : fragment(NULL) {
 	switch (nt) {
 		case DOMNode::DOCUMENT_NODE: {
 			const DOMDocument* d = static_cast<const DOMDocument*>(n);
-//			const DOMDocument* d = dynamic_cast<const DOMDocument*>(n);
-//			const DOMDocument* d = n->getOwnerDocument();
+			//			const DOMDocument* d = dynamic_cast<const DOMDocument*>(n);
+			//			const DOMDocument* d = n->getOwnerDocument();
 			if (d != NULL) {
 				const DOMNode* de = d->getDocumentElement();
 				if (de != NULL) {
