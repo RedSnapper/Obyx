@@ -149,7 +149,7 @@ bool Iteration::evaluate_this() { //This can be run as an evaluated iteration wi
 }
 bool Iteration::fieldexists(const string& fname,string& errstring) const {
 	bool retval = false,rcfound = false,rfound=false,fcfound=false;
-	bool hashfound = fname.find('#');
+	bool hashfound = fname.find('#') != string::npos;
 	if (hashfound) {
 		rcfound = fname.find("#rowcount") != string::npos;
 		rfound = fname.find("#row") != string::npos;
