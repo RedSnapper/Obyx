@@ -51,7 +51,6 @@
 
 		public:
 			Path();
-			Path(const Path &newpath);
 			Path(const string newpath);
 			Path(const string newdevice, const string newpath);
 			virtual ~Path();

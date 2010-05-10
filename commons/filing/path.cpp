@@ -94,15 +94,6 @@
 		Path::Path() : Device(),path(),directory_separator("/") {
 		}
 
-
-		//-------------------------------------------------------------------------
-		// Create a new Path from the specified Path
-		//-------------------------------------------------------------------------
-		Path::Path(const Path &newpath) : Device(newpath), path(),directory_separator("/") {
-			*this = newpath;
-		}
-
-
 		//-------------------------------------------------------------------------
 		// Creates a new Path using the specified path
 		//-------------------------------------------------------------------------
