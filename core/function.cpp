@@ -53,7 +53,6 @@ using namespace obyx;
  'continue' terminates the current iteration of a loop and proceeds directly to the next. 
  In the case of a for loop it jumps to its increment-expression.
  */
-
 Function::Function(xercesc::DOMNode* const& n,elemtype el,ObyxElement* par) : 
 ObyxElement(par,el,flowfunction,n),deferred(false),finalised(false),
 stream_is_set(false),fnnote(),outputs(),inputs(),definputs() {
@@ -75,21 +74,15 @@ stream_is_set(false),fnnote(),outputs(),inputs(),definputs() {
 		Manager::attribute(n,"note",fnnote);
 	}
 }
-
-
 Endqueue::Endqueue(ObyxElement* par,const Endqueue* orig) : Function(par,orig) {
 	
 }
-
 Endqueue::~Endqueue()  {
 	if ( outputs.size() != 0) {
 		outputs.clear();
 	}
 	results.clear();
 }
-
-
-
 bool Function::pre_evaluate(string& errs) {
 	bool retval = false; //returns true if it has been evaluated (and may be deleted)
 	if ( !deferred || p->wotzit == xmldocument ) {
@@ -117,7 +110,6 @@ bool Function::pre_evaluate(string& errs) {
 	}
 	return retval;
 }
-
 Function* Function::FnFactory(ObyxElement* par,const Function* orig) { 
 	Function* retval = NULL;
 	switch (orig->wotzit) {
@@ -142,7 +134,6 @@ Function* Function::FnFactory(ObyxElement* par,const Function* orig) {
 	}
 	return retval;
 }
-
 Function::Function(ObyxElement* par,const Function* orig) : 
 ObyxElement(par,orig),deferred(orig->deferred),finalised(orig->finalised),
 stream_is_set(orig->stream_is_set),fnnote(orig->fnnote),outputs(),inputs(),definputs() { 
@@ -155,8 +146,6 @@ stream_is_set(orig->stream_is_set),fnnote(orig->fnnote),outputs(),inputs(),defin
 			outputs.push_back(new Output(this,orig->outputs[i]));
 	} 
 }
-
-
 bool Function::evaluate(size_t,size_t) {
 	finalised = false;
 	if (!deferred) {
@@ -225,11 +214,9 @@ bool Function::evaluate(size_t,size_t) {
 	} 
 	return finalised;	//hmm?!
 }
-
 bool Function::final() {
 	return finalised;
 }
-
 Function::~Function() {
 	for ( unsigned int i = 0; i < inputs.size(); i++ ) {
 		delete inputs[i];
@@ -248,41 +235,36 @@ Function::~Function() {
 	outputs.clear();
 	results.clear();
 }
-
-//init once per main document..
 void Function::init() {
+	//init once per main document..
 	Instruction::init();
 	Comparison::init();
 	Iteration::init();
 	Mapping::init();	
 }
-
-//finalise once per main document..
 void Function::finalise() {
+	//finalise once per main document..
 	Instruction::finalise();
 	Comparison::finalise();
 	Iteration::finalise();
 	Mapping::finalise();
 }
-
-//startup once per process..
 void Function::startup() {
+	//startup once per process..
 	Instruction::startup();
 	Comparison::startup();
 	Iteration::startup();
 	Mapping::startup();	
 	PairQueue::startup();
 }
-
-//shutdown once per process..
 void Function::shutdown() {
+	//shutdown once per process..
 	PairQueue::shutdown();
 	Instruction::shutdown();
 	Comparison::shutdown();
 	Iteration::shutdown();
 	Mapping::shutdown();	
 }
-
 void Endqueue::addInputType(InputType*) {
 	*Logger::log << Log::error << Log::LI << "Internal Error. Endqueue cannot accept InputTypes." << Log::LO; 
 	trace();

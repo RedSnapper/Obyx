@@ -216,11 +216,9 @@ IKO(n,par,el),eval(false),release(false),type(immediate),parm_name() {
 		}
 	}
 }
-
 InputType::InputType(ObyxElement* par,const InputType* orig) : IKO(par,orig),
 eval(orig->eval),release(orig->release),type(orig->type),parm_name(orig->parm_name) {
 }
-
 bool InputType::evaluate(size_t /*item_num*/,size_t /*item_count*/) {
 	bool cresult = true; //context is evaluated by default
 	bool result = false; //input is not evaluated by default.
@@ -270,9 +268,8 @@ bool InputType::evaluate(size_t /*item_num*/,size_t /*item_count*/) {
 	do_breakpoint();
 	return result;
 }
-
-//static methods - once only thank-you very much..
 void InputType::startup() {
+	//static methods - once only thank-you very much..
 	inp_spaces.insert(inp_space_map::value_type(UCS2(L"immediate"), immediate));
 	inp_spaces.insert(inp_space_map::value_type(UCS2(L"none"), none));
 	inp_spaces.insert(inp_space_map::value_type(UCS2(L"store"), store));
@@ -290,10 +287,9 @@ void InputType::startup() {
 void InputType::shutdown() {
 	inp_spaces.clear();
 }
-
-//this includes match and domain but not key.
 DefInpType::DefInpType(xercesc::DOMNode* const& n,ObyxElement* par,elemtype el) : 
 InputType(n,par,el),k_break(false),k_scope(true),k_format('l'),key(NULL) {
+	//this includes match and domain but not key.
 	wotspace=defparm;
 	Function* i = dynamic_cast<Function *>(par);
 	if (i != NULL) {
@@ -304,7 +300,6 @@ InputType(n,par,el),k_break(false),k_scope(true),k_format('l'),key(NULL) {
 		*Logger::log << Log::blockend;
 	}
 }
-
 DefInpType::DefInpType(ObyxElement* par,const DefInpType* orig) : 
 InputType(par,orig),k_break(orig->k_break),k_scope(orig->k_scope),k_format(orig->k_format),key(NULL) { 
 	if (wotzit == obyx::match && orig->key != NULL) {
@@ -313,9 +308,8 @@ InputType(par,orig),k_break(orig->k_break),k_scope(orig->k_scope),k_format(orig-
 		key = NULL;
 	}
 }
-
-//here - is the key deferred or undeferred?
 bool DefInpType::evaluate_key() { //result = if key is evaluated.
+	//here - is the key deferred or undeferred?
 	bool result = true;
 	if (wotzit == obyx::match && key != NULL) {
 		if ( key->results.undefer() ) {
@@ -330,7 +324,6 @@ bool DefInpType::evaluate_key() { //result = if key is evaluated.
 	}
 	return result;
 }
-
 bool DefInpType::evaluate(size_t,size_t) {
 	bool result = results.undefer();
 	if ( result ) {
@@ -338,9 +331,7 @@ bool DefInpType::evaluate(size_t,size_t) {
 	}
 	return result;
 }
-
 DefInpType::~DefInpType() {
 	if ( key != NULL) delete key;
 }
-
 

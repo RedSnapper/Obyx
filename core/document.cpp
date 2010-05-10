@@ -39,7 +39,6 @@
 #include "dataitem.h"
 #include "itemstore.h"
 
-
 using namespace Log;
 using namespace xercesc;
 using namespace XML;
@@ -55,11 +54,9 @@ string Document::curr_http_req;
 void Document::startup() {
 	xmlmanager = new XML::Manager();
 }
-
 void Document::init() {
 	prefix_length = 0;
 }
-
 void Document::finalise() {
 	prefix_length = 0;
 	curr_http_req.clear();
@@ -70,11 +67,9 @@ void Document::finalise() {
 		filepath_stack.pop();
 	}
 }
-
 void Document::shutdown() {
 	delete xmlmanager;
 }
-
 const std::string Document::currentname() {
 	Environment* env = Environment::service();
 	string root = env->getpathforroot();
@@ -84,7 +79,6 @@ const std::string Document::currentname() {
 	}
 	return fp;
 }
-
 const std::string Document::name() const { 
 	Environment* env = Environment::service();
 	string root = env->getpathforroot();
@@ -94,11 +88,9 @@ const std::string Document::name() const {
 	}
 	return fp;
 }
-
 const xercesc::DOMDocument* Document::doc() const {
 	return xdoc;
 }
-
 bool Document::getparm(u_str const docname,const DataItem*& container) const {
 	bool retval = false;
 	if (parm_map != NULL) {
@@ -111,7 +103,6 @@ bool Document::getparm(u_str const docname,const DataItem*& container) const {
 	} 
 	return retval; //if we are outside of a function there is no parm.
 }
-
 void Document::list() const {
 	if (parm_map != NULL && ! parm_map->empty() ) {
 		type_parm_map::iterator it = parm_map->begin();
@@ -134,7 +125,6 @@ void Document::list() const {
 		*Logger::log << Log::blockend << Log::LO << Log::blockend ; //even .. subhead.
 	}
 }
-
 Document::Document(ObyxElement* par,const Document* orig) :
 ObyxElement(par,orig), xdoc(NULL),root_node(NULL),filepath(),ownprefix(),
 parm_map(NULL),doc_par(NULL) { 
@@ -153,7 +143,6 @@ parm_map(NULL),doc_par(NULL) {
 	}
 	doc_par = orig->doc_par;
 }
-
 Document::Document(DataItem* inputfile,load_type use_loader, std::string fp, ObyxElement* par, bool evaluate_it) : 
 ObyxElement(par,xmldocument,other,NULL), xdoc(NULL),root_node(NULL),filepath(fp),ownprefix(),
 parm_map(NULL),doc_par(NULL) { 
@@ -242,7 +231,6 @@ parm_map(NULL),doc_par(NULL) {
 		}
 	}
 }
-
 Document::~Document() {
 	if (parm_map != NULL) {
 		type_parm_map::iterator it = parm_map->begin();
@@ -256,7 +244,6 @@ Document::~Document() {
 		xdoc->release();
 	}
 }
-
 std::string const Document::currenthttpreq() {
 	if ( curr_http_req.empty() ) {
 		string head,body;
@@ -267,7 +254,6 @@ std::string const Document::currenthttpreq() {
 	}
 	return curr_http_req;
 }
-
 bool Document::eval() {
 	bool retval = false;
 	if ( xdoc != NULL && root_node != NULL ) {
@@ -313,7 +299,6 @@ bool Document::eval() {
 	}
 	return retval;
 }
-
 void Document::process( xercesc::DOMNode*& n,ObyxElement* par) {
 	if (par == NULL) par = this; //owner_document
 	if (!ObyxElement::break_happened) {
@@ -348,7 +333,6 @@ void Document::process( xercesc::DOMNode*& n,ObyxElement* par) {
 		}
 	}
 }
-
 bool const Document::prefix(u_str& container) {
 	bool retval;
 	if ( prefix_stack.empty() ) { //This can be reached if dom/sax validation is turned off.
@@ -359,13 +343,11 @@ bool const Document::prefix(u_str& container) {
 	}
 	return retval;
 }
-
 void Document::pushprefix(const u_str the_prefix) {
 	prefix_stack.push(the_prefix); 
 	prefix_length=the_prefix.length();
 	ItemStore::prefixpushed(the_prefix);
 }
-
 void Document::popprefix() { 
 	prefix_stack.pop();
 	if (! prefix_stack.empty() ) {

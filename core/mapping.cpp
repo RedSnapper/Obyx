@@ -83,13 +83,11 @@ Function(n,mapping,par),operation(m_switch),repeated(false),keys_evaluated(false
 		}
 	}
 }
-
 Mapping::Mapping(ObyxElement* par,const Mapping* orig) : Function(par,orig),operation(orig->operation),
 repeated(orig->repeated),keys_evaluated(orig->keys_evaluated),
 dom_evaluated(orig->dom_evaluated),mat_evaluated(orig->mat_evaluated),
 matched(orig->matched),sdom(orig->sdom),skey(orig->skey) {
 }
-
 bool Mapping::evaluate_this() {
 	size_t inpsize = definputs.size();
 	if (inpsize < 2) {
@@ -328,13 +326,11 @@ bool Mapping::evaluate_this() {
 	}
 	return mat_evaluated;
 }
-
 void Mapping::addInputType(InputType*) {
 	*Logger::log << Log::error << Log::LI << "Error. Mapping accepts one domain and any number of match." << Log::LO; 
 	trace();
 	*Logger::log << Log::blockend;
 }
-
 void Mapping::addDefInpType(DefInpType* i) {
 	if (!definputs.empty()) {
 		if (i->wotzit == match) { 
@@ -354,7 +350,6 @@ void Mapping::addDefInpType(DefInpType* i) {
 		}
 	}
 }
-
 bool Mapping::field(const string& field_name,string& container) const {
 	pair<long long, bool> i_res = String::integer(field_name);
 	bool retval=i_res.second;
@@ -363,20 +358,16 @@ bool Mapping::field(const string& field_name,string& container) const {
 	}
 	return retval;
 }
-
-//static methods - once only (either per main doc, or per process) thank-you very much..
 void Mapping::init() {
+	//static methods - once only (either per main doc, or per process) thank-you very much..
 }
-
 void Mapping::finalise() {
 }
-
 void Mapping::startup() {
 	map_types.insert(map_type_map::value_type(UCS2(L"switch"), m_switch));
 	map_types.insert(map_type_map::value_type(UCS2(L"substitute"), m_substitute));
 	map_types.insert(map_type_map::value_type(UCS2(L"state"), m_state));
 }
-
 void Mapping::shutdown() {
 	map_types.clear();
 }	

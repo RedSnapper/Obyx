@@ -164,16 +164,13 @@ process(obyx::encode),wsstrip(true),exists(false),name_v() {
 		results.setresult(attrval, wsstrip);
 	}
 }
-
 IKO::~IKO() {
 	
 }
-
 IKO::IKO(ObyxElement* par,const IKO* orig) : ObyxElement(par,orig),
 kind(orig->kind),encoder(orig->encoder),context(orig->context),
 process(orig->process),wsstrip(orig->wsstrip),exists(orig->exists),name_v(orig->name_v) {
 }
-
 bool IKO::currentenv(const string& req,const usage_tests exist_test, const IKO* iko,DataItem*& container) {
 	Environment* env = Environment::service();
 	bool exists = false;
@@ -322,7 +319,6 @@ bool IKO::currentenv(const string& req,const usage_tests exist_test, const IKO* 
 	}
 	return exists;	
 }
-
 void IKO::process_encoding(DataItem*& basis) {
 	if (basis != NULL && encoder != e_none) {
 		string encoded = *basis;		//xml cannot survive an encoding.
@@ -418,27 +414,26 @@ void IKO::process_encoding(DataItem*& basis) {
 		}
 	}
 }
-
-//evaltype() is used for evaluating BOTH inputs proper and also contexts for inputs and outputs.
-//exists is evaluated. significant is tested by comparision and will be looking for a value.
-//the basic logic for existence / significance is..
-/*
- exists = type.exists();
- if (exist_test != ut_existence) {
- if (exists) { 
- if (exist_test == significant) {
- return a text value.
- } else {
- return value (ikind)
- }
- } else {
- if (exist_test == value) {
- post an error.
- }
- }
- 
- */
 bool IKO::evaltype(inp_space the_space, bool release, bool eval,kind_type ikind,DataItem*& name_item, DataItem*& container) {
+	//evaltype() is used for evaluating BOTH inputs proper and also contexts for inputs and outputs.
+	//exists is evaluated. significant is tested by comparision and will be looking for a value.
+	//the basic logic for existence / significance is..
+	/*
+	 exists = type.exists();
+	 if (exist_test != ut_existence) {
+	 if (exists) { 
+	 if (exist_test == significant) {
+	 return a text value.
+	 } else {
+	 return value (ikind)
+	 }
+	 } else {
+	 if (exist_test == value) {
+	 post an error.
+	 }
+	 }
+	 
+	 */
 	Environment* env = Environment::service();
 	exists = false; 
 	if (container != NULL) {
@@ -907,7 +902,6 @@ bool IKO::evaltype(inp_space the_space, bool release, bool eval,kind_type ikind,
 	}
 	return finished;
 }
-
 void IKO::init() {
 }
 void IKO::finalise() {

@@ -37,26 +37,22 @@ using namespace Log;
 
 Function* PairQueue::pqendthing = NULL; 
 
-//startup once per process..
 void PairQueue::startup() {
+	//startup once per process..
 	PairQueue::pqendthing = new Endqueue();  
 }
-
-//shutdown once per process..
 void PairQueue::shutdown() {
+	//shutdown once per process..
 	if (PairQueue::pqendthing != NULL) {
 		delete PairQueue::pqendthing;  
 		PairQueue::pqendthing = NULL;  
 	}
 }
-
-
 PairQueue::PairQueue(bool pb) : queue(),theresult(NULL),finalised(false) {
 	if (pb) {
 		queue.push_back(pqpair(NULL,pqendthing));
 	}
 }
-
 PairQueue::~PairQueue() {
 	clear(false);
 	if (theresult != NULL) {
@@ -64,7 +60,6 @@ PairQueue::~PairQueue() {
 		theresult = NULL;
 	}
 }
-
 void PairQueue::clear(bool add_endthing) { 
 	size_t n = queue.size();
 	for ( size_t i = 0; i < n; i++) {
@@ -84,7 +79,6 @@ void PairQueue::clear(bool add_endthing) {
 		queue.push_back(pqpair(NULL,pqendthing));
 	}
 }
-
 void PairQueue::setresult(DataItem*& res, bool wsstrip) { 
 	if (theresult != NULL) {
 		delete theresult;
@@ -98,20 +92,17 @@ void PairQueue::setresult(DataItem*& res, bool wsstrip) {
 	finalised=true; 
 	clear(true);
 }
-
 const DataItem* PairQueue::result() const { 
 	return theresult;
 } 
-
 void PairQueue::takeresult(DataItem*& container) { 
 	container = theresult;
 	theresult = NULL;
 	clear(true);
 } 
-
-//typedef pair< DataItem*, Function* > pqpair; dynamic_cast<Output *>
-//This is the new unique record. The orig is what I am copying from.
 void PairQueue::copy(ObyxElement* mypar,const PairQueue& orig) {	//Pointers are not shared
+	//typedef pair< DataItem*, Function* > pqpair; dynamic_cast<Output *>
+	//This is the new unique record. The orig is what I am copying from.
 	finalised = orig.finalised;
 	queue.clear();	//remove even the endthing - because we will be adding it here..
 	if (theresult != NULL) {
@@ -130,9 +121,8 @@ void PairQueue::copy(ObyxElement* mypar,const PairQueue& orig) {	//Pointers are 
 		queue.push_back(pqpair(qi1,qi2));
 	}
 }
-
-//when we do this, are we taking, or copying? let's assume taking. (used by iteration)
 void PairQueue::append(PairQueue& xqueue,ObyxElement *par) {
+	//when we do this, are we taking, or copying? let's assume taking. (used by iteration)
 	if ( xqueue.final() ) {
 		DataItem* fn = NULL;
 		xqueue.takeresult(fn);
@@ -160,7 +150,6 @@ void PairQueue::append(PairQueue& xqueue,ObyxElement *par) {
 	}
 	xqueue.clear(false); 
 }
-
 void PairQueue::append(pqpair& new_pair,ObyxElement *par) {
 	if (finalised) {
 		DataItem::append(theresult,new_pair.first);
@@ -182,7 +171,6 @@ void PairQueue::append(pqpair& new_pair,ObyxElement *par) {
 		}
 	}
 }
-
 void PairQueue::append(DataItem*& stuff) { //stuff is taken from here.
 	if (finalised) {
 		DataItem::append(theresult,stuff);
@@ -190,9 +178,8 @@ void PairQueue::append(DataItem*& stuff) { //stuff is taken from here.
 		DataItem::append(queue.back().first,stuff);
 	}	
 }
-
-//used by instruction etc.
 void PairQueue::append(std::string stuff,kind_type kind) { //from xmlnode / xmleelement
+	//used by instruction etc.
 	if (finalised) {
 		if (theresult == NULL) {
 			theresult = DataItem::factory(stuff,kind);
@@ -209,7 +196,6 @@ void PairQueue::append(std::string stuff,kind_type kind) { //from xmlnode / xmle
 		}
 	}
 }
-
 void PairQueue::append(Function* ins,std::string& errs) { //used a lot.
 	if ( ins != pqendthing ) {
 		if (finalised) {
@@ -227,7 +213,6 @@ void PairQueue::append(Function* ins,std::string& errs) { //used a lot.
 		}
 	}
 }
-
 void PairQueue::clearresult() { 
 	if (theresult != NULL) {
 		delete theresult;
@@ -235,7 +220,6 @@ void PairQueue::clearresult() {
 		finalised=true; 
 	}	
 }
-
 bool PairQueue::trim(DataItem*& item,bool strip) {
 	if (item != NULL) {
 		if (strip) {
@@ -252,7 +236,6 @@ bool PairQueue::trim(DataItem*& item,bool strip) {
 		return false;
 	}
 }
-
 bool PairQueue::evaluate(bool wsstrip) {
 	if ( ! finalised ) {
 		size_t i = 0;
@@ -324,7 +307,6 @@ bool PairQueue::evaluate(bool wsstrip) {
 	}
 	return finalised;
 }
-
 bool PairQueue::undefer(ObyxElement*) {
 	bool retval = true;
 	if ( ! finalised ) {
@@ -342,7 +324,6 @@ bool PairQueue::undefer(ObyxElement*) {
 	}
 	return retval;
 }
-
 void PairQueue::normalise(bool wsstrip) {
 	if ( !finalised && queue.size() == 1) {
 		theresult=queue.front().first;
@@ -353,7 +334,6 @@ void PairQueue::normalise(bool wsstrip) {
 		queue.clear(); 
 	}
 }
-
 void PairQueue::explain() {
 	*Logger::log << Log::subhead  << Log::LI << "result" << Log::LO;	
 	if ( finalised ) {

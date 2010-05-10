@@ -97,11 +97,9 @@ Function(n,instruction,par),operation(move),precision(0),bitpadding(0),base_conv
 		}
 	}
 }
-
 Instruction::Instruction(ObyxElement* par,const Instruction* orig) : Function(par,orig),
 operation(orig->operation),precision(orig->precision),bitpadding(orig->bitpadding),base_convert(orig->base_convert),inputsfinal(orig->inputsfinal) {
 }
-
 void Instruction::do_function() {
 	DataItem* document = NULL;
 	inputs[0]->results.takeresult(document);
@@ -185,7 +183,6 @@ void Instruction::do_function() {
 		FileUtils::Path::pop_wd();
 	}	
 }
-
 bool Instruction::evaluate_this() {
 	size_t n = inputs.size();
 	if ( !inputsfinal ) {
@@ -624,7 +621,6 @@ bool Instruction::evaluate_this() {
 	}
 	return inputsfinal;
 }
-
 void Instruction::call_sql(DataItem* di_query) {
 	if (di_query != NULL) {
 		std::string querystring = *di_query;
@@ -651,7 +647,6 @@ void Instruction::call_sql(DataItem* di_query) {
 		}
 	}
 }
-
 void Instruction::call_system(DataItem* di_cmd) {
 	Environment* env = Environment::service();
 	if (di_cmd != NULL) {
@@ -725,7 +720,6 @@ void Instruction::call_system(DataItem* di_cmd) {
 		}
 	}
 }
-
 void Instruction::addInputType(InputType* i) {
 	if (i->wotzit == input) {
 		inputs.push_back(i);
@@ -735,20 +729,16 @@ void Instruction::addInputType(InputType* i) {
 		*Logger::log << Log::blockend;
 	}
 }
-
 void Instruction::addDefInpType(DefInpType*) {
 	*Logger::log << Log::error << Log::LI << "Error. Instruction only accepts inputs." << Log::LO; 
 	trace();
 	*Logger::log << Log::blockend;
 }
-
-//static methods - once only (either per main doc, or per process) thank-you very much..
 void Instruction::init() {
+	//static methods - once only (either per main doc, or per process) thank-you very much..
 }
-
 void Instruction::finalise() {
 }
-
 void Instruction::startup() {
 	op_types.insert(op_type_map::value_type(UCS2(L"add"), obyx::add));
 	op_types.insert(op_type_map::value_type(UCS2(L"append"), obyx::append));
@@ -773,7 +763,6 @@ void Instruction::startup() {
 	op_types.insert(op_type_map::value_type(UCS2(L"subtract"), subtract));
 	op_types.insert(op_type_map::value_type(UCS2(L"upper"), obyx::upper));	
 }
-
 void Instruction::shutdown() {
 	op_types.clear();
 }	

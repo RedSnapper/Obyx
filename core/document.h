@@ -102,6 +102,4 @@ public:
 	static void shutdown();
 };
 
-
-
 #endif

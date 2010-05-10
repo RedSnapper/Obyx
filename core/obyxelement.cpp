@@ -172,13 +172,11 @@ owner(orig->owner),p(par),node(orig->node),results(false),wotspace(orig->wotspac
 	results.copy(this,orig->results);
 	//	do_alloc(); 
 }
-
 ObyxElement::ObyxElement(ObyxElement* parent,const obyx::elemtype et,const obyx::elemclass tp,DOMNode* n) : 
 owner(NULL),p(parent),node(n),results(),wotspace(tp),wotzit(et) {
 	if ( p != NULL ) { owner = p->owner; }
 	//	do_alloc(); 
 }
-
 void ObyxElement::do_breakpoint() {
 	eval_count++;		//global..
 	if (eval_count == break_point) {
@@ -231,15 +229,12 @@ void ObyxElement::do_breakpoint() {
 	}
 	eval_type.pop();
 }
-
 void ObyxElement::prep_breakpoint() {
 	eval_type.push(wotzit);
 }
-
 unsigned long long int ObyxElement::breakpoint() {
 	return eval_count + 1;
 }
-
 const string ObyxElement::name() const {
 	switch ( wotzit ) {
 		case iteration:		return "iteration"; break;
@@ -265,7 +260,6 @@ const string ObyxElement::name() const {
 	}
 	return "[unknown]";
 }
-
 void ObyxElement::trace() const { //always called within a block
 	const ObyxElement* t_node = this;
 	Environment* env = Environment::service();
@@ -302,7 +296,6 @@ void ObyxElement::trace() const { //always called within a block
 	}
 	*Logger::log << Log::blockend << Log::LO;
 }
-
 //------------------- static methods - once only thank-you very much -----------------------
 ObyxElement* ObyxElement::Factory(DOMNode* const& n,ObyxElement* parent) {
 	ObyxElement* result = NULL;
@@ -432,17 +425,14 @@ ObyxElement* ObyxElement::Factory(DOMNode* const& n,ObyxElement* parent) {
 	}
 	return result;
 }
-
 ObyxElement::~ObyxElement() {
 	//	do_dealloc();
 }
-
 void ObyxElement::shutdown() {
 	Function::shutdown();
 	IKO::shutdown();
 	ntmap.clear();
 }
-
 void ObyxElement::startup() {
 	string dbservice="none";
 	if (!Environment::getbenv("OBYX_SQLSERVICE",dbservice)) {
@@ -474,7 +464,6 @@ void ObyxElement::startup() {
 	ntmap.insert(nametype_map::value_type(UCS2(L"s"), shortsequence));
 	ntmap.insert(nametype_map::value_type(UCS2(L"comment"), comment));
 }
-
 void ObyxElement::init() {
 	Environment* env = Environment::service();
 	Function::init();
@@ -514,7 +503,6 @@ void ObyxElement::init() {
 		}
 	} 
 }
-
 void ObyxElement::finalise() {
 	Function::finalise();
 	FragmentObject::finalise();

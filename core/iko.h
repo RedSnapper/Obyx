@@ -24,9 +24,7 @@
 #define OBYX_CONTEXT_IKO_H
 
 #include <string>
-
 #include <xercesc/dom/DOMNode.hpp>
-
 #include "obyxelement.h"
 
 using namespace obyx;
@@ -38,16 +36,13 @@ private:
 protected:
 	typedef enum {immediate,none,store,file,error,xmlnamespace,xmlgrammar,cookie,field,sysparm,sysenv,url,fnparm } inp_space;	//cookie_expiry,cookie_path,cookie_domain -- cannot be retrieved from server.. 
 	typedef std::map<u_str, inp_space > inp_space_map;
-
 	friend class Document;
 	friend class ObyxElement;
-	
 	void process_encoding(DataItem*&);
 	static kind_type_map		kind_types;
 	static enc_type_map			enc_types;
 	static inp_space_map			ctx_types; //subset of input types.
 	static current_type_map		current_types;
-	
 	kind_type kind;				//derived from the kind attribute
 	enc_type  encoder;			//derived from the encoder attribute
 	inp_space  context;			//derived from the context attribute
@@ -55,7 +50,6 @@ protected:
 	bool	  wsstrip;			//referring to wsstrip attribute.
 	bool	  exists;		    //a value exists - is inp_space or has a context != none
 	u_str     name_v;			//name value - used for tracing etc.
-	
 	//            input    release eval name/ref  container 
 	bool evaltype(inp_space, bool, bool, kind_type, DataItem*&,DataItem*&); 
 	

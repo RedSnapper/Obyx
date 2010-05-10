@@ -57,7 +57,6 @@ public:
 	static void startup(); 
 	static void shutdown();	
 };
-
 class DefInpType : public InputType {
 protected:
 	friend class InputType;

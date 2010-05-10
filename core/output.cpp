@@ -37,7 +37,6 @@
 #include "iko.h"
 #include "function.h"
 #include "output.h"
-//#include "objecttype.h"
 #include "document.h"
 
 using namespace Log;
@@ -103,16 +102,13 @@ Output::Output(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el): IKO(n,
 		*Logger::log << Log::blockend;
 	}
 }
-
 Output::Output(ObyxElement* par,const Output* orig) : IKO(par,orig),type(orig->type),part(orig->part),errowner(false),errs(orig->errs) { 
 }
-
 Output::~Output() {
 	if (errowner) { //this is why actual body has to be the last iteration.
 		delete errs;	
 	}
 }
-
 void Output::sethttp(const http_line_type line_type,const string& value) {
 	Httphead* http = Httphead::service();	
 	switch ( line_type ) {
@@ -198,7 +194,6 @@ void Output::sethttp(const http_line_type line_type,const string& value) {
 		} break;
 	}
 }
-
 bool Output::evaluate(size_t out_num,size_t out_count) {
 	bool evaluated = true;
 	results.undefer();
@@ -457,14 +452,11 @@ bool Output::evaluate(size_t out_num,size_t out_count) {
 	do_breakpoint();
 	return evaluated;
 }
-
-//if (Document::getstore("http::custom",temp_var)) { Httphead::addcustom(temp_var); }
 void Output::startup() {
 	part_types.insert(part_type_map::value_type(UCS2(L"value"), value));
 	part_types.insert(part_type_map::value_type(UCS2(L"path"), path));
 	part_types.insert(part_type_map::value_type(UCS2(L"domain"), domain));
 	part_types.insert(part_type_map::value_type(UCS2(L"expires"), expires));
-	
 	output_types.insert(output_type_map::value_type(UCS2(L"store"), out_store));
 	output_types.insert(output_type_map::value_type(UCS2(L"immediate"), out_immediate));
 	output_types.insert(output_type_map::value_type(UCS2(L"file"), out_file));
@@ -474,7 +466,6 @@ void Output::startup() {
 	output_types.insert(output_type_map::value_type(UCS2(L"error"), out_error));
 	output_types.insert(output_type_map::value_type(UCS2(L"namespace"), out_xmlnamespace));
 	output_types.insert(output_type_map::value_type(UCS2(L"grammar"), out_xmlgrammar));
-	
 	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"Code"), code));
 	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"Date"), date));
 	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"Server"), server));
@@ -495,7 +486,6 @@ void Output::startup() {
 	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"remove_date"), remove_date));
 	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"Custom"), custom));
 	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"object"), http_object));
-	
 }
 void Output::shutdown() {
 	part_types.clear();

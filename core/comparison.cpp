@@ -49,7 +49,6 @@ Comparison::Comparison(ObyxElement* par,const Comparison* orig) : Function(par,o
 operation(orig->operation),invert(orig->invert),scope(orig->scope),
 eval_found(orig->eval_found),cmp_evaluated(orig->cmp_evaluated),
 def_evaluated(orig->def_evaluated),operation_result(orig->operation_result) {}
-
 Comparison::Comparison(xercesc::DOMNode* const& n,ObyxElement* par) :
 Function(n,comparison,par),operation(equivalent_to),invert(false),scope(obyx::all),eval_found(false),
 cmp_evaluated(false),def_evaluated(false),operation_result('X') {
@@ -93,7 +92,6 @@ cmp_evaluated(false),def_evaluated(false),operation_result('X') {
 		}
 	}
 }
-
 bool Comparison::evaluate_this() {
 	bool firstval = true;
 	std::string saccumulator;
@@ -318,11 +316,9 @@ bool Comparison::evaluate_this() {
 	}
 	return cmp_evaluated && def_evaluated;
 }
-
 bool Comparison::may_eval_outputs() {
 	return results.final() && def_evaluated && eval_found;
 }
-
 void Comparison::addInputType(InputType* i) {
 	if (i->wotzit == comparate) {
 		inputs.push_back(i);
@@ -332,7 +328,6 @@ void Comparison::addInputType(InputType* i) {
 		*Logger::log << Log::blockend;
 	}
 }
-
 void Comparison::addDefInpType(DefInpType* i) {
 	if (definputs.size() == 2) {
 		*Logger::log << Log::error << Log::LI << "Error. There can only be one ontrue and one onfalse for each comparison." << Log::LO; 
@@ -376,14 +371,10 @@ void Comparison::addDefInpType(DefInpType* i) {
 		}
 	}
 }
-
-//static methods - once only (either per main doc, or per process) thank-you very much..
 void Comparison::init() {
 }
-
 void Comparison::finalise() {
 }
-
 void Comparison::startup() {
 	cmp_types.insert(cmp_type_map::value_type(UCS2(L"equal"), std::pair<cmp_type,bool>::pair(equivalent_to,false) ));
 	cmp_types.insert(cmp_type_map::value_type(UCS2(L"existent"), std::pair<cmp_type,bool>::pair(exists,false)));
@@ -393,7 +384,6 @@ void Comparison::startup() {
 	cmp_types.insert(cmp_type_map::value_type(UCS2(L"lesser"), std::pair<cmp_type,bool>::pair(less_than,false) ));
 	cmp_types.insert(cmp_type_map::value_type(UCS2(L"true"), std::pair<cmp_type,bool>::pair(cmp_true,false) ));
 }
-
 void Comparison::shutdown() {
 	cmp_types.clear();
 }	

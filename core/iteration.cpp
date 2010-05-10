@@ -71,9 +71,8 @@ ctlevaluated(orig->ctlevaluated),evaluated(orig->evaluated),query(orig->query),
 operation(orig->operation),lastrow(orig->lastrow),expanded(orig->expanded),
 currentrow(orig->currentrow),numreps(orig->numreps) {
 }
-
-// evaluated returns true only if the control is successful, the body is expanded, and the expansion is successful.
 bool Iteration::evaluate_this() { //This can be run as an evaluated iteration within the current iteration.
+	// evaluated returns true only if the control is successful, the body is expanded, and the expansion is successful.
 	//IF this isn't finished and there is a control (then nothing else has happened so far)
 	//first evaluate the control (not run it, just evaluate it!)
 	if (!evaluated && ! ctlevaluated) { //legal inputs are control
@@ -424,10 +423,8 @@ bool Iteration::operation_while(bool existence) {
 	lastrow = true;
 	return inputsfinal;
 }
-
 Iteration::~Iteration() { 
 }
-
 void Iteration::addInputType(InputType* i) {
 	if (inputs.size() > 0) {
 		*Logger::log << Log::syntax << Log::LI << "Syntax Error. A maximum of one control is legal for iteration." << Log::LO; 
@@ -443,7 +440,6 @@ void Iteration::addInputType(InputType* i) {
 		}
 	}
 }
-
 void Iteration::addDefInpType(DefInpType* i) {
 	if (definputs.size() > 0) {
 		*Logger::log << Log::syntax << Log::LI << "Syntax Error. A maximum of one body is legal for iteration." << Log::LO; 
@@ -459,21 +455,17 @@ void Iteration::addDefInpType(DefInpType* i) {
 		}
 	}
 }
-
-//static methods - once only (either per main doc, or per process) thank-you very much..
 void Iteration::init() {
+	//static methods - once only (either per main doc, or per process) thank-you very much..
 }
-
 void Iteration::finalise() {
 }
-
 void Iteration::startup() {
 	it_types.insert(it_type_map::value_type(UCS2(L"sql"),it_sql));
 	it_types.insert(it_type_map::value_type(UCS2(L"repeat"),it_repeat));
 	it_types.insert(it_type_map::value_type(UCS2(L"while"),it_while));
 	it_types.insert(it_type_map::value_type(UCS2(L"while_not"),it_while_not));
 }
-
 void Iteration::shutdown() {
 	it_types.clear();
 }	
