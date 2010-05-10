@@ -56,30 +56,23 @@ private:
 	static item_map_stack_map_type	the_item_map_stack_map;
 	static iter_stack_type*			the_iteration_stack; //stack of iterations
 	
-	
 public:
 	static void init();
 	static void finalise();
 	static void startup();
 	static void shutdown();
-	
 	static void list();										//list all current items to debugger.	
 	static bool exists(const DataItem*,bool,std::string&);	//name#path
 	static void release(const DataItem*);
-	
 	static bool set(const DataItem*, DataItem*&, kind_type, std::string& );	//name#path, document, intended kind...
 	static bool get(const DataItem*, DataItem*&, bool, std::string&);		//name#path, container, release?
-	
 	static bool get(const string&, string&);		//name container (used for quick internal hacks)
-	
 	static bool setns(const DataItem*, DataItem*&);			//namespace name, namespace identity. eg setns("o","http://www.obyx.org");
 	static bool getns(const DataItem*, DataItem*&,bool);	//namespace name, namespace identity. eg setns("o","http://www.obyx.org");
 	static bool nsexists(const DataItem*,bool);				//namespace existence
-	
 	static bool setgrammar(const DataItem*, DataItem*&);		//set a grammar for a url
 	static bool getgrammar(const DataItem*, DataItem*&, kind_type,bool);	//get a grammar for a url
 	static bool grammarexists(const DataItem*,bool);			//grammar existence
-	
 	static void prefixpushed(const u_str&);
 	static void prefixpopped(const u_str&);
 	
