@@ -60,6 +60,8 @@ protected:
 	static Function* pqendthing;	// must be declared with return flow-function pqend()=true;
 
 public:	
+	static void startup();
+	static void shutdown();
 	PairQueue(bool = true);
 	void copy(ObyxElement*,const PairQueue&);	 //copy the pairqueue into this.
 	void normalise(bool = false);	//remove finalised instructions - used by evaluate..

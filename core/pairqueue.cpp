@@ -37,6 +37,20 @@ using namespace Log;
 
 Function* PairQueue::pqendthing = NULL; 
 
+//startup once per process..
+void PairQueue::startup() {
+	PairQueue::pqendthing = new Endqueue();  
+}
+
+//shutdown once per process..
+void PairQueue::shutdown() {
+	if (PairQueue::pqendthing != NULL) {
+		delete PairQueue::pqendthing;  
+		PairQueue::pqendthing = NULL;  
+	}
+}
+
+
 PairQueue::PairQueue(bool pb) : queue(),theresult(NULL),finalised(false) {
 	if (pb) {
 		queue.push_back(pqpair(NULL,pqendthing));
