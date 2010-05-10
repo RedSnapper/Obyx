@@ -271,15 +271,12 @@ void Function::startup() {
 	Comparison::startup();
 	Iteration::startup();
 	Mapping::startup();	
-	PairQueue::pqendthing = new Endqueue();  
+	PairQueue::startup();
 }
 
 //shutdown once per process..
 void Function::shutdown() {
-	if (PairQueue::pqendthing != NULL) {
-		delete PairQueue::pqendthing;  
-		PairQueue::pqendthing = NULL;  
-	}
+	PairQueue::shutdown();
 	Instruction::shutdown();
 	Comparison::shutdown();
 	Iteration::shutdown();
