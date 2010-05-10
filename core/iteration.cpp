@@ -104,7 +104,7 @@ bool Iteration::evaluate_this() { //This can be run as an evaluated iteration wi
 		}
 		expanded = true;
 	} 
-	// But we need to do it as a part of the evaluation. See test t00093.qxml
+	// But we need to do it as a part of the evaluation. See test t00093.obyx
 	if (ctlevaluated && !evaluated && expanded ) { //this is the body 
 		size_t n = definputs.size();
 		bool definputs_evaluated = true;

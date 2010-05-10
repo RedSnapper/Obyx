@@ -41,7 +41,7 @@
 
 using namespace Log;
 using namespace XML;
-using namespace qxml;
+using namespace obyx;
 
 cmp_type_map Comparison::cmp_types;
 
@@ -51,7 +51,7 @@ eval_found(orig->eval_found),cmp_evaluated(orig->cmp_evaluated),
 def_evaluated(orig->def_evaluated),operation_result(orig->operation_result) {}
 
 Comparison::Comparison(xercesc::DOMNode* const& n,ObyxElement* par) :
-Function(n,comparison,par),operation(equivalent_to),invert(false),scope(qxml::all),eval_found(false),
+Function(n,comparison,par),operation(equivalent_to),invert(false),scope(obyx::all),eval_found(false),
 cmp_evaluated(false),def_evaluated(false),operation_result('X') {
 	u_str op_string,invert_str,scope_str; 
 	if ( Manager::attribute(n,UCS2(L"operation"),op_string) ) {
@@ -82,7 +82,7 @@ cmp_evaluated(false),def_evaluated(false),operation_result('X') {
 	}
 	if ( Manager::attribute(n,UCS2(L"scope"),scope_str) ) {
 		if (scope_str.compare(UCS2(L"any")) == 0) {
-			scope = qxml::any;
+			scope = obyx::any;
 		} else {
 			if (scope_str.compare(UCS2(L"all")) != 0) {
 				string err_msg; transcode(scope_str.c_str(),err_msg);
@@ -109,7 +109,7 @@ bool Comparison::evaluate_this() {
 	if (cmp_evaluated && operation_result=='X') {	//all the comparators are evaluated but the operation is not
 		bool baccumulator = true;
 		DataItem* acc = NULL;
-		bool compare_bool = (scope == qxml::all ? true : false);	//if invert, then bool must be false.
+		bool compare_bool = (scope == obyx::all ? true : false);	//if invert, then bool must be false.
 		for ( unsigned int i = 0; i < inputs.size(); i++ ) {
 			if ( inputs[i]->wotzit == comparate ) {
 				if (firstval) {
@@ -169,7 +169,7 @@ bool Comparison::evaluate_this() {
 				} else {
 					DataItem* inpval= NULL;
 					inputs[i]->results.takeresult(inpval);
-					if ( compare_bool || scope==qxml::any ) {
+					if ( compare_bool || scope==obyx::any ) {
 						bool compare_test = false;
 						switch(operation) {
 							case natural: {
@@ -269,7 +269,7 @@ bool Comparison::evaluate_this() {
 								}
 							} break;
 						}
-						if (scope == qxml::all) {
+						if (scope == obyx::all) {
 							compare_bool = compare_bool && compare_test; 
 						} else {
 							compare_bool = compare_bool || compare_test; 

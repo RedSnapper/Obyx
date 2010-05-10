@@ -41,7 +41,7 @@
 #include "document.h"
 
 using namespace Log;
-using namespace qxml;
+using namespace obyx;
 
 output_type_map Output::output_types;
 Output::part_type_map Output::part_types;

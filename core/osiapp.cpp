@@ -102,7 +102,7 @@ bool OsiAPP::request(const xercesc::DOMNode* n,DataItem*& the_result) {
 						request_result=false;
 					} else {
 						compile_http_response(response_head,response_body,last_response);
-						the_result = DataItem::factory(last_response,qxml::di_object);
+						the_result = DataItem::factory(last_response,obyx::di_object);
 					}
 				} else {
 					*Logger::log << Log::error << Log::LI<< "Error. OSI request failed for url:" << req_url << " - HTTPFetch not available." << Log::LO << Log::blockend;				

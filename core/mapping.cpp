@@ -44,7 +44,7 @@
 #include "itemstore.h"
 
 using namespace Log;
-using namespace qxml;
+using namespace obyx;
 
 map_type_map Mapping::map_types;
 

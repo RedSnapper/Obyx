@@ -45,7 +45,7 @@
 
 //using namespace Log;
 using namespace XML;
-using namespace qxml;
+using namespace obyx;
 
 /*
  c++ Note  
@@ -59,7 +59,7 @@ ObyxElement(par,el,flowfunction,n),deferred(false),finalised(false),
 stream_is_set(false),fnnote(),outputs(),inputs(),definputs() {
 	ObyxElement* ft = par; 
 	while (ft != NULL && ft->wotzit != xmldocument ) {
-		if (ft->wottype == defparm) {
+		if (ft->wotspace == defparm) {
 			deferred=true; 
 			break;
 		}

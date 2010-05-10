@@ -43,7 +43,7 @@
 
 using namespace Log;
 using namespace XML;
-using namespace qxml;
+using namespace obyx;
 
 op_type_map Instruction::op_types;
 
@@ -63,8 +63,8 @@ Function(n,instruction,par),operation(move),precision(0),bitpadding(0),base_conv
 		}
 	}
 	if ( 
-		(operation == qxml::divide) || (operation == qxml::multiply) || 
-		(operation == qxml::add) || (operation == qxml::subtract) 
+		(operation == obyx::divide) || (operation == obyx::multiply) || 
+		(operation == obyx::add) || (operation == obyx::subtract) 
 		) {
 		std::string str_prec;
 		Manager::attribute(n,"precision",str_prec);
@@ -265,13 +265,13 @@ bool Instruction::evaluate_this() {
 									
 								case query_command: call_sql(first_value); break;
 								case shell_command: call_system(first_value); break; 
-								case qxml::append: {	//
+								case obyx::append: {	//
 									results.append(first_value);
 								} break;
 								case substring:		  // we don't want the first value to be stuck out.
 								case position:
-								case qxml::left:
-								case qxml::right:
+								case obyx::left:
+								case obyx::right:
 									if (first_value != NULL) {
 										accumulator = *first_value;
 									}
@@ -292,27 +292,27 @@ bool Instruction::evaluate_this() {
 								} break;
 								case divide: 
 								case multiply: 
-								case qxml::add: 
+								case obyx::add: 
 								case subtract: { 
 									string fv; if (first_value != NULL) { fv = *first_value; }
 									daccumulator = String::real(fv);
 								} break;
-								case qxml::upper: {
+								case obyx::upper: {
 									string fv; if (first_value != NULL) { fv = *first_value; }
 									String::toupper(fv);
 									accumulator = fv;
 								} break;
-								case qxml::lower: {
+								case obyx::lower: {
 									string fv; if (first_value != NULL) { fv = *first_value; }
 									String::tolower(fv);
 									accumulator = fv;
 								} break;
-								case qxml::reverse: {
+								case obyx::reverse: {
 									string fv; if (first_value != NULL) { fv = *first_value; }
 									String::reverse(fv);
 									accumulator = fv;
 								} break;
-								case qxml::length: {
+								case obyx::length: {
 									string fv; if (first_value != NULL) { fv = *first_value; }
 									if (! String::length(fv,naccumulator) ) {
 										*Logger::log <<  Log::error << Log::LI << "Error. " << "'" << fv << "' is not a legal UTF-8 string." << Log::LO;
@@ -321,7 +321,7 @@ bool Instruction::evaluate_this() {
 									}
 								} break;
 								case quotient: 
-								case qxml::remainder: {
+								case obyx::remainder: {
 									string fv; if (first_value != NULL) { fv = *first_value; }
 									pair<long long, bool> i_res = String::integer(fv);
 									if (i_res.second) {
@@ -339,20 +339,20 @@ bool Instruction::evaluate_this() {
 								case kind:
 								case function: 
 									break; //operations handled outside of this switch.
-								case qxml::append: {
+								case obyx::append: {
 									results.append(srcval);
 								} break; //done differently.
-								case qxml::upper: {
+								case obyx::upper: {
 									string fv; if (srcval != NULL) { fv = *srcval; }
 									String::toupper(fv);
 									accumulator.append(fv);
 								} break;
-								case qxml::lower: {
+								case obyx::lower: {
 									string fv; if (srcval != NULL) { fv = *srcval; }
 									String::tolower(fv);
 									accumulator.append(fv);
 								} break;
-								case qxml::reverse: {
+								case obyx::reverse: {
 									string fv; if (srcval != NULL) { fv = *srcval; }
 									String::reverse(fv);
 									accumulator.insert(0,fv);
@@ -383,7 +383,7 @@ bool Instruction::evaluate_this() {
 										}
 									}
 								} break;
-								case qxml::left: {
+								case obyx::left: {
 									long long charstocut = 0;
 									string fv; if (srcval != NULL) { fv = *srcval; }
 									pair<long long, bool> i_res = String::integer(fv);
@@ -398,7 +398,7 @@ bool Instruction::evaluate_this() {
 										*Logger::log << Log::blockend;
 									}
 								} break;
-								case qxml::right: {
+								case obyx::right: {
 									long long charstocut = 0;
 									string fv; if (srcval != NULL) { fv = *srcval; }
 									pair<long long, bool> i_res = String::integer(fv);
@@ -427,7 +427,7 @@ bool Instruction::evaluate_this() {
 										accumulator = "NaN";
 									}
 								} break;
-								case qxml::length: {
+								case obyx::length: {
 									string fv;
 									unsigned long long bacc;
 									if (srcval != NULL) {
@@ -440,7 +440,7 @@ bool Instruction::evaluate_this() {
 										naccumulator += bacc;
 									}
 								} break;
-								case qxml::add: {
+								case obyx::add: {
 									string rstring;
 									if (srcval != NULL) {
 										rstring = *srcval;
@@ -492,7 +492,7 @@ bool Instruction::evaluate_this() {
 										}									
 									}
 								} break;
-								case qxml::remainder: {
+								case obyx::remainder: {
 									if (!failed) {
 										long long isrc = 0;
 										string fv; if (srcval != NULL) { fv = *srcval; }
@@ -525,7 +525,7 @@ bool Instruction::evaluate_this() {
 				switch ( operation ) {
 					case query_command: 
 					case shell_command: 
-					case qxml::append:
+					case obyx::append:
 					case function:
 					case move: 
 					case kind:
@@ -540,15 +540,15 @@ bool Instruction::evaluate_this() {
 							results.append(accumulator,di_text);
 						}
 					} break;
-					case qxml::substring:
-					case qxml::reverse:
-					case qxml::left:
-					case qxml::right:
-					case qxml::upper:
-					case qxml::lower: {
+					case obyx::substring:
+					case obyx::reverse:
+					case obyx::left:
+					case obyx::right:
+					case obyx::upper:
+					case obyx::lower: {
 						results.append(accumulator,di_text);
 					} break;
-					case qxml::add: 
+					case obyx::add: 
 					case subtract: 
 					case multiply: 
 					case maximum: 
@@ -569,7 +569,7 @@ bool Instruction::evaluate_this() {
 							results.append(math_result,di_text);
 						}
 					} break;
-					case qxml::remainder: {
+					case obyx::remainder: {
 						if (n < 2) {
 							*Logger::log << Log::error << Log::LI << "Error. 'remainder' operation needs at least two inputs." << Log::LO;
 							trace();
@@ -609,7 +609,7 @@ bool Instruction::evaluate_this() {
 							}
 						}
 					} break;
-					case qxml::length:{
+					case obyx::length:{
 						std::string num;
 						if (base_convert) {
 							String::tobase(naccumulator,precision,bitpadding,num);
@@ -750,28 +750,28 @@ void Instruction::finalise() {
 }
 
 void Instruction::startup() {
-	op_types.insert(op_type_map::value_type(UCS2(L"add"), qxml::add));
-	op_types.insert(op_type_map::value_type(UCS2(L"append"), qxml::append));
+	op_types.insert(op_type_map::value_type(UCS2(L"add"), obyx::add));
+	op_types.insert(op_type_map::value_type(UCS2(L"append"), obyx::append));
 	op_types.insert(op_type_map::value_type(UCS2(L"assign"), move));
 	op_types.insert(op_type_map::value_type(UCS2(L"divide"), divide));
 	op_types.insert(op_type_map::value_type(UCS2(L"function"), function));
-	op_types.insert(op_type_map::value_type(UCS2(L"kind"), qxml::kind));
-	op_types.insert(op_type_map::value_type(UCS2(L"left"), qxml::left));
-	op_types.insert(op_type_map::value_type(UCS2(L"length"), qxml::length));
-	op_types.insert(op_type_map::value_type(UCS2(L"lower"), qxml::lower));
+	op_types.insert(op_type_map::value_type(UCS2(L"kind"), obyx::kind));
+	op_types.insert(op_type_map::value_type(UCS2(L"left"), obyx::left));
+	op_types.insert(op_type_map::value_type(UCS2(L"length"), obyx::length));
+	op_types.insert(op_type_map::value_type(UCS2(L"lower"), obyx::lower));
 	op_types.insert(op_type_map::value_type(UCS2(L"max"), maximum ));
 	op_types.insert(op_type_map::value_type(UCS2(L"min"), minimum ));
 	op_types.insert(op_type_map::value_type(UCS2(L"multiply"), multiply));
 	op_types.insert(op_type_map::value_type(UCS2(L"position"), position));
 	op_types.insert(op_type_map::value_type(UCS2(L"query"), query_command));
 	op_types.insert(op_type_map::value_type(UCS2(L"quotient"), quotient ));
-	op_types.insert(op_type_map::value_type(UCS2(L"remainder"), qxml::remainder ));
-	op_types.insert(op_type_map::value_type(UCS2(L"reverse"), qxml::reverse));
-	op_types.insert(op_type_map::value_type(UCS2(L"right"), qxml::right));
+	op_types.insert(op_type_map::value_type(UCS2(L"remainder"), obyx::remainder ));
+	op_types.insert(op_type_map::value_type(UCS2(L"reverse"), obyx::reverse));
+	op_types.insert(op_type_map::value_type(UCS2(L"right"), obyx::right));
 	op_types.insert(op_type_map::value_type(UCS2(L"shell"), shell_command));
 	op_types.insert(op_type_map::value_type(UCS2(L"substring"), substring));
 	op_types.insert(op_type_map::value_type(UCS2(L"subtract"), subtract));
-	op_types.insert(op_type_map::value_type(UCS2(L"upper"), qxml::upper));	
+	op_types.insert(op_type_map::value_type(UCS2(L"upper"), obyx::upper));	
 }
 
 void Instruction::shutdown() {

@@ -41,14 +41,14 @@ private:
 	bool		  syslogging;	//boolean representing syslog alerts (default is on)
 	bool		  top_line;		//first bracket contents of a block.
 	bool		  inraw;
+	string		  path;
 	Log::msgtype  curr_type;
-	std::string	  path; 
 	std::ostringstream syslogbuffer; 
 	std::ostringstream storage;
 	static std::ostringstream* lstore;
 	
 protected:
-	static string title;
+	static		  string title;
 	std::stack<std::ostream*> estrm_stack; //error stream
 	std::stack<Log::msgtype> type_stack;    //current log type was static Log::msgtype itype;
 	bool storageused;
@@ -79,7 +79,8 @@ public:
 	static void finalise();
 	static void startup(string&);
 	static void shutdown();
-	static void set_title(const string newtitle) { title = newtitle; } 
+	static void set_path(const string& newpath) { log->path = newpath; } 
+	static void set_title(const string& newtitle) { title = newtitle; } 
 	static void get_title(string& container) { container = title; } 
 	static void set_stream(ostream*&); 
 	static void set_stream(ostringstream*&); 

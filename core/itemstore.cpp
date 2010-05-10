@@ -30,7 +30,7 @@
 #include "xmlobject.h"
 #include "iteration.h"
 
-using namespace qxml;
+using namespace obyx;
 using namespace std;
 
 item_map_type*				ItemStore::the_item_map = NULL;					

@@ -30,7 +30,7 @@
 #include "obyxelement.h"
 #include "dataitem.h"
 
-using namespace qxml;
+using namespace obyx;
 
 class OsiAPP {	
 private:

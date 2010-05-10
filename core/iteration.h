@@ -33,7 +33,7 @@
 
 class InputType;
 class DefInpType;
-using namespace qxml;
+using namespace obyx;
 
 class Iteration : public Function {
 private:

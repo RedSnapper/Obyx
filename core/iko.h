@@ -29,34 +29,35 @@
 
 #include "obyxelement.h"
 
-using namespace qxml;
-
-// public base class for Input/Key/Output
+using namespace obyx;
 
 class IKO : public ObyxElement {
 private:
 	friend class Function;
 	
 protected:
+	typedef enum {immediate,none,store,file,error,xmlnamespace,xmlgrammar,cookie,field,sysparm,sysenv,url,fnparm } inp_space;	//cookie_expiry,cookie_path,cookie_domain -- cannot be retrieved from server.. 
+	typedef std::map<u_str, inp_space > inp_space_map;
+
 	friend class Document;
 	friend class ObyxElement;
 	
 	void process_encoding(DataItem*&);
 	static kind_type_map		kind_types;
 	static enc_type_map			enc_types;
-	static inp_type_map			ctx_types; //subset of input types.
+	static inp_space_map			ctx_types; //subset of input types.
 	static current_type_map		current_types;
 	
 	kind_type kind;				//derived from the kind attribute
 	enc_type  encoder;			//derived from the encoder attribute
-	inp_type  context;			//derived from the context attribute
+	inp_space  context;			//derived from the context attribute
 	process_t process;			//derived from the process attribute
 	bool	  wsstrip;			//referring to wsstrip attribute.
-	bool	  exists;		    //a value exists - is inp_type or has a context != none
+	bool	  exists;		    //a value exists - is inp_space or has a context != none
 	u_str     name_v;			//name value - used for tracing etc.
 	
 	//            input    release eval name/ref  container 
-	bool evaltype(inp_type, bool, bool, kind_type, DataItem*&,DataItem*&); 
+	bool evaltype(inp_space, bool, bool, kind_type, DataItem*&,DataItem*&); 
 	
 public:
 	static void init(); 

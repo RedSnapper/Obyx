@@ -37,7 +37,7 @@
 
 class Iteration;
 
-namespace qxml {
+namespace obyx {
 	//See 	DOMLSParser::ActionType
 	typedef xercesc::DOMLSParser::ActionType insertion_type;
 	typedef hash_map<const string,DataItem*, hash<const string&> > item_map_type;
@@ -46,7 +46,7 @@ namespace qxml {
 	typedef std::stack<Iteration*> iter_stack_type;															//stack of hashmaps controlled by isolated attr.	
 }	
 
-using namespace qxml;
+using namespace obyx;
 using namespace XML;
 
 class ItemStore {

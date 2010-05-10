@@ -36,7 +36,7 @@
 #include "dataitem.h"
 #include "pairqueue.h"
 
-namespace qxml {
+namespace obyx {
 	
 	typedef enum { encode,decode } process_t;	//what sort of process
 	
@@ -52,9 +52,6 @@ namespace qxml {
 	
 	typedef enum { out_immediate,out_none,out_store,out_file,out_error,out_xmlnamespace,out_xmlgrammar,out_cookie,out_http,out_cookie_expiry,out_cookie_path,out_cookie_domain } output_type;	//
 	typedef std::map<u_str, output_type > output_type_map; 
-	
-	typedef enum {immediate,none,store,file,error,xmlnamespace,xmlgrammar,cookie,field,sysparm,sysenv,url,fnparm } inp_type;	//cookie_expiry,cookie_path,cookie_domain -- cannot be retrieved from server.. 
-	typedef std::map<u_str, inp_type > inp_type_map;
 	
 	//four flow-functions..	
 	typedef enum {it_sql,it_while,it_while_not,it_repeat} it_type;
@@ -76,7 +73,7 @@ namespace qxml {
 	typedef std::map< std::string, current_type > current_type_map; 
 	
 }
-using namespace qxml;
+using namespace obyx;
 class Document;
 class Iteration;
 
@@ -108,11 +105,11 @@ protected:
 	//statics
 public:
 	PairQueue results;
-	qxml::elemclass wottype;				//what elemclass is this.
-	qxml::elemtype  wotzit;					//what elemtype is this.
+	obyx::elemclass wotspace;				//what elemclass is this.
+	obyx::elemtype  wotzit;					//what elemtype is this.
 	
 	ObyxElement(ObyxElement*,const ObyxElement*);// : p(par) { copy(orig); doalloc(); }
-	ObyxElement(ObyxElement*,qxml::elemtype,qxml::elemclass,xercesc::DOMNode*);
+	ObyxElement(ObyxElement*,obyx::elemtype,obyx::elemclass,xercesc::DOMNode*);
 	virtual ~ObyxElement();
 	
 	void trace() const;

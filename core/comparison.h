@@ -25,7 +25,7 @@
 
 #include "function.h"
 
-using namespace qxml;
+using namespace obyx;
 
 class Comparison : public Function {
 private:

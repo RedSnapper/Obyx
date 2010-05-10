@@ -33,23 +33,23 @@
 
 class Iteration;
 class Function;
-using namespace qxml;
+using namespace obyx;
 
 class InputType : public IKO {
 protected:
 	friend class Instruction;
 	friend class Output;
 	friend class DefInpType; 
-	static inp_type_map  inp_types;
+	static inp_space_map  inp_spaces;
 	static kind_type_map  kind_types;
 	
 	bool	  eval;				//referring to eval attribute.
 	bool	  release;		    //release attribute - do we release the store/object ?
-	inp_type  type;				//the TYPE of input - ie store, immediate, etc. derived from "type" attribute
+	inp_space  type;				//the TYPE of input - ie store, immediate, etc. derived from "type" attribute
 	u_str    parm_name;			//name as used in the called function parm value
 	
 public:
-	inp_type gettype()	const {return type;}
+	inp_space gettype()	const {return type;}
 	virtual bool evaluate(size_t=0,size_t=0); 
 	InputType(ObyxElement*,const InputType*);
 	InputType(xercesc::DOMNode* const&,ObyxElement* = NULL, elemtype = input);

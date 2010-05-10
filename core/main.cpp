@@ -44,7 +44,7 @@
 using namespace std;
 using namespace Vdb;
 using namespace Log;
-using namespace qxml;
+using namespace obyx;
 
 void startup(std::string&,std::string&);
 void init(ostream*&,int,char**,char**);

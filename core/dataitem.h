@@ -32,14 +32,14 @@ namespace {
 	using xercesc::DOMLSParser;	
 }	
 
-namespace qxml {
+namespace obyx {
 	typedef enum { di_auto,di_text,di_object,di_fragment,di_null } kind_type;	//what kind of dataItem
 	typedef std::map<u_str, kind_type > kind_type_map; 
 }
 
 class XMLObject;
 class StrObject;
-using namespace qxml;	
+using namespace obyx;	
 
 //base class for xml / text that appear in PairQueue.
 class DataItem {

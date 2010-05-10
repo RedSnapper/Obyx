@@ -29,7 +29,7 @@
 #include <vector>
 
 
-using namespace qxml;
+using namespace obyx;
 
 class Mapping : public Function {
 private:

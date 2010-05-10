@@ -44,11 +44,11 @@ using namespace Vdb;
 //using namespace Log;
 using namespace XML;
 using namespace Fetch;
-using namespace qxml;
+using namespace obyx;
 
 //using Log::LO << Log::blockend;
 
-inp_type_map  InputType::inp_types;
+IKO::inp_space_map  InputType::inp_spaces;
 InputType::InputType(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : 
 IKO(n,par,el),eval(false),release(false),type(immediate),parm_name() {
 	
@@ -61,8 +61,8 @@ IKO(n,par,el),eval(false),release(false),type(immediate),parm_name() {
 	}
 	
 	if ( Manager::attribute(n,UCS2(L"space"),str_type) ) {
-		inp_type_map::const_iterator j = inp_types.find(str_type);
-		if( j != inp_types.end() ) {
+		inp_space_map::const_iterator j = inp_spaces.find(str_type);
+		if( j != inp_spaces.end() ) {
 			type = j->second;
 		} else {
 			string err_type; transcode(str_type.c_str(),err_type);
@@ -100,7 +100,7 @@ IKO(n,par,el),eval(false),release(false),type(immediate),parm_name() {
 	if (type == fnparm ) {
 		if (owner->parm_map == NULL) {
 			Comparison* c = dynamic_cast<Comparison*>(p);
-			if ((c != NULL) && (c->op() == qxml::exists || c->op() == qxml::significant )) {
+			if ((c != NULL) && (c->op() == obyx::exists || c->op() == obyx::significant )) {
 				exists = false; 
 			} else { 
 				*Logger::log << Log::syntax << Log::LI << "Syntax Error. " << name() << ": parm attribute can only be used in function definitions. This document is not being run as a function." << Log::LO ;
@@ -141,9 +141,9 @@ IKO(n,par,el),eval(false),release(false),type(immediate),parm_name() {
 	
 	Function* i = dynamic_cast<Function *>(p);
 	if (i == NULL) {
-		if ( wotzit == qxml::key) {
+		if ( wotzit == obyx::key) {
 			DefInpType* m = dynamic_cast<DefInpType *>(p);
-			if (m != NULL && m->wotzit == qxml::match) {
+			if (m != NULL && m->wotzit == obyx::match) {
 				m->key = this;
 				
 				//break="false"
@@ -273,28 +273,28 @@ bool InputType::evaluate(size_t /*item_num*/,size_t /*item_count*/) {
 
 //static methods - once only thank-you very much..
 void InputType::startup() {
-	inp_types.insert(inp_type_map::value_type(UCS2(L"immediate"), immediate));
-	inp_types.insert(inp_type_map::value_type(UCS2(L"none"), none));
-	inp_types.insert(inp_type_map::value_type(UCS2(L"store"), store));
-	inp_types.insert(inp_type_map::value_type(UCS2(L"field"), field ));
-	inp_types.insert(inp_type_map::value_type(UCS2(L"url"), url ));
-	inp_types.insert(inp_type_map::value_type(UCS2(L"file"), file ));
-	inp_types.insert(inp_type_map::value_type(UCS2(L"sysparm"), sysparm));
-	inp_types.insert(inp_type_map::value_type(UCS2(L"sysenv"), sysenv));
-	inp_types.insert(inp_type_map::value_type(UCS2(L"cookie"), cookie)); 
-	inp_types.insert(inp_type_map::value_type(UCS2(L"error"), error)); 
-	inp_types.insert(inp_type_map::value_type(UCS2(L"parm"), fnparm));
-	inp_types.insert(inp_type_map::value_type(UCS2(L"namespace"), xmlnamespace));
-	inp_types.insert(inp_type_map::value_type(UCS2(L"grammar"), xmlgrammar));
+	inp_spaces.insert(inp_space_map::value_type(UCS2(L"immediate"), immediate));
+	inp_spaces.insert(inp_space_map::value_type(UCS2(L"none"), none));
+	inp_spaces.insert(inp_space_map::value_type(UCS2(L"store"), store));
+	inp_spaces.insert(inp_space_map::value_type(UCS2(L"field"), field ));
+	inp_spaces.insert(inp_space_map::value_type(UCS2(L"url"), url ));
+	inp_spaces.insert(inp_space_map::value_type(UCS2(L"file"), file ));
+	inp_spaces.insert(inp_space_map::value_type(UCS2(L"sysparm"), sysparm));
+	inp_spaces.insert(inp_space_map::value_type(UCS2(L"sysenv"), sysenv));
+	inp_spaces.insert(inp_space_map::value_type(UCS2(L"cookie"), cookie)); 
+	inp_spaces.insert(inp_space_map::value_type(UCS2(L"error"), error)); 
+	inp_spaces.insert(inp_space_map::value_type(UCS2(L"parm"), fnparm));
+	inp_spaces.insert(inp_space_map::value_type(UCS2(L"namespace"), xmlnamespace));
+	inp_spaces.insert(inp_space_map::value_type(UCS2(L"grammar"), xmlgrammar));
 }
 void InputType::shutdown() {
-	inp_types.clear();
+	inp_spaces.clear();
 }
 
 //this includes match and domain but not key.
 DefInpType::DefInpType(xercesc::DOMNode* const& n,ObyxElement* par,elemtype el) : 
 InputType(n,par,el),k_break(false),k_scope(true),k_format('l'),key(NULL) {
-	wottype=defparm;
+	wotspace=defparm;
 	Function* i = dynamic_cast<Function *>(par);
 	if (i != NULL) {
 		i->addDefInpType(this);
@@ -307,7 +307,7 @@ InputType(n,par,el),k_break(false),k_scope(true),k_format('l'),key(NULL) {
 
 DefInpType::DefInpType(ObyxElement* par,const DefInpType* orig) : 
 InputType(par,orig),k_break(orig->k_break),k_scope(orig->k_scope),k_format(orig->k_format),key(NULL) { 
-	if (wotzit == qxml::match && orig->key != NULL) {
+	if (wotzit == obyx::match && orig->key != NULL) {
 		key = new InputType(p,orig->key);
 	} else {
 		key = NULL;
@@ -317,7 +317,7 @@ InputType(par,orig),k_break(orig->k_break),k_scope(orig->k_scope),k_format(orig-
 //here - is the key deferred or undeferred?
 bool DefInpType::evaluate_key() { //result = if key is evaluated.
 	bool result = true;
-	if (wotzit == qxml::match && key != NULL) {
+	if (wotzit == obyx::match && key != NULL) {
 		if ( key->results.undefer() ) {
 			result = key->evaluate(0,0);
 		}

@@ -26,7 +26,7 @@
 #include "function.h"
 #include <ext/hash_map>
 
-using namespace qxml;
+using namespace obyx;
 
 class Instruction : public Function {
 private:

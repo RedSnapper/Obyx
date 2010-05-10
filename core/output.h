@@ -30,7 +30,7 @@
 #include "obyxelement.h"
 #include "iko.h"
 
-using namespace qxml;
+using namespace obyx;
 
 class Function;
 

@@ -35,7 +35,7 @@
 #include "output.h"
 #include "inputtype.h"
 
-using namespace qxml;
+using namespace obyx;
 
 class Iteration;
 

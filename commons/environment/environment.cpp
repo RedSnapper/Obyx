@@ -95,6 +95,10 @@ Environment::~Environment() {
 void Environment::initwlogger() {
 	setparm("_count","0");	//Just in case there are none.
 	doparms(gArgc,gArgv);
+	string fn;
+	if (getenv("PATH_TRANSLATED",fn)) {
+		Logger::set_path(fn);
+	}
 	dodocument();
 	do_request_cookies();
 	dopostparms();	

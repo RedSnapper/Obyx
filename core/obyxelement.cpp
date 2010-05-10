@@ -45,7 +45,7 @@ using namespace xercesc;
 
 using namespace Log;
 using namespace XML;
-using namespace qxml;
+using namespace obyx;
 
 unsigned long long int	ObyxElement::eval_count =0;
 unsigned long long int	ObyxElement::break_point =0;
@@ -103,7 +103,7 @@ XMLNode::~XMLNode() {}
 /*
  void ObyxElement::do_alloc() {
  //----------------for testing allocation ---
- if (wotzit != qxml::endqueue) {
+ if (wotzit != obyx::endqueue) {
  ostringstream oss;
  const ObyxElement* t_node = this;
  string el_name;
@@ -132,7 +132,7 @@ XMLNode::~XMLNode() {}
  t_node = t_node->p;		
  while (t_node != NULL) {
  oss << "[" << t_node->name();
- if (t_node->wottype == flowfunction) { //grab note, if there is one..
+ if (t_node->wotspace == flowfunction) { //grab note, if there is one..
  const Function* i = dynamic_cast<const Function *>(t_node);
  const string note =  i->note();
  if (!note.empty())	oss << " '" << i->note() << "' "; 
@@ -155,7 +155,7 @@ XMLNode::~XMLNode() {}
  }
  }
  void ObyxElement::do_dealloc() {
- if (wotzit != qxml::endqueue) {
+ if (wotzit != obyx::endqueue) {
  unsigned long addr = (unsigned long)(this);
  long_map::iterator it = ce_map.find(addr);
  if ( it == ce_map.end() ) {
@@ -168,13 +168,13 @@ XMLNode::~XMLNode() {}
  }
  */
 ObyxElement::ObyxElement(ObyxElement* par,const ObyxElement* orig) : 
-owner(orig->owner),p(par),node(orig->node),results(false),wottype(orig->wottype),wotzit(orig->wotzit) { 
+owner(orig->owner),p(par),node(orig->node),results(false),wotspace(orig->wotspace),wotzit(orig->wotzit) { 
 	results.copy(this,orig->results);
 	//	do_alloc(); 
 }
 
-ObyxElement::ObyxElement(ObyxElement* parent,const qxml::elemtype et,const qxml::elemclass tp,DOMNode* n) : 
-owner(NULL),p(parent),node(n),results(),wottype(tp),wotzit(et) {
+ObyxElement::ObyxElement(ObyxElement* parent,const obyx::elemtype et,const obyx::elemclass tp,DOMNode* n) : 
+owner(NULL),p(parent),node(n),results(),wotspace(tp),wotzit(et) {
 	if ( p != NULL ) { owner = p->owner; }
 	//	do_alloc(); 
 }
@@ -367,7 +367,7 @@ ObyxElement* ObyxElement::Factory(DOMNode* const& n,ObyxElement* parent) {
 			}
 		} break;
 		case DOMNode::TEXT_NODE: {
-			if (parent->wottype != flowfunction) {
+			if (parent->wotspace != flowfunction) {
 				std::string nodevalue;
 				transcode(n->getNodeValue(),nodevalue);
 				if (! parent->results.final()) {

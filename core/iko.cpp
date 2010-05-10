@@ -50,21 +50,21 @@
 #include "osimessage.h"
 
 using namespace Log;
-using namespace qxml;
+using namespace obyx;
 using namespace Fetch;
 
 
 enc_type_map IKO::enc_types;
-inp_type_map IKO::ctx_types;
+IKO::inp_space_map IKO::ctx_types;
 kind_type_map IKO::kind_types;
 current_type_map IKO::current_types;
 
 IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : 
 ObyxElement(par,el,parm,n),kind(di_auto),encoder(e_none),context(immediate),
-process(qxml::encode),wsstrip(true),exists(false),name_v() {
+process(obyx::encode),wsstrip(true),exists(false),name_v() {
 	u_str str_context;
 	if ( XML::Manager::attribute(n,UCS2(L"context"),str_context) ) {
-		inp_type_map::const_iterator j = ctx_types.find(str_context);
+		inp_space_map::const_iterator j = ctx_types.find(str_context);
 		if( j != ctx_types.end() ) {
 			context = j->second; 
 		} else {
@@ -122,7 +122,7 @@ process(qxml::encode),wsstrip(true),exists(false),name_v() {
 				case e_url: 
 				case e_base64: 
 				case e_hex:	{
-					process = qxml::decode; 					
+					process = obyx::decode; 					
 				} break;
 			}
 		} else {
@@ -438,7 +438,7 @@ void IKO::process_encoding(DataItem*& basis) {
  }
  
  */
-bool IKO::evaltype(inp_type the_space, bool release, bool eval,kind_type ikind,DataItem*& name_item, DataItem*& container) {
+bool IKO::evaltype(inp_space the_space, bool release, bool eval,kind_type ikind,DataItem*& name_item, DataItem*& container) {
 	Environment* env = Environment::service();
 	exists = false; 
 	if (container != NULL) {
@@ -470,16 +470,16 @@ bool IKO::evaltype(inp_type the_space, bool release, bool eval,kind_type ikind,D
 			if (the_space != context) { //if evaluating this IKO's context, then don't worry about exist_test. yet!
 				name_v = input_name;
 				Comparison* cmp = dynamic_cast<Comparison *>(p);
-				if ((cmp != NULL) && (wotzit == qxml::comparate)) {
+				if ((cmp != NULL) && (wotzit == obyx::comparate)) {
 					switch (cmp->op()) {
-						case qxml::exists: exist_test=ut_existence; break;
-						case qxml::significant: exist_test= ut_significant; break;
+						case obyx::exists: exist_test=ut_existence; break;
+						case obyx::significant: exist_test= ut_significant; break;
 						default: break; // already value. 
 					}
 				} else {
 					if (wotzit == control) {
 						Iteration* ite = dynamic_cast<Iteration *>(p);
-						if ( (ite != NULL) && ((ite->op() == qxml::it_while) || (ite->op() == qxml::it_while_not))) {
+						if ( (ite != NULL) && ((ite->op() == obyx::it_while) || (ite->op() == obyx::it_while_not))) {
 							exist_test = ut_existence;
 						}
 					}
@@ -832,7 +832,7 @@ bool IKO::evaltype(inp_type the_space, bool release, bool eval,kind_type ikind,D
 						}
 					}
 				} break;
-				case qxml::error: {
+				case IKO::error: {
 					exists = true;
 					break_happened = true;
 					std::string err_msg; transcode(input_name.c_str(),err_msg); //This really should be converted - being internal.
@@ -942,16 +942,16 @@ void IKO::startup() {
 	enc_types.insert(enc_type_map::value_type(UCS2(L"hex"), e_hex));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"message"), e_message));
 	
-	ctx_types.insert(inp_type_map::value_type(UCS2(L"none"), immediate));
-	ctx_types.insert(inp_type_map::value_type(UCS2(L"field"), field ));
-	ctx_types.insert(inp_type_map::value_type(UCS2(L"url"), url ));
-	ctx_types.insert(inp_type_map::value_type(UCS2(L"file"), file ));
-	ctx_types.insert(inp_type_map::value_type(UCS2(L"parm"), fnparm));
-	ctx_types.insert(inp_type_map::value_type(UCS2(L"sysparm"), sysparm));
-	ctx_types.insert(inp_type_map::value_type(UCS2(L"sysenv"), sysenv));
-	ctx_types.insert(inp_type_map::value_type(UCS2(L"cookie"), cookie)); 
-	ctx_types.insert(inp_type_map::value_type(UCS2(L"store"), store));
-	ctx_types.insert(inp_type_map::value_type(UCS2(L"namespace"), xmlnamespace));
+	ctx_types.insert(inp_space_map::value_type(UCS2(L"none"), immediate));
+	ctx_types.insert(inp_space_map::value_type(UCS2(L"field"), field ));
+	ctx_types.insert(inp_space_map::value_type(UCS2(L"url"), url ));
+	ctx_types.insert(inp_space_map::value_type(UCS2(L"file"), file ));
+	ctx_types.insert(inp_space_map::value_type(UCS2(L"parm"), fnparm));
+	ctx_types.insert(inp_space_map::value_type(UCS2(L"sysparm"), sysparm));
+	ctx_types.insert(inp_space_map::value_type(UCS2(L"sysenv"), sysenv));
+	ctx_types.insert(inp_space_map::value_type(UCS2(L"cookie"), cookie)); 
+	ctx_types.insert(inp_space_map::value_type(UCS2(L"store"), store));
+	ctx_types.insert(inp_space_map::value_type(UCS2(L"namespace"), xmlnamespace));
 }
 void IKO::shutdown() {
 	InputType::shutdown();

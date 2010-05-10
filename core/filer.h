@@ -27,7 +27,7 @@
 #include "dataitem.h"
 
 using namespace std;
-using namespace qxml;
+using namespace obyx;
 
 namespace Filer {
 	bool getfile(string,string&,string&);
