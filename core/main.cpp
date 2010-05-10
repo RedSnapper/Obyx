@@ -123,7 +123,6 @@ int main(int argc, char *argv[]) {
 	}
 	return 0;
 }
-
 void startup(std::string& version,std::string& v_number) {
 	Environment::startup(version,v_number);				//unchanging environment stuff.
 #ifdef FAST

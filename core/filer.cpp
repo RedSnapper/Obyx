@@ -39,7 +39,6 @@ using namespace xercesc;
 using namespace XML;
 
 namespace Filer {
-	
 	bool getfile(string filepathstring,string& filecontainer,string& error_str) {
 		Environment* env = Environment::service();
 		bool success = false;
@@ -65,7 +64,6 @@ namespace Filer {
 		}
 		return success;
 	}
-	
 	void output(const string finalfile,kind_type kind) {
 		Environment* env = Environment::service();
 		Httphead* http = Httphead::service();	
@@ -82,14 +80,12 @@ namespace Filer {
 			}
 		}
 	}
-	
-	//get the values that we found in the store, if there are any.
 	void outputRedirect() {
+		//get the values that we found in the store, if there are any.
 		Httphead* http = Httphead::service();	
 		http->setcode(302);	
 		http->doheader(); 
 	}
-	
 	void defaultHTTPHeader(bool complete) {
 		Httphead* http = Httphead::service();	
 		http->setcode(200);	
@@ -97,5 +93,4 @@ namespace Filer {
 			http->doheader();
 		}
 	}
-	
 }	// namespace Filer
