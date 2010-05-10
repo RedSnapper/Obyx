@@ -44,7 +44,6 @@ void ItemStore::init() {
 	//	the_item_map = new item_map_type();
 	//	the_item_map_stack->push(the_item_map);
 }
-
 void ItemStore::finalise() {
 	item_map_stack_map_type::iterator it = the_item_map_stack_map.begin();
 	while ( it != the_item_map_stack_map.end()) {
@@ -121,7 +120,6 @@ bool ItemStore::setns(const DataItem* c, DataItem*& sig) {
 	}
 	return retval;
 }
-// exists = ItemStore::getns(name_item,container);
 bool ItemStore::getns(const DataItem* c, DataItem*& container,bool release) {
 	bool retval=false;
 	if (c != NULL) {
@@ -141,7 +139,6 @@ bool ItemStore::nsexists(const DataItem* c,bool release) {
 	}
 	return retval;
 }
-
 bool ItemStore::exists(const DataItem* obj_id,bool release,std::string& errorstr) {
 	string obj_name; if (obj_id != NULL) { obj_name = *obj_id; }
 	bool retval=false;
@@ -193,11 +190,10 @@ void ItemStore::list() {
 		*Logger::log << Log::blockend; //subhead
 	}
 }
-
-//we need to test that the kind being asked for is the same kind as item.
-//if not, we must attempt to cast it.  If we fail, we post an error, but KEEP the item set
-//as it is.
 bool ItemStore::set(const DataItem* namepath_di, DataItem*& item,kind_type kind,std::string& errorstr) {
+	//we need to test that the kind being asked for is the same kind as item.
+	//if not, we must attempt to cast it.  If we fail, we post an error, but KEEP the item set
+	//as it is.
 	bool retval = false;
 	if (namepath_di != NULL)  { 
 		bool node_expected = false;
@@ -311,8 +307,8 @@ bool ItemStore::set(const DataItem* namepath_di, DataItem*& item,kind_type kind,
 	}
 	return retval;
 }
-// bool here represents existence.
 bool ItemStore::get(const DataItem* namepath_di, DataItem*& item, bool release,std::string& errorstr) {
+	// bool here represents existence.
 	bool retval = false;
 	if (namepath_di != NULL)  { 
 		bool node_expected = false;
@@ -434,9 +430,8 @@ bool ItemStore::get(const DataItem* namepath_di, DataItem*& item, bool release,s
 	}
 	return retval;
 }
-
-//The following is always used to get settings values, such as REDIRECT_BREAK_COUNT
 bool ItemStore::get(const string& name, string& container) {	//name container (quick hack)
+	//This is always used to get settings values, such as REDIRECT_BREAK_COUNT
 	bool retval = false;
 	item_map_type::iterator it = the_item_map->find(name);
 	if (it != the_item_map->end()) {
@@ -445,7 +440,6 @@ bool ItemStore::get(const string& name, string& container) {	//name container (q
 	} 
 	return retval;
 }
-
 void ItemStore::prefixpushed(const u_str& prefix) {
 	item_map_stack_map_type::iterator it = the_item_map_stack_map.find(prefix);
 	if (it != the_item_map_stack_map.end()) {
