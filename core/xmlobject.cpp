@@ -29,13 +29,11 @@
 #include "fragmentobject.h"
 
 XMLObject::u_str_map_type XMLObject::object_ns_map;
-
 /* ==================== NON virtual methods. =========== */
 /* protected */
 XMLObject::XMLObject(const XMLObject* s) : DataItem(),x(0),x_doc(NULL) { 
 	x_doc = (xercesc::DOMDocument*)(s); 
 }
-
 XMLObject::XMLObject(const xercesc::DOMDocument* s) : DataItem(),x(1),x_doc(NULL) {
 	if  ( s != NULL ) {
 		x_doc = XML::Manager::parser()->newDoc(s);
@@ -47,7 +45,6 @@ XMLObject::XMLObject(const xercesc::DOMNode* s) : DataItem(),x(3),x_doc(NULL) {
 		x_doc = XML::Manager::parser()->newDoc(s);
 	}	
 }
-
 /* Public Errors need to be caught higher up! */
 XMLObject::XMLObject(const std::string s) : DataItem(),x(4),x_doc(NULL) { 
 	x_doc = XML::Manager::parser()->loadDoc(s);
@@ -57,20 +54,17 @@ XMLObject::XMLObject(u_str s) : DataItem(),x(7),x_doc(NULL) {
 }
 XMLObject::XMLObject(const XMLObject& src) : DataItem(),x(5),x_doc(src) {}
 XMLObject::XMLObject(const DataItem& src) : DataItem(),x(6),x_doc(src) {}
-
 void XMLObject::copy(XMLObject*& container) const {
 	if  ( x_doc != NULL ) {
 		DOMDocument* doc = XML::Manager::parser()->newDoc(x_doc);
 		container = new XMLObject(doc);
 	}		
 }
-
 void XMLObject::copy(DOMDocument*& container) const {
 	if  ( x_doc != NULL ) { // should really check for NULL here.
 		container = XML::Manager::parser()->newDoc(x_doc);
 	}		
 }
-
 void XMLObject::take(DOMDocument*& container) {
 	container = x_doc;
 	x_doc = NULL;
@@ -79,38 +73,30 @@ void XMLObject::take(DOMNode*& container) {
 	container = x_doc;
 	x_doc = NULL;
 }
-
 /* ====================  VIRTUAL methods. =========== */
-
 XMLObject::operator XMLObject*() { return this; }	
-
 XMLObject::operator u_str() const {
 	u_str doc; 
 	XML::Manager::parser()->writedoc(x_doc,doc);
 	return doc;
 }
-
 XMLObject::operator std::string() const {
 	string doc; 
 	XML::Manager::parser()->writedoc(x_doc,doc);
 	return doc;
 }
-
 XMLObject::operator xercesc::DOMDocument*() const {
 	return x_doc;
 }
-
 void XMLObject::copy(DataItem*& container) const {
 	if  ( x_doc != NULL ) {
 		DOMDocument* doc = XML::Manager::parser()->newDoc(x_doc);
 		container = DataItem::factory(doc); 
 	}		
 }
-
 XMLObject::operator xercesc::DOMNode*() const {
 	return x_doc;	//check how this is being used?
 }
-
 long long XMLObject::size() const {
 	if (x_doc != NULL) {
 		return 1;
@@ -121,7 +107,6 @@ long long XMLObject::size() const {
 bool XMLObject::empty() const {
 	return x_doc == NULL;
 }
-
 bool XMLObject::same(const DataItem* xtst) const {
 	bool retval = false;
 	const XMLObject* ox = dynamic_cast<const XMLObject*>(xtst);
@@ -132,7 +117,6 @@ bool XMLObject::same(const DataItem* xtst) const {
 	}
 	return retval;
 }
-
 void XMLObject::clear() {
 	if (x_doc != NULL) {
 		x_doc->release();
@@ -140,13 +124,11 @@ void XMLObject::clear() {
 		XML::Manager::resetDocPool();
 	}
 }
-
 void XMLObject::trim() {
 	//do nothing.
 }
-
-//find with an xpath.
 bool XMLObject::find(const DataItem* o,std::string& error_msg) const {
+	//find with an xpath.
 	bool retval = false;
 	string xpath;
 	if (o != NULL)  xpath = *o;
@@ -158,7 +140,6 @@ bool XMLObject::find(const DataItem* o,std::string& error_msg) const {
 	}
 	return retval;
 }
-
 bool XMLObject::find(const char* o,std::string& error_msg) const {
 	bool retval = false;
 	string xpath;
@@ -171,7 +152,6 @@ bool XMLObject::find(const char* o,std::string& error_msg) const {
 	}
 	return retval;
 }
-
 /* -- more non-virtual methods -- */
 /* private */
 bool XMLObject::xp_result(const string& path,DOMXPathResult*& result,std::string& err_message) const {
@@ -211,7 +191,6 @@ bool XMLObject::xp_result(const string& path,DOMXPathResult*& result,std::string
 	} 
 	return retval;
 }
-
 //with get the value of this at xpath set by input 
 //although the results of an xpath may be multiple, here we must glob them together.
 //Container must be empty when we get here.
@@ -288,9 +267,8 @@ bool XMLObject::xp(const std::string& path,DataItem*& container,bool node_expect
 	}
 	return retval;
 }
-
-// SET a value at the xpath given
 bool XMLObject::xp(const DataItem* ins,const std::string& path,DOMLSParser::ActionType action,bool node_expected,std::string& error_str) {
+	// SET a value at the xpath given
 	bool retval = true;
 	DOMXPathResult* xpr = NULL;
 	retval = xp_result(path,xpr,error_str);	
@@ -442,7 +420,6 @@ bool XMLObject::xp(const DataItem* ins,const std::string& path,DOMLSParser::Acti
 	}
 	return retval;
 }
-
 bool XMLObject::setns(const u_str& code, const u_str& signature) {
 	if ( signature.empty() ) {
 		u_str_map_type::iterator it = object_ns_map.find(code);
@@ -456,7 +433,6 @@ bool XMLObject::setns(const u_str& code, const u_str& signature) {
 	}
 	return true;
 }
-
 bool XMLObject::getns(const u_str& code, u_str& result,bool release) {
 	bool retval = false;
 	u_str_map_type::iterator it = object_ns_map.find(code);
@@ -469,7 +445,6 @@ bool XMLObject::getns(const u_str& code, u_str& result,bool release) {
 	}
 	return retval;
 }
-
 XMLObject::~XMLObject() {
 	if (x_doc != NULL) {
 		x_doc->release();
