@@ -108,8 +108,8 @@ protected:
 	//statics
 public:
 	PairQueue results;
-	qxml::elemclass wottype;													//what elemclass is this.
-	qxml::elemtype  wotzit;														//what elemtype is this.
+	qxml::elemclass wottype;				//what elemclass is this.
+	qxml::elemtype  wotzit;					//what elemtype is this.
 	
 	ObyxElement(ObyxElement*,const ObyxElement*);// : p(par) { copy(orig); doalloc(); }
 	ObyxElement(ObyxElement*,qxml::elemtype,qxml::elemclass,xercesc::DOMNode*);
