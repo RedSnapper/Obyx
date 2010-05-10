@@ -42,6 +42,14 @@ namespace DateUtils {
 		utc = gmtime(&tt);
 	}
 	
+	//-------------------------------------------------------------------------
+	// Constructor inits Date to specified UTC in seconds
+	//-------------------------------------------------------------------------
+	Date::Date(time_t ttime) : tt(ttime), local(NULL),utc(NULL) {
+		utc = gmtime(&tt);
+		local = localtime(&tt);
+	}
+
 	void Date::getUTCTimeOfDay(string& result) {
 		time_t the_time;
 		struct tm utc_time;
@@ -54,13 +62,6 @@ namespace DateUtils {
 		free(buff); // clear it out now  
 	}
 	
-	//-------------------------------------------------------------------------
-	// Constructor inits Date to specified UTC in seconds
-	//-------------------------------------------------------------------------
-	Date::Date(time_t ttime) : tt(ttime), local(NULL),utc(NULL) {
-		utc = gmtime(&tt);
-		local = localtime(&tt);
-	}
 	
 	Date::~Date() {
 		//			if (utc != NULL) free(utc);	 //"not stack'd or malloc'd"
