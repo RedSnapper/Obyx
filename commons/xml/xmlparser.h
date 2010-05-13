@@ -93,7 +93,7 @@ namespace XML {
 		bool hadErrors() { return errorHandler->hadErrors(); }
 		void setGrammar(const std::string&,const u_str&,Grammar::GrammarType = Grammar::SchemaGrammarType);  //use the grammer inside the string.
 		void getGrammar(std::string&,const std::string&,bool);  //use the grammer inside the string.
-		void existsGrammar(const std::string&,bool);  //use the grammer inside the string.
+		bool existsGrammar(const std::string&,bool);  //use the grammer inside the string.
 		DOMDocument* loadDoc(const std::string&);
 		DOMDocument* loadDoc(const u_str&);
 		DOMDocument* newDoc(const DOMNode*);

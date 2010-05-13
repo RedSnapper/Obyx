@@ -105,8 +105,7 @@ bool ItemStore::grammarexists(const DataItem* sig,bool release) {
 	if (sig != NULL) {
 		string signature = *sig;
 		if ( !signature.empty() ) {
-			XML::Manager::parser()->existsGrammar(signature,release);
-			retval=true;
+			retval = XML::Manager::parser()->existsGrammar(signature,release);
 		}
 	}
 	return retval;

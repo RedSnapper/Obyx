@@ -802,10 +802,12 @@ namespace XML {
 		}
 	}
 	
-	void Parser::existsGrammar(const std::string& namespaceuri,bool release) {
+	bool Parser::existsGrammar(const std::string& namespaceuri,bool release) {
+		bool retval = false;
 		if ( !namespaceuri.empty() ) {
-			resourceHandler->existsGrammar(namespaceuri,release);
+			retval = resourceHandler->existsGrammar(namespaceuri,release);
 		}
+		return retval;
 	}
 	
 	// Whitespace http://www.w3.org/TR/2008/REC-xml-20081126/#NT-S
