@@ -124,7 +124,7 @@ namespace XML {
 	
 	Manager::Manager() {
 		try {
-			//			XMLPlatformUtils::Initialize(); 
+//			XMLPlatformUtils::Initialize(); 
 			XQillaPlatformUtils::initialize(); //if using XQilla..
 			xparser = new Parser();
 			xparser->makerw();
@@ -136,7 +136,7 @@ namespace XML {
 	}
 	
 	Manager::~Manager() {
-		//		XMLPlatformUtils::Terminate();
+//		XMLPlatformUtils::Terminate();
 		XQillaPlatformUtils::terminate();
 	}
 }

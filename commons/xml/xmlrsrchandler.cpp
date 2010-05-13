@@ -29,9 +29,9 @@ using namespace Log;
 using namespace xercesc;
 
 namespace XML {
-	
+		
 	GrammarRecord::GrammarRecord(const u_str& n,const u_str& s,const u_str& p,const string& f,Grammar::GrammarType t) : 
-	inp(NULL),mem(NULL),key(n),gra(f),grx(NULL),typ(t) {
+	inp(NULL),mem(NULL),key(n),gra(f),grx(NULL),typ(t),use(false) {
 		XMLByte* xmlraw = (XMLByte*)(gra.c_str());
 		inp = ((DOMImplementationLS*)Manager::parser()->impl)->createLSInput();	
 		mem = new MemBufInputSource(xmlraw,gra.size(),key.c_str());
@@ -40,23 +40,45 @@ namespace XML {
 		if (t == Grammar::DTDGrammarType) {
 			inp->setPublicId(p.c_str());
 			inp->setSystemId(s.c_str());
+			mem->setPublicId(p.c_str());
+			mem->setSystemId(s.c_str());
 		}
 		inp->setEncoding(XMLUni::fgUTF8EncodingString); //This must be done.
 	}
-	
 	GrammarRecord::~GrammarRecord() {
 		inp->release();
 		delete mem;
 		key.clear();
 		gra.clear();
 	}
-	
 	XMLResourceHandler::XMLResourceHandler() : DOMLSResourceResolver(),the_grammar_map() {}
 	XMLResourceHandler::~XMLResourceHandler() {
 		the_grammar_map.clear();
 	}
-	
-	void XMLResourceHandler::setGrammar(const string grammar,const u_str& name,Grammar::GrammarType type) {
+	void XMLResourceHandler::installGrammar(const u_str& name) {	
+		grammar_map_type::iterator it = the_grammar_map.find(name);
+		if (it != the_grammar_map.end()) {
+			GrammarRecord* grec =  it->second;
+			if (! grec->used()) {
+				Manager::parser()->grammar_reading_on();
+				grec->grx = Manager::parser()->parser->loadGrammar(grec->inp, grec->typ, true); 
+				Manager::parser()->grammar_reading_off();
+				if ( Manager::parser()->errorHandler->hadErrors() ) {
+					string err_name; transcode(name.c_str(),err_name);
+					*Logger::log << Log::error << Log::LI << "loading grammar:" << err_name << " with contents:" << Log::LO;
+					*Logger::log << Log::LI << grec->gra << Log::LO;
+					*Logger::log << Log::blockend;
+					Manager::parser()->errorHandler->resetErrors();
+				} else {
+					grec->setused();
+					grammar_map_type::iterator it = the_grammar_map.find(name); //because of grammar interdependence the iterator may be lost.
+					the_grammar_map.erase(it); //and if there is any item then insert it.
+					pair<grammar_map_type::iterator, bool> ins = the_grammar_map.insert(grammar_map_type::value_type(name,grec));
+				}
+			}
+		}
+	}
+	void XMLResourceHandler::setGrammar(const string grammar,const u_str& name,Grammar::GrammarType type,bool loadit) {
 		if ( !grammar.empty() ) {
 			grammar_map_type::iterator it = the_grammar_map.find(name);
 			if (it == the_grammar_map.end() ) {
@@ -89,13 +111,23 @@ namespace XML {
 					} 
 				}
 				GrammarRecord* record = new GrammarRecord(name,sysIDstr,pubIDstr,grammar,type);
-				record->grx = Manager::parser()->parser->loadGrammar(record->inp, type, true); 
-				if ( Manager::parser()->errorHandler->hadErrors() ) {
-					string err_name; transcode(name.c_str(),err_name);
-					*Logger::log << Log::error << Log::LI << "loading grammar:" << err_name << " with contents:" << Log::LO;
-					*Logger::log << Log::LI << grammar << Log::LO;
-					*Logger::log << Log::blockend;
-					Manager::parser()->errorHandler->resetErrors();
+				if (loadit) {
+					record->setused();
+					Manager::parser()->grammar_reading_on();
+					record->grx = Manager::parser()->parser->loadGrammar(record->inp, type, true); 
+					Manager::parser()->grammar_reading_off();
+					if ( Manager::parser()->errorHandler->hadErrors() ) {
+						string err_name; transcode(name.c_str(),err_name);
+						*Logger::log << Log::error << Log::LI << "loading grammar:" << err_name << " with contents:" << Log::LO;
+						*Logger::log << Log::LI << grammar << Log::LO;
+						*Logger::log << Log::blockend;
+						Manager::parser()->errorHandler->resetErrors();
+					} else {
+						pair<grammar_map_type::iterator, bool> ins = the_grammar_map.insert(grammar_map_type::value_type(name,record));
+						if( type == Grammar::DTDGrammarType) { 
+							pair<grammar_map_type::iterator, bool> ins = the_grammar_map.insert(grammar_map_type::value_type(sysIDstr,record));
+						}
+					}
 				} else {
 					pair<grammar_map_type::iterator, bool> ins = the_grammar_map.insert(grammar_map_type::value_type(name,record));
 					if( type == Grammar::DTDGrammarType) { 
@@ -105,7 +137,6 @@ namespace XML {
 			} 
 		}
 	}
-	
 	void XMLResourceHandler::getGrammar(string& grammarfile,const string name,bool release) {
 		if (!name.empty()) {
 			u_str gname; transcode(name,gname);
@@ -120,7 +151,6 @@ namespace XML {
 			} 
 		}
 	}
-	
 	bool XMLResourceHandler::existsGrammar(const string name,bool release) {
 		bool retval = false;
 		if (!name.empty()) {
@@ -137,14 +167,16 @@ namespace XML {
 		}
 		return retval;
 	}
+ 
 	//With DTD, we must bind our namespace to the publicId.
 	//This means we must extract the publicId during grammar load.
 	DOMLSInput* XMLResourceHandler::resolveResource(
-			const XMLCh* const,  //resourceType
-			const XMLCh* const namespaceUri , 
-			const XMLCh* const publicId, 
-			const XMLCh* const systemId, 
-			const XMLCh* const /*baseURI*/ ) { //
+		const XMLCh* const,  //resourceType
+		const XMLCh* const namespaceUri , 
+		const XMLCh* const publicId, 
+		const XMLCh* const systemId, 
+		const XMLCh* const ) { //
+		DOMLSInput* retval = NULL;
 		const XMLCh* grammarkey = NULL;
 		if ( namespaceUri != NULL ) {
 			grammarkey = namespaceUri;
@@ -162,8 +194,15 @@ namespace XML {
 			*Logger::log << Log::LI << Log::subhead << Log::LI << "Grammar details follow:" << Log::LO; 
 			*Logger::log << Log::LI << a_nsu << Log::LO << Log::LI << a_pid << Log::LO << Log::LI << a_sid << Log::LO; 
 			*Logger::log << Log::blockend << Log::LO << Log::blockend;
+		} else {
+			GrammarRecord* grec =  it->second;
+			if (! grec->used()) {
+				grec->setused();
+				the_grammar_map.erase(it); //and if there is any item then insert it.
+				pair<grammar_map_type::iterator, bool> ins = the_grammar_map.insert(grammar_map_type::value_type(grammarkey,grec));
+				retval = grec->inp;
+			}
 		}
-		return NULL; // DOMLSInput* 
+		return retval; // DOMLSInput* 
 	}
-	
 }

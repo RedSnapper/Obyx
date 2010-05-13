@@ -26,12 +26,14 @@
 #include "commons/logger/logger.h"
 #include "commons/environment/environment.h"
 
+#include <xercesc/validators/common/GrammarResolver.hpp>
+
 using namespace Log;
 
 //need to move config stuff into this class.
 namespace XML {
 	
-	//load up the schema strings.
+//load up the schema strings.
 #include "grammars/xmlxsd.h"
 #include "grammars/messagexsd.h"
 #include "grammars/obyxxsd.h"
@@ -42,16 +44,16 @@ namespace XML {
 #include "grammars/xhtml1dtd.h"
 #include "grammars/wsdlxsd.h"
 #include "grammars/wsdlmimexsd.h"
-	
+
 	//#define u_str u_str
 	//#define UCS2(x) (const XMLCh*)(x)
 	
 	const u_str Parser::memfile = UCS2(L"[xsd]"); // "[xsd]"
 	
-	Parser::Parser() : errorHandler(NULL),resourceHandler(NULL),impl(NULL),writer(NULL),xfmt(NULL),grpool(NULL),parser(NULL),validation(false) {
-		const u_str imptype = UCS2(L"XPath2 3.0");	// "XPath2 3.0"
+	Parser::Parser() : errorHandler(NULL),resourceHandler(NULL),impl(NULL),writer(NULL),xfmt(NULL),parser(NULL),validation(false) {
+		const u_str imptype = UCS2(L"XPath2 3.0");	// "XPath2 3.0 for xqilla"
+//		const u_str imptype = UCS2(L"LS");	// "LS for xercesc"
 		impl = DOMImplementationRegistry::getDOMImplementation( imptype.c_str() );
-		grpool	= new XMLGrammarPoolImpl(XMLPlatformUtils::fgMemoryManager);
 		errorHandler = new XMLErrorHandler();
 		resourceHandler = new XMLResourceHandler();	
 	}
@@ -156,11 +158,11 @@ namespace XML {
 	}
 	
 	void Parser::makeReader() {
-		//	Xerces-c v3.0 and up.	Val_Auto 
-		parser = ((DOMImplementationLS*)impl)->createLSParser(DOMImplementationLS::MODE_SYNCHRONOUS, NULL,XMLPlatformUtils::fgMemoryManager,grpool);
+//		Xerces-c v3.0 and up.	Val_Auto 
+		parser = ((DOMImplementationLS*)impl)->createLSParser(DOMImplementationLS::MODE_SYNCHRONOUS, NULL);
 		DOMConfiguration* dc = parser->getDomConfig();
 		dc->setParameter(XMLUni::fgDOMErrorHandler,errorHandler);
-		dc->setParameter(XMLUni::fgDOMResourceResolver,resourceHandler);
+		dc->setParameter(XMLUni::fgDOMResourceResolver,resourceHandler);  //This is the 'dom' way- it's 'the same' as fgXercesEntityResolver!
 		dc->setParameter(XMLUni::fgXercesValidationErrorAsFatal, false);		
         dc->setParameter(XMLUni::fgXercesUserAdoptsDOMDocument, true);		
         dc->setParameter(XMLUni::fgXercesContinueAfterFatalError, true);		
@@ -184,24 +186,26 @@ namespace XML {
 				validation = false;
 			}
 		}
-		dc->setParameter(XMLUni::fgDOMDatatypeNormalization, true); //add in datatypes..
-		dc->setParameter(XMLUni::fgXercesDOMHasPSVIInfo,false);			//Otherwise we are in trouble.
+		dc->setParameter(XMLUni::fgDOMDatatypeNormalization, true); //Add in datatypes..
+		dc->setParameter(XMLUni::fgXercesDOMHasPSVIInfo,false);		//Otherwise we are in trouble.
 		
 		//See http://xerces.apache.org/xerces-c/program-dom-3.html for full list of parameters/features
-		//the 'SystemId' values nust be the namespace urls.
+		//the 'SystemId' values must be the namespace urls.
 		
-		resourceHandler->setGrammar(obyxxsd,UCS2(L"http://www.obyx.org"),Grammar::SchemaGrammarType);      //And this.
+		resourceHandler->setGrammar(xhtml1dtd,UCS2(L"http://www.w3.org/1999/xhtml"),Grammar::DTDGrammarType,true);   //XERCESC-1927: DTDs must be loaded before xml documents.
+
+		resourceHandler->setGrammar(obyxxsd,UCS2(L"http://www.obyx.org"),Grammar::SchemaGrammarType);      //I don't really know why this has to be preloaded..
 		resourceHandler->setGrammar(messagexsd,UCS2(L"http://www.obyx.org/message"),Grammar::SchemaGrammarType);
 		resourceHandler->setGrammar(oalxsd,UCS2(L"http://www.obyx.org/osi-application-layer"),Grammar::SchemaGrammarType);
-		resourceHandler->setGrammar(xhtml1dtd,UCS2(L"http://www.w3.org/1999/xhtml"),Grammar::DTDGrammarType);      //And this.
 		
 		//These are all better handled at runtime. The performance hit of preloading them against every request is not so good
-		//		resourceHandler->setGrammar(xmlxsd,UCS2(L"http://www.w3.org/XML/1998/namespace"),Grammar::SchemaGrammarType);
-		//		resourceHandler->setGrammar(xlinkxsd,UCS2(L"http://www.w3.org/1999/xlink"),Grammar::SchemaGrammarType);
-		//		resourceHandler->setGrammar(soapxsd,UCS2(L"http://schemas.xmlsoap.org/soap/envelope/"),Grammar::SchemaGrammarType);
-		//		resourceHandler->setGrammar(soapencodingxsd,UCS2(L"http://schemas.xmlsoap.org/soap/encoding/"),Grammar::SchemaGrammarType);
-		//		resourceHandler->setGrammar(wsdlxsd,UCS2(L"http://schemas.xmlsoap.org/wsdl/"),Grammar::SchemaGrammarType);
-		//		resourceHandler->setGrammar(wsdlmimexsd,UCS2(L"http://schemas.xmlsoap.org/wsdl/mime/"),Grammar::SchemaGrammarType);
+		resourceHandler->setGrammar(xmlxsd,UCS2(L"http://www.w3.org/XML/1998/namespace"),Grammar::SchemaGrammarType);
+		resourceHandler->setGrammar(xlinkxsd,UCS2(L"http://www.w3.org/1999/xlink"),Grammar::SchemaGrammarType);
+		resourceHandler->setGrammar(soapxsd,UCS2(L"http://schemas.xmlsoap.org/soap/envelope/"),Grammar::SchemaGrammarType);
+		resourceHandler->setGrammar(soapencodingxsd,UCS2(L"http://schemas.xmlsoap.org/soap/encoding/"),Grammar::SchemaGrammarType);
+		resourceHandler->setGrammar(wsdlxsd,UCS2(L"http://schemas.xmlsoap.org/wsdl/"),Grammar::SchemaGrammarType);
+		resourceHandler->setGrammar(wsdlmimexsd,UCS2(L"http://schemas.xmlsoap.org/wsdl/mime/"),Grammar::SchemaGrammarType);
+	
 	}
 	
 	DOMDocument* Parser::newDoc(const DOMNode* n) {
@@ -266,18 +270,27 @@ namespace XML {
 			if (validation) {
 				if ( String::Regex::available() ) {
 					if (String::Regex::match("<(\\w*):?schema[^>]+xmlns:?\\1=\"http://www.w3.org/2001/XMLSchema\"",xfile)) {
-						do_validation = false;
+						do_validation = false; //This is a grammar.
 					} else {
-						if (String::Regex::match("<(\\w*):?[^>]+xmlns:?\\1=",xfile) || (xfile.find("<!DOCTYPE") != string::npos)) {
+						string xmlns_pattern="<(\\w*):?\\w+[^>]+xmlns:?\\1\\s*=\\s*\"([^\"]+)\"";
+						string f_namespace;
+						if (String::Regex::field(xmlns_pattern,xfile,2,f_namespace)) {
+							u_str ns_load;
+							transcode(f_namespace,ns_load);
+							resourceHandler->installGrammar(ns_load); //will only do it the first time.
 							do_validation = true;
-						} else { 
-							do_validation = false;
+						} else {
+							if (xfile.find("<!DOCTYPE") != string::npos) {
+								do_validation = true;
+							} else { 
+								do_validation = false;
+							}
 						}
 					}
 				} 
 			}
-			if (validation && !do_validation) {
-				XML::Manager::parser()->validation_off();
+			if (!do_validation) {
+				validation_off();
 			}
 			AutoRelease<DOMLSInput> input(((DOMImplementationLS*)impl)->createLSInput());	
 			XMLByte* xmlraw = (XMLByte*)(xmlfile.c_str());
@@ -309,11 +322,19 @@ namespace XML {
 			delete mbis; 
 			mbis=NULL;
 			
-			if (validation && !do_validation) {
-				XML::Manager::parser()->validation_on();
+			if (!do_validation) {
+				validation_on();
 			}
 		}
 		return rslt;
+	}
+	
+	void Parser::grammar_reading_on() {
+		errorHandler->setGrammar(true);
+	}
+	
+	void Parser::grammar_reading_off() {
+		errorHandler->setGrammar(false);
 	}
 	
 	void Parser::validation_off() {
@@ -358,7 +379,7 @@ namespace XML {
 		return rslt;
 	}
 	
-	basic_string<XMLCh> Parser::xpath(const DOMNode* startnode) { 
+	basic_string<XMLCh> Parser::xpath(DOMNode* startnode) { 
 		basic_string<XMLCh> xpath;
 		if (startnode != NULL) {
 			basic_ostringstream<XMLCh> osd;
@@ -371,8 +392,8 @@ namespace XML {
 			const XMLCh osq[]= {'[',chNull};		// "["
 			const XMLCh csq[]= {']',chNull};		// "]"
 			vector<basic_string<XMLCh> > bits;
-			const DOMNode* n = startnode;
-			while ( n != NULL ) {
+			DOMNode* n = startnode;
+			while ( n != NULL) { //horrible.
 				basic_ostringstream<XMLCh> oss;
 				basic_string<XMLCh> name = n->getNodeName();
 				if (name[0] == '#' ) { 
@@ -382,15 +403,18 @@ namespace XML {
 					}
 				} else {
 					const XMLCh* note_attr = NULL; 
-					if (n->getNodeType() == DOMNode::ELEMENT_NODE ) { 
-						DOMAttr* anote = ((DOMElement*)n)->getAttributeNode(notestr);
-						if (anote != NULL) {
-							note_attr = anote->getNodeValue();
-						}						
+					if (n->getNodeType() == DOMNode::ELEMENT_NODE ) {
+						DOMElement* el = dynamic_cast<DOMElement*>(n);
+						if (el != NULL) {
+							DOMAttr* anote = el->getAttributeNode(notestr);
+							if (anote != NULL) {
+								note_attr = anote->getNodeValue();
+							}	
+						}
 					}
 					//This is v.slow for travelling through DOMText - will loop through each char.
 					unsigned long sibnum = 1;
-					const xercesc::DOMNode* s = n->getPreviousSibling();
+					xercesc::DOMNode* s = n->getPreviousSibling();
 					while ( s != NULL) {
 						if (!name.compare(s->getNodeName())) { sibnum++ ;}
 						s = s->getPreviousSibling();
@@ -401,7 +425,7 @@ namespace XML {
 						oss << attropen << note_attr << attrclose;
 					}
 				}
-				n = n->getParentNode();
+				n = n->getParentNode(); //really shouldn't need to dynamic cast this.
 				bits.push_back(oss.str());
 			}
 			while (bits.size() > 0) {
@@ -411,6 +435,7 @@ namespace XML {
 		}
 		return xpath;
 	}
+
 	// DOMDocumentFragment	
 	/* All the following could probably be replaced with parser->parseWithContext(input,pt,action); */
 	void Parser::insertContext(DOMDocument*& doc,DOMNode*& pt,const basic_string<XMLCh>& ins,DOMLSParser::ActionType action) {

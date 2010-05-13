@@ -43,9 +43,11 @@ namespace XML {
 	class XMLErrorHandler : public DOMErrorHandler {
 private:
 		bool fSawErrors;
+		bool fGrammar;
 
 public:
 	
+		void setGrammar(bool set) { fGrammar = set;}
 		void resetErrors();
 		bool handleError(const DOMError& domError);
 		bool hadErrors();

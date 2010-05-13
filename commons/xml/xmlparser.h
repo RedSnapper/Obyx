@@ -54,11 +54,9 @@ namespace XML {
 		static std::string	wsdlxsd;
 
 		XML::XMLErrorHandler*	errorHandler;
-		XML::XMLResourceHandler* resourceHandler;
 		DOMImplementation*		impl;
 		DOMLSSerializer*		writer;
 		XMLFormatTarget*        xfmt;
-		XMLGrammarPoolImpl*		grpool;
 		DOMLSParser*			parser; //xercesc 3.0
 		bool					validation; //still validates if there's a schema.
 		void makeReader();
@@ -83,11 +81,14 @@ namespace XML {
 		void do_maybenode_set(DOMDocument*&,DOMNode*&,const DOMNode*);
 
 	public:
+		XML::XMLResourceHandler* resourceHandler;
 		Parser();
 		~Parser();
 		void makerw();		
-		void validation_off();
 		void validation_on();
+		void validation_off();
+		void grammar_reading_on();
+		void grammar_reading_off();
 		void resetErrors() { errorHandler->resetErrors(); }
 		bool hadErrors() { return errorHandler->hadErrors(); }
 		void setGrammar(const std::string&,const u_str&,Grammar::GrammarType = Grammar::SchemaGrammarType);  //use the grammer inside the string.
@@ -97,9 +98,8 @@ namespace XML {
 		DOMDocument* loadDoc(const u_str&);
 		DOMDocument* newDoc(const DOMNode*);
 		DOMDocumentFragment* newDocFrag(DOMDocument*);
-		basic_string<XMLCh> xpath(const DOMNode* );
+		basic_string<XMLCh> xpath(DOMNode* );
 		void insertContext(DOMDocument*&,DOMNode*&,const u_str&,DOMLSParser::ActionType);
-//		void insertContext(DOMDocument*&,DOMNode*&,DOMDocument* const,DOMLSParser::ActionType);
 		void insertContext(DOMDocument*&,DOMNode*&,DOMNode* const,DOMLSParser::ActionType);
 		bool loadURI(const std::string&, DOMDocument*&);
 		void writenode(const DOMNode* const& ,std::string&);

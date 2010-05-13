@@ -35,21 +35,24 @@ namespace XML {
 	
 	class GrammarRecord {
 	private:
-		friend class XMLResourceHandler;
+		
+ 		friend class XMLResourceHandler;
 		DOMLSInput*				inp; //
 		MemBufInputSource*		mem;
 		u_str					key; //namespaceUri for a schema or systemID for a DTD.
 		std::string 			gra; //original grammar
-		//		XMLCh*					gky; //key as XMLCh;
 		Grammar*				grx; //Xercesc Grammar object that was loaded.
 		Grammar::GrammarType	typ; //
+		bool					use; //marks the grammar as asked for by the process.
 		GrammarRecord(const u_str&,const u_str&,const u_str&,const string&,Grammar::GrammarType); 
-		//		GrammarRecord(const u_str&,const string&,Grammar::GrammarType);		
 	public:
+		bool used() { return use;}
+		void setused() { use = true; }
 		~GrammarRecord();
 	};
 	
 	typedef map<const u_str,GrammarRecord*> grammar_map_type;
+
 	
 	class XMLResourceHandler : public DOMLSResourceResolver {
 	private:
@@ -59,8 +62,9 @@ namespace XML {
 	public:
 		void getGrammar(string&,const string,bool);
 		bool existsGrammar(const string,bool);
-		void setGrammar(const string,const u_str&,Grammar::GrammarType);
-		DOMLSInput* resolveResource(const XMLCh* const,const XMLCh* const,const XMLCh* const,const XMLCh* const, const XMLCh* const);
+		void installGrammar(const u_str&);
+		void setGrammar(const string,const u_str&,Grammar::GrammarType,bool = false);
+		DOMLSInput* resolveResource(const XMLCh* const,const XMLCh* const,const XMLCh* const,const XMLCh* const, const XMLCh* const); //DOMLSResourceResolver
 		
 		XMLResourceHandler();
 		virtual ~XMLResourceHandler();

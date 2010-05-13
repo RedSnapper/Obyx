@@ -33,9 +33,8 @@ namespace XML {
 	//  XMLErrorHandler: Constructors and Destructor
 	// ---------------------------------------------------------------------------
 
-	XMLErrorHandler::XMLErrorHandler() :  fSawErrors(false) {}
+	XMLErrorHandler::XMLErrorHandler() : fSawErrors(false) {}
 	XMLErrorHandler::~XMLErrorHandler() { }
-		
 	
 //errors are already framed within a li - so we must start with a type and end with a blockend.
 	bool XMLErrorHandler::handleError(const xercesc::DOMError& domError) {
@@ -47,7 +46,7 @@ namespace XML {
 			DOMLocator* loc = domError.getLocation(); //
 			if (loc != NULL) {
 				DOMNode* errnode = loc->getRelatedNode();
-				if (errnode != NULL) { 
+				if (!fGrammar && (errnode != NULL)) { 
 					string info_string;
 					basic_string<XMLCh> xp = Manager::parser()->xpath(errnode);
 					transcode(xp.c_str(),info_string);
