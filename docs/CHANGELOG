@@ -17,6 +17,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.100513
+	Enh.    Grammars are now loaded as needed. 
+			Reciprocating grammars are now supported.
+			Use output space='namespace' to force load a grammar.
 v1.100507
 	Tidy.   Merging version1 with fast.
 v1.100506

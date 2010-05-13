@@ -61,7 +61,7 @@ FragmentObject::FragmentObject(u_str s) : DataItem(),fragment(NULL) {
 	}
 }
 //DOMDocumentImpl
-FragmentObject::FragmentObject(const xercesc::DOMNode* n) : fragment(NULL) {
+FragmentObject::FragmentObject(const xercesc::DOMNode* n) : DataItem(),fragment(NULL) {
 	fragment = frag_doc->createDocumentFragment();
 	DOMNode* newnode = NULL;
 	DOMNode::NodeType nt = n->getNodeType();
@@ -85,7 +85,7 @@ FragmentObject::FragmentObject(const xercesc::DOMNode* n) : fragment(NULL) {
 		fragment->appendChild(newnode);
 	}
 }
-FragmentObject::FragmentObject(const DataItem& s): fragment(NULL) {
+FragmentObject::FragmentObject(const DataItem& s): DataItem(),fragment(NULL) {
 	fragment = frag_doc->createDocumentFragment();
 	DOMNode* n = s;
 	fragment->appendChild(n);

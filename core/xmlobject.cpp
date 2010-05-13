@@ -425,6 +425,7 @@ bool XMLObject::setns(const u_str& code, const u_str& signature) {
 		u_str_map_type::iterator it = object_ns_map.find(code);
 		object_ns_map.erase(it);
 	} else {
+		XML::Manager::parser()->resourceHandler->installGrammar(signature); //still need this for reciprocal grammars.
 		pair<u_str_map_type::iterator, bool> ins = object_ns_map.insert(u_str_map_type::value_type(code, signature));
 		if (!ins.second) {
 			object_ns_map.erase(ins.first);

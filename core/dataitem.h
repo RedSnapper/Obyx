@@ -52,7 +52,7 @@ protected:
 	
 protected:
 	DataItem();
-	DataItem(const DataItem&);	
+//	DataItem(const DataItem&);	
 	
 public:	
 	static void init();

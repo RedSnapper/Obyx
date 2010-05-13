@@ -52,7 +52,7 @@ void finalise();
 void shutdown();
 
 int main(int argc, char *argv[]) {
- 	string v_number = "1.100507";
+ 	string v_number = "1.100513";
 #ifdef FAST
 	string version  = "Obyx v"+v_number+"F Supported (Xerces 3.0/XQilla 2.2)";
 #else
