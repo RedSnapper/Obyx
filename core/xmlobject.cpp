@@ -48,6 +48,9 @@ XMLObject::XMLObject(const xercesc::DOMNode* s) : DataItem(),x(3),x_doc(NULL) {
 /* Public Errors need to be caught higher up! */
 XMLObject::XMLObject(const std::string s) : DataItem(),x(4),x_doc(NULL) { 
 	x_doc = XML::Manager::parser()->loadDoc(s);
+	if (x_doc != NULL) {
+		x_doc->normalize();
+	}
 }
 XMLObject::XMLObject(u_str s) : DataItem(),x(7),x_doc(NULL) { 
 	x_doc = XML::Manager::parser()->loadDoc(s);
