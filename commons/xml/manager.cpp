@@ -72,17 +72,6 @@ namespace XML {
 		}
 	}
 	
-	/*	
-	 XMLCh* transcode(const std::string& source,const std::string encoding) {
-	 if (source.empty()) {
-	 return NULL;
-	 } else {
-	 const XMLByte* src=(const XMLByte*)(source.c_str());
-	 return TranscodeFromStr(src,source.size(),encoding.c_str()).adopt();	
-	 }
-	 }
-	 */
-	
 	bool Manager::attribute(const DOMNode* n,const std::string attrname, std::string& attrval) {
 		bool result=false;
 		if (n != NULL && !attrname.empty() && n->getNodeType() == DOMNode::ELEMENT_NODE ) {
