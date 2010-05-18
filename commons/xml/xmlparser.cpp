@@ -153,7 +153,7 @@ namespace XML {
 			dc->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint,false);
 		}
 		dc->setParameter(XMLUni::fgDOMXMLDeclaration,false);
-		//		dc->setParameter(XMLUni::fgDOMWRTWhitespaceInElementContent,true); //always true, false not supported.
+//		dc->setParameter(XMLUni::fgDOMWRTWhitespaceInElementContent,true); //always true, false not supported.
 		dc->setParameter(XMLUni::fgDOMWRTBOM,false);
 	}
 	

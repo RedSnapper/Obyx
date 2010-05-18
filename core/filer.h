@@ -31,7 +31,7 @@ using namespace obyx;
 
 namespace Filer {
 	bool getfile(string,string&,string&);
-	void output(const string,kind_type = di_object);
+	void output(string&,kind_type = di_object);
 	void defaultHTTPHeader(bool);
 	void outputRedirect();
 }
