@@ -71,9 +71,9 @@ namespace Filer {
 			if (! http->mime_changed() && (kind != di_object)) {
 				http->setmime("text/plain");
 			}
-			if ( kind == di_object ) {
-				finalfile.insert(0,"<?xml version=\"1.0\"?>\r");
-			}
+//			if ( kind == di_object ) {
+//				finalfile.insert(0,"<?xml version=\"1.0\"?>\r");
+//			}
 			string temp_var;
 			if (env->getenv("REQUEST_METHOD",temp_var) && temp_var.compare("HEAD") == 0) {
 				http->doheader();
