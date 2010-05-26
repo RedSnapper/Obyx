@@ -18,6 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 ------------------------------------------------------------------------------------
 CHANGELOG file
 v1.100526
+	Bugfix. Occasional alignment mismatch when composing message bodies.
 	Bugfix. HTTP headers not being stored when not in fast cgi mode.
 v1.100513
 	Enh.    Grammars are now loaded as needed. 
