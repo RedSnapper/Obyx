@@ -269,7 +269,13 @@ void OsiAPP::compile_http_request(string& head, string& body, string& the_result
 	if ( !res_vals[1].empty()) { res << " url=\"" << res_vals[1] << "\""; }
 	if ( !res_vals[2].empty()) { res << " version=\"" << res_vals[2] << "\""; }
 	res << ">";
-	string msg_str = head+crlfcrlf+body;
+	string msg_str;
+	size_t head_crlf = head.size() - 2;
+	if (head_crlf > 0 && head.find(crlf,head_crlf) == head_crlf) {
+		msg_str = head+crlf+body; 
+	} else {
+		msg_str = head+crlfcrlf+body; 
+	}
 	OsiMessage msg;
 	msg.compile(msg_str,res,true);
 	res << "</osi:request></osi:http>";

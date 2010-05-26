@@ -625,16 +625,17 @@ void OsiMessage::compile(string& msg_str, ostringstream& res, bool do_namespace)
 			string endboundary = startboundary + "--";
 			size_t blockstart = 0;
 			size_t blockend = 0;
+			size_t boundlen = startboundary.length();
 			bool bodydone = false;
 			while(! bodydone) {
 				blockstart = body.find(startboundary, blockend);
+				size_t first_cut = blockstart + boundlen + nlsize;
 				if (blockstart == string::npos) bodydone = true;
-				blockend = body.find(startboundary, blockstart + 1);
-				if (blockend == string::npos) blockend = body.find(endboundary, blockstart + 1);
-				if (blockend == string::npos) bodydone = true;
+				blockend = body.find(startboundary,first_cut);
+				if (blockend == string::npos) blockend = body.find(endboundary,first_cut);
+				if (blockend == string::npos) bodydone = true;			
 				if (! bodydone ) {
-					string mp_head,mp_body;
-					string msg_block = body.substr(blockstart + startboundary.length() + nlsize, blockend - blockstart - startboundary.length() - (nlsize+nlsize+nlsize));
+					string msg_block = body.substr(first_cut, blockend - first_cut);
 					OsiMessage msg;
 					msg.compile(msg_block,res,false);
 				}
