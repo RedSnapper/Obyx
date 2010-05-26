@@ -1193,6 +1193,7 @@ void Environment::getrequesthttp(string& head,string& body) {
 	for(var_map_type::iterator imt = httphead_map.begin(); imt != httphead_map.end(); imt++) {
 		rh << imt->first << ":" << imt->second << Httphead::crlf;
 	}
+//	content-type
 	head = rh.str();
 	getparm("THIS_REQ_BODY",body);
 }
@@ -1340,6 +1341,17 @@ void Environment::shutdown() {
 	benv_map.clear();
 }
 
+
+//only called if not fastcgi.
+void Environment::init_httphead() {
+	for(var_map_type::iterator bi = benv_map.begin(); bi != benv_map.end(); bi++) {
+		var_map_type::iterator it = cgi_rfc_map.find(bi->first);
+		if (it != cgi_rfc_map.end()) {
+			pair<var_map_type::iterator, bool> ins = httphead_map.insert(var_map_type::value_type(it->second,bi->second));
+		}
+	}
+}
+
 //so this now sends out the header AFTER the xml.
 void Environment::init(int argc, char **argv, char** env) {
 	if (instance == NULL) {
@@ -1348,6 +1360,8 @@ void Environment::init(int argc, char **argv, char** env) {
 		instance->gArgv=argv;
 		if (env != NULL) {
 			instance->setienvmap(env);
+		} else {
+			instance->init_httphead();
 		}
 		instance->getenvvars_base();
 		instance->getenvvars();

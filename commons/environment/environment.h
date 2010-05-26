@@ -129,6 +129,7 @@ public:
 	static void startup(string&,string&);		//everything that doesn't change across multiple runs
 	static void shutdown();
 	static void init(int,char **,char **);
+
 	static void finalise();
 	static Environment* service(); 
 	static bool getbenv(string const,string&);
@@ -155,6 +156,7 @@ public:
 	void setienv(string,string);
 	void initwlogger(int argc, char *argv[]);
 	void initwlogger();						//Does any init that needs to wait on logger.
+	void init_httphead();
 	
 	void getlanguage(Vdb::Connection*);		//This was nicked from rs404
 	void getfilename(Vdb::Connection*,string);
