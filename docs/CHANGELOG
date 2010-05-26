@@ -17,6 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.100526
+	Bugfix. HTTP headers not being stored when not in fast cgi mode.
 v1.100513
 	Enh.    Grammars are now loaded as needed. 
 			Reciprocating grammars are now supported.
