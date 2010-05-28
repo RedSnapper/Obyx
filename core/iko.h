@@ -32,6 +32,8 @@ using namespace obyx;
 class IKO : public ObyxElement {
 private:
 	friend class Function;
+	typedef enum { c_object, c_name, c_request, c_response, c_osi_response, c_time, c_timing, c_version, c_vnumber, c_point, c_cookies } current_type;	//what kind of dataItem
+	typedef std::map< std::string, current_type > current_type_map; 
 	
 protected:
 	typedef enum {immediate,none,store,file,error,xmlnamespace,xmlgrammar,cookie,field,sysparm,sysenv,url,fnparm } inp_space;	//cookie_expiry,cookie_path,cookie_domain -- cannot be retrieved from server.. 

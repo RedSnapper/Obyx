@@ -56,8 +56,8 @@ using namespace Fetch;
 
 enc_type_map IKO::enc_types;
 IKO::inp_space_map IKO::ctx_types;
+IKO::current_type_map IKO::current_types;
 kind_type_map IKO::kind_types;
-current_type_map IKO::current_types;
 
 IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : 
 ObyxElement(par,el,parm,n),kind(di_auto),encoder(e_none),context(immediate),
@@ -268,7 +268,7 @@ bool IKO::currentenv(const string& req,const usage_tests exist_test, const IKO* 
 					} break;
 				}
 			} break;
-			case c_response: {
+			case c_osi_response: {
 				result = OsiAPP::last_osi_response();
 				exists = ! result.empty();
 				switch (exist_test) {
@@ -292,7 +292,7 @@ bool IKO::currentenv(const string& req,const usage_tests exist_test, const IKO* 
 					} break;
 				}
 			} break;
-			case c_http: {
+			case c_response: {
 				exists = true;
 				switch (exist_test) {
 					case ut_existence: break;
@@ -912,12 +912,12 @@ void IKO::startup() {
 	current_types.insert(current_type_map::value_type("OBJECT",c_object));
 	current_types.insert(current_type_map::value_type("NAME",c_name));
 	current_types.insert(current_type_map::value_type("REQUEST",c_request));
-	current_types.insert(current_type_map::value_type("OSI_RESPONSE",c_response));
+	current_types.insert(current_type_map::value_type("OSI_RESPONSE",c_osi_response));
 	current_types.insert(current_type_map::value_type("TIMING",c_timing));
 	current_types.insert(current_type_map::value_type("TIME",c_time));
 	current_types.insert(current_type_map::value_type("VERSION",c_version));
 	current_types.insert(current_type_map::value_type("VERSION_NUMBER",c_vnumber));
-	current_types.insert(current_type_map::value_type("HTTP",c_http));
+	current_types.insert(current_type_map::value_type("RESPONSE",c_response));
 	current_types.insert(current_type_map::value_type("POINT",c_point));
 	current_types.insert(current_type_map::value_type("COOKIES",c_cookies));
 	
