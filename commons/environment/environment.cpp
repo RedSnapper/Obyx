@@ -1411,7 +1411,7 @@ void Environment::setbenv(string name,string value) {
 //This is commented out - it's to do with precedence of config files against existing sysenv values.
 	if (!ins.second)	{ // Cannot insert (something already there with same ref - so skip it...
 //		benv_map.erase(ins.first);
-		benv_map.insert(var_map_type::value_type(name+"_xtra", value));
+		benv_map.insert(var_map_type::value_type("xt_"name, value));
 	}
 }
 void Environment::setbenvmap() {//per box/process environment
