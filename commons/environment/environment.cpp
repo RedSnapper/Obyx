@@ -716,9 +716,9 @@ void Environment::listEnv() {
 		*Logger::log << Log::LI << Log::even;
 		std::sort(vme.begin(), vme.end(), sortvps); 
 		for(vector<pair<string,string> >::iterator vmei = vme.begin(); vmei != vme.end(); vmei++) {
-			if ( vmei->first.find("OBYX_",0,5) == string::npos) {
+//			if ( vmei->first.find("OBYX_",0,5) == string::npos) {
 				*Logger::log << Log::LI << Log::II << vmei->first << Log::IO << Log::II << vmei->second << Log::IO << Log::LO;
-			}
+//			}
 		}
 		*Logger::log << Log::blockend << Log::LO << Log::blockend ; //even .. subhead.
 	}
@@ -736,9 +736,9 @@ void  Environment::list(string& result) {
 	}
 	std::sort(vme.begin(), vme.end(), sortvps); 
 	for(vector<pair<string,string> >::iterator vmei = vme.begin(); vmei != vme.end(); vmei++) {
-		if ( gDevelop || vmei->first.find("OBYX_",0,5) == string::npos) {
+//		if ( gDevelop || vmei->first.find("OBYX_",0,5) == string::npos) {
 			buffer << Log::debug << Log::LI << "Environment " << Log::II << vmei->first << Log::IO << Log::II << vmei->second << Log::IO << LO << blockend;
-		}
+//		}
 	}
 	vector<pair<string,string> >vmp;
 	for(var_map_type::iterator imt = parm_map.begin(); imt != parm_map.end(); imt++) {
