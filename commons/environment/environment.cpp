@@ -1305,13 +1305,21 @@ string Environment::getpathforroot() {
 	return the_result;
 }
 
-//Called before LOGGER is initialised (but still goes into ienv)
+//Called before LOGGER is initialised (but still goes into ienv), once per request
 void Environment::setienv(string name,string value) {
 	pair<var_map_type::iterator, bool> ins = ienv_map.insert(var_map_type::value_type(name, value));
 	if (!ins.second)	{ // Cannot insert (something already there with same ref
-//		ienv_map.erase(ins.first);
-//		ienv_map.insert(var_map_type::value_type(name, value));
-		ienv_map.insert(var_map_type::value_type("o_"+name, value));
+		ienv_map.erase(ins.first);
+		ienv_map.insert(var_map_type::value_type(name, value));
+	}
+}
+
+//Called before LOGGER is initialised, once per process.
+void Environment::setbenv(string name,string value) {
+	pair<var_map_type::iterator, bool> ins = benv_map.insert(var_map_type::value_type(name, value));
+	if (!ins.second)	{ // Cannot insert (something already there with same ref - so skip it...
+		benv_map.erase(ins.first);
+		benv_map.insert(var_map_type::value_type(name, value));
 	}
 }
 
@@ -1402,20 +1410,6 @@ void Environment::init_cgi_rfc_map() {
 	cgi_rfc_map.insert(var_map_type::value_type("HTTP_COOKIE","Cookie"));						//precise
 	cgi_rfc_map.insert(var_map_type::value_type("HTTP_REFERER","Referer"));						//precise
 	cgi_rfc_map.insert(var_map_type::value_type("HTTP_USER_AGENT","User-Agent"));				//precise
-}
-void Environment::setbenv(string name,string value) {
-	pair<var_map_type::iterator, bool> ins = benv_map.insert(var_map_type::value_type(name, value));
-	if (!ins.second)	{ // Cannot insert (something already there with same ref - so skip it...
-//		benv_map.erase(ins.first);
-//		benv_map.insert(var_map_type::value_type(name, value));
-		ins =  benv_map.insert(var_map_type::value_type("b_"+name, value));
-		if (!ins.second) { 
-			ins =  benv_map.insert(var_map_type::value_type("c_"+name, value));
-			if (!ins.second) { 
-				ins =  benv_map.insert(var_map_type::value_type("d_"+name, value));
-			}
-		}
-	}
 }
 void Environment::setbenvmap() {//per box/process environment
 	unsigned int eit = 0;
