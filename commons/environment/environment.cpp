@@ -716,7 +716,7 @@ void Environment::listEnv() {
 		*Logger::log << Log::LI << Log::even;
 		std::sort(vme.begin(), vme.end(), sortvps); 
 		for(vector<pair<string,string> >::iterator vmei = vme.begin(); vmei != vme.end(); vmei++) {
-			if ( vmei->first.find("OBYX_") == string::npos) {
+			if ( vmei->first.find("OBYX_",0,5) == string::npos) {
 				*Logger::log << Log::LI << Log::II << vmei->first << Log::IO << Log::II << vmei->second << Log::IO << Log::LO;
 			}
 		}
