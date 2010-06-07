@@ -1313,10 +1313,9 @@ string Environment::getpathforroot() {
 void Environment::setienv(string name,string value) {
 	pair<var_map_type::iterator, bool> ins = ienv_map.insert(var_map_type::value_type(name, value));
 	if (!ins.second)	{ // Cannot insert (something already there with same ref
-//		ienv_map.erase(ins.first);
-//		ienv_map.insert(var_map_type::value_type(name, value));
-		ienv_map.insert(var_map_type::value_type("xt_"+name, value));
-
+		ienv_map.erase(ins.first);
+		ienv_map.insert(var_map_type::value_type(name, value));
+//		ienv_map.insert(var_map_type::value_type("xt_"+name, value));
 	}
 }
 
@@ -1413,7 +1412,7 @@ void Environment::setbenv(string name,string value) {
 //This is commented out - it's to do with precedence of config files against existing sysenv values.
 	if (!ins.second)	{ // Cannot insert (something already there with same ref - so skip it...
 //		benv_map.erase(ins.first);
-		benv_map.insert(var_map_type::value_type("xt_"+name, value));
+		benv_map.insert(var_map_type::value_type("bxt_"+name, value));
 	}
 }
 void Environment::setbenvmap() {//per box/process environment
