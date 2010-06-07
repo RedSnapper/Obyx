@@ -531,10 +531,6 @@ bool Environment::getparm(string const name,string& container) {
 
 bool Environment::envexists(string const name) {
 	bool retval = false;
-	//	if ( ienv_map.empty() ) {
-	//		string dummy;
-	//		retval = Environment::getenv(name,dummy);
-	//	}
 	var_map_type::iterator it = ienv_map.find(name);
 	if (it != ienv_map.end()) {
 		retval = true;
@@ -605,13 +601,13 @@ void Environment::setienvmap(char ** environment) {
 bool Environment::getenv(string const name,string& container) {
 	bool retval = false;
 	container.clear();  //should we clear this?
-	var_map_type::iterator bt = benv_map.find(name);
-	if (bt != benv_map.end()) {
+	var_map_type::iterator bt = ienv_map.find(name);
+	if (bt != ienv_map.end()) {
 		container = ((*bt).second);
 		retval = true;
 	} else {
-		var_map_type::iterator it = ienv_map.find(name);
-		if (it != ienv_map.end()) {
+		var_map_type::iterator it = benv_map.find(name);
+		if (it != benv_map.end()) {
 			container = ((*it).second);
 			retval = true;
 		} 
@@ -716,7 +712,7 @@ void Environment::listEnv() {
 		*Logger::log << Log::LI << Log::even;
 		std::sort(vme.begin(), vme.end(), sortvps); 
 		for(vector<pair<string,string> >::iterator vmei = vme.begin(); vmei != vme.end(); vmei++) {
-			if ( vmei->first.find("OBYX_",0,5) == 0) {
+			if ( vmei->first.find("OBYX_",0,5) != 0) {
 				*Logger::log << Log::LI << Log::II << vmei->first << Log::IO << Log::II << vmei->second << Log::IO << Log::LO;
 			}
 		}
@@ -736,7 +732,7 @@ void  Environment::list(string& result) {
 	}
 	std::sort(vme.begin(), vme.end(), sortvps); 
 	for(vector<pair<string,string> >::iterator vmei = vme.begin(); vmei != vme.end(); vmei++) {
-		if ( gDevelop || vmei->first.find("OBYX_",0,5) == 0) {
+		if ( gDevelop || vmei->first.find("OBYX_",0,5) != 0) {
 			buffer << Log::debug << Log::LI << "Environment " << Log::II << vmei->first << Log::IO << Log::II << vmei->second << Log::IO << LO << blockend;
 		}
 	}
