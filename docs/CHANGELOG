@@ -18,6 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 ------------------------------------------------------------------------------------
 CHANGELOG file
 v1.100607
+	Enh.	Added support for OBYX_DEFAULT_ROOT_DIR
 	Enh.    Should config file overwrite system environment? Probably not.
 v1.100529
 	Tidy.   CURRENT_HTTP now called CURRENT_RESPONSE

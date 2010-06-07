@@ -1204,7 +1204,7 @@ void Environment::getenvvars_base() {
 	if (getenv("OBYX_ROOT_DIR",gRootDir)) {
 		if ( gRootDir[gRootDir.size()-1] != '/') gRootDir+='/';
 	} else {
-		if (getenv("OBYX_PATH",gRootDir)) {	//legacy name
+		if (getenv("OBYX_DEFAULT_ROOT_DIR",gRootDir)) {	//fallback
 			if ( gRootDir[gRootDir.size()-1] != '/') gRootDir+='/';
 		}
 	}
