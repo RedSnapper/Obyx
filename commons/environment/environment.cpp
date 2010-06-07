@@ -1408,7 +1408,13 @@ void Environment::setbenv(string name,string value) {
 	if (!ins.second)	{ // Cannot insert (something already there with same ref - so skip it...
 //		benv_map.erase(ins.first);
 //		benv_map.insert(var_map_type::value_type(name, value));
-		benv_map.insert(var_map_type::value_type("b_"+name, value));
+		ins =  benv_map.insert(var_map_type::value_type("b_"+name, value));
+		if (!ins.second) { 
+			ins =  benv_map.insert(var_map_type::value_type("c_"+name, value));
+			if (!ins.second) { 
+				ins =  benv_map.insert(var_map_type::value_type("d_"+name, value));
+			}
+		}
 	}
 }
 void Environment::setbenvmap() {//per box/process environment
