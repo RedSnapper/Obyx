@@ -612,7 +612,7 @@ void OsiMessage::compile(string& msg_str, ostringstream& res, bool do_namespace)
 			res << " charset=\"UTF-8\"";
 		}
 		if ( isnt_multipart ) {
-			if ( (!body_type.empty() && (body_type.compare("text")!=0) || body.find_first_of("<&\x00") != string::npos)) {
+			if ( (!body_type.empty() && (body_type.compare("text")!=0_) || (body.find_first_of("<&\x00") != string::npos)) {
 				String::urlencode(body);
 				res << " urlencoded=\"true\"";
 			}
