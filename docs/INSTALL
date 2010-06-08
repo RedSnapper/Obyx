@@ -71,6 +71,11 @@ xqilla 2.2.2
 http://xqilla.sourceforge.net/HomePage
 http://sourceforge.net/project/showfiles.php?group_id=152021
 
+
+??libfcgi: Used for fast cgi support.
+??deb: libfcgi-dev 
+??$sudo aptitude install libfcgi-dev
+
 ** Run-time: 
 
 libpcre: Used to handle regular expressions within Obyx.
