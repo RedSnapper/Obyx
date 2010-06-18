@@ -21,9 +21,6 @@
  */
 
 #include <dlfcn.h>
-#include <fcgiapp.h>
-#include <fcgio.h>
-
 #include "commons/logger/logger.h"
 #include "commons/environment/environment.h"
 #include "fast.h"

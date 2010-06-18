@@ -23,7 +23,8 @@
 #ifndef OBYX_FAST_H
 #define OBYX_FAST_H
 
-#include <fcgiapp.h> /* fcgi library */
+#include <fastcgi.h>
+#include <fcgiapp.h>
 #include <fcgio.h>
 
 using namespace std;
