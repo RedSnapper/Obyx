@@ -70,7 +70,7 @@ OBJDIR 	  =obj
 DEPDIR 	  =dep
 ###############################################################################
 objs      =$(patsubst %.cpp,$(OBJDIR)/$(2)/%.o,$(1))
-setobjs   =$(call objs,$($(1)_USES),commons) \
+setobjs   =$(call objs,$($(1)_USES),$(2)) \
 		   $(call objs,$($(1)_SRCS),$(2)) 
 ###############################################################################
 # parm1 = %1_USES,%_SRCS  parm2 is the application directory. 
