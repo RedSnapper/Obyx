@@ -29,7 +29,7 @@
 include ../local.cfg
 CGIHOME  = $(RPATH)/$(CGIDIR)
 CGIHOMEDEV  = $(RPATH)/$(CGIDIR)_dev
-ALL_LIBS    = -L /usr/local/xerc/lib -ldl -lrt -lxerces-c -lxqilla
+ALL_LIBS = -ldl -lrt -lxerces-c -lxqilla
 SHELL    = /bin/sh
 ###############################################################################
 # Standard Library Compiler Settings
@@ -82,8 +82,8 @@ build     =@echo "Installing $(2)"; $(CC_EXEC) $(1) $(LIBDIRS) $($(3)_LIBI) $(CC
 $(CGIHOME)/obyx.cgi        : $(OBYX_OBJ)  ; $(call build,$+,$@,OBYX)
 $(CGIHOMEDEV)/obyx.cgi     : $(OBYX_OBJ)  ; $(call build,$+,$@,OBYX)
 ###############################################################################
-$(CGIHOME)/obyx.fcgi       : $(FOBYX_OBJ) ; $(call build,$+,$@,FOBYX_OBJ)
-$(CGIHOMEDEV)/obyx.fcgi    : $(FOBYX_OBJ) ; $(call build,$+,$@,FOBYX_OBJ)
+$(CGIHOME)/obyx.fcgi       : $(FOBYX_OBJ) ; $(call build,$+,$@,FOBYX)
+$(CGIHOMEDEV)/obyx.fcgi    : $(FOBYX_OBJ) ; $(call build,$+,$@,FOBYX)
 ###############################################################################
 .PHONY: clean all test
 clean: 
