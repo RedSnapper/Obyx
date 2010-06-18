@@ -41,7 +41,7 @@ CC_OBJECT_FLAG  =-o
 CC_ARGS      = -fshort-wchar -I /usr/local/xerc/include $(CC_INCLUDES) -I. $(CC_FLAGS) $(CC_DEFINES)	
 ###############################################################################
 #commons
-FAST_SRCS        =fast/fast.h fast/fast.cpp 
+FAST_SRCS        =fast/fast.cpp 
 HTTPF_SRCS       =httpfetch/httpfetch.cpp httpfetch/httpfetcher.cpp httpfetch/httpfetchleaf.cpp httpfetch/httpfetchheadparser.cpp 
 FILE_SRCS        =filing/device.cpp filing/file.cpp filing/path.cpp filing/utils.cpp 
 VDB_MYSQLSRCS    =vdb/mysql/mysqlservice.cpp vdb/mysql/mysqlconnection.cpp vdb/mysql/mysqlquery.cpp 
