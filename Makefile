@@ -38,7 +38,7 @@ CC_COMPILE_FLAG =-c
 CC_OBJECT_FLAG  =-o
 
 #All include directories are mentioned
-CC_ARGS      = -fshort-wchar -I /usr/local/xerc/include $(CC_INCLUDES) -I. $(CC_FLAGS) $(CC_DEFINES)	
+CC_ARGS      = -fshort-wchar -I /usr/include $(CC_INCLUDES) -I. $(CC_FLAGS) $(CC_DEFINES)	
 ###############################################################################
 #commons
 FAST_SRCS        =fast/fast.cpp 
