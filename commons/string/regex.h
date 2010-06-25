@@ -60,6 +60,9 @@ namespace String {
 		//		static void (*pcre_free)(void *); // appears to be causing crashes.
 		
 	public:
+		static const string xml_doctype_prolog;
+		static const string xml_namespace_prolog;
+		
 		static bool startup();
 		static bool available();
 		static bool shutdown();

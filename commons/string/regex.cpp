@@ -33,6 +33,9 @@
 using namespace std;
 
 namespace String {
+
+	const string Regex::xml_doctype_prolog="\\A\\s*(<\\?xml(?:[^?]|\\?(?!>))+\\?>)?(?:\\s+|<\\?(?:[^?]|\\?(?!>))+\\?>|<!--(?:[^-]|\\-(?!-))+-->)*<!DOCTYPE\\s+(\\w+)\\s+(?:[^][<>]|\\[[^][]+\\])+>\\s*<\\w*:?(\\2)\\s+";
+	const string Regex::xml_namespace_prolog="\\A\\s*(?:<\\?xml(?:[^?]|\\?(?!>))+\\?>)?(?:\\s+|<\\?(?:[^?]|\\?(?!>))+\\?>|<!--(?:[^-]|\\-(?!-))+-->)*(?:<!DOCTYPE(?:[^][<>]|\\[[^][]+\\])+>)?\\s*<(\\w*):?\\w+[^>]+xmlns:?\\1\\s*=\\s*\"([^\"]+)\"";
 	
 	bool Regex::loadattempted = false;
 	bool Regex::loaded = false;

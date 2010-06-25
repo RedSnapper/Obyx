@@ -272,15 +272,14 @@ namespace XML {
 					if (String::Regex::match("<(\\w*):?schema[^>]+xmlns:?\\1=\"http://www.w3.org/2001/XMLSchema\"",xfile)) {
 						do_validation = false; //This is a grammar.
 					} else {
-						string xmlns_pattern="<(\\w*):?\\w+[^>]+xmlns:?\\1\\s*=\\s*\"([^\"]+)\"";
 						string f_namespace;
-						if (String::Regex::field(xmlns_pattern,xfile,2,f_namespace)) {
+						if (String::Regex::field(String::Regex::xml_namespace_prolog,xfile,2,f_namespace)) {
 							u_str ns_load;
 							transcode(f_namespace,ns_load);
 							resourceHandler->installGrammar(ns_load); //will only do it the first time.
 							do_validation = true;
 						} else {
-							if (String::Regex::match("\\A\\s*(?:<\\?xml(?:[^?]|\\?(?!>))+\\?>)?(?:\\s+|<\\?(?:[^?]|\\?(?!>))+\\?>|<!--(?:[^-]|\\-(?!-))+-->)*<!DOCTYPE",xfile)) {
+							if (String::Regex::match(String::Regex::xml_doctype_prolog,xfile)) {
 								do_validation = true;
 							} else { 
 								do_validation = false;
