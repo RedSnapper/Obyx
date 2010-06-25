@@ -280,7 +280,7 @@ namespace XML {
 							resourceHandler->installGrammar(ns_load); //will only do it the first time.
 							do_validation = true;
 						} else {
-							if (String::Regex::match("\\A[\\x20\\x09\\x0d\\x0a]*(?:<\\?xml(?:[^?]|\\?(?!>))+\\?>)?(?:[\\x20\\x09\\x0d\\x0a]+|<\\?(?:[^?]|\\?(?!>))+\\?>|<!--(?:[^-]|\\-(?!-))+-->)*<!DOCTYPE",xfile)) {
+							if (String::Regex::match("\\A\\s*(?:<\\?xml(?:[^?]|\\?(?!>))+\\?>)?(?:\\s+|<\\?(?:[^?]|\\?(?!>))+\\?>|<!--(?:[^-]|\\-(?!-))+-->)*<!DOCTYPE",xfile)) {
 								do_validation = true;
 							} else { 
 								do_validation = false;

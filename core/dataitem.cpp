@@ -87,7 +87,7 @@ DataItem* DataItem::autoItem(const std::string& s) {
 			} else {
 				bool xml_prolog_found = false;
 				if ( String::Regex::available() ) {
-					if (String::Regex::match("\\A[\\x20\\x09\\x0d\\x0a]*<\\?xml(?:[^?]|\\?(?!>))+\\?>",s)) {
+					if (String::Regex::match("\\A\\s*<\\?xml(?:[^?]|\\?(?!>))+\\?>",s)) {
 						xml_prolog_found = true;
 						retval=new XMLObject(s);
 					} 
@@ -98,33 +98,33 @@ DataItem* DataItem::autoItem(const std::string& s) {
 					}
 				}
 				if(! xml_prolog_found) {  
-					bool xmlns_found = false;
+					bool doctype_found = false;
 					if ( String::Regex::available() ) {
-						string xmlns_pattern="<(\\w*):?\\w+[^>]+xmlns:?\\1\\s*=\\s*\"([^\"]+)\""; //this pattern is cached.
-						if (String::Regex::match(xmlns_pattern,s)) {
-							xmlns_found = true;
+						if (String::Regex::match("\\A\\s*(?:<\\?xml(?:[^?]|\\?(?!>))+\\?>)?(?:\\s+|<\\?(?:[^?]|\\?(?!>))+\\?>|<!--(?:[^-]|\\-(?!-))+-->)*<!DOCTYPE",s)) {
+							doctype_found = true;
 							retval=new XMLObject(s);
 						} 
 					} else {
-						if (s.find("xmlns") != string::npos) {
-							xmlns_found = true;
+						if (s.find("<!DOCTYPE") != string::npos) {
+							doctype_found = true;
 							retval=new XMLObject(s);
 						}
 					}
-					if (!xmlns_found) { //ok, let's try a DOCTYPE.
-						bool doctype_found = false;
+					if (!doctype_found) { //ok, let's try a namespace declaration (but not from start..)
+						bool xmlns_found = false;
 						if ( String::Regex::available() ) {
-							if (String::Regex::match("\\A[\\x20\\x09\\x0d\\x0a]*(?:<\\?xml(?:[^?]|\\?(?!>))+\\?>)?(?:[\\x20\\x09\\x0d\\x0a]+|<\\?(?:[^?]|\\?(?!>))+\\?>|<!--(?:[^-]|\\-(?!-))+-->)*<!DOCTYPE",s)) {
-								doctype_found = true;
+							string xmlns_pattern="<(\\w*):?\\w+[^>]+xmlns:?\\1\\s*=\\s*\"([^\"]+)\""; //this pattern is cached.
+							if (String::Regex::match(xmlns_pattern,s)) {
+								xmlns_found = true;
 								retval=new XMLObject(s);
 							} 
 						} else {
-							if (s.find("<!DOCTYPE") != string::npos) {
-								doctype_found = true;
+							if (s.find("xmlns") != string::npos) {
+								xmlns_found = true;
 								retval=new XMLObject(s);
 							}
 						}
-						if (!doctype_found) {  //no no xml prolog, no xmlns, no DOCTYPE, but < and > so try a suppressed xmlobject.
+						if (!xmlns_found) {  //no no xml prolog, no DOCTYPE, no xmlns, but < and > so try a suppressed xmlobject.
 							ostringstream* suppressor = NULL;
 							suppressor = new ostringstream();
 							Logger::set_stream(suppressor);
