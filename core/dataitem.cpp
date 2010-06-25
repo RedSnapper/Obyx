@@ -74,6 +74,7 @@ void DataItem::append(DataItem*&) { //Do nothing
 
 DataItem* DataItem::autoItem(const std::string& s) {
 	DataItem* retval = NULL;
+	bool tested = false;
 	if (! s.empty() ) {
 		string::size_type c = s.find_first_not_of(" \r\n\t" );
 		if(s[c] == '<') { 
@@ -82,25 +83,29 @@ DataItem* DataItem::autoItem(const std::string& s) {
 				if ( String::Regex::available() ) {
 					string xmlns_pattern="<(\\w*):?\\w+[^>]+xmlns:?\\1\\s*=\\s*\"([^\"]+)\""; //this pattern is cached.
 					if (String::Regex::match(xmlns_pattern,s)) {
+						tested = true;
 						retval=new XMLObject(s);
 					} 
 				} else {
 					if (s.find("xmlns") != string::npos) {
+						tested = true;
 						retval=new XMLObject(s);
 					}
 				}
-				if (retval == NULL && s.find("<!DOCTYPE") != string::npos) {
-					retval=new XMLObject(s);
-				} else { 
-					ostringstream* suppressor = NULL;
-					suppressor = new ostringstream();
-					Logger::set_stream(suppressor);
-					retval=new XMLObject(s);
-					Logger::unset_stream();
-					if (!suppressor->str().empty()) {
-						retval=new StrObject(s);
+				if (!tested) {
+					if( s.find("<!DOCTYPE") != string::npos) {
+						retval=new XMLObject(s);
+					} else { 
+						ostringstream* suppressor = NULL;
+						suppressor = new ostringstream();
+						Logger::set_stream(suppressor);
+						retval=new XMLObject(s);
+						Logger::unset_stream();
+						if (!suppressor->str().empty()) {
+							retval=new StrObject(s);
+						}
+						delete suppressor;
 					}
-					delete suppressor;
 				}
 			} else {
 				retval=new StrObject(s);
