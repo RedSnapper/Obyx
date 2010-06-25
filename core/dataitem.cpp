@@ -107,7 +107,8 @@ DataItem* DataItem::autoItem(const std::string& s) {
 						Logger::set_stream(suppressor);
 						retval=new XMLObject(s);
 						Logger::unset_stream();
-						if (retval == NULL) { //failed. we know the string isn't empty.
+						if (!suppressor->str().empty()) {
+							if (retval != NULL) { delete retval; }
 							retval=new StrObject(s);
 						}
 						delete suppressor;
