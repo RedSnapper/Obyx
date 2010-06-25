@@ -74,47 +74,47 @@ void DataItem::append(DataItem*&) { //Do nothing
 
 DataItem* DataItem::autoItem(const std::string& s) {
 	DataItem* retval = NULL;
-	bool tested = false;
-	if (! s.empty() ) {
-		string::size_type c = s.find_first_not_of(" \r\n\t" );
-		if(s[c] == '<') { 
-			string::size_type c = s.find_last_not_of(" \r\n\t" );
-			if(s[c] == '>') { 
+	if ( s.empty() ) {
+		retval=NULL;
+	} else {
+		string::size_type c = s.find_first_not_of(" \r\n\t" ); //Test for first non-ws is a '<'
+		if(s[c] != '<') {  
+			retval=new StrObject(s);
+		} else { 
+			string::size_type c = s.find_last_not_of(" \r\n\t" ); //Test for last non-ws is a '>'
+			if(s[c] != '>') { 
+				retval=new StrObject(s);
+			} else {
+				bool xmlns_found = false;
 				if ( String::Regex::available() ) {
 					string xmlns_pattern="<(\\w*):?\\w+[^>]+xmlns:?\\1\\s*=\\s*\"([^\"]+)\""; //this pattern is cached.
 					if (String::Regex::match(xmlns_pattern,s)) {
-						tested = true;
+						xmlns_found = true;
 						retval=new XMLObject(s);
 					} 
 				} else {
 					if (s.find("xmlns") != string::npos) {
-						tested = true;
+						xmlns_found = true;
 						retval=new XMLObject(s);
 					}
 				}
-				if (!tested) {
+				if (!xmlns_found) { //ok, let's try a DOCTYPE.
 					if( s.find("<!DOCTYPE") != string::npos) {
 						retval=new XMLObject(s);
-					} else { 
+					} else {  //no xmlns, no DOCTYPE, but < and > so try a suppressed xmlobject.
 						ostringstream* suppressor = NULL;
 						suppressor = new ostringstream();
 						Logger::set_stream(suppressor);
 						retval=new XMLObject(s);
 						Logger::unset_stream();
-						if (!suppressor->str().empty()) {
+						if (retval == NULL) { //failed. we know the string isn't empty.
 							retval=new StrObject(s);
 						}
 						delete suppressor;
 					}
 				}
-			} else {
-				retval=new StrObject(s);
 			}						
-		} else {
-			retval=new StrObject(s);
-		}
-	} else {
-		retval=NULL;
+		} 
 	}
 	return retval;
 }
