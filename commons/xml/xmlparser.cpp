@@ -340,14 +340,18 @@ namespace XML {
 	void Parser::validation_off() {
 		if (validation) {
 			DOMConfiguration* dc = parser->getDomConfig();
-			if (dc->canSetParameter(XMLUni::fgDOMValidate, false)) dc->setParameter(XMLUni::fgDOMValidate, false);
+			if (dc->canSetParameter(XMLUni::fgDOMValidate, false)) {
+				dc->setParameter(XMLUni::fgDOMValidate, false);
+			}
 		} 
 	}
 	
 	void Parser::validation_on() {
 		if (validation) {
 			DOMConfiguration* dc = parser->getDomConfig();
-			if (dc->canSetParameter(XMLUni::fgDOMValidate, true)) dc->setParameter(XMLUni::fgDOMValidate, true);
+			if (dc->canSetParameter(XMLUni::fgDOMValidate, true)) {
+				dc->setParameter(XMLUni::fgDOMValidate, true);
+			}
 		} 
 	}
 	
