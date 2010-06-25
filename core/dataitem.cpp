@@ -77,45 +77,69 @@ DataItem* DataItem::autoItem(const std::string& s) {
 	if ( s.empty() ) {
 		retval=NULL;
 	} else {
-		string::size_type c = s.find_first_not_of(" \r\n\t" ); //Test for first non-ws is a '<'
-		if(s[c] != '<') {  
+		string::size_type b = s.find_first_not_of(" \r\n\t" ); //Test for first non-ws is a '<'
+		if(s[b] != '<') {  
 			retval=new StrObject(s);
-		} else { 
-			string::size_type c = s.find_last_not_of(" \r\n\t" ); //Test for last non-ws is a '>'
-			if(s[c] != '>') { 
+		} else {
+			string::size_type e = s.find_last_not_of(" \r\n\t" ); //Test for last non-ws is a '>'
+			if(s[e] != '>') { 
 				retval=new StrObject(s);
 			} else {
-				bool xmlns_found = false;
+				bool xml_prolog_found = false;
 				if ( String::Regex::available() ) {
-					string xmlns_pattern="<(\\w*):?\\w+[^>]+xmlns:?\\1\\s*=\\s*\"([^\"]+)\""; //this pattern is cached.
-					if (String::Regex::match(xmlns_pattern,s)) {
-						xmlns_found = true;
+					if (String::Regex::match("\\A(?:<\\?xml[\\x20\\x09\\x0d\\x0a]+(?:[^?]|\\?(?!>))+\\?>)",s)) {
+						xml_prolog_found = true;
 						retval=new XMLObject(s);
 					} 
 				} else {
-					if (s.find("xmlns") != string::npos) {
-						xmlns_found = true;
+					if(s.substr(b,6).compare("<?xml ")==0) { 
+						xml_prolog_found = true;
 						retval=new XMLObject(s);
 					}
 				}
-				if (!xmlns_found) { //ok, let's try a DOCTYPE.
-					if( s.find("<!DOCTYPE") != string::npos) {
-						retval=new XMLObject(s);
-					} else {  //no xmlns, no DOCTYPE, but < and > so try a suppressed xmlobject.
-						ostringstream* suppressor = NULL;
-						suppressor = new ostringstream();
-						Logger::set_stream(suppressor);
-						retval=new XMLObject(s);
-						Logger::unset_stream();
-						if (!suppressor->str().empty()) {
-							if (retval != NULL) { delete retval; }
-							retval=new StrObject(s);
+				if(! xml_prolog_found) {  
+					bool xmlns_found = false;
+					if ( String::Regex::available() ) {
+						string xmlns_pattern="\\A<(\\w*):?\\w+[^>]+xmlns:?\\1\\s*=\\s*\"([^\"]+)\""; //this pattern is cached.
+						if (String::Regex::match(xmlns_pattern,s)) {
+							xmlns_found = true;
+							retval=new XMLObject(s);
+						} 
+					} else {
+						if (s.find("xmlns") != string::npos) {
+							xmlns_found = true;
+							retval=new XMLObject(s);
 						}
-						delete suppressor;
+					}
+					if (!xmlns_found) { //ok, let's try a DOCTYPE.
+						bool doctype_found = false;
+						if ( String::Regex::available() ) {
+							if (String::Regex::match("\\A(?:<\\?xml(?:[^?]|\\?(?!>))+\\?>)?(?:[\\x20\\x09\\x0d\\x0a]+|<\\?(?:[^?]|\\?(?!>))+\\?>|<!--(?:[^-]|\\-(?!-))+-->)*<!DOCTYPE",s)) {
+								doctype_found = true;
+								retval=new XMLObject(s);
+							} 
+						} else {
+							if (s.find("<!DOCTYPE") != string::npos) {
+								doctype_found = true;
+								retval=new XMLObject(s);
+							}
+						}
+						if (!doctype_found) {  //no no xml prolog, no xmlns, no DOCTYPE, but < and > so try a suppressed xmlobject.
+							ostringstream* suppressor = NULL;
+							suppressor = new ostringstream();
+							Logger::set_stream(suppressor);
+							retval=new XMLObject(s);
+							Logger::unset_stream();
+							if (!suppressor->str().empty()) {
+								if (retval != NULL) { delete retval; }
+								retval=new StrObject(s);
+							}
+							delete suppressor;
+						}
 					}
 				}
-			}						
-		} 
+			} 
+		}
 	}
 	return retval;
 }
