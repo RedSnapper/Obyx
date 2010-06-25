@@ -87,7 +87,7 @@ DataItem* DataItem::autoItem(const std::string& s) {
 			} else {
 				bool xml_prolog_found = false;
 				if ( String::Regex::available() ) {
-					if (String::Regex::match("\\A(?:<\\?xml[\\x20\\x09\\x0d\\x0a]+(?:[^?]|\\?(?!>))+\\?>)",s)) {
+					if (String::Regex::match("\\A[\\x20\\x09\\x0d\\x0a]*<\\?xml(?:[^?]|\\?(?!>))+\\?>",s)) {
 						xml_prolog_found = true;
 						retval=new XMLObject(s);
 					} 
@@ -100,7 +100,7 @@ DataItem* DataItem::autoItem(const std::string& s) {
 				if(! xml_prolog_found) {  
 					bool xmlns_found = false;
 					if ( String::Regex::available() ) {
-						string xmlns_pattern="\\A<(\\w*):?\\w+[^>]+xmlns:?\\1\\s*=\\s*\"([^\"]+)\""; //this pattern is cached.
+						string xmlns_pattern="<(\\w*):?\\w+[^>]+xmlns:?\\1\\s*=\\s*\"([^\"]+)\""; //this pattern is cached.
 						if (String::Regex::match(xmlns_pattern,s)) {
 							xmlns_found = true;
 							retval=new XMLObject(s);
@@ -114,7 +114,7 @@ DataItem* DataItem::autoItem(const std::string& s) {
 					if (!xmlns_found) { //ok, let's try a DOCTYPE.
 						bool doctype_found = false;
 						if ( String::Regex::available() ) {
-							if (String::Regex::match("\\A(?:<\\?xml(?:[^?]|\\?(?!>))+\\?>)?(?:[\\x20\\x09\\x0d\\x0a]+|<\\?(?:[^?]|\\?(?!>))+\\?>|<!--(?:[^-]|\\-(?!-))+-->)*<!DOCTYPE",s)) {
+							if (String::Regex::match("\\A[\\x20\\x09\\x0d\\x0a]*(?:<\\?xml(?:[^?]|\\?(?!>))+\\?>)?(?:[\\x20\\x09\\x0d\\x0a]+|<\\?(?:[^?]|\\?(?!>))+\\?>|<!--(?:[^-]|\\-(?!-))+-->)*<!DOCTYPE",s)) {
 								doctype_found = true;
 								retval=new XMLObject(s);
 							} 
