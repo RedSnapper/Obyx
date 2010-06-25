@@ -72,20 +72,53 @@ void DataItem::append(DataItem*& a,DataItem*& b) { //this is static
 void DataItem::append(DataItem*&) { //Do nothing
 }
 
+DataItem* DataItem::autoItem(const std::string& s) {
+	DataItem* retval = NULL;
+	if (! s.empty() ) {
+		string::size_type c = s.find_first_not_of(" \r\n\t" );
+		if(s[c] == '<') { 
+			string::size_type c = s.find_last_not_of(" \r\n\t" );
+			if(s[c] == '>') { 
+				if ( String::Regex::available() ) {
+					string xmlns_pattern="<(\\w*):?\\w+[^>]+xmlns:?\\1\\s*=\\s*\"([^\"]+)\""; //this pattern is cached.
+					if (String::Regex::match(xmlns_pattern,s)) {
+						retval=new XMLObject(s);
+					} 
+				} else {
+					if (s.find("xmlns") != string::npos) {
+						retval=new XMLObject(s);
+					}
+				}
+				if (retval == NULL && s.find("<!DOCTYPE") != string::npos) {
+					retval=new XMLObject(s);
+				} else { 
+					ostringstream* suppressor = NULL;
+					suppressor = new ostringstream();
+					Logger::set_stream(suppressor);
+					retval=new XMLObject(s);
+					Logger::unset_stream();
+					if (!suppressor->str().empty()) {
+						retval=new StrObject(s);
+					}
+					delete suppressor;
+				}
+			} else {
+				retval=new StrObject(s);
+			}						
+		} else {
+			retval=new StrObject(s);
+		}
+	} else {
+		retval=NULL;
+	}
+	return retval;
+}
+
 DataItem* DataItem::factory(std::string& s,kind_type kind_it_is) {
 	DataItem* retval = NULL;
 	switch (kind_it_is) {
 		case di_auto: {
-			if (! s.empty() ) {
-				string::size_type c = s.find_first_not_of(" \r\n\t" );
-				if(s[c] == '<') { 
-					retval=new XMLObject(s);
-				} else {
-					retval=new StrObject(s);
-				}
-			} else {
-				retval=NULL;
-			}
+			retval= autoItem(s);
 		} break;
 		case di_text: {
 			retval= new StrObject(s);
@@ -106,16 +139,7 @@ DataItem* DataItem::factory(const string& s,kind_type kind_it_is) {
 	DataItem* retval = NULL;
 	switch (kind_it_is) {
 		case di_auto: {
-			if (! s.empty() ) {
-				string::size_type c = s.find_first_not_of(" \r\n\t" );
-				if(s[c] == '<') { 
-					retval=new XMLObject(s);
-				} else {
-					retval=new StrObject(s);
-				}
-			} else {
-				retval=NULL;
-			}
+			retval= autoItem(s);
 		} break;
 		case di_text: {
 			retval= new StrObject(s);
@@ -266,7 +290,7 @@ DataItem* DataItem::factory(u_str s,kind_type kind_it_is) {
 	switch (kind_it_is) {
 		case di_auto: {			
 			if (! s.empty() ) {
-				retval= new FragmentObject(s);
+				retval= new FragmentObject(s); //why are we not doing xml detection here?
 			} else {
 				retval=NULL;
 			}

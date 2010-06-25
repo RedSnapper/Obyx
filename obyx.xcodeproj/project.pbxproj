@@ -7,11 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B50E23B311D4C6AD00D62C41 /* dataitem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B55597860F8A0D3E003C3BE0 /* dataitem.cpp */; };
 		B51648170CBB8285000995D5 /* libdl.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B51648160CBB8285000995D5 /* libdl.dylib */; };
 		B5207EBB0F5ECA30004F5C1B /* xmlrsrchandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5207EBA0F5ECA30004F5C1B /* xmlrsrchandler.cpp */; };
 		B52556180C7DDB7700E3ADFC /* mapping.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B52556170C7DDB7700E3ADFC /* mapping.cpp */; };
 		B52D56D909BF72F800F639C5 /* function.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B52D56D809BF72F800F639C5 /* function.cpp */; };
 		B52DB5060CBB9A5E00D5B5D0 /* servicefactory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B52DB5050CBB9A5E00D5B5D0 /* servicefactory.cpp */; };
+		B537A228119B09D000BBFF9A /* libxerces-c-3.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B537A227119B09D000BBFF9A /* libxerces-c-3.0.dylib */; };
 		B53AE9BE0C1DE1CA00B2371C /* httpfetch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B53AE9B50C1DE1CA00B2371C /* httpfetch.cpp */; };
 		B53AE9BF0C1DE1CA00B2371C /* httpfetcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B53AE9B70C1DE1CA00B2371C /* httpfetcher.cpp */; };
 		B53AE9C00C1DE1CA00B2371C /* httpfetchheadparser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B53AE9BA0C1DE1CA00B2371C /* httpfetchheadparser.cpp */; };
@@ -77,7 +79,6 @@
 		B541F22211941E1E0099F07C /* fragmentobject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B58DA8C11104B05E00C34661 /* fragmentobject.cpp */; };
 		B541F22411941E1E0099F07C /* libdl.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B51648160CBB8285000995D5 /* libdl.dylib */; };
 		B541F22511941E1E0099F07C /* libxqilla.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B599F9230F583DEA00AD3D2C /* libxqilla.dylib */; };
-		B541F22611941E1E0099F07C /* libxerces-c-3.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B5F9885D1148037000DB37C3 /* libxerces-c-3.0.dylib */; };
 		B541F23A11941EC30099F07C /* libfcgi.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B541F23811941EC30099F07C /* libfcgi.dylib */; };
 		B541F23B11941EC30099F07C /* libfcgi++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B541F23911941EC30099F07C /* libfcgi++.dylib */; };
 		B541F23E11941ECB0099F07C /* fast.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B541F1D4119414330099F07C /* fast.cpp */; };
@@ -90,7 +91,6 @@
 		B5493427105A6B9500CE818F /* postgresqlquery.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5493426105A6B9500CE818F /* postgresqlquery.cpp */; };
 		B54EE1500E3501860044DFA3 /* chars.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B54EE14F0E3501860044DFA3 /* chars.cpp */; };
 		B555972F0F8A0504003C3BE0 /* manager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B555972D0F8A0504003C3BE0 /* manager.cpp */; };
-		B555978C0F8A0D3E003C3BE0 /* dataitem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B55597860F8A0D3E003C3BE0 /* dataitem.cpp */; };
 		B555978D0F8A0D3E003C3BE0 /* strobject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B55597880F8A0D3E003C3BE0 /* strobject.cpp */; };
 		B555978E0F8A0D3E003C3BE0 /* xmlobject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B555978A0F8A0D3E003C3BE0 /* xmlobject.cpp */; };
 		B56170040AD129C80032F167 /* inputtype.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B56170030AD129C80032F167 /* inputtype.cpp */; };
@@ -104,6 +104,8 @@
 		B58852A60CC39E1B009D0279 /* regex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B58852A10CC39E1B009D0279 /* regex.cpp */; };
 		B58DA8C21104B05E00C34661 /* fragmentobject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B58DA8C11104B05E00C34661 /* fragmentobject.cpp */; };
 		B5A68E9209CF266B00D69316 /* pairqueue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5A68E9109CF266B00D69316 /* pairqueue.cpp */; };
+		B5CA58FC11B66946001A56D4 /* libxerces-c-3.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B5CA58FB11B66946001A56D4 /* libxerces-c-3.1.dylib */; };
+		B5CA58FD11B66946001A56D4 /* libxerces-c-3.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B5CA58FB11B66946001A56D4 /* libxerces-c-3.1.dylib */; };
 		B5CB066109BE09DB0014329C /* document.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5CB066009BE09DB0014329C /* document.cpp */; };
 		B5D74F1C0CA0433E00D37970 /* osiapp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5D74F1B0CA0433E00D37970 /* osiapp.cpp */; };
 		B5DA48C10CFC48BE0060FFB1 /* iko.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5DA48C00CFC48BE0060FFB1 /* iko.cpp */; };
@@ -131,7 +133,6 @@
 		B5F0C04C0A4C3B0A00CC363D /* IInfInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5F0C0440A4C3B0A00CC363D /* IInfInfo.cpp */; };
 		B5F0C04D0A4C3B0A00CC363D /* IInfNetworkGraphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5F0C0460A4C3B0A00CC363D /* IInfNetworkGraphics.cpp */; };
 		B5F0C04E0A4C3B0A00CC363D /* IInfReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5F0C0480A4C3B0A00CC363D /* IInfReader.cpp */; };
-		B5F59E751164BDE000872F71 /* libxerces-c-3.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B5F9885D1148037000DB37C3 /* libxerces-c-3.0.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -176,6 +177,7 @@
 		B52DB5040CBB9A5E00D5B5D0 /* servicefactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = servicefactory.h; sourceTree = "<group>"; };
 		B52DB5050CBB9A5E00D5B5D0 /* servicefactory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = servicefactory.cpp; sourceTree = "<group>"; };
 		B52DB5160CBB9A9D00D5B5D0 /* service.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = service.h; sourceTree = "<group>"; };
+		B537A227119B09D000BBFF9A /* libxerces-c-3.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libxerces-c-3.0.dylib"; path = "/usr/local/lib/libxerces-c-3.0.dylib"; sourceTree = "<absolute>"; };
 		B53AE9B50C1DE1CA00B2371C /* httpfetch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = httpfetch.cpp; sourceTree = "<group>"; };
 		B53AE9B60C1DE1CA00B2371C /* httpfetch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = httpfetch.h; sourceTree = "<group>"; };
 		B53AE9B70C1DE1CA00B2371C /* httpfetcher.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = httpfetcher.cpp; sourceTree = "<group>"; };
@@ -255,6 +257,7 @@
 		B5C208E90FB983C9000BD08A /* wsdlmime.xsd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = wsdlmime.xsd; path = grammars/wsdlmime.xsd; sourceTree = SOURCE_ROOT; };
 		B5C208F60FB984EF000BD08A /* wsdlmimexsd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wsdlmimexsd.h; path = grammars/wsdlmimexsd.h; sourceTree = "<group>"; };
 		B5C208F70FB984EF000BD08A /* wsdlxsd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wsdlxsd.h; path = grammars/wsdlxsd.h; sourceTree = "<group>"; };
+		B5CA58FB11B66946001A56D4 /* libxerces-c-3.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libxerces-c-3.1.dylib"; path = "/usr/local/lib/libxerces-c-3.1.dylib"; sourceTree = "<absolute>"; };
 		B5CB065F09BE09DB0014329C /* document.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = document.h; sourceTree = "<group>"; };
 		B5CB066009BE09DB0014329C /* document.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = document.cpp; sourceTree = "<group>"; };
 		B5CB068509BE0CBF0014329C /* obyxelement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = obyxelement.h; sourceTree = "<group>"; };
@@ -288,7 +291,6 @@
 		B5F0C0440A4C3B0A00CC363D /* IInfInfo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IInfInfo.cpp; sourceTree = "<group>"; };
 		B5F0C0460A4C3B0A00CC363D /* IInfNetworkGraphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IInfNetworkGraphics.cpp; sourceTree = "<group>"; };
 		B5F0C0480A4C3B0A00CC363D /* IInfReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IInfReader.cpp; sourceTree = "<group>"; };
-		B5F9885D1148037000DB37C3 /* libxerces-c-3.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libxerces-c-3.0.dylib"; path = "/usr/local/lib/libxerces-c-3.0.dylib"; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -298,9 +300,10 @@
 			files = (
 				B541F22411941E1E0099F07C /* libdl.dylib in Frameworks */,
 				B541F22511941E1E0099F07C /* libxqilla.dylib in Frameworks */,
-				B541F22611941E1E0099F07C /* libxerces-c-3.0.dylib in Frameworks */,
 				B541F23A11941EC30099F07C /* libfcgi.dylib in Frameworks */,
 				B541F23B11941EC30099F07C /* libfcgi++.dylib in Frameworks */,
+				B537A228119B09D000BBFF9A /* libxerces-c-3.0.dylib in Frameworks */,
+				B5CA58FC11B66946001A56D4 /* libxerces-c-3.1.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -310,7 +313,7 @@
 			files = (
 				B51648170CBB8285000995D5 /* libdl.dylib in Frameworks */,
 				B53D233910568020008FC5CB /* libxqilla.dylib in Frameworks */,
-				B5F59E751164BDE000872F71 /* libxerces-c-3.0.dylib in Frameworks */,
+				B5CA58FD11B66946001A56D4 /* libxerces-c-3.1.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -320,7 +323,8 @@
 		0249A662FF388D9811CA2CEA /* External Frameworks and Libraries */ = {
 			isa = PBXGroup;
 			children = (
-				B5F9885D1148037000DB37C3 /* libxerces-c-3.0.dylib */,
+				B537A227119B09D000BBFF9A /* libxerces-c-3.0.dylib */,
+				B5CA58FB11B66946001A56D4 /* libxerces-c-3.1.dylib */,
 				B51648160CBB8285000995D5 /* libdl.dylib */,
 				B599F9230F583DEA00AD3D2C /* libxqilla.dylib */,
 				B541F23811941EC30099F07C /* libfcgi.dylib */,
@@ -519,8 +523,8 @@
 		B541F1D3119414330099F07C /* fast */ = {
 			isa = PBXGroup;
 			children = (
-				B541F1D4119414330099F07C /* fast.cpp */,
 				B541F1D5119414330099F07C /* fast.h */,
+				B541F1D4119414330099F07C /* fast.cpp */,
 			);
 			path = fast;
 			sourceTree = "<group>";
@@ -913,7 +917,6 @@
 				B54EE1500E3501860044DFA3 /* chars.cpp in Sources */,
 				B5207EBB0F5ECA30004F5C1B /* xmlrsrchandler.cpp in Sources */,
 				B555972F0F8A0504003C3BE0 /* manager.cpp in Sources */,
-				B555978C0F8A0D3E003C3BE0 /* dataitem.cpp in Sources */,
 				B555978D0F8A0D3E003C3BE0 /* strobject.cpp in Sources */,
 				B555978E0F8A0D3E003C3BE0 /* xmlobject.cpp in Sources */,
 				B56234A10FEFC9A400CF092E /* itemstore.cpp in Sources */,
@@ -927,6 +930,7 @@
 				B58DA8C21104B05E00C34661 /* fragmentobject.cpp in Sources */,
 				B5741877119436A80046BE0B /* httplogger.cpp in Sources */,
 				B5741878119436AA0046BE0B /* clilogger.cpp in Sources */,
+				B50E23B311D4C6AD00D62C41 /* dataitem.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

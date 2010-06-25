@@ -43,8 +43,9 @@ using namespace obyx;
 
 //base class for xml / text that appear in PairQueue.
 class DataItem {
+private:
+	static DataItem* autoItem(const std::string&);
 	
-protected:
 	//	typedef std::map<unsigned long, std::string > long_map; 
 	//	static long_map ce_map;
 	//	void do_alloc(const std::string);
