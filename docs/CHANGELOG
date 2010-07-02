@@ -17,6 +17,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.100702
+	Enh.	Allow for underscore in shell calls.
+
 v1.100625
 	Enh.	'auto' detection was far too naive. The tests for auto have been extended.
 			Still best to catch errors. eg <!DOCTYPE bong bong> will break.
