@@ -662,16 +662,16 @@ void Instruction::call_system(DataItem* di_cmd) {
 					command_parms.first = cmd;
 					command_parms.second = "";
 				}
-				const char sn[]="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.";
+				const char sn[]="_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.";
 				size_t endcmdpos = command_parms.first.find_first_not_of(sn);
 				if (endcmdpos != string::npos) {
-					*Logger::log << Log::error << Log::LI << "Error. Instruction operation shell The shell command must be alphanumeric (and .)" << Log::LO;
+					*Logger::log << Log::error << Log::LI << "Error. Instruction operation shell The shell command must be alphanumeric (and _ or .)" << Log::LO;
 					*Logger::log << Log::LI << command_parms.first << Log::LO;
 					trace();
 					*Logger::log << Log::blockend;
 				} else {
-					//base 64 with spaces.
-					const char pm[]="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789=+/ ";
+					//base 64 with spaces plus _
+					const char pm[]="_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789=+/ ";
 					size_t endprmpos = command_parms.second.find_first_not_of(pm);
 					if (endprmpos != string::npos) {
 						*Logger::log << Log::error << Log::LI << "Error. Instruction operation shell.";
