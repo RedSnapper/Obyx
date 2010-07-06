@@ -384,6 +384,7 @@
 					fwrite(buf, 1, i, out);
 				fclose(in);
 				fclose(out);
+				chmod(newfile.output().c_str(),S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH );
 				return true;
 			}
 			return false;
@@ -415,6 +416,7 @@
 				if (out) {
 					size_t written = fwrite(contents.c_str(),1,size,out);
 					fclose(out);
+					chmod(contents.c_str(),S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH );
 					if ( written == size ) {
 						result=true;
 					}
