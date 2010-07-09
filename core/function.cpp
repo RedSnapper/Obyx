@@ -58,7 +58,7 @@ ObyxElement(par,el,flowfunction,n),deferred(false),finalised(false),
 stream_is_set(false),fnnote(),outputs(),inputs(),definputs() {
 	ObyxElement* ft = par; 
 	while (ft != NULL && ft->wotzit != xmldocument ) {
-		if (ft->wotspace == defparm) {
+		if (ft->wotspace == defparm || ft->wotzit == output) {
 			deferred=true; 
 			break;
 		}
