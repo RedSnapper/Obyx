@@ -57,6 +57,7 @@ void ItemStore::finalise() {
 	}
 	the_item_map_stack_map.clear();
 }
+#pragma mark GRAMMAR FUNCTIONS
 bool ItemStore::setgrammar(const DataItem* sig, DataItem*& document) {
 	bool retval=false;
 	if (sig != NULL) {
@@ -110,6 +111,7 @@ bool ItemStore::grammarexists(const DataItem* sig,bool release) {
 	}
 	return retval;
 }
+#pragma mark NAMESPACE FUNCTIONS
 bool ItemStore::setns(const DataItem* c, DataItem*& sig) {
 	bool retval=false;
 	if (c != NULL && sig != NULL) {
@@ -138,6 +140,7 @@ bool ItemStore::nsexists(const DataItem* c,bool release) {
 	}
 	return retval;
 }
+#pragma mark STORE FUNCTIONS
 bool ItemStore::exists(const DataItem* obj_id,bool release,std::string& errorstr) {
 	string obj_name; if (obj_id != NULL) { obj_name = *obj_id; }
 	bool retval=false;
