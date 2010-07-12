@@ -88,23 +88,58 @@ Environment::~Environment() {
 	parm_map.clear();							//Application parms  (ro)
 	httphead_map.clear();						//Request HTTP headers  (ro)
 }
-
-//public methods
-//---------------------------------------------------------------------------
-//called by Logger. - Can use Logger messaging here.
-void Environment::initwlogger() {
-	setparm("_count","0");	//Just in case there are none.
-	doparms(gArgc,gArgv);
-	string fn;
-	if (getenv("PATH_TRANSLATED",fn)) {
-		Logger::set_path(fn);
-	}
-	dodocument();
-	do_request_cookies();
-	dopostparms();	
+#pragma mark STATIC CONTROL
+void Environment::startup(string& v,string& vn) {					//everything that doesn't change across multiple runs
+	init_cgi_rfc_map();
+	setbenvmap();
+	setbenv("OBYX_VERSION",v);			//Let coders know what version we are in!
+	setbenv("OBYX_VERSION_NUMBER",vn);	//Let coders know what version number we are in!
 }
 
-//-------------------------------- COOKIES ---------------------------------
+void Environment::shutdown() {
+	cgi_rfc_map.clear();
+	benv_map.clear();
+}
+
+
+//only called if not fastcgi.
+void Environment::init_httphead() {
+	for(var_map_type::iterator bi = benv_map.begin(); bi != benv_map.end(); bi++) {
+		var_map_type::iterator it = cgi_rfc_map.find(bi->first);
+		if (it != cgi_rfc_map.end()) {
+			pair<var_map_type::iterator, bool> ins = httphead_map.insert(var_map_type::value_type(it->second,bi->second));
+		}
+	}
+}
+
+//so this now sends out the header AFTER the xml.
+void Environment::init(int argc, char **argv, char** env) {
+	if (instance == NULL) {
+		instance = new Environment();	// instantiate singleton
+		instance->gArgc=argc;
+		instance->gArgv=argv;
+		if (env != NULL) {
+			instance->setienvmap(env);
+		} else {
+			instance->init_httphead();
+		}
+		instance->getenvvars_base();
+		instance->getenvvars();
+		instance->setbasetime();
+	} 
+}	
+void Environment::finalise() {	
+	if (instance != NULL) {
+		delete instance;
+		instance = NULL;
+	}
+}
+
+Environment* Environment::service() { 
+	return instance;
+}
+
+#pragma mark COOKIE MANAGEMENT FUNCTIONS
 //Request cookies: GET
 bool Environment::getcookie_req(string const name,string& container) {	//only pre-existing cookies
 	bool retval = false; container.clear();
@@ -515,276 +550,7 @@ void Environment::do_request_cookies() {
 	}
 }
 
-//Cookies done
-//----------------------------------------------------------------------------------
-//
-bool Environment::getparm(string const name,string& container) {
-	bool retval = false;
-	container.clear();
-	var_map_type::iterator it = parm_map.find(name);
-	if (it != parm_map.end()) {
-		container = ((*it).second);
-		retval = true;
-	}
-	return retval;
-}
-
-bool Environment::envexists(string const name) {
-	bool retval = false;
-	var_map_type::iterator it = ienv_map.find(name);
-	if (it != ienv_map.end()) {
-		retval = true;
-	} else {
-		var_map_type::iterator it = benv_map.find(name);
-		if (it != benv_map.end()) {
-			retval = true;
-		} 
-	}
-	return retval;
-}
-
-void Environment::dodocument() { //for POST values
-	string input,inputlen,test_filename;
-	if (getenv("TEST_FILE",test_filename)) {
-		File test_file(test_filename);
-		test_file.readFile(input);
-		setparm("THIS_REQ_BODY",input);	
-	} else {
-		if (getenv("CONTENT_LENGTH",inputlen)) {
-			pair<unsigned long long,bool> lenpr = String::znatural(inputlen);
-			if (lenpr.second) { //very bad if it weren't a number!!
-				unsigned long long clen = lenpr.first;
-				try {
-					char* content = new char[clen];
-					cin.read(content, clen);
-					clen = cin.gcount();
-					input = string(content,clen);
-					setparm("THIS_REQ_BODY",input);	
-					delete content;
-				} catch (...) { /*mem error*/ }
-			}
-		} else { 
-			if (! envexists("GATEWAY_INTERFACE")) { //not cgi.
-				struct termios tio;
-				if( tcgetattr(0,&tio) < 0) { //basically, if we cannot get the struct for cin, we can read this from the buffer. weird.
-					ostringstream sb;
-					while ( std::cin >> sb.rdbuf() );			
-					input = sb.str();
-					setparm("THIS_REQ_BODY",input);	
-				}
-			}
-		}
-	}
-}
-
-void Environment::setienvmap(char ** environment) {
-	unsigned int eit = 0;
-	while ( environment[eit] != NULL ) {
-		string parmstring = environment[eit++];
-		size_t split =  parmstring.find('=');
-		if (split != string::npos && split > 0 ) {
-			string n = parmstring.substr(0,split);
-			string v = parmstring.substr(split+1,string::npos);
-			if(v.size() > 0 && v[v.size()-1] == '=') { //weird fastcgi shite.
-				v.resize(v.size()-1);
-			}
-			setienv(n,v);
-			var_map_type::iterator it = cgi_rfc_map.find(n);
-			if (it != cgi_rfc_map.end()) {
-				pair<var_map_type::iterator, bool> ins = httphead_map.insert(var_map_type::value_type(it->second,v));
-			}
-		}
-	}
-}
-
-//Called before LOGGER installed. check benv before ienv!
-bool Environment::getenv(string const name,string& container) {
-	bool retval = false;
-	container.clear();  //should we clear this?
-	var_map_type::iterator bt = ienv_map.find(name);
-	if (bt != ienv_map.end()) {
-		container = ((*bt).second);
-		retval = true;
-	} else {
-		var_map_type::iterator it = benv_map.find(name);
-		if (it != benv_map.end()) {
-			container = ((*it).second);
-			retval = true;
-		} 
-	}
-	return retval;
-}
-
-bool Environment::getenvd(const string name,string& container,const string defaultval) {
-	bool found = getenv(name,container);
-	if ( ! found ) container = defaultval;
-	return found;
-}
-
-void Environment::listParms() {
-	vector<pair<string,string> >vmp;
-	for(var_map_type::iterator imt = parm_map.begin(); imt != parm_map.end(); imt++) {
-		vmp.push_back(pair<string,string>(imt->first,imt->second));
-	}
-	if (!vmp.empty()) {
-		*Logger::log << Log::subhead << Log::LI << "List of sysparms" << Log::LO;
-		*Logger::log << Log::LI << Log::even ;
-		std::sort(vmp.begin(),vmp.end(), sortvps); 
-		for(vector<pair<string,string> >::iterator vmpi = vmp.begin(); vmpi != vmp.end(); vmpi++) {
-			*Logger::log << Log::LI << Log::II << vmpi->first << Log::IO << Log::II << vmpi->second << Log::IO << Log::LO;
-		}
-		*Logger::log << Log::blockend << Log::LO << Log::blockend ; //even .. subhead.
-	}
-}
-
-void Environment::listReqCookies() {
-	vector<pair<string,string> >vmc;
-	for(var_map_type::iterator imt = cke_map.begin(); imt != cke_map.end(); imt++) {
-		vmc.push_back(pair<string,string>(imt->first,imt->second));
-	}
-	if (!vmc.empty()) {
-		*Logger::log << Log::subhead  << Log::LI << "List of request cookies" << Log::LO;
-		*Logger::log << Log::LI << Log::even;
-		std::sort(vmc.begin(), vmc.end(), sortvps); 
-		for(vector<pair<string,string> >::iterator vmci = vmc.begin(); vmci != vmc.end(); vmci++) {
-			*Logger::log << Log::LI << Log::II << vmci->first << Log::IO << Log::II << vmci->second << Log::IO << Log::LO;
-			ostringstream vck; var_map_type::iterator itd;
-			vck << "Request Cookie name=\"" << vmci->first <<  "\" value=\"" << vmci->second << "\"";
-			itd = cke_domain_map.find(vmci->first);
-			if (itd != cke_domain_map.end()) vck << " domain=\"" << ((*itd).second) << "\"";
-			itd = cke_path_map.find(vmci->first);
-			if (itd != cke_path_map.end()) vck << " path=\"" << ((*itd).second) << "\"";
-			itd = cke_expires_map.find(vmci->first);
-			if (itd != cke_expires_map.end()) { 
-				vck << " expires=\"" << ((*itd).second) << "\"";
-			}
-			*Logger::log << Log::LI << vck.str() << Log::LO;
-		}
-		*Logger::log << Log::blockend << Log::LO << Log::blockend ; //even .. subhead.
-	}
-}
-
-void Environment::listResCookies() {
-	vector<pair<string,string> >vmc;
-	for(var_map_type::iterator imt = ck_map.begin(); imt != ck_map.end(); imt++) {
-		vmc.push_back(pair<string,string>(imt->first,imt->second));
-	}
-	if (!vmc.empty()) {
-		std::sort(vmc.begin(), vmc.end(), sortvps); 
-		*Logger::log << Log::subhead << Log::LI << "List of response cookies" << Log::LO;
-		*Logger::log << Log::LI << Log::even;
-		for(vector<pair<string,string> >::iterator vmci = vmc.begin(); vmci != vmc.end(); vmci++) {
-			ostringstream vck; var_map_type::iterator itd;
-			vck << "Response Cookie name=\"" << vmci->first <<  "\" value=\"" << vmci->second << "\"";
-			itd = ck_domain_map.find(vmci->first);
-			if (itd != ck_domain_map.end()) vck << " domain=\"" << ((*itd).second) << "\"";
-			itd = ck_path_map.find(vmci->first);
-			if (itd != ck_path_map.end()) vck << " path=\"" << ((*itd).second) << "\"";
-			itd = ck_expires_map.find(vmci->first);
-			if (itd != ck_expires_map.end()) { 
-				vck << " expires=\"" << ((*itd).second) << "\"";
-			}
-			*Logger::log << Log::LI << vck.str() << Log::LO;
-		}
-		*Logger::log << Log::blockend << Log::LO << Log::blockend ; //even .. subhead.
-	}
-}
-
-void Environment::list() {
-	*Logger::log << Log::subhead << Log::LI << "Environment" << Log::LO << Log::LI ;
-	listEnv();
-	listParms();
-	listReqCookies();
-	listResCookies();
-	*Logger::log << Log::LO << Log::blockend;
-}
-
-void Environment::listEnv() {
-	vector<pair<string,string> >vme;
-	for(var_map_type::iterator imt = ienv_map.begin(); imt != ienv_map.end(); imt++) {
-		vme.push_back(pair<string,string>(imt->first,imt->second));
-	}
-	for(var_map_type::iterator imt = benv_map.begin(); imt != benv_map.end(); imt++) {
-		vme.push_back(pair<string,string>(imt->first,imt->second));
-	}
-	if (!vme.empty()) {
-		*Logger::log << Log::subhead << Log::LI << "List of sysenv" << Log::LO;
-		*Logger::log << Log::LI << Log::even;
-		std::sort(vme.begin(), vme.end(), sortvps); 
-		for(vector<pair<string,string> >::iterator vmei = vme.begin(); vmei != vme.end(); vmei++) {
-			if ( vmei->first.find("OBYX_",0,5) != 0) {
-				*Logger::log << Log::LI << Log::II << vmei->first << Log::IO << Log::II << vmei->second << Log::IO << Log::LO;
-			}
-		}
-		*Logger::log << Log::blockend << Log::LO << Log::blockend ; //even .. subhead.
-	}
-}
-
-void  Environment::list(string& result) {
-	ostringstream buffer;
-	
-	vector<pair<string,string> >vme;
-	for(var_map_type::iterator imt = ienv_map.begin(); imt != ienv_map.end(); imt++) {
-		vme.push_back(pair<string,string>(imt->first,imt->second));
-	}
-	for(var_map_type::iterator imt = benv_map.begin(); imt != benv_map.end(); imt++) {
-		vme.push_back(pair<string,string>(imt->first,imt->second));
-	}
-	std::sort(vme.begin(), vme.end(), sortvps); 
-	for(vector<pair<string,string> >::iterator vmei = vme.begin(); vmei != vme.end(); vmei++) {
-		if ( gDevelop || vmei->first.find("OBYX_",0,5) != 0) {
-			buffer << Log::debug << Log::LI << "Environment " << Log::II << vmei->first << Log::IO << Log::II << vmei->second << Log::IO << LO << blockend;
-		}
-	}
-	vector<pair<string,string> >vmp;
-	for(var_map_type::iterator imt = parm_map.begin(); imt != parm_map.end(); imt++) {
-		vmp.push_back(pair<string,string>(imt->first,imt->second));
-	}
-	std::sort(vmp.begin(), vmp.end(), sortvps); 
-	for(vector<pair<string,string> >::iterator vmpi = vmp.begin(); vmpi != vmp.end(); vmpi++) {
-		buffer << Log::LI << "SystemParm " << Log::II << vmpi->first << Log::IO << Log::II << vmpi->second << Log::IO << Log::LO;
-	}
-	vector<pair<string,string> >vmc;
-	for(var_map_type::iterator imt = ck_map.begin(); imt != ck_map.end(); imt++) {
-		vmc.push_back(pair<string,string>(imt->first,imt->second));
-	}
-	std::sort(vmc.begin(), vmc.end(), sortvps); 
-	for(vector<pair<string,string> >::iterator vmci = vmc.begin(); vmci != vmc.end(); vmci++) {
-		ostringstream vck; var_map_type::iterator itd;
-		vck << "Response Cookie name=\"" << vmci->first <<  "\" value=\"" << vmci->second << "\"";
-		itd = ck_domain_map.find(vmci->first);
-		if (itd != ck_domain_map.end()) vck << " domain=\"" << ((*itd).second) << "\"";
-		itd = ck_path_map.find(vmci->first);
-		if (itd != ck_path_map.end()) vck << " path=\"" << ((*itd).second) << "\"";
-		itd = ck_expires_map.find(vmci->first);
-		if (itd != ck_expires_map.end()) vck << " expires=\"" << ((*itd).second) << "\"";
-		buffer << vck.str() << "\r";
-	}
-	vmc.clear();
-	for(var_map_type::iterator imt = cke_map.begin(); imt != cke_map.end(); imt++) {
-		vmc.push_back(pair<string,string>(imt->first,imt->second));
-	}
-	std::sort(vmc.begin(), vmc.end(), sortvps); 
-	for(vector<pair<string,string> >::iterator vmci = vmc.begin(); vmci != vmc.end(); vmci++) {
-		ostringstream vck; var_map_type::iterator itd;
-		vck << "Request Cookie name=\"" << vmci->first <<  "\" value=\"" << vmci->second << "\"";
-		itd = cke_domain_map.find(vmci->first);
-		if (itd != cke_domain_map.end()) vck << " domain=\"" << ((*itd).second) << "\"";
-		itd = cke_path_map.find(vmci->first);
-		if (itd != cke_path_map.end()) vck << " path=\"" << ((*itd).second) << "\"";
-		itd = cke_expires_map.find(vmci->first);
-		if (itd != cke_expires_map.end()) vck << " expires=\"" << ((*itd).second) << "\"";
-		buffer << vck.str() << "\r";
-	}
-	result = buffer.str();
-}
-
-//private methods
-//---------------------------------------------------------------------------
-bool Environment::sortvps(pair<string,string> n1,pair<string,string> n2) {
-	return (n1.first.compare(n2.first) < 0) ? true : false;
-}
-
+#pragma mark PARAMETER (UTILITY)
 void Environment::dopostparms() {
 	long long numparms = 0;
 	string req_method, test_filename;
@@ -1106,7 +872,6 @@ void Environment::doparms(int argc, char *argv[]) {
 		}
 	}
 }
-
 void Environment::do_query_string(string& qstr) {	
 	size_t start = 0;
 	size_t find = 0;
@@ -1127,7 +892,108 @@ void Environment::do_query_string(string& qstr) {
 	}
 	setparm(parmprefix+"_count",String::tostring(count)); //This is correct for query_String
 }
-
+void Environment::setparm(string name,string value) {
+	pair<var_map_type::iterator, bool> ins = parm_map.insert(var_map_type::value_type(name, value));
+	if (!ins.second)	{ // Cannot insert (something already there with same ref
+		parm_map.erase(ins.first);
+		parm_map.insert(var_map_type::value_type(name, value));
+	}
+}
+void Environment::dodocument() { //for POST values
+	string input,inputlen,test_filename;
+	if (getenv("TEST_FILE",test_filename)) {
+		File test_file(test_filename);
+		test_file.readFile(input);
+		setparm("THIS_REQ_BODY",input);	
+	} else {
+		if (getenv("CONTENT_LENGTH",inputlen)) {
+			pair<unsigned long long,bool> lenpr = String::znatural(inputlen);
+			if (lenpr.second) { //very bad if it weren't a number!!
+				unsigned long long clen = lenpr.first;
+				try {
+					char* content = new char[clen];
+					cin.read(content, clen);
+					clen = cin.gcount();
+					input = string(content,clen);
+					setparm("THIS_REQ_BODY",input);	
+					delete content;
+				} catch (...) { /*mem error*/ }
+			}
+		} else { 
+			if (! envexists("GATEWAY_INTERFACE")) { //not cgi.
+				struct termios tio;
+				if( tcgetattr(0,&tio) < 0) { //basically, if we cannot get the struct for cin, we can read this from the buffer. weird.
+					ostringstream sb;
+					while ( std::cin >> sb.rdbuf() );			
+					input = sb.str();
+					setparm("THIS_REQ_BODY",input);	
+				}
+			}
+		}
+	}
+}
+#pragma mark ENVIRONMENT (UTILITY)
+void Environment::init_cgi_rfc_map() { 
+	//	cgi_rfc_map.insert(var_map_type::value_type("REQUEST_METHOD","Method"));					//meta
+	//	cgi_rfc_map.insert(var_map_type::value_type("AUTH_TYPE","Authorization_T"));				//partial
+	//	cgi_rfc_map.insert(var_map_type::value_type("REMOTE_USER","Authorization_U"));				//partial
+	cgi_rfc_map.insert(var_map_type::value_type("CONTENT_TYPE","Content-Type"));				//precise
+	cgi_rfc_map.insert(var_map_type::value_type("CONTENT_LENGTH","Content-Length"));			//precise
+	cgi_rfc_map.insert(var_map_type::value_type("HTTP_HOST","Host"));							//precise
+	cgi_rfc_map.insert(var_map_type::value_type("HTTP_ACCEPT","Accept"));						//precise
+	cgi_rfc_map.insert(var_map_type::value_type("HTTP_ACCEPT_ENCODING","Accept-Encoding"));		//precise
+	cgi_rfc_map.insert(var_map_type::value_type("HTTP_ACCEPT_LANGUAGE","Accept-Language"));		//precise
+	cgi_rfc_map.insert(var_map_type::value_type("HTTP_CONNECTION","Connection"));				//precise
+	cgi_rfc_map.insert(var_map_type::value_type("HTTP_COOKIE","Cookie"));						//precise
+	cgi_rfc_map.insert(var_map_type::value_type("HTTP_REFERER","Referer"));						//precise
+	cgi_rfc_map.insert(var_map_type::value_type("HTTP_USER_AGENT","User-Agent"));				//precise
+}
+void Environment::initwlogger() {
+	setparm("_count","0");	//Just in case there are none.
+	doparms(gArgc,gArgv);
+	string fn;
+	if (getenv("PATH_TRANSLATED",fn)) {
+		Logger::set_path(fn);
+	}
+	dodocument();
+	do_request_cookies();
+	dopostparms();	
+}
+void Environment::do_config_file(string& filepathstring) {
+	string filecontainer;
+	if (filepathstring[0] != '/') {
+		filepathstring = FileUtils::Path::wd() + '/' +filepathstring;
+	}
+	FileUtils::Path destination; 
+	destination.cd(filepathstring);
+	string final_file_path = destination.output(true);
+	FileUtils::File file(final_file_path);
+	if (file.exists()) {
+		off_t flen = file.getSize();
+		if ( flen != 0 ) {
+			file.readFile(filecontainer);
+			istringstream iss(filecontainer);
+			string env_setting;
+			//Format is ENV_VAR(wspace)(ENV_SETTING)(newline)+
+			while( getline(iss,env_setting) ) {
+				string envname,envval;
+				String::trim(env_setting);
+				string::size_type pos = env_setting.find_first_of("\t \r\n");
+				if (pos != string::npos) {
+					envname = env_setting.substr(0, pos);
+					if (!envname.empty() && envname[0] != '#') {
+						envval = env_setting.substr(env_setting.find_first_not_of("\t \r\n",pos+1), string::npos);
+						String::strip(envval);
+						setbenv(envname,envval);
+					}
+				}
+			}
+		}
+	}
+}
+bool Environment::sortvps(pair<string,string> n1,pair<string,string> n2) {
+	return (n1.first.compare(n2.first) < 0) ? true : false;
+}
 void Environment::setbasetime() {
 #ifdef __MACH__
 	struct tms tb;
@@ -1141,61 +1007,63 @@ void Environment::setbasetime() {
 	basetime = static_cast<double>(clocktime) / 1000000000; // nanoseconds
 #endif
 }
-
-void Environment::gettiming(string& result) {
-#ifdef __MACH__
-	struct tms tb;
-	times(&tb);
-	unsigned long long clocktime = tb.tms_utime + tb.tms_stime + tb.tms_cutime + tb.tms_cstime;
-	double timing = static_cast<double>(clocktime) / sysconf(_SC_CLK_TCK);
-	timing = timing - basetime;
-	result = String::tostring(timing,12L);
-	
-#else
-	struct timespec tb;
-	int err = clock_gettime(CLOCK_REALTIME,&tb);
-	if ( err != 0 ) *Logger::log << Log::error << Log::LI << "Error. Environment::setbasetime error:" << err << Log::LO << Log::blockend;
-	unsigned long long clocktime = tb.tv_sec * 1000000000 + tb.tv_nsec;
-	double timing = static_cast<double>(clocktime) / 1000000000; // nanoseconds
-	timing = timing - basetime;
-	result = String::tostring(timing,12L);
-#endif
-}
-
-void Environment::getresponsehttp(string& result) {
-	Httphead* http = Httphead::service();	
-	http->explain(result);
-}
-
-//This is recomposited from environment. 
-void Environment::getrequesthttp(string& head,string& body) {
-	ostringstream rh;
-	string method,version,url,tmp;
-	if (!getenv("REQUEST_METHOD",method)) {
-		method = "CONSOLE";
+void Environment::setienv(string name,string value) {
+	//Called before LOGGER is initialised (but still goes into ienv), once per request
+	pair<var_map_type::iterator, bool> ins = ienv_map.insert(var_map_type::value_type(name, value));
+	if (!ins.second)	{ // Cannot insert (something already there with same ref
+		ienv_map.erase(ins.first);
+		ienv_map.insert(var_map_type::value_type(name, value));
 	}
-	if (getenv("SCRIPT_URI",url)) {
-		if (getenv("QUERY_STRING",tmp) && ! tmp.empty() ) {
-			url.append("?");
-			url.append(tmp);
+}
+void Environment::setbenvmap() {//per box/process environment
+	unsigned int eit = 0;
+	while ( environ[eit] != NULL ) {
+		string parmstring = environ[eit++];
+		size_t split =  parmstring.find('=');
+		if (split != string::npos && split > 0 ) {
+			string n = parmstring.substr(0,split);
+			string v = parmstring.substr(split+1,string::npos);
+			if(v.size() > 0 && v[v.size()-1] == '=') { //weird fastcgi name_mangle
+				v.resize(v.size()-1);
+				//				string problem="fastcgi_name_mangle_"+n;
+				//				setbenv(problem,v);
+			}
+			setbenv(n,v);
+			if (n.compare("OBYX_CONFIG_FILE") == 0) { //for virtual hosts shouldn't be set here.
+				do_config_file(v);
+			} 
 		}
-	} else {
-		getenv("PATH_TRANSLATED",url);
 	}
-	if (!getenv("SERVER_PROTOCOL",version)) {
-		version = "SYSTEM";
-	}
-	rh << method << " " << url << " " << version << Httphead::crlf;
-	for(var_map_type::iterator imt = httphead_map.begin(); imt != httphead_map.end(); imt++) {
-		rh << imt->first << ":" << imt->second << Httphead::crlf;
-	}
-//	content-type
-	head = rh.str();
-	getparm("THIS_REQ_BODY",body);
 }
-
-//Called once for every instance!
+void Environment::setbenv(string name,string value) {
+	//Called before LOGGER is initialised, once per process.
+	pair<var_map_type::iterator, bool> ins = benv_map.insert(var_map_type::value_type(name, value));
+	if (!ins.second)	{ // Cannot insert (something already there with same ref - so skip it...
+		benv_map.erase(ins.first);
+		benv_map.insert(var_map_type::value_type(name, value));
+	}
+}
+void Environment::setienvmap(char ** environment) {
+	unsigned int eit = 0;
+	while ( environment[eit] != NULL ) {
+		string parmstring = environment[eit++];
+		size_t split =  parmstring.find('=');
+		if (split != string::npos && split > 0 ) {
+			string n = parmstring.substr(0,split);
+			string v = parmstring.substr(split+1,string::npos);
+			if(v.size() > 0 && v[v.size()-1] == '=') { //weird fastcgi shite.
+				v.resize(v.size()-1);
+			}
+			setienv(n,v);
+			var_map_type::iterator it = cgi_rfc_map.find(n);
+			if (it != cgi_rfc_map.end()) {
+				pair<var_map_type::iterator, bool> ins = httphead_map.insert(var_map_type::value_type(it->second,v));
+			}
+		}
+	}
+}
 void Environment::getenvvars_base() {
+	//Called once for every instance!
 	string envtmp;
 	pair<unsigned long long,bool> tmp;
 	if (getenv("OBYX_CONFIG_FILE",envtmp)) {
@@ -1235,9 +1103,8 @@ void Environment::getenvvars_base() {
 	getenv("OBYX_SQLUSERPW",gSQLuserPW);
 	getenv("OBYX_PARM_PREFIX",parmprefix); //Used to prevent ambiguity - someone may need parmxxx
 }
-
-//Called before LOGGER is initialised.
 void Environment::getenvvars() {
+	//Called before LOGGER is initialised.
 	string ps;
 	if (!getenv("PATH_TRANSLATED",ps)) { //FAST is more likely to be called via script.
 		if (getenv("SCRIPT_FILENAME",ps)) {
@@ -1262,128 +1129,11 @@ void Environment::getenvvars() {
 		}
 	}
 }
-
-void Environment::do_config_file(string& filepathstring) {
-	string filecontainer;
-	if (filepathstring[0] != '/') {
-		filepathstring = FileUtils::Path::wd() + '/' +filepathstring;
-	}
-	FileUtils::Path destination; 
-	destination.cd(filepathstring);
-	string final_file_path = destination.output(true);
-	FileUtils::File file(final_file_path);
-	if (file.exists()) {
-		off_t flen = file.getSize();
-		if ( flen != 0 ) {
-			file.readFile(filecontainer);
-			istringstream iss(filecontainer);
-			string env_setting;
-			//Format is ENV_VAR(wspace)(ENV_SETTING)(newline)+
-			while( getline(iss,env_setting) ) {
-				string envname,envval;
-				String::trim(env_setting);
-				string::size_type pos = env_setting.find_first_of("\t \r\n");
-				if (pos != string::npos) {
-					envname = env_setting.substr(0, pos);
-					if (!envname.empty() && envname[0] != '#') {
-						envval = env_setting.substr(env_setting.find_first_not_of("\t \r\n",pos+1), string::npos);
-						String::strip(envval);
-						setbenv(envname,envval);
-					}
-				}
-			}
-		}
-	}
+bool Environment::getenvd(const string name,string& container,const string defaultval) {
+	bool found = getenv(name,container);
+	if ( ! found ) container = defaultval;
+	return found;
 }
-
-//return the path for root ie if a local url is prefixed / return the path to that.
-string Environment::getpathforroot() {
-	string the_result = gRootDir;
-	if (the_result.empty()) { //return current working directory.
-		the_result = Path::wd();
-	}
-	return the_result;
-}
-
-//Called before LOGGER is initialised (but still goes into ienv), once per request
-void Environment::setienv(string name,string value) {
-	pair<var_map_type::iterator, bool> ins = ienv_map.insert(var_map_type::value_type(name, value));
-	if (!ins.second)	{ // Cannot insert (something already there with same ref
-		ienv_map.erase(ins.first);
-		ienv_map.insert(var_map_type::value_type(name, value));
-	}
-}
-
-//Called before LOGGER is initialised, once per process.
-void Environment::setbenv(string name,string value) {
-	pair<var_map_type::iterator, bool> ins = benv_map.insert(var_map_type::value_type(name, value));
-	if (!ins.second)	{ // Cannot insert (something already there with same ref - so skip it...
-		benv_map.erase(ins.first);
-		benv_map.insert(var_map_type::value_type(name, value));
-	}
-}
-
-//setparm is NOT very good. We need to be able to handle name arrays.
-void Environment::setparm(string name,string value) {
-	pair<var_map_type::iterator, bool> ins = parm_map.insert(var_map_type::value_type(name, value));
-	if (!ins.second)	{ // Cannot insert (something already there with same ref
-		parm_map.erase(ins.first);
-		parm_map.insert(var_map_type::value_type(name, value));
-	}
-}
-
-// ####################################### STATIC METHODS ####################################
-// ####################################### STATIC METHODS: PUBLIC ############################
-void Environment::startup(string& v,string& vn) {					//everything that doesn't change across multiple runs
-	init_cgi_rfc_map();
-	setbenvmap();
-	setbenv("OBYX_VERSION",v);			//Let coders know what version we are in!
-	setbenv("OBYX_VERSION_NUMBER",vn);	//Let coders know what version number we are in!
-}
-
-void Environment::shutdown() {
-	cgi_rfc_map.clear();
-	benv_map.clear();
-}
-
-
-//only called if not fastcgi.
-void Environment::init_httphead() {
-	for(var_map_type::iterator bi = benv_map.begin(); bi != benv_map.end(); bi++) {
-		var_map_type::iterator it = cgi_rfc_map.find(bi->first);
-		if (it != cgi_rfc_map.end()) {
-			pair<var_map_type::iterator, bool> ins = httphead_map.insert(var_map_type::value_type(it->second,bi->second));
-		}
-	}
-}
-
-//so this now sends out the header AFTER the xml.
-void Environment::init(int argc, char **argv, char** env) {
-	if (instance == NULL) {
-		instance = new Environment();	// instantiate singleton
-		instance->gArgc=argc;
-		instance->gArgv=argv;
-		if (env != NULL) {
-			instance->setienvmap(env);
-		} else {
-			instance->init_httphead();
-		}
-		instance->getenvvars_base();
-		instance->getenvvars();
-		instance->setbasetime();
-	} 
-}	
-void Environment::finalise() {	
-	if (instance != NULL) {
-		delete instance;
-		instance = NULL;
-	}
-}
-
-Environment* Environment::service() { 
-	return instance;
-}
-
 bool Environment::getbenv(string const name,string& container) {	//used for base configuration settings.
 	bool retval = false;
 	container.clear();  //should we clear this?
@@ -1394,42 +1144,259 @@ bool Environment::getbenv(string const name,string& container) {	//used for base
 	} 
 	return retval;
 }
-
-// ####################################### STATIC METHODS: PRIVATE #############################
-void Environment::init_cgi_rfc_map() { 
-	//	cgi_rfc_map.insert(var_map_type::value_type("REQUEST_METHOD","Method"));					//meta
-	//	cgi_rfc_map.insert(var_map_type::value_type("AUTH_TYPE","Authorization_T"));				//partial
-	//	cgi_rfc_map.insert(var_map_type::value_type("REMOTE_USER","Authorization_U"));				//partial
-	cgi_rfc_map.insert(var_map_type::value_type("CONTENT_TYPE","Content-Type"));				//precise
-	cgi_rfc_map.insert(var_map_type::value_type("CONTENT_LENGTH","Content-Length"));			//precise
-	cgi_rfc_map.insert(var_map_type::value_type("HTTP_HOST","Host"));							//precise
-	cgi_rfc_map.insert(var_map_type::value_type("HTTP_ACCEPT","Accept"));						//precise
-	cgi_rfc_map.insert(var_map_type::value_type("HTTP_ACCEPT_ENCODING","Accept-Encoding"));		//precise
-	cgi_rfc_map.insert(var_map_type::value_type("HTTP_ACCEPT_LANGUAGE","Accept-Language"));		//precise
-	cgi_rfc_map.insert(var_map_type::value_type("HTTP_CONNECTION","Connection"));				//precise
-	cgi_rfc_map.insert(var_map_type::value_type("HTTP_COOKIE","Cookie"));						//precise
-	cgi_rfc_map.insert(var_map_type::value_type("HTTP_REFERER","Referer"));						//precise
-	cgi_rfc_map.insert(var_map_type::value_type("HTTP_USER_AGENT","User-Agent"));				//precise
+#pragma mark ENVIRONMENT (PUBLIC)
+bool Environment::envexists(string const name) {
+	bool retval = false;
+	var_map_type::iterator it = ienv_map.find(name);
+	if (it != ienv_map.end()) {
+		retval = true;
+	} else {
+		var_map_type::iterator it = benv_map.find(name);
+		if (it != benv_map.end()) {
+			retval = true;
+		} 
+	}
+	return retval;
 }
-void Environment::setbenvmap() {//per box/process environment
-	unsigned int eit = 0;
-	while ( environ[eit] != NULL ) {
-		string parmstring = environ[eit++];
-		size_t split =  parmstring.find('=');
-		if (split != string::npos && split > 0 ) {
-			string n = parmstring.substr(0,split);
-			string v = parmstring.substr(split+1,string::npos);
-			if(v.size() > 0 && v[v.size()-1] == '=') { //weird fastcgi name_mangle
-				v.resize(v.size()-1);
-//				string problem="fastcgi_name_mangle_"+n;
-//				setbenv(problem,v);
-			}
-			setbenv(n,v);
-			if (n.compare("OBYX_CONFIG_FILE") == 0) { //for virtual hosts shouldn't be set here.
-				do_config_file(v);
-			} 
+bool Environment::getenv(string const name,string& container) {
+	bool retval = false;
+	container.clear();  //should we clear this?
+	var_map_type::iterator bt = ienv_map.find(name);
+	if (bt != ienv_map.end()) {
+		container = ((*bt).second);
+		retval = true;
+	} else {
+		var_map_type::iterator it = benv_map.find(name);
+		if (it != benv_map.end()) {
+			container = ((*it).second);
+			retval = true;
+		} 
+	}
+	return retval;
+}
+bool Environment::getparm(string const name,string& container) {
+	bool retval = false;
+	container.clear();
+	var_map_type::iterator it = parm_map.find(name);
+	if (it != parm_map.end()) {
+		container = ((*it).second);
+		retval = true;
+	}
+	return retval;
+}
+string Environment::getpathforroot() {
+	//return the path for root ie if a local url is prefixed / return the path to that.
+	string the_result = gRootDir;
+	if (the_result.empty()) { //return current working directory.
+		the_result = Path::wd();
+	}
+	return the_result;
+}
+void Environment::gettiming(string& result) {
+#ifdef __MACH__
+	struct tms tb;
+	times(&tb);
+	unsigned long long clocktime = tb.tms_utime + tb.tms_stime + tb.tms_cutime + tb.tms_cstime;
+	double timing = static_cast<double>(clocktime) / sysconf(_SC_CLK_TCK);
+	timing = timing - basetime;
+	result = String::tostring(timing,12L);
+	
+#else
+	struct timespec tb;
+	int err = clock_gettime(CLOCK_REALTIME,&tb);
+	if ( err != 0 ) *Logger::log << Log::error << Log::LI << "Error. Environment::setbasetime error:" << err << Log::LO << Log::blockend;
+	unsigned long long clocktime = tb.tv_sec * 1000000000 + tb.tv_nsec;
+	double timing = static_cast<double>(clocktime) / 1000000000; // nanoseconds
+	timing = timing - basetime;
+	result = String::tostring(timing,12L);
+#endif
+}
+void Environment::getresponsehttp(string& result) {
+	Httphead* http = Httphead::service();	
+	http->explain(result);
+}
+void Environment::getrequesthttp(string& head,string& body) {
+	//This is recomposited from environment. 
+	ostringstream rh;
+	string method,version,url,tmp;
+	if (!getenv("REQUEST_METHOD",method)) {
+		method = "CONSOLE";
+	}
+	if (getenv("SCRIPT_URI",url)) {
+		if (getenv("QUERY_STRING",tmp) && ! tmp.empty() ) {
+			url.append("?");
+			url.append(tmp);
 		}
+	} else {
+		getenv("PATH_TRANSLATED",url);
+	}
+	if (!getenv("SERVER_PROTOCOL",version)) {
+		version = "SYSTEM";
+	}
+	rh << method << " " << url << " " << version << Httphead::crlf;
+	for(var_map_type::iterator imt = httphead_map.begin(); imt != httphead_map.end(); imt++) {
+		rh << imt->first << ":" << imt->second << Httphead::crlf;
+	}
+	//	content-type
+	head = rh.str();
+	getparm("THIS_REQ_BODY",body);
+}
+#pragma mark Debugging/Disclosure
+void Environment::listParms() {
+	vector<pair<string,string> >vmp;
+	for(var_map_type::iterator imt = parm_map.begin(); imt != parm_map.end(); imt++) {
+		vmp.push_back(pair<string,string>(imt->first,imt->second));
+	}
+	if (!vmp.empty()) {
+		*Logger::log << Log::subhead << Log::LI << "List of sysparms" << Log::LO;
+		*Logger::log << Log::LI << Log::even ;
+		std::sort(vmp.begin(),vmp.end(), sortvps); 
+		for(vector<pair<string,string> >::iterator vmpi = vmp.begin(); vmpi != vmp.end(); vmpi++) {
+			*Logger::log << Log::LI << Log::II << vmpi->first << Log::IO << Log::II << vmpi->second << Log::IO << Log::LO;
+		}
+		*Logger::log << Log::blockend << Log::LO << Log::blockend ; //even .. subhead.
 	}
 }
-// ####################################### FILE ENDS ####################################
+void Environment::listReqCookies() {
+	vector<pair<string,string> >vmc;
+	for(var_map_type::iterator imt = cke_map.begin(); imt != cke_map.end(); imt++) {
+		vmc.push_back(pair<string,string>(imt->first,imt->second));
+	}
+	if (!vmc.empty()) {
+		*Logger::log << Log::subhead  << Log::LI << "List of request cookies" << Log::LO;
+		*Logger::log << Log::LI << Log::even;
+		std::sort(vmc.begin(), vmc.end(), sortvps); 
+		for(vector<pair<string,string> >::iterator vmci = vmc.begin(); vmci != vmc.end(); vmci++) {
+			*Logger::log << Log::LI << Log::II << vmci->first << Log::IO << Log::II << vmci->second << Log::IO << Log::LO;
+			ostringstream vck; var_map_type::iterator itd;
+			vck << "Request Cookie name=\"" << vmci->first <<  "\" value=\"" << vmci->second << "\"";
+			itd = cke_domain_map.find(vmci->first);
+			if (itd != cke_domain_map.end()) vck << " domain=\"" << ((*itd).second) << "\"";
+			itd = cke_path_map.find(vmci->first);
+			if (itd != cke_path_map.end()) vck << " path=\"" << ((*itd).second) << "\"";
+			itd = cke_expires_map.find(vmci->first);
+			if (itd != cke_expires_map.end()) { 
+				vck << " expires=\"" << ((*itd).second) << "\"";
+			}
+			*Logger::log << Log::LI << vck.str() << Log::LO;
+		}
+		*Logger::log << Log::blockend << Log::LO << Log::blockend ; //even .. subhead.
+	}
+}
+
+void Environment::listResCookies() {
+	vector<pair<string,string> >vmc;
+	for(var_map_type::iterator imt = ck_map.begin(); imt != ck_map.end(); imt++) {
+		vmc.push_back(pair<string,string>(imt->first,imt->second));
+	}
+	if (!vmc.empty()) {
+		std::sort(vmc.begin(), vmc.end(), sortvps); 
+		*Logger::log << Log::subhead << Log::LI << "List of response cookies" << Log::LO;
+		*Logger::log << Log::LI << Log::even;
+		for(vector<pair<string,string> >::iterator vmci = vmc.begin(); vmci != vmc.end(); vmci++) {
+			ostringstream vck; var_map_type::iterator itd;
+			vck << "Response Cookie name=\"" << vmci->first <<  "\" value=\"" << vmci->second << "\"";
+			itd = ck_domain_map.find(vmci->first);
+			if (itd != ck_domain_map.end()) vck << " domain=\"" << ((*itd).second) << "\"";
+			itd = ck_path_map.find(vmci->first);
+			if (itd != ck_path_map.end()) vck << " path=\"" << ((*itd).second) << "\"";
+			itd = ck_expires_map.find(vmci->first);
+			if (itd != ck_expires_map.end()) { 
+				vck << " expires=\"" << ((*itd).second) << "\"";
+			}
+			*Logger::log << Log::LI << vck.str() << Log::LO;
+		}
+		*Logger::log << Log::blockend << Log::LO << Log::blockend ; //even .. subhead.
+	}
+}
+
+void Environment::list() {
+	*Logger::log << Log::subhead << Log::LI << "Environment" << Log::LO << Log::LI ;
+	listEnv();
+	listParms();
+	listReqCookies();
+	listResCookies();
+	*Logger::log << Log::LO << Log::blockend;
+}
+
+void Environment::listEnv() {
+	vector<pair<string,string> >vme;
+	for(var_map_type::iterator imt = ienv_map.begin(); imt != ienv_map.end(); imt++) {
+		vme.push_back(pair<string,string>(imt->first,imt->second));
+	}
+	for(var_map_type::iterator imt = benv_map.begin(); imt != benv_map.end(); imt++) {
+		vme.push_back(pair<string,string>(imt->first,imt->second));
+	}
+	if (!vme.empty()) {
+		*Logger::log << Log::subhead << Log::LI << "List of sysenv" << Log::LO;
+		*Logger::log << Log::LI << Log::even;
+		std::sort(vme.begin(), vme.end(), sortvps); 
+		for(vector<pair<string,string> >::iterator vmei = vme.begin(); vmei != vme.end(); vmei++) {
+			if ( vmei->first.find("OBYX_",0,5) != 0) {
+				*Logger::log << Log::LI << Log::II << vmei->first << Log::IO << Log::II << vmei->second << Log::IO << Log::LO;
+			}
+		}
+		*Logger::log << Log::blockend << Log::LO << Log::blockend ; //even .. subhead.
+	}
+}
+
+void  Environment::list(string& result) {
+	ostringstream buffer;
+	
+	vector<pair<string,string> >vme;
+	for(var_map_type::iterator imt = ienv_map.begin(); imt != ienv_map.end(); imt++) {
+		vme.push_back(pair<string,string>(imt->first,imt->second));
+	}
+	for(var_map_type::iterator imt = benv_map.begin(); imt != benv_map.end(); imt++) {
+		vme.push_back(pair<string,string>(imt->first,imt->second));
+	}
+	std::sort(vme.begin(), vme.end(), sortvps); 
+	for(vector<pair<string,string> >::iterator vmei = vme.begin(); vmei != vme.end(); vmei++) {
+		if ( gDevelop || vmei->first.find("OBYX_",0,5) != 0) {
+			buffer << Log::debug << Log::LI << "Environment " << Log::II << vmei->first << Log::IO << Log::II << vmei->second << Log::IO << LO << blockend;
+		}
+	}
+	vector<pair<string,string> >vmp;
+	for(var_map_type::iterator imt = parm_map.begin(); imt != parm_map.end(); imt++) {
+		vmp.push_back(pair<string,string>(imt->first,imt->second));
+	}
+	std::sort(vmp.begin(), vmp.end(), sortvps); 
+	for(vector<pair<string,string> >::iterator vmpi = vmp.begin(); vmpi != vmp.end(); vmpi++) {
+		buffer << Log::LI << "SystemParm " << Log::II << vmpi->first << Log::IO << Log::II << vmpi->second << Log::IO << Log::LO;
+	}
+	vector<pair<string,string> >vmc;
+	for(var_map_type::iterator imt = ck_map.begin(); imt != ck_map.end(); imt++) {
+		vmc.push_back(pair<string,string>(imt->first,imt->second));
+	}
+	std::sort(vmc.begin(), vmc.end(), sortvps); 
+	for(vector<pair<string,string> >::iterator vmci = vmc.begin(); vmci != vmc.end(); vmci++) {
+		ostringstream vck; var_map_type::iterator itd;
+		vck << "Response Cookie name=\"" << vmci->first <<  "\" value=\"" << vmci->second << "\"";
+		itd = ck_domain_map.find(vmci->first);
+		if (itd != ck_domain_map.end()) vck << " domain=\"" << ((*itd).second) << "\"";
+		itd = ck_path_map.find(vmci->first);
+		if (itd != ck_path_map.end()) vck << " path=\"" << ((*itd).second) << "\"";
+		itd = ck_expires_map.find(vmci->first);
+		if (itd != ck_expires_map.end()) vck << " expires=\"" << ((*itd).second) << "\"";
+		buffer << vck.str() << "\r";
+	}
+	vmc.clear();
+	for(var_map_type::iterator imt = cke_map.begin(); imt != cke_map.end(); imt++) {
+		vmc.push_back(pair<string,string>(imt->first,imt->second));
+	}
+	std::sort(vmc.begin(), vmc.end(), sortvps); 
+	for(vector<pair<string,string> >::iterator vmci = vmc.begin(); vmci != vmc.end(); vmci++) {
+		ostringstream vck; var_map_type::iterator itd;
+		vck << "Request Cookie name=\"" << vmci->first <<  "\" value=\"" << vmci->second << "\"";
+		itd = cke_domain_map.find(vmci->first);
+		if (itd != cke_domain_map.end()) vck << " domain=\"" << ((*itd).second) << "\"";
+		itd = cke_path_map.find(vmci->first);
+		if (itd != cke_path_map.end()) vck << " path=\"" << ((*itd).second) << "\"";
+		itd = cke_expires_map.find(vmci->first);
+		if (itd != cke_expires_map.end()) vck << " expires=\"" << ((*itd).second) << "\"";
+		buffer << vck.str() << "\r";
+	}
+	result = buffer.str();
+}
+### FILE ENDS ###
 
