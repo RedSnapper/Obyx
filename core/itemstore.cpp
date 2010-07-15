@@ -167,7 +167,7 @@ bool ItemStore::find(const DataItem* obj_id,bool release) {
 	} else {
 		if ( String::Regex::available() ) {
 			for(item_map_type::iterator imt = the_item_map->begin(); !retval && imt != the_item_map->end(); imt++) {
-				retval= String::Regex::fullmatch(pattern,imt->first);
+				retval= String::Regex::match(pattern,imt->first);
 				if (retval && release) { the_item_map->erase(imt); }
 			}
 		} else {

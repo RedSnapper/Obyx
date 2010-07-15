@@ -94,7 +94,7 @@ namespace Vdb {
 		if (isactive) {
 			if ( String::Regex::available() ) {
 				for(nameIndexMap::iterator imt = fieldnameidx.begin(); !retval && imt != fieldnameidx.end(); imt++) {
-					retval= String::Regex::fullmatch(pattern,imt->first);
+					retval= String::Regex::match(pattern,imt->first);
 				}
 			} else {
 				nameIndexMap::iterator it = fieldnameidx.find(pattern);

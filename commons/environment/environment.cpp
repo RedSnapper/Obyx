@@ -1126,7 +1126,7 @@ bool Environment::parmfind(string const pattern) { //regex..
 	bool retval = false;
 	if ( String::Regex::available() ) {
 		for(var_map_type::iterator imt = parm_map.begin(); !retval && imt != parm_map.end(); imt++) {
-			retval= String::Regex::fullmatch(pattern,imt->first);
+			retval= String::Regex::match(pattern,imt->first);
 		}
 	} else {
 		retval = envexists(pattern);
@@ -1137,7 +1137,7 @@ bool Environment::cookiefind(string const pattern) { //request cookies...
 	bool retval = false;
 	if ( String::Regex::available() ) {
 		for(var_map_type::iterator imt = cke_map.begin(); !retval && imt != cke_map.end(); imt++) {
-			retval= String::Regex::fullmatch(pattern,imt->first);
+			retval= String::Regex::match(pattern,imt->first);
 		}
 	} else {
 		retval = envexists(pattern);
@@ -1148,10 +1148,10 @@ bool Environment::envfind(string const pattern) { //regex..
 	bool retval = false;
 	if ( String::Regex::available() ) {
 		for(var_map_type::iterator imt = ienv_map.begin(); !retval && imt != ienv_map.end(); imt++) {
-			retval= String::Regex::fullmatch(pattern,imt->first);
+			retval= String::Regex::match(pattern,imt->first);
 		}
 		for(var_map_type::iterator imt = benv_map.begin(); !retval && imt != benv_map.end(); imt++) {
-			retval= String::Regex::fullmatch(pattern,imt->first);
+			retval= String::Regex::match(pattern,imt->first);
 		}
 	} else {
 		retval = envexists(pattern);
