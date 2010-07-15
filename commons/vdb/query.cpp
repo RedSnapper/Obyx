@@ -88,6 +88,24 @@ namespace Vdb {
 		return (rowRangeCheck(i) &&	fieldRangeCheck(j));
 	}
 	
+
+	bool Query::findfield(const std::string& pattern) {
+		bool retval = false;
+		if (isactive) {
+			if ( String::Regex::available() ) {
+				for(nameIndexMap::iterator imt = fieldnameidx.begin(); !retval && imt != fieldnameidx.end(); imt++) {
+					retval= String::Regex::fullmatch(pattern,imt->first);
+				}
+			} else {
+				nameIndexMap::iterator it = fieldnameidx.find(pattern);
+				if (it != fieldnameidx.end()) {
+					retval = true;
+				}
+			}
+		}
+		return retval;
+	}
+	
 	bool Query::hasfield(const std::string& field) {
 		bool retval = false;
 		if (isactive) {

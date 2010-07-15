@@ -167,6 +167,10 @@ public:
 	bool getcookie_req(string const,string&);	//only pre-existing cookies
 	bool envexists(string const);
 	bool getenv(string const,string&);
+	bool envfind(string const pattern);
+	bool parmfind(string const pattern);
+	bool cookiefind(string const pattern);
+
 	bool getenvd(const string,string& , const string);
 	unsigned long long pid() { return getpid(); }
 	int SQLport() { return gSQLport; }

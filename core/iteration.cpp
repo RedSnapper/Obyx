@@ -146,6 +146,18 @@ bool Iteration::evaluate_this() { //This can be run as an evaluated iteration wi
 	}
 	return evaluated;
 }
+bool Iteration::fieldfind(const string& pattern) const { //regex..
+	bool retval = false;
+	if ( String::Regex::available() ) {
+		if (query != NULL) {
+			retval = query->findfield(pattern);
+		}
+	} else {
+		string dummy;
+		retval = fieldexists(pattern,dummy);
+	}
+	return retval;
+}
 bool Iteration::fieldexists(const string& fname,string& errstring) const {
 	bool retval = false,rcfound = false,rfound=false,fcfound=false;
 	bool hashfound = fname.find('#') != string::npos;

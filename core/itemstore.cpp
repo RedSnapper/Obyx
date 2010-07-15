@@ -159,6 +159,25 @@ bool ItemStore::exists(const DataItem* obj_id,bool release,std::string& errorstr
 	}
 	return retval;
 }
+bool ItemStore::find(const DataItem* obj_id,bool release) {
+	string pattern; if (obj_id != NULL) { pattern = *obj_id; }
+	bool retval=false;
+	if (pattern.find("#") != string::npos) {
+		*Logger::log << Log::error << Log::LI << "Error. found does not work over xpath; use existence or xpath syntax." << Log::LO  << Log::blockend;
+	} else {
+		if ( String::Regex::available() ) {
+			for(item_map_type::iterator imt = the_item_map->begin(); !retval && imt != the_item_map->end(); imt++) {
+				retval= String::Regex::fullmatch(pattern,imt->first);
+				if (retval && release) { the_item_map->erase(imt); }
+			}
+		} else {
+			item_map_type::iterator it = the_item_map->find(pattern);
+			retval = (it != the_item_map->end());
+			if (retval && release) { the_item_map->erase(it); }
+		}
+	}
+	return retval;
+}
 void ItemStore::release(const DataItem* obj_id) {
 	string obj_name; if (obj_id != NULL) { obj_name = *obj_id; }
 	item_map_type::iterator it = the_item_map->find(obj_name);

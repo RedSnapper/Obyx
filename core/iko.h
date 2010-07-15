@@ -43,7 +43,7 @@ protected:
 	void process_encoding(DataItem*&);
 	static kind_type_map		kind_types;
 	static enc_type_map			enc_types;
-	static inp_space_map			ctx_types; //subset of input types.
+	static inp_space_map		ctx_types; //subset of input types.
 	static current_type_map		current_types;
 	kind_type kind;				//derived from the kind attribute
 	enc_type  encoder;			//derived from the encoder attribute
@@ -62,6 +62,7 @@ public:
 	static void shutdown();	
 	static bool currentenv(const string&,const usage_tests,const IKO*,DataItem*&);
 	bool getexists() const {return exists;}
+	bool found() const {return exists;}
 	virtual bool evaluate(size_t,size_t)=0;
 	IKO(ObyxElement*,const IKO*); 
 	IKO(xercesc::DOMNode* const&,ObyxElement* = NULL, elemtype = endqueue);	

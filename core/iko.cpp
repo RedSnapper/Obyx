@@ -178,40 +178,40 @@ bool IKO::currentenv(const string& req,const usage_tests exist_test, const IKO* 
 	container = NULL;
 	current_type_map::const_iterator j = current_types.find(req);
 	if( j != current_types.end() ) {
-		switch (j->second) {
-			case c_vnumber: {
-				exists = env->getenv("OBYX_VERSION_NUMBER",result);
-				container = DataItem::factory(result,di_text);
-			} break;
-			case c_version: {
-				exists = env->getenv("OBYX_VERSION",result);
-				container = DataItem::factory(result,di_text);
-			} break;
-			case c_object: {
-				exists = true;
-				switch (exist_test) {
-					case ut_existence: break;
-					case ut_significant: {
+		if (exist_test == ut_existence || exist_test == ut_found) {
+			if (j->second == c_osi_response) {
+				result = OsiAPP::last_osi_response();
+				exists = ! result.empty();
+			} else {
+				exists=true;
+			}
+		} else {
+			exists=true;
+			switch (j->second) {
+				case c_vnumber: {
+					env->getenv("OBYX_VERSION_NUMBER",result);
+					container = DataItem::factory(result,di_text);
+				} break;
+				case c_version: {
+					env->getenv("OBYX_VERSION",result);
+					container = DataItem::factory(result,di_text);
+				} break;
+				case c_object: {
+					if (exist_test == ut_significant) {
 						container = DataItem::factory(req,di_text);
-					} break;
-					case ut_value: {
+					} else { //ut_value
 						if (iko != NULL) {
 							const xercesc::DOMDocument* self = iko->owner->doc();
 							container = DataItem::factory(self,di_object);
 						} else {
 							container = DataItem::factory(req,di_text); //hmm
 						}
-					} break;
-				}
-			} break;
-			case c_name: {
-				exists = true;
-				switch (exist_test) {
-					case ut_existence: break;
-					case ut_significant: {
+					}
+				} break;
+				case c_name: {
+					if (exist_test == ut_significant) {
 						container = DataItem::factory(req,di_text);
-					} break;
-					case ut_value: {
+					} else { //ut_value
 						pair <string,string> namepair;
 						string name;
 						if (iko != NULL) {
@@ -221,96 +221,68 @@ bool IKO::currentenv(const string& req,const usage_tests exist_test, const IKO* 
 						}
 						String::split('#',name,namepair);
 						container = DataItem::factory(namepair.first,di_text);
-					} break;
-				}
-			} break;
-			case c_time: {
-				exists = true;
-				switch (exist_test) {
-					case ut_existence: break;
-					case ut_significant: {
+					}
+				} break;
+				case c_time: {
+					if (exist_test == ut_significant) {
 						container = DataItem::factory(req,di_text);
-					} break;
-					case ut_value: {
+					} else { //ut_value
 						DateUtils::Date::getUTCTimeOfDay(result);
 						container = DataItem::factory(result,di_text);
-					} break;
-				}
-			} break;
-			case c_timing: {
-				exists = true;
-				switch (exist_test) {
-					case ut_existence: break;
-					case ut_significant: {
+					}
+				} break;
+				case c_timing: {
+					if (exist_test == ut_significant) {
 						container = DataItem::factory(req,di_text);
-					} break;
-					case ut_value: {
+					} else { //ut_value
 						env->gettiming(result);
 						container = DataItem::factory(result,di_text);
-					} break;
-				}
-			} break;
-			case c_point: {
-				exists = true;
-				result = String::tostring(ObyxElement::eval_count);
-				container = DataItem::factory(result,di_text);
-			} break;
-			case c_request: {
-				exists = true;
-				switch (exist_test) {
-					case ut_existence: break;
-					case ut_significant: {
+					}
+				} break;
+				case c_point: {
+					result = String::tostring(ObyxElement::eval_count);
+					container = DataItem::factory(result,di_text);
+				} break;
+				case c_request: {
+					if (exist_test == ut_significant) {
 						container = DataItem::factory(req,di_text);
-					} break;
-					case ut_value: {
+					} else { //ut_value
 						result = Document::currenthttpreq();
 						container = DataItem::factory(result,di_object);
-					} break;
-				}
-			} break;
-			case c_osi_response: {
-				result = OsiAPP::last_osi_response();
-				exists = ! result.empty();
-				switch (exist_test) {
-					case ut_existence: break;
-					case ut_significant: 
-					case ut_value: {
-						container = DataItem::factory(result,di_object);
-					} break;
-				}
-			} break;
-			case c_cookies: {
-				exists = true;
-				switch (exist_test) {
-					case ut_existence: break;
-					case ut_significant: {
+					}
+				} break;
+				case c_osi_response: {
+					container = DataItem::factory(result,di_object);
+				} break;
+				case c_cookies: {
+					if (exist_test == ut_significant) {
 						container = DataItem::factory(req,di_text);
-					} break;
-					case ut_value: {
+					} else { //ut_value
 						env->do_response_cookies(result);
 						container = DataItem::factory(result,di_object);
-					} break;
-				}
-			} break;
-			case c_response: {
-				exists = true;
-				switch (exist_test) {
-					case ut_existence: break;
-					case ut_significant: {
+					}
+				} break;
+				case c_response: {
+					if (exist_test == ut_significant) {
 						container = DataItem::factory(req,di_text);
-					} break;
-					case ut_value: {
+					} else { //ut_value
 						Httphead* http = Httphead::service();	
 						http->explain(result);
 						container = DataItem::factory(result,di_object);
-					} break;
-				}
-			} break;
+					}
+				} break;
+			}
 		}
 	} else {
 		exists = env->getenv("CURRENT_" + req,result);		
 		switch (exist_test) {
 			case ut_existence: break;
+			case ut_found: {
+				if (!exists) {
+					string test = "CURRENT_" + req;
+					exists = env->envfind("CURRENT_" + req); //regex.		
+				}
+			} break;
 			case ut_significant: 
 			case ut_value: {
 				container = DataItem::factory(req,di_text);
@@ -417,23 +389,6 @@ void IKO::process_encoding(DataItem*& basis) {
 bool IKO::evaltype(inp_space the_space, bool release, bool eval,kind_type ikind,DataItem*& name_item, DataItem*& container) {
 	//evaltype() is used for evaluating BOTH inputs proper and also contexts for inputs and outputs.
 	//exists is evaluated. significant is tested by comparision and will be looking for a value.
-	//the basic logic for existence / significance is..
-	/*
-	 exists = type.exists();
-	 if (exist_test != ut_existence) {
-	 if (exists) { 
-	 if (exist_test == significant) {
-	 return a text value.
-	 } else {
-	 return value (ikind)
-	 }
-	 } else {
-	 if (exist_test == value) {
-	 post an error.
-	 }
-	 }
-	 
-	 */
 	Environment* env = Environment::service();
 	exists = false; 
 	if (container != NULL) {
@@ -469,6 +424,7 @@ bool IKO::evaltype(inp_space the_space, bool release, bool eval,kind_type ikind,
 					switch (cmp->op()) {
 						case obyx::exists: exist_test=ut_existence; break;
 						case obyx::significant: exist_test= ut_significant; break;
+						case obyx::found: exist_test= ut_found; break;
 						default: break; // already value. 
 					}
 				} else {
@@ -503,8 +459,14 @@ bool IKO::evaltype(inp_space the_space, bool release, bool eval,kind_type ikind,
 							if (ite != NULL) {
 								std::string fresult; 
 								std::string fname; transcode(input_name.c_str(),fname);
-								exists = ite->fieldexists(fname,errstring); //errstring=empty = ok.
-								if (exists && exist_test != ut_existence) {
+								if (!exists) { 
+									if (exist_test == ut_found) {
+										exists = ite->fieldfind(fname); //errstring=empty = ok.
+									} else {
+										exists = ite->fieldexists(fname,errstring); //errstring=empty = ok.
+									}
+								}
+								if (exists && exist_test != ut_found && exist_test != ut_existence ) {
 									finished = true;
 									if (ite->field(fname,fresult,errstring)) {
 										if (exist_test == ut_significant) {
@@ -529,8 +491,10 @@ bool IKO::evaltype(inp_space the_space, bool release, bool eval,kind_type ikind,
 								if (mpp != NULL) {
 									std::string fname; transcode(input_name.c_str(),fname);
 									std::string fresult;
-									exists = mpp->field(fname,fresult);
-									if (exists) {
+									if (!exists) { 
+										exists = mpp->field(fname,errstring); //found here is same as using exists
+									}
+									if (exists && exist_test != ut_found && exist_test != ut_existence ) {
 										finished = true;
 										if (exist_test == ut_significant) {
 											container = DataItem::factory(fresult,di_text);
@@ -566,8 +530,8 @@ bool IKO::evaltype(inp_space the_space, bool release, bool eval,kind_type ikind,
 					}
 				} break;
 				case xmlnamespace: { 
+					exists = ItemStore::nsexists(name_item,release);
 					if ( exist_test != ut_existence ) {
-						exists = ItemStore::nsexists(name_item,false);
 						if (exists) {
 							ItemStore::getns(name_item,container,release);
 						} else {
@@ -576,15 +540,19 @@ bool IKO::evaltype(inp_space the_space, bool release, bool eval,kind_type ikind,
 								*Logger::log << Log::error << Log::LI << "Error. Namespace " << err_msg <<  " does not exist " << Log::LO;
 								trace();
 								*Logger::log << Log::blockend;
+							} else {
+								if (exist_test == ut_found) {
+									*Logger::log << Log::error << Log::LI << "Error. namespace space. Regex for UCS2 not supported by Obyx."  << Log::LO;	
+									trace();
+									*Logger::log << Log::blockend;
+								}
 							}
 						}
-					} else {
-						exists = ItemStore::nsexists(name_item,release);
 					}
 				} break;
 				case xmlgrammar: {
+					exists = ItemStore::grammarexists(name_item,false);
 					if ( exist_test != ut_existence ) {
-						exists = ItemStore::grammarexists(name_item,false);
 						if (exists) {
 							ItemStore::getgrammar(name_item,container,kind,release);
 						} else {
@@ -593,16 +561,20 @@ bool IKO::evaltype(inp_space the_space, bool release, bool eval,kind_type ikind,
 								*Logger::log << Log::error << Log::LI << "Error. " <<  name() << " Grammar " << err_msg <<  " does not exist " << Log::LO;
 								trace();
 								*Logger::log << Log::blockend;
+							} else {
+								if (exist_test == ut_found) {
+									*Logger::log << Log::error << Log::LI << "Error. grammar space. Regex for UCS2 not supported by Obyx."  << Log::LO;	
+									trace();
+									*Logger::log << Log::blockend;
+								}
 							}
 						}
-					} else {
-						exists = ItemStore::grammarexists(name_item,release);
-					}
+					} 
 				} break;
 				case store: {
 					string errstring;
+					exists = ItemStore::get(name_item,container,release,errstring);
 					if ( exist_test != ut_existence ) {
-						exists = ItemStore::get(name_item,container,release,errstring);
 						if (!errstring.empty()) {
 							std::string err_msg; transcode(input_name.c_str(),err_msg);
 							*Logger::log << Log::error << Log::LI << "Error. Store error occurrred with " << err_msg << Log::LO << Log::LI << errstring << Log::LO;	
@@ -614,11 +586,13 @@ bool IKO::evaltype(inp_space the_space, bool release, bool eval,kind_type ikind,
 								*Logger::log << Log::error << Log::LI << "Error. Store " << err_msg  << " does not exist."  << Log::LO;	
 								trace();
 								*Logger::log << Log::blockend;
-							}		
+							} else {
+								if (exist_test == ut_found) {
+									exists = ItemStore::find(name_item,release);
+								}
+							}
 						}
-					} else {
-						exists = ItemStore::exists(name_item,release,errstring); //ignore errors - just testing for existence.
-					}
+					} 
 				} break;
 				case fnparm: {
 					const DataItem* ires = NULL;
@@ -629,6 +603,12 @@ bool IKO::evaltype(inp_space the_space, bool release, bool eval,kind_type ikind,
 							*Logger::log << Log::error << Log::LI << "Error. Parm " << err_msg  << " does not exist in this context."  << Log::LO;	
 							trace();
 							*Logger::log << Log::blockend;
+						} else {
+							if (exist_test == ut_found) {
+								*Logger::log << Log::error << Log::LI << "Error. Parm space. Regex for UCS2 not supported by Obyx."  << Log::LO;	
+								trace();
+								*Logger::log << Log::blockend;
+							}
 						}
 					} else {
 						exists  = true;	//prob this one
@@ -696,6 +676,11 @@ bool IKO::evaltype(inp_space the_space, bool release, bool eval,kind_type ikind,
 								trace();
 								*Logger::log << Log::blockend;
 							}
+							if (exist_test == ut_found) {
+								*Logger::log << Log::error << Log::LI << "Error. File space does not support find." << Log::LO;
+								trace();
+								*Logger::log << Log::blockend;
+							}
 						}
 					}
 					destination.cd(orig_wd);
@@ -735,6 +720,11 @@ bool IKO::evaltype(inp_space the_space, bool release, bool eval,kind_type ikind,
 								trace();
 								*Logger::log << Log::blockend;
 							}
+							if (exist_test == ut_found) {
+								*Logger::log << Log::error << Log::LI << "Error. URL space does not support find." << Log::LO;
+								trace();
+								*Logger::log << Log::blockend;
+							}
 						}
 					} else {
 						*Logger::log << Log::error << Log::LI << "Error. Url requires libcurl and this was not found. ";
@@ -766,7 +756,11 @@ bool IKO::evaltype(inp_space the_space, bool release, bool eval,kind_type ikind,
 								*Logger::log << Log::error << Log::LI << "Error. Cookie " << cookie_name << " does not exist." << Log::LO;
 								trace();
 								*Logger::log << Log::blockend;
-							} // else it's significant - and we are ok.
+							} else {
+								if (exist_test == ut_found) {
+									exists = env->cookiefind(cookie_name);
+								}
+							}
 						}
 					}
 				} break;
@@ -788,6 +782,10 @@ bool IKO::evaltype(inp_space the_space, bool release, bool eval,kind_type ikind,
 								*Logger::log << Log::error << Log::LI << "Error. Sysparm " << sysparm_name << " does not exist." << Log::LO;
 								trace();
 								*Logger::log << Log::blockend;
+							} else {
+								if (exist_test == ut_found) {
+									exists = env->parmfind(sysparm_name);
+								}
 							}
 						}
 					}
@@ -823,6 +821,10 @@ bool IKO::evaltype(inp_space the_space, bool release, bool eval,kind_type ikind,
 								*Logger::log << Log::error << Log::LI << "Error. Sysenv " << sysenv_name << " " << errmsg << Log::LO;
 								trace();
 								*Logger::log << Log::blockend;
+							} else {
+								if (exist_test == ut_found) {
+									exists = env->envfind(sysenv_name);
+								}
 							}
 						}
 					}

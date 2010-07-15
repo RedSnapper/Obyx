@@ -63,6 +63,7 @@ public:
 	static void shutdown();
 	static void list();										//list all current items to debugger.	
 	static bool exists(const DataItem*,bool,std::string&);	//name#path
+	static bool find(const DataItem*,bool);	
 	static void release(const DataItem*);
 	static bool set(const DataItem*, DataItem*&, kind_type, std::string& );	//name#path, document, intended kind...
 	static bool get(const DataItem*, DataItem*&, bool, std::string&);		//name#path, container, release?
@@ -75,6 +76,8 @@ public:
 	static bool grammarexists(const DataItem*,bool);			//grammar existence
 	static void prefixpushed(const u_str&);
 	static void prefixpopped(const u_str&);
+	static bool nsfind(const DataItem*,bool);
+	static bool grammarfind(const DataItem*,bool);	
 	
 };
 

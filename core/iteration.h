@@ -69,6 +69,7 @@ protected:
 public:
 	bool active() const { return ctlevaluated && !evaluated; }
 	bool field(const string&,string&,string&) const;
+	bool fieldfind(const string& pattern) const;
 	bool fieldexists(const string&,string&) const;
 	const unsigned long long row() const {return currentrow;}
 	const it_type op() const {return operation;}

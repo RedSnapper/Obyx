@@ -98,16 +98,7 @@ IKO(n,par,el),eval(false),release(false),type(immediate),parm_name() {
 	}
 	
 	if (type == fnparm ) {
-//		if (owner->parm_map == NULL) {
-//			Comparison* c = dynamic_cast<Comparison*>(p);
-//			if ((c != NULL) && (c->op() == obyx::exists || c->op() == obyx::significant )) {
-				exists = false; 
-//			} else { 
-//				*Logger::log << Log::syntax << Log::LI << "Syntax Error. " << name() << ": parm attribute can only be used in function definitions. This document is not being run as a function." << Log::LO ;
-//				trace();
-//				*Logger::log << Log::blockend;
-//			}
-//		} 
+		exists = false; 
 	}
 	
 	if ((type == immediate || type == none ) && context != immediate) {

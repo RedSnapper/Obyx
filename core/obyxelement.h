@@ -60,7 +60,7 @@ namespace obyx {
 	typedef enum { move,append,substring,position,length,left,right,reverse,upper,lower,kind,add,subtract,multiply,divide,maximum,minimum,remainder,quotient,shell_command,query_command,function} op_type;	//transform
 	typedef std::map<u_str, op_type > op_type_map; 
 	
-	typedef enum { equivalent_to,exists,is_empty,substring_of,significant,cmp_true,cmp_or,cmp_and,cmp_xor,less_than,greater_than,natural,email} cmp_type;	//
+	typedef enum { equivalent_to,exists,is_empty,found,greater_than,less_than,significant,cmp_true} cmp_type;	//
 	typedef std::map<u_str, std::pair< cmp_type, bool > > cmp_type_map; 
 	
 	typedef enum { m_substitute, m_switch, m_state } map_type;	//
@@ -68,7 +68,7 @@ namespace obyx {
 	
 	typedef std::map<unsigned long, std::string > long_map; 
 	
-	typedef enum { ut_value, ut_existence, ut_significant } usage_tests;
+	typedef enum { ut_value, ut_existence, ut_found, ut_significant } usage_tests;
 	
 }
 using namespace obyx;

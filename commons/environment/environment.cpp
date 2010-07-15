@@ -147,28 +147,24 @@ bool Environment::getcookie_req(string const name,string& container) {	//only pr
 	if (it != cke_map.end()) { container = ((*it).second); retval = true; } 
 	return retval;
 }
-
 bool Environment::getcookie_req_domain(string const name,string& container) {	//only pre-existing cookies
 	bool retval = false; container.clear();
 	var_map_type::iterator it = cke_domain_map.find(name); //check request cookies first.
 	if (it != cke_domain_map.end()) { container = ((*it).second); retval = true; } 
 	return retval;
 }
-
 bool Environment::getcookie_req_path(string const name,string& container) {	//only pre-existing cookies
 	bool retval = false; container.clear();
 	var_map_type::iterator it = cke_path_map.find(name); //check request cookies first.
 	if (it != cke_path_map.end()) { container = ((*it).second); retval = true; } 
 	return retval;
 }
-
 bool Environment::getcookie_req_expires(string const name,string& container) {	//only pre-existing cookies
 	bool retval = false; container.clear();
 	var_map_type::iterator it = cke_expires_map.find(name); //check request cookies first.
 	if (it != cke_expires_map.end()) { container = ((*it).second); retval = true; } 
 	return retval;
 }
-
 //Request cookies: SET
 void Environment::setcookie_req(string name,string value) {
 	pair<var_map_type::iterator, bool> ins = cke_map.insert(var_map_type::value_type(name, value));
@@ -177,7 +173,6 @@ void Environment::setcookie_req(string name,string value) {
 		cke_map.insert(var_map_type::value_type(name, value));
 	}
 }
-
 void Environment::setcookie_req_path(string name,string value) {
 	pair<var_map_type::iterator, bool> ins = cke_path_map.insert(var_map_type::value_type(name, value));
 	if (!ins.second) { 
@@ -185,7 +180,6 @@ void Environment::setcookie_req_path(string name,string value) {
 		cke_path_map.insert(var_map_type::value_type(name, value));
 	}
 }
-
 void Environment::setcookie_req_domain(string name,string value) {
 	pair<var_map_type::iterator, bool> ins = cke_domain_map.insert(var_map_type::value_type(name, value));
 	if (!ins.second) { 
@@ -193,7 +187,6 @@ void Environment::setcookie_req_domain(string name,string value) {
 		cke_domain_map.insert(var_map_type::value_type(name, value));
 	}
 }
-
 void Environment::setcookie_req_expires(string name,string value) {
 	pair<var_map_type::iterator, bool> ins = cke_expires_map.insert(var_map_type::value_type(name, value));
 	if (!ins.second) { 
@@ -201,7 +194,6 @@ void Environment::setcookie_req_expires(string name,string value) {
 		cke_expires_map.insert(var_map_type::value_type(name, value));
 	}
 }
-
 //--------------------------Response cookie GET functions
 void Environment::delcookie_res(string name) {
 	var_map_type::iterator it;
@@ -210,28 +202,24 @@ void Environment::delcookie_res(string name) {
 	it = ck_path_map.find(name); if (it != ck_path_map.end()) ck_path_map.erase(it);  
 	it = ck_expires_map.find(name); if (it != ck_expires_map.end()) ck_expires_map.erase(it);  
 }
-
 bool Environment::getcookie_res(string const name,string& container) {	//only pre-existing cookies
 	bool retval = false; container.clear();
 	var_map_type::iterator it = ck_map.find(name); //check request cookies first.
 	if (it != ck_map.end()) { container = ((*it).second); retval = true; } 
 	return retval;
 }
-
 bool Environment::getcookie_res_domain(string const name,string& container) {	//only pre-existing cookies
 	bool retval = false; container.clear();
 	var_map_type::iterator it = ck_domain_map.find(name); //check request cookies first.
 	if (it != ck_domain_map.end()) { container = ((*it).second); retval = true; } 
 	return retval;
 }
-
 bool Environment::getcookie_res_path(string const name,string& container) {	//only pre-existing cookies
 	bool retval = false; container.clear();
 	var_map_type::iterator it = ck_path_map.find(name); //check request cookies first.
 	if (it != ck_path_map.end()) { container = ((*it).second); retval = true; } 
 	return retval;
 }
-
 bool Environment::getcookie_res_expires(string const name,string& container) {	//only pre-existing cookies
 	bool retval = false; container.clear();
 	var_map_type::iterator it = ck_expires_map.find(name); //check request cookies first.
@@ -240,7 +228,6 @@ bool Environment::getcookie_res_expires(string const name,string& container) {	/
 	} 
 	return retval;
 }
-
 //Response cookies: SET
 void Environment::setcookie_res(string name,string value) {
 	if ( value.empty() ) { 
@@ -253,7 +240,6 @@ void Environment::setcookie_res(string name,string value) {
 		}
 	}
 }
-
 void Environment::setcookie_res_path(string name,string value) {
 	pair<var_map_type::iterator, bool> ins = ck_path_map.insert(var_map_type::value_type(name, value));
 	if (!ins.second) { 
@@ -261,7 +247,6 @@ void Environment::setcookie_res_path(string name,string value) {
 		ck_path_map.insert(var_map_type::value_type(name, value));
 	}
 }
-
 void Environment::setcookie_res_domain(string name,string value) {
 	pair<var_map_type::iterator, bool> ins = ck_domain_map.insert(var_map_type::value_type(name, value));
 	if (!ins.second) { 
@@ -269,7 +254,6 @@ void Environment::setcookie_res_domain(string name,string value) {
 		ck_domain_map.insert(var_map_type::value_type(name, value));
 	}
 }
-
 void Environment::setcookie_res_expires(string name,string value) {
 	string curck;
 	bool do_insert = false;
@@ -296,7 +280,6 @@ void Environment::setcookie_res_expires(string name,string value) {
 		}		
 	}
 }
-
 //--------------------------------------------------
 //Gets either request cookies or response cookies.
 bool Environment::getcookie(string const name,string& container) {
@@ -306,7 +289,6 @@ bool Environment::getcookie(string const name,string& container) {
 	}
 	return retval;
 }
-
 bool Environment::getcookie_domain(string const name,string& container) {
 	bool retval = getcookie_req_domain(name,container);
 	if (!retval) { 
@@ -314,7 +296,6 @@ bool Environment::getcookie_domain(string const name,string& container) {
 	}
 	return retval;
 }
-
 bool Environment::getcookie_path(string const name,string& container) {
 	bool retval = getcookie_req_path(name,container);
 	if (!retval) { 
@@ -322,7 +303,6 @@ bool Environment::getcookie_path(string const name,string& container) {
 	}
 	return retval;
 }
-
 bool Environment::getcookie_expires(string const name,string& container) {
 	bool retval = getcookie_req_expires(name,container);
 	if (!retval) { 
@@ -549,7 +529,6 @@ void Environment::do_request_cookies() {
 		*Logger::log << Log::LI << "Cookie Processing finished" << Log::LO << Log::blockend;
 	}
 }
-
 #pragma mark PARAMETER (UTILITY)
 void Environment::dopostparms() {
 	long long numparms = 0;
@@ -808,7 +787,6 @@ void Environment::dopostparms() {
 		} 
 	} 
 }
-
 void Environment::setnamedparm(string parmstring,unsigned long long pnum) {
 	ostringstream numparm;
 	numparm << pnum+1 << flush;
@@ -830,7 +808,6 @@ void Environment::setnamedparm(string parmstring,unsigned long long pnum) {
 		setparm(parmprefix+"_v["+numparm.str()+"]",""); 
 	}
 }
-
 void Environment::doparms(int argc, char *argv[]) {
 	string qstr;
 	if (argc < 0) { //called from process post..
@@ -1145,6 +1122,42 @@ bool Environment::getbenv(string const name,string& container) {	//used for base
 	return retval;
 }
 #pragma mark ENVIRONMENT (PUBLIC)
+bool Environment::parmfind(string const pattern) { //regex..
+	bool retval = false;
+	if ( String::Regex::available() ) {
+		for(var_map_type::iterator imt = parm_map.begin(); !retval && imt != parm_map.end(); imt++) {
+			retval= String::Regex::fullmatch(pattern,imt->first);
+		}
+	} else {
+		retval = envexists(pattern);
+	}
+	return retval;
+}
+bool Environment::cookiefind(string const pattern) { //request cookies...
+	bool retval = false;
+	if ( String::Regex::available() ) {
+		for(var_map_type::iterator imt = cke_map.begin(); !retval && imt != cke_map.end(); imt++) {
+			retval= String::Regex::fullmatch(pattern,imt->first);
+		}
+	} else {
+		retval = envexists(pattern);
+	}
+	return retval;
+}
+bool Environment::envfind(string const pattern) { //regex..
+	bool retval = false;
+	if ( String::Regex::available() ) {
+		for(var_map_type::iterator imt = ienv_map.begin(); !retval && imt != ienv_map.end(); imt++) {
+			retval= String::Regex::fullmatch(pattern,imt->first);
+		}
+		for(var_map_type::iterator imt = benv_map.begin(); !retval && imt != benv_map.end(); imt++) {
+			retval= String::Regex::fullmatch(pattern,imt->first);
+		}
+	} else {
+		retval = envexists(pattern);
+	}
+	return retval;
+}
 bool Environment::envexists(string const name) {
 	bool retval = false;
 	var_map_type::iterator it = ienv_map.find(name);
@@ -1283,7 +1296,6 @@ void Environment::listReqCookies() {
 		*Logger::log << Log::blockend << Log::LO << Log::blockend ; //even .. subhead.
 	}
 }
-
 void Environment::listResCookies() {
 	vector<pair<string,string> >vmc;
 	for(var_map_type::iterator imt = ck_map.begin(); imt != ck_map.end(); imt++) {
@@ -1309,7 +1321,6 @@ void Environment::listResCookies() {
 		*Logger::log << Log::blockend << Log::LO << Log::blockend ; //even .. subhead.
 	}
 }
-
 void Environment::list() {
 	*Logger::log << Log::subhead << Log::LI << "Environment" << Log::LO << Log::LI ;
 	listEnv();
@@ -1318,7 +1329,6 @@ void Environment::list() {
 	listResCookies();
 	*Logger::log << Log::LO << Log::blockend;
 }
-
 void Environment::listEnv() {
 	vector<pair<string,string> >vme;
 	for(var_map_type::iterator imt = ienv_map.begin(); imt != ienv_map.end(); imt++) {
@@ -1339,7 +1349,6 @@ void Environment::listEnv() {
 		*Logger::log << Log::blockend << Log::LO << Log::blockend ; //even .. subhead.
 	}
 }
-
 void  Environment::list(string& result) {
 	ostringstream buffer;
 	

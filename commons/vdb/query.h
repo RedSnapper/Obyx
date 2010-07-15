@@ -56,6 +56,7 @@ protected:
 public:
 		bool readfield(long long, const std::string&,std::string&, std::string&);	
 		bool hasfield(const std::string&);	
+		bool findfield(const std::string&);	
 		const std::string getquery() const { return querystr; }	
 		long long getnumrows() const { return numRows; }	
 	    const std::vector<std::string>& fieldlist() const { return fieldnames;}

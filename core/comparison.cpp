@@ -61,7 +61,7 @@ cmp_evaluated(false),def_evaluated(false),operation_result('X') {
 		} else {
 			if ( ! op_string.empty() ) {
 				string err_msg; transcode(op_string.c_str(),err_msg);
-				*Logger::log << Log::syntax << Log::LI << "Syntax Error. " <<  err_msg << " is not a legal comparison operation. It should be one of: equal,existent,empty,significant,greater,lesser,true" << Log::LO; 
+				*Logger::log << Log::syntax << Log::LI << "Syntax Error. " <<  err_msg << " is not a legal comparison operation. It should be one of: equal,existent,empty,significant,found,greater,lesser,true" << Log::LO; 
 				trace();
 				*Logger::log << Log::blockend;
 			}
@@ -105,7 +105,6 @@ bool Comparison::evaluate_this() {
 		}
 	}
 	if (cmp_evaluated && operation_result=='X') {	//all the comparators are evaluated but the operation is not
-		bool baccumulator = true;
 		DataItem* acc = NULL;
 		bool compare_bool = (scope == obyx::all ? true : false);	//if invert, then bool must be false.
 		for ( unsigned int i = 0; i < inputs.size(); i++ ) {
@@ -114,22 +113,28 @@ bool Comparison::evaluate_this() {
 					inputs[i]->results.takeresult(acc);
 					firstval = false;
 					switch(operation) {
+						case found: //same as exists.   
 						case exists: {   
 							compare_bool = inputs[i]->getexists();  
 						} break;	// compare_bool is true if it does exist.
+						case is_empty: { 
+							compare_bool = (acc == NULL || acc->empty());  
+						} break; 
+						case less_than: {
+							string sacc; if (acc != NULL) { sacc = *acc; }
+							daccumulator = String::real(sacc);
+						} break; 
+						case greater_than: {
+							string sacc; if (acc != NULL) { sacc = *acc; }
+							daccumulator = String::real(sacc);
+						} break;
 						case significant: {
 							compare_bool = inputs[i]->getexists();  
 							if (compare_bool) {
 								compare_bool = (acc != NULL && ! acc->empty());
 							}
 						} break;
-						case is_empty: { 
-							compare_bool = (acc == NULL || acc->empty());  
-						} break; 
-						case cmp_true:
-						case cmp_and: 
-						case cmp_xor:
-						case cmp_or:   { 
+						case cmp_true: { 
 							string sacc; if (acc != NULL) { sacc = *acc; }
 							if (sacc.compare("true") == 0) { 
 								compare_bool = true;
@@ -142,26 +147,6 @@ bool Comparison::evaluate_this() {
 								}
 							}
 						} break;
-						case less_than: {
-							string sacc; if (acc != NULL) { sacc = *acc; }
-							daccumulator = String::real(sacc);
-						} break; 
-						case greater_than: {
-							string sacc; if (acc != NULL) { sacc = *acc; }
-							daccumulator = String::real(sacc);
-						} break;
-						case natural: {
-							string sacc; if (acc != NULL) { sacc = *acc; }
-							pair<unsigned long long,bool> isnat = String::znatural(sacc);
-							compare_bool = isnat.second;
-						} break;
-						case email: {
-							string sacc; if (acc != NULL) { sacc = *acc; }
-							compare_bool = String::mailencode(sacc);
-						} break;
-						case substring_of: {
-							if (acc != NULL) { saccumulator = *acc; };
-						} break;
 						default: break;
 					}
 				} else {
@@ -170,16 +155,7 @@ bool Comparison::evaluate_this() {
 					if ( compare_bool || scope==obyx::any ) {
 						bool compare_test = false;
 						switch(operation) {
-							case natural: {
-								string sinp; if (inpval != NULL) { sinp = *inpval; }
-								pair<unsigned long long,bool> isnat = String::znatural(sinp);
-								compare_test = isnat.second;							
-							} break;
-							case substring_of: {
-								string sinp; if (inpval != NULL) { sinp = *inpval; }
-								compare_test = (sinp.find(saccumulator) != string::npos) ;
-								if (inpval != NULL) { saccumulator = *inpval; }
-							} break;
+							case found: //same as exists. it's iko that does the work here.   
 							case exists: { 
 								compare_test = inputs[i]->getexists(); 
 							} break;
@@ -192,7 +168,6 @@ bool Comparison::evaluate_this() {
 									compare_test = (inpval != NULL && ! inpval->empty());
 								}
 							} break;
-								
 							case equivalent_to: { 
 								if (acc == NULL) {
 									compare_test = (inpval == NULL);
@@ -204,10 +179,6 @@ bool Comparison::evaluate_this() {
 									}
 								}
 							} break;
-							case email: { 
-								string sinp; if (inpval != NULL) { sinp = *inpval; }
-								compare_test = String::mailencode(sinp);
-							} break;							
 							case less_than: { 
 								string sinp; if (inpval != NULL) { sinp = *inpval; }
 								double dinput = String::real(sinp);
@@ -228,7 +199,6 @@ bool Comparison::evaluate_this() {
 								}
 								daccumulator = dinput;
 							} break;
-							case cmp_or:
 							case cmp_true: {
 								string sinp; if (inpval != NULL) { sinp = *inpval; }
 								if (sinp.compare("true") == 0) { 
@@ -237,30 +207,6 @@ bool Comparison::evaluate_this() {
 									compare_test = false;
 									if (sinp.compare("false") != 0) {
 										*Logger::log << Log::error << Log::LI << "Error. Boolean mismatch. [" << sinp << "] found instead of true or false." << Log::LO;
-										trace();
-										*Logger::log << Log::blockend;									
-									}
-								}
-							} break;
-							case cmp_and: {
-								string sinp; if (inpval != NULL) { sinp = *inpval; }
-								if (sinp.compare("true") != 0) {
-									if (sinp.compare("false") == 0) { 
-										compare_test = false; // baccumulator = baccumulator && false => false;
-									} else {
-										*Logger::log << Log::error << Log::LI << "Error. [" << sinp << "] found instead of true or false." << Log::LO;
-										trace();
-										*Logger::log << Log::blockend;									
-									}
-								}								
-							} break;
-							case cmp_xor: {
-								string sinp; if (inpval != NULL) { sinp = *inpval; }
-								if (sinp.compare("true") == 0) { 
-									compare_test = ! baccumulator;
-								} else {
-									if (sinp.compare("false") != 0) {
-										*Logger::log << Log::error << Log::LI << "Error. [" << sinp << "] found instead of true or false." << Log::LO;
 										trace();
 										*Logger::log << Log::blockend;									
 									}
@@ -379,9 +325,10 @@ void Comparison::startup() {
 	cmp_types.insert(cmp_type_map::value_type(UCS2(L"equal"), std::pair<cmp_type,bool>::pair(equivalent_to,false) ));
 	cmp_types.insert(cmp_type_map::value_type(UCS2(L"existent"), std::pair<cmp_type,bool>::pair(exists,false)));
 	cmp_types.insert(cmp_type_map::value_type(UCS2(L"empty"), std::pair<cmp_type,bool>::pair(is_empty,false) ));
-	cmp_types.insert(cmp_type_map::value_type(UCS2(L"significant"), std::pair<cmp_type,bool>::pair(significant,false) ));
+	cmp_types.insert(cmp_type_map::value_type(UCS2(L"found"), std::pair<cmp_type,bool>::pair(found,false) ));
 	cmp_types.insert(cmp_type_map::value_type(UCS2(L"greater"), std::pair<cmp_type,bool>::pair(greater_than,false) ));
 	cmp_types.insert(cmp_type_map::value_type(UCS2(L"lesser"), std::pair<cmp_type,bool>::pair(less_than,false) ));
+	cmp_types.insert(cmp_type_map::value_type(UCS2(L"significant"), std::pair<cmp_type,bool>::pair(significant,false) ));
 	cmp_types.insert(cmp_type_map::value_type(UCS2(L"true"), std::pair<cmp_type,bool>::pair(cmp_true,false) ));
 }
 void Comparison::shutdown() {
