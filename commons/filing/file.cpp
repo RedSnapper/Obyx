@@ -435,12 +435,14 @@
 				std::ifstream in(output().c_str(), std::ios::in | std::ios::binary | std::ios::ate);
 				if (in.is_open()) { // reading a complete binary file
 					size = in.tellg();
-					memblock = new char[size];
-					in.seekg(0, std::ios::beg);
-					in.read(memblock,(unsigned long)size);
-					in.close();
-					result.assign(memblock,(unsigned long)size);
-					delete[] memblock;
+					if (size > 0) {
+						memblock = new char[size];
+						in.seekg(0, std::ios::beg);
+						in.read(memblock,(unsigned long)size);
+						in.close();
+						result.assign(memblock,(unsigned long)size);
+						delete[] memblock;
+					}
 				}
 			}
 		}	// namespace FileUtils
