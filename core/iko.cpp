@@ -52,7 +52,6 @@ using namespace Log;
 using namespace obyx;
 using namespace Fetch;
 
-
 enc_type_map IKO::enc_types;
 IKO::inp_space_map IKO::ctx_types;
 IKO::current_type_map IKO::current_types;
@@ -913,7 +912,7 @@ bool IKO::sigfromspace(const string& input_name,const inp_space the_space,const 
 			exists = owner->getparm(input_name,ires);
 			if (exists && ires != NULL) {
 				ires->copy(container);
-			}
+			} 
 		} break;		
 		case file: {
 			string file_path; setfilepath(input_name,file_path);

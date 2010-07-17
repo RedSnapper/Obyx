@@ -107,9 +107,7 @@ bool Document::parmexists(const std::string& parmkey) const {
 	bool existent = false;
 	if (parm_map != NULL) {
 		type_parm_map::const_iterator it = parm_map->find(parmkey);
-		if (it != parm_map->end()) {
-			existent = true;
-		}
+		existent = (it != parm_map->end());
 	} 
 	return existent; //if we are outside of a function there is no parm.
 }
@@ -120,14 +118,14 @@ void Document::list() const {
 		*Logger::log << Log::LI << Log::even;
 		while (it != parm_map->end() ) {
 			if ( ! it->first.empty() ) {
-				string key,value;
+				string value;
 				DataItem* x= it->second;
 				if ( x == NULL) {
 					value = "[NULL]"; 
 				} else {
 					value = *x;
 				}
-				*Logger::log << Log::LI << Log::II << key << Log::IO << Log::II << value << Log::IO << Log::LO;
+				*Logger::log << Log::LI << Log::II << it->first << Log::IO << Log::II << value << Log::IO << Log::LO;
 			}
 			it++;
 		}
@@ -135,8 +133,7 @@ void Document::list() const {
 	}
 }
 Document::Document(ObyxElement* par,const Document* orig) :
-ObyxElement(par,orig), xdoc(NULL),root_node(NULL),filepath(),ownprefix(),
-parm_map(NULL),doc_par(NULL) { 
+ObyxElement(par,orig), xdoc(NULL),root_node(NULL),filepath(),ownprefix(),parm_map(NULL),doc_par(NULL) { 
 	xdoc = XML::Manager::parser()->newDoc(orig->xdoc);
 	root_node = xdoc->getDocumentElement();
 	filepath  = orig->filepath;
@@ -153,8 +150,7 @@ parm_map(NULL),doc_par(NULL) {
 	doc_par = orig->doc_par;
 }
 Document::Document(DataItem* inputfile,load_type use_loader, std::string fp, ObyxElement* par, bool evaluate_it) : 
-ObyxElement(par,xmldocument,other,NULL), xdoc(NULL),root_node(NULL),filepath(fp),ownprefix(),
-parm_map(NULL),doc_par(NULL) { 
+ObyxElement(par,xmldocument,other,NULL), xdoc(NULL),root_node(NULL),filepath(fp),ownprefix(),parm_map(NULL),doc_par(NULL) { 
 	bool loaded=false;
 	ostringstream* docerrs = NULL;
 	if (use_loader == Main) { //otherwise this is handled by output type = error.
