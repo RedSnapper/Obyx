@@ -302,26 +302,30 @@ DataItem* DataItem::factory(xercesc::DOMNode* const& pt,kind_type kind_it_is) {
 //static DataItem* factory(std::string&,kind_type = di_auto);
 DataItem* DataItem::factory(u_str s,kind_type kind_it_is) {
 	DataItem* retval = NULL;
-	switch (kind_it_is) {
-		case di_auto: {			
-			if (! s.empty() ) {
-				retval= new FragmentObject(s); //why are we not doing xml detection here?
-			} else {
+	if (! s.empty() ) {
+		switch (kind_it_is) {
+			case di_auto: {			
+				if (! s.empty() ) {
+					retval= new FragmentObject(s); //why are we not doing xml detection here?
+				} else {
+					retval=NULL;
+				}
+			} break;
+			case di_text: {
+				retval= new StrObject(s);
+			} break;
+			case di_fragment: {
+				retval= new FragmentObject(s);
+			} break;
+			case di_object: {
+				retval= new XMLObject(s);
+			} break;
+			case di_null: {
 				retval=NULL;
 			}
-		} break;
-		case di_text: {
-			retval= new StrObject(s);
-		} break;
-		case di_fragment: {
-			retval= new FragmentObject(s);
-		} break;
-		case di_object: {
-			retval= new XMLObject(s);
-		} break;
-		case di_null: {
-			retval=NULL;
 		}
+	} else {
+		retval=NULL;
 	}
 	return retval;
 }

@@ -105,6 +105,23 @@ namespace Vdb {
 		}
 		return retval;
 	}
+
+	void Query::fieldkeys(const std::string& pattern,vector<string>& keylist) {
+		if (isactive) {
+			if ( String::Regex::available() ) {
+				for(nameIndexMap::iterator imt = fieldnameidx.begin(); imt != fieldnameidx.end(); imt++) {
+					if (String::Regex::match(pattern,imt->first)) {
+						keylist.push_back(imt->first);
+					}
+				}
+			} else {
+				nameIndexMap::iterator it = fieldnameidx.find(pattern);
+				if (it != fieldnameidx.end()) {
+					keylist.push_back(pattern);
+				}
+			}
+		}
+	}
 	
 	bool Query::hasfield(const std::string& field) {
 		bool retval = false;
@@ -112,22 +129,7 @@ namespace Vdb {
 			nameIndexMap::iterator it = fieldnameidx.find(field);
 			if (it != fieldnameidx.end()) {
 				retval = true;
-			} else {
-				size_t hashpos = field.find('#');
-				if (hashpos != string::npos) {
-					if (field.compare(hashpos,9,"#rowcount") == 0 ) {
-						retval= true;
-					} else {
-						if (field.compare(hashpos,4,"#row") == 0 ) {
-							retval= true;
-						} else {
-							if (field.compare(hashpos,11,"#fieldcount") == 0 ) {
-								retval= true;
-							} 
-						}
-					}
-				}
-			}
+			} 
 		}
 		return retval;
 	}

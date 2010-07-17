@@ -91,10 +91,12 @@ public:
 	const std::string own_filepath() const { return filepath; }
 	virtual const std::string name() const;
 	const xercesc::DOMDocument* doc() const;
-	bool getparm(u_str const,const DataItem*&) const;
+	bool getparm(const u_str&,const DataItem*&) const;
+	bool getparm(const std::string&,const DataItem*&) const;
+	bool parmexists(const std::string&) const;
 	void list() const;
 	bool eval();
-	bool evaluate(size_t,size_t) { return true; }	
+	void evaluate(size_t,size_t) {}	
  	void process(xercesc::DOMNode*&,ObyxElement* = NULL);
 	static void startup();
 	static void init();

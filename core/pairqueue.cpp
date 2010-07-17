@@ -77,6 +77,7 @@ void PairQueue::clear(bool add_endthing) {
 	queue.clear(); 
 	if (add_endthing) {
 		queue.push_back(pqpair(NULL,pqendthing));
+//		finalised = false; //DID CAUSE TROUBLE
 	}
 }
 void PairQueue::setresult(DataItem*& res, bool wsstrip) { 
@@ -236,7 +237,7 @@ bool PairQueue::trim(DataItem*& item,bool strip) {
 		return false;
 	}
 }
-bool PairQueue::evaluate(bool wsstrip) {
+void PairQueue::evaluate(bool wsstrip) {
 	if ( ! finalised ) {
 		size_t i = 0;
 		while (  i < queue.size() ) {
@@ -267,32 +268,29 @@ bool PairQueue::evaluate(bool wsstrip) {
 					queue[i].second = queue[i+1].second;
 					queue.erase(queue.begin()+i+1);  
 				} else {
-					if ( qi2->evaluate() ) {
-						bool qjf = trim(qi2->results.theresult,wsstrip);
-						if (qjf) {
-							if (qif) {
-								DataItem::append(queue[i].first,qi2->results.theresult);
-							} else {
-								queue[i].first = qi2->results.theresult;
-								qi2->results.theresult = NULL;
-								qif = true;
-							}
+					qi2->evaluate();
+					bool qjf = trim(qi2->results.theresult,wsstrip);
+					if (qjf) {
+						if (qif) {
+							DataItem::append(queue[i].first,qi2->results.theresult);
+						} else {
+							queue[i].first = qi2->results.theresult;
+							qi2->results.theresult = NULL;
+							qif = true;
 						}
-						delete qi2;	
-						bool qp2  = trim(queue[i+1].first,wsstrip);
-						if (qp2) {
-							if (qif) {
-								DataItem::append(queue[i].first,queue[i+1].first);
-							} else {
-								queue[i].first = queue[i+1].first;
-								qif = true;
-							}
-						}
-						queue[i].second = queue[i+1].second;
-						queue.erase(queue.begin()+i+1);  
-					} else {
-						i++;
 					}
+					delete qi2;	
+					bool qp2  = trim(queue[i+1].first,wsstrip);
+					if (qp2) {
+						if (qif) {
+							DataItem::append(queue[i].first,queue[i+1].first);
+						} else {
+							queue[i].first = queue[i+1].first;
+							qif = true;
+						}
+					}
+					queue[i].second = queue[i+1].second;
+					queue.erase(queue.begin()+i+1);  
 				}
 			} else {
 				i++;
@@ -305,7 +303,6 @@ bool PairQueue::evaluate(bool wsstrip) {
 			finalised=true; 
 		}
 	}
-	return finalised;
 }
 bool PairQueue::undefer(ObyxElement*) {
 	bool retval = true;

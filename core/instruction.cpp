@@ -193,8 +193,7 @@ bool Instruction::evaluate_this() {
 			*Logger::log << Log::blockend;
 		}
 		for ( size_t i = 0; i < n; i++ ) {
-			bool wasfinal = inputs[i]->evaluate(i+1,n);
-			inputsfinal = inputsfinal && wasfinal;
+			inputs[i]->evaluate(i+1,n);
 		}
 	}
 	if (inputsfinal) {

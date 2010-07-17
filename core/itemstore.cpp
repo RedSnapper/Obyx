@@ -88,26 +88,20 @@ bool ItemStore::setgrammar(const DataItem* sig, DataItem*& document) {
 	}
 	return retval;
 }
-bool ItemStore::getgrammar(const DataItem* sig, DataItem*& document,kind_type kind,bool release) {
-	bool retval=false;
-	if (sig != NULL) {
-		string signature = *sig;
+bool ItemStore::getgrammar(const string& signature, DataItem*& document,kind_type kind,bool release) {
+	bool exist_result=false;
+	if (!signature.empty()) {
 		string grammarfile;
-		if ( !signature.empty() ) {
-			XML::Manager::parser()->getGrammar(grammarfile,signature,release);
-			document = DataItem::factory(grammarfile,kind);
-			retval=true;
-		}
+		XML::Manager::parser()->getGrammar(grammarfile,signature,release);
+		document = DataItem::factory(grammarfile,kind);
+		exist_result=true;
 	}
-	return retval;
+	return exist_result;
 }
-bool ItemStore::grammarexists(const DataItem* sig,bool release) {
+bool ItemStore::grammarexists(const string& signature,bool release) {
 	bool retval=false;
-	if (sig != NULL) {
-		string signature = *sig;
-		if ( !signature.empty() ) {
-			retval = XML::Manager::parser()->existsGrammar(signature,release);
-		}
+	if ( !signature.empty() ) {
+		retval = XML::Manager::parser()->existsGrammar(signature,release);
 	}
 	return retval;
 }
@@ -121,35 +115,30 @@ bool ItemStore::setns(const DataItem* c, DataItem*& sig) {
 	}
 	return retval;
 }
-bool ItemStore::getns(const DataItem* c, DataItem*& container,bool release) {
-	bool retval=false;
-	if (c != NULL) {
-		u_str cont; 
-		u_str code = *c; 
-		retval= XMLObject::getns(code,cont,release);
-		container = DataItem::factory(cont,di_text);
-	}
-	return retval;
+bool ItemStore::getns(const string& c, DataItem*& container,bool release) {
+	bool exist_result=false;
+	u_str cont,code;
+	XML::transcode(c,code);
+	exist_result = XMLObject::getns(code,cont,release);
+	container = DataItem::factory(cont,di_text);
+	return exist_result;
 }
-bool ItemStore::nsexists(const DataItem* c,bool release) {
-	bool retval=false;
-	if (c != NULL) {
-		u_str code = *c; 
-		u_str cont; 
-		retval= XMLObject::getns(code,cont,release);
-	}
-	return retval;
+bool ItemStore::nsexists(const string& c,bool release) {
+	bool exist_result=false;
+	u_str cont,code;
+	XML::transcode(c,code);
+	exist_result = XMLObject::getns(code,cont,release);
+	return exist_result;
 }
 #pragma mark STORE FUNCTIONS
-bool ItemStore::exists(const DataItem* obj_id,bool release,std::string& errorstr) {
-	string obj_name; if (obj_id != NULL) { obj_name = *obj_id; }
+bool ItemStore::exists(const std::string& obj_id,bool release,std::string& errorstr) {
 	bool retval=false;
-	if (obj_name.find("#") != string::npos) {
+	if (obj_id.find("#") != string::npos) {
 		DataItem* xp = NULL;
 		retval = get(obj_id, xp, release, errorstr);
 		delete xp; 
 	} else {
-		item_map_type::iterator it = the_item_map->find(obj_name);
+		item_map_type::iterator it = the_item_map->find(obj_id);
 		if (it != the_item_map->end()) {
 			retval = true;
 			if (release) {
@@ -159,17 +148,24 @@ bool ItemStore::exists(const DataItem* obj_id,bool release,std::string& errorstr
 	}
 	return retval;
 }
-bool ItemStore::find(const DataItem* obj_id,bool release) {
-	string pattern; if (obj_id != NULL) { pattern = *obj_id; }
+bool ItemStore::find(const std::string& pattern,bool release,std::string& errorstr) {
 	bool retval=false;
 	if (pattern.find("#") != string::npos) {
-		*Logger::log << Log::error << Log::LI << "Error. found does not work over xpath; use existence or xpath syntax." << Log::LO  << Log::blockend;
+		return exists(pattern,release,errorstr);
 	} else {
 		if ( String::Regex::available() ) {
+			ostringstream* suppressor = new ostringstream();
+			Logger::set_stream(suppressor);
 			for(item_map_type::iterator imt = the_item_map->begin(); !retval && imt != the_item_map->end(); imt++) {
 				retval= String::Regex::match(pattern,imt->first);
 				if (retval && release) { the_item_map->erase(imt); }
 			}
+			Logger::unset_stream();
+			if (!suppressor->str().empty()) {
+				retval = false;
+				errorstr = suppressor->str();
+			}
+			delete suppressor;
 		} else {
 			item_map_type::iterator it = the_item_map->find(pattern);
 			retval = (it != the_item_map->end());
@@ -178,6 +174,25 @@ bool ItemStore::find(const DataItem* obj_id,bool release) {
 	}
 	return retval;
 }
+void ItemStore::storekeys(const std::string& pattern,vector<string>& keylist,std::string& errorstr) {
+	if (pattern.find("#") != string::npos) {
+		errorstr="to iterate over multiple xpaths, use xpath syntax count()";
+	} else {
+		if ( String::Regex::available() ) {
+			for(item_map_type::iterator imt = the_item_map->begin(); imt != the_item_map->end(); imt++) {
+				if (String::Regex::match(pattern,imt->first)) {
+					keylist.push_back(imt->first);
+				}
+			}
+		} else {
+			item_map_type::iterator it = the_item_map->find(pattern);
+			if (it != the_item_map->end()) {
+				keylist.push_back(pattern);
+			}
+		}
+	}
+}
+
 void ItemStore::release(const DataItem* obj_id) {
 	string obj_name; if (obj_id != NULL) { obj_name = *obj_id; }
 	item_map_type::iterator it = the_item_map->find(obj_name);
@@ -328,14 +343,14 @@ bool ItemStore::set(const DataItem* namepath_di, DataItem*& item,kind_type kind,
 	}
 	return retval;
 }
-bool ItemStore::get(const DataItem* namepath_di, DataItem*& item, bool release,std::string& errorstr) {
+bool ItemStore::get(const string& namepath_di, DataItem*& item, bool release,std::string& errorstr) {
 	// bool here represents existence.
 	bool retval = false;
-	if (namepath_di != NULL)  { 
+	if (!namepath_di.empty())  { 
 		bool node_expected = false;
 		pair<string,string> np;
 		string namepath,name,path; 
-		namepath = *namepath_di; 
+		namepath = namepath_di;
 		String::split('#',namepath,np);		 // eg foobar#/BOOK[0]      -- foobar       /BOOK[0]
 		name=np.first; path=np.second;
 		if (*name.rbegin() == '!') { node_expected = true; name.resize(name.size()-1); }  //remove the final character

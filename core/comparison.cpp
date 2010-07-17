@@ -100,8 +100,7 @@ bool Comparison::evaluate_this() {
 	if (!cmp_evaluated ) {			//are all the comparators evaluated?
 		cmp_evaluated = true;
 		for ( size_t i = 0; i < inputs.size(); i++ ) {
-			bool wasfinal = inputs[i]->evaluate();
-			cmp_evaluated = cmp_evaluated && wasfinal;
+			inputs[i]->evaluate();
 		}
 	}
 	if (cmp_evaluated && operation_result=='X') {	//all the comparators are evaluated but the operation is not
@@ -240,12 +239,10 @@ bool Comparison::evaluate_this() {
 			if ( (operation_result=='T' && definputs[i]->wotzit == ontrue  ) 
 				||   (operation_result=='F' && definputs[i]->wotzit == onfalse ) ) {
 				eval_found = true;
-				def_evaluated = definputs[i]->evaluate();
-				if (def_evaluated) { 
-					DataItem* defev = NULL;
-					definputs[i]->results.takeresult(defev); 
-					results.setresult(defev); 
-				}
+				definputs[i]->evaluate();
+				DataItem* defev = NULL;
+				definputs[i]->results.takeresult(defev); 
+				results.setresult(defev); 
 			}
 		}	
 		if ( def_evaluated) {

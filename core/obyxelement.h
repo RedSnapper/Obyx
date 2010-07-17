@@ -54,7 +54,7 @@ namespace obyx {
 	typedef std::map<u_str, output_type > output_type_map; 
 	
 	//four flow-functions..	
-	typedef enum {it_sql,it_while,it_while_not,it_repeat} it_type;
+	typedef enum {it_each,it_repeat,it_sql,it_while,it_while_not} it_type;
 	typedef std::map<u_str, it_type > it_type_map; 
 	
 	typedef enum { move,append,substring,position,length,left,right,reverse,upper,lower,kind,add,subtract,multiply,divide,maximum,minimum,remainder,quotient,shell_command,query_command,function} op_type;	//transform
@@ -115,7 +115,7 @@ public:
 	
 	virtual void explain() { results.explain(); }			//
 	virtual const string name() const;	
-	virtual bool evaluate(size_t=0,size_t=0) = 0 ;	
+	virtual void evaluate(size_t=0,size_t=0) = 0 ;	
 	static void setbreak(bool broke) { break_happened = broke; }
 	static ObyxElement* Factory(xercesc::DOMNode* const&,ObyxElement*);
 	
@@ -129,7 +129,7 @@ class XMLNode : public ObyxElement {
 public:
 	XMLNode(ObyxElement* par,const XMLNode* orig) : ObyxElement(par,orig),doneit(orig->doneit) {}
 	XMLNode(xercesc::DOMNode* const&,ObyxElement *);
-	bool evaluate(size_t =0,size_t=0) { return doneit; }
+	void evaluate(size_t =0,size_t=0) { }
 	virtual ~XMLNode();
 };
 

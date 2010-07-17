@@ -52,11 +52,11 @@ void finalise();
 void shutdown();
 
 int main(int argc, char *argv[]) {
- 	string v_number = "1.100714";
+ 	string v_number = "v1.100717";
 #ifdef FAST
-	string version  = "Obyx v"+v_number+"F Supported (Xerces 3.0/XQilla 2.2)";
+	string version  = "Obyx v"+v_number+"F Supported (probationary)";
 #else
-	string version  = "Obyx v"+v_number+" Supported (Xerces 3.0/XQilla 2.2)";
+	string version  = "Obyx v"+v_number+" Supported (probationary)";
 #endif
 	if (argc == 2 && argv[1][0]=='-' && argv[1][1]=='V' ) {
 		string compiledate(__DATE__);

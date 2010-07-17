@@ -165,11 +165,16 @@ public:
 	string getpathforroot();
 	bool getparm(string const,string&);
 	bool getcookie_req(string const,string&);	//only pre-existing cookies
-	bool envexists(string const);
+	bool envexists(const string&);
+	bool parmexists(const string&);
+	bool cookieexists(const string&);
 	bool getenv(string const,string&);
-	bool envfind(string const pattern);
-	bool parmfind(string const pattern);
-	bool cookiefind(string const pattern);
+	bool envfind(const string&);
+	bool parmfind(const string&);
+	bool cookiefind(const string&);
+	void envkeys(const string&,vector<string>&);
+	void parmkeys(const string&,vector<string>&);
+	void cookiekeys(const string&,vector<string>&);
 
 	bool getenvd(const string,string& , const string);
 	unsigned long long pid() { return getpid(); }

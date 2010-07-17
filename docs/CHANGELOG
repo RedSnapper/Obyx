@@ -17,6 +17,17 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.100717		(probationary) Though this has passed most tests, the refactor requires more in situ tests.
+				For production services it is better to stay with v1.100709 until 
+	Enh.		Additional Iteration operation: each - enables regex-based searches across spaces.
+				The field accessor is #key.
+	Refactor.	IKO evaluation has been broken down into space over usage_test.
+				This has dramatically reduced the code complexity, at the expense of changing some of the errors.
+				Removal of boolean evaluation tests on the main execution line.
+				booleans were a legacy from when fields were evaluated only at the time of their iteration.
+				field itypes have been evaluated at parse time for quite some time (since before v1.09).
+				In general, iko evaluation error reports are a more consistent.
+	Bugfix.		Several bugs deleted - including empty-value errors, and overly deferred evaluation. 
 v1.100715
 	Enh.	Additional Comparison operation: found - enables regex based searches across spaces.
 v1.100709

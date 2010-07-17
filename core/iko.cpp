@@ -30,7 +30,6 @@
 #include "commons/filing/filing.h"
 #include "commons/httpfetch/httpfetch.h"
 #include "commons/httphead/httphead.h"
-#include "commons/logger/logger.h"
 #include "commons/vdb/vdb.h"
 #include "commons/xml/xml.h"
 
@@ -59,9 +58,12 @@ IKO::inp_space_map IKO::ctx_types;
 IKO::current_type_map IKO::current_types;
 kind_type_map IKO::kind_types;
 
-IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : 
-ObyxElement(par,el,parm,n),kind(di_auto),encoder(e_none),context(immediate),
-process(obyx::encode),wsstrip(true),exists(false),name_v() {
+void IKO::log(const Log::msgtype mtype,const std::string msg) const {
+	*Logger::log << mtype << Log::LI << msg << Log::LO;
+	trace();
+	*Logger::log << Log::blockend;
+}
+IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : ObyxElement(par,el,parm,n),kind(di_auto),encoder(e_none),context(immediate), process(obyx::encode),wsstrip(true),exists(false),name_v() {
 	u_str str_context;
 	if ( XML::Manager::attribute(n,UCS2(L"context"),str_context) ) {
 		inp_space_map::const_iterator j = ctx_types.find(str_context);
@@ -164,12 +166,8 @@ process(obyx::encode),wsstrip(true),exists(false),name_v() {
 		results.setresult(attrval, wsstrip);
 	}
 }
-IKO::~IKO() {
-	
-}
-IKO::IKO(ObyxElement* par,const IKO* orig) : ObyxElement(par,orig),
-kind(orig->kind),encoder(orig->encoder),context(orig->context),
-process(orig->process),wsstrip(orig->wsstrip),exists(orig->exists),name_v(orig->name_v) {
+IKO::~IKO() {}
+IKO::IKO(ObyxElement* par,const IKO* orig) : ObyxElement(par,orig),kind(orig->kind),encoder(orig->encoder),context(orig->context), process(orig->process),wsstrip(orig->wsstrip),exists(orig->exists),name_v(orig->name_v) {
 }
 bool IKO::currentenv(const string& req,const usage_tests exist_test, const IKO* iko,DataItem*& container) {
 	Environment* env = Environment::service();
@@ -291,6 +289,80 @@ bool IKO::currentenv(const string& req,const usage_tests exist_test, const IKO* 
 	}
 	return exists;	
 }
+void IKO::setfilepath(const string& input_name,string& file_path) const {
+	file_path = input_name;
+	if (file_path[0] == '/') { //we don't want to use file root, but site root.
+		file_path = Environment::service()->getpathforroot()  + file_path;
+	} else {
+		string opath = owner->filepath;
+		size_t pathpos = opath.find_last_of('/');
+		if (pathpos != string::npos) {
+			file_path = opath.substr(0,pathpos + 1) + file_path;
+		} else {
+			file_path = FileUtils::Path::wd() + "/" + file_path;
+		}
+	}
+}
+bool IKO::legalsysenv(const string& envname) const {
+	bool legal = false;
+	if ( envname.find("OBYX_",0,5) != string::npos) {
+		if ( envname.compare("OBYX_VERSION") == 0 ) {
+			log(Log::error,"Error. Sysenv " + envname + " is restricted. Use CURRENT_VERSION instead");
+		} else {
+			log(Log::error,"Error. Sysenv " + envname + " is restricted.");
+		}
+	} else { 
+		legal = true;
+	}
+	return legal;
+}
+bool IKO::httpready() const {
+	bool httpgood = true;
+	if (!HTTPFetch::available()) {
+		httpgood = false;
+		*Logger::log << Log::error << Log::LI << "Error. space 'url' requires libcurl and this was not found. ";
+		Environment* env = Environment::service();
+		if (env->envexists("OBYX_LIBCURLSO")) {
+			string val; env->getenv("OBYX_LIBCURLSO",val); 
+			*Logger::log << "The environment 'OBYX_LIBCURLSO' of '" << val << "' is not working.";
+		} else {
+			*Logger::log << "If your libcurl is not in a system library directory, set the environment 'OBYX_LIBCURLSO'.";
+		}
+		*Logger::log << Log::LO;
+		trace();
+		*Logger::log << Log::blockend;
+	}
+	return httpgood;
+}
+void IKO::doerrspace(const string& input_name) const {
+	break_happened = true;
+	if (!input_name.empty()) {
+		std::string err_msg = input_name;
+		if (err_msg.compare(0,6,"fatal#") == 0) {
+			break_happened = true;
+			err_msg.erase(0,6);
+			log(fatal,"Fatal '" + err_msg + "'");
+		} else {
+			if (err_msg.compare(0,6,"debug#") == 0) {
+				Environment* env = Environment::service();
+				err_msg.erase(0,6);
+				*Logger::log << Log::warn << Log::LI << "Debug '" << err_msg << "'" << Log::LO;
+				trace();
+				*Logger::log << Log::LI ;
+				env->list();
+				owner->list();
+				ItemStore::list();
+				Iteration::list(this);		//available fields from here.
+				*Logger::log << Log::LO << Log::blockend;
+			} else {
+				//we don't want the trace for this.
+				*Logger::log << Log::warn << Log::LI << "Throw '" << err_msg << "'" << Log::LO << Log::blockend;
+			}
+		}
+	} else {
+		*Logger::log << Log::warn << Log::LI << "Throw" << Log::LO << Log::blockend;
+	}
+}
 void IKO::process_encoding(DataItem*& basis) {
 	if (basis != NULL && encoder != e_none) {
 		string encoded = *basis;		//xml cannot survive an encoding.
@@ -386,487 +458,65 @@ void IKO::process_encoding(DataItem*& basis) {
 		}
 	}
 }
-bool IKO::evaltype(inp_space the_space, bool release, bool eval,kind_type ikind,DataItem*& name_item, DataItem*& container) {
+void IKO::evaltype(inp_space the_space, bool release, bool eval,kind_type ikind,DataItem*& name_item, DataItem*& container) {
 	//evaltype() is used for evaluating BOTH inputs proper and also contexts for inputs and outputs.
 	//exists is evaluated. significant is tested by comparision and will be looking for a value.
-	Environment* env = Environment::service();
 	exists = false; 
 	if (container != NULL) {
 		*Logger::log << Log::error << Log::LI << "Internal Error. container should be empty!" << Log::LO; 
 		trace();
 		*Logger::log << Log::blockend;
 	}
-	bool finished = true;
-	switch ( the_space ) { //two switches. to make things a bit faster.
-		case immediate: { 
-			//everything exists in space 'immediate'
-			exists = true; 
-			container = name_item;
-			name_item = NULL; 
-		} break;
-		case none: {
-			// nothing exists in space 'none'
-			exists = false;
-			//			delete name_item;
-			//			name_item = NULL; 
-		} break;
-		default: { //all the remaining input spaces have a name to access their value.
-			u_str input_name;  
-			if (name_item != NULL) {
-				input_name = *name_item;
-			}
-			//Also, it maybe that this is an existence test.
-			usage_tests exist_test = ut_value; 
-			if (the_space != context) { //if evaluating this IKO's context, then don't worry about exist_test. yet!
-				name_v = input_name;
-				Comparison* cmp = dynamic_cast<Comparison *>(p);
-				if ((cmp != NULL) && (wotzit == obyx::comparate)) {
-					switch (cmp->op()) {
-						case obyx::exists: exist_test=ut_existence; break;
-						case obyx::significant: exist_test= ut_significant; break;
-						case obyx::found: exist_test= ut_found; break;
-						default: break; // already value. 
-					}
-				} else {
-					if (wotzit == control) {
-						Iteration* ite = dynamic_cast<Iteration *>(p);
-						if ( (ite != NULL) && ((ite->op() == obyx::it_while) || (ite->op() == obyx::it_while_not))) {
-							exist_test = ut_existence;
+	if (the_space == immediate) {
+		exists = true; 
+		container = name_item;
+		name_item = NULL; 
+	} else {
+		std::string input_name;
+		if (name_item != NULL && !name_item->empty()) {
+			input_name = *name_item;
+		}
+		usage_tests exist_test = ut_value; //we need to identify the way in which this is to be evaluated.
+		if (the_space != context) { //if evaluating this IKO's context, then don't worry about exist_test. yet!
+			XML::transcode(input_name,name_v); //this is a bit dodgy.. - but maybe necessary.
+			Comparison* cmp = dynamic_cast<Comparison *>(p);
+			if ((cmp != NULL) && (wotzit == obyx::comparate)) {
+				switch (cmp->op()) {
+					case obyx::exists: exist_test=ut_existence; break;
+					case obyx::significant: exist_test= ut_significant; break;
+					case obyx::found: exist_test= ut_found; break;
+					default: break; // already value. 
+				}
+			} else {
+				if (wotzit == control) {
+					Iteration* ite = dynamic_cast<Iteration *>(p);
+					if ( ite != NULL) {
+						switch (ite->op()) {
+							case obyx::it_while: exist_test=ut_existence; break;
+							case obyx::it_while_not: exist_test= ut_existence; break;
+							case obyx::it_each: exist_test= ut_found; break;
+							default: break; // already value. 
 						}
 					}
 				}
 			}
-			switch ( the_space ) { //now do all the named input_spaces!
-				case field: {
-					if ( input_name.empty() ) {  
-						finished = true;
-						*Logger::log << Log::error << Log::LI << "Error. Field instructions need a field reference." << Log::LO; 
-						trace();
-						*Logger::log << Log::blockend;
-					} else {
-						std::string errstring; 
-						const ObyxElement* par = p;
-						const Iteration* ite = dynamic_cast<const Iteration *>(par);
-						const Mapping* mpp = dynamic_cast<const Mapping *>(par);
-						finished = false;
-						while (par != NULL && !finished ) {
-							if (ite != NULL && !ite->active()) {
-								ite = NULL;
-							}
-							if (mpp != NULL && !mpp->active()) {
-								mpp = NULL;
-							}
-							if (ite != NULL) {
-								std::string fresult; 
-								std::string fname; transcode(input_name.c_str(),fname);
-								if (!exists) { 
-									if (exist_test == ut_found) {
-										exists = ite->fieldfind(fname); //errstring=empty = ok.
-									} else {
-										exists = ite->fieldexists(fname,errstring); //errstring=empty = ok.
-									}
-								}
-								if (exists && exist_test != ut_found && exist_test != ut_existence ) {
-									finished = true;
-									if (ite->field(fname,fresult,errstring)) {
-										if (exist_test == ut_significant) {
-											container = DataItem::factory(fresult,di_text);
-										} else {
-											container = DataItem::factory(fresult,ikind);
-										}
-									} else {
-										if (errstring.empty()) {
-											errstring="Unknown problem while retrieving field.";
-										}
-										*Logger::log << Log::error << Log::LI << "Error. Field " << fname << " " << errstring << Log::LO;
-										trace();
-										*Logger::log << Log::blockend;
-									}
-								} else { //doesn't exist - move up - if we can, and there's no error string..
-									if (par != NULL) {
-										ite = NULL; // try the next iteration up...
-									}
-								}
-							} else {
-								if (mpp != NULL) {
-									std::string fname; transcode(input_name.c_str(),fname);
-									std::string fresult;
-									if (!exists) { 
-										exists = mpp->field(fname,errstring); //found here is same as using exists
-									}
-									if (exists && exist_test != ut_found && exist_test != ut_existence ) {
-										finished = true;
-										if (exist_test == ut_significant) {
-											container = DataItem::factory(fresult,di_text);
-										} else {
-											container = DataItem::factory(fresult,ikind);
-										}
-									} else { //doesn't exist - move up - if we can, and there's no error string..
-										if (par != NULL) {
-											mpp = NULL; // try the next iteration up...
-										}
-									}
-								} 
-							}
-							if (par != NULL && !finished) {
-								par = par->p;
-								ite = dynamic_cast<const Iteration *>(par);
-								mpp = dynamic_cast<const Mapping *>(par);
-							}														
-						}
-						if ((!finished && exist_test == ut_value) || (par == NULL && !errstring.empty())) {
-							*Logger::log  << Log::error;
-							if (!errstring.empty()) {
-								std::string err_msg; transcode(input_name.c_str(),err_msg);
-								*Logger::log << Log::LI << "Error. Field " << err_msg << " has an error. " << errstring << Log::LO;
-							} else {
-								std::string err_msg; transcode(input_name.c_str(),err_msg);
-								*Logger::log << Log::LI << "Error. Field " << err_msg << " does not exist or is not available." << Log::LO;
-							}
-							trace();
-							*Logger::log << Log::blockend;
-						}
-						finished = true;
-					}
-				} break;
-				case xmlnamespace: { 
-					exists = ItemStore::nsexists(name_item,release);
-					if ( exist_test != ut_existence ) {
-						if (exists) {
-							ItemStore::getns(name_item,container,release);
-						} else {
-							if (exist_test == ut_value) {
-								std::string err_msg; transcode(input_name.c_str(),err_msg);
-								*Logger::log << Log::error << Log::LI << "Error. Namespace " << err_msg <<  " does not exist " << Log::LO;
-								trace();
-								*Logger::log << Log::blockend;
-							} else {
-								if (exist_test == ut_found) {
-									*Logger::log << Log::error << Log::LI << "Error. namespace space. Regex for UCS2 not supported by Obyx."  << Log::LO;	
-									trace();
-									*Logger::log << Log::blockend;
-								}
-							}
-						}
-					}
-				} break;
-				case xmlgrammar: {
-					exists = ItemStore::grammarexists(name_item,false);
-					if ( exist_test != ut_existence ) {
-						if (exists) {
-							ItemStore::getgrammar(name_item,container,kind,release);
-						} else {
-							if (exist_test == ut_value) {
-								std::string err_msg; transcode(input_name.c_str(),err_msg);
-								*Logger::log << Log::error << Log::LI << "Error. " <<  name() << " Grammar " << err_msg <<  " does not exist " << Log::LO;
-								trace();
-								*Logger::log << Log::blockend;
-							} else {
-								if (exist_test == ut_found) {
-									*Logger::log << Log::error << Log::LI << "Error. grammar space. Regex for UCS2 not supported by Obyx."  << Log::LO;	
-									trace();
-									*Logger::log << Log::blockend;
-								}
-							}
-						}
-					} 
-				} break;
-				case store: {
-					string errstring;
-					exists = ItemStore::get(name_item,container,release,errstring);
-					if ( exist_test != ut_existence ) {
-						if (!errstring.empty()) {
-							std::string err_msg; transcode(input_name.c_str(),err_msg);
-							*Logger::log << Log::error << Log::LI << "Error. Store error occurrred with " << err_msg << Log::LO << Log::LI << errstring << Log::LO;	
-							trace();
-							*Logger::log << Log::blockend;
-						} else {
-							if (exist_test == ut_value && !exists) {
-								std::string err_msg; transcode(input_name.c_str(),err_msg);
-								*Logger::log << Log::error << Log::LI << "Error. Store " << err_msg  << " does not exist."  << Log::LO;	
-								trace();
-								*Logger::log << Log::blockend;
-							} else {
-								if (exist_test == ut_found) {
-									exists = ItemStore::find(name_item,release);
-								}
-							}
-						}
-					} 
-				} break;
-				case fnparm: {
-					const DataItem* ires = NULL;
-					if (! owner->getparm(input_name,ires) ) {
-						exists  = false;
-						if (exist_test == ut_value) {
-							std::string err_msg; transcode(input_name.c_str(),err_msg);
-							*Logger::log << Log::error << Log::LI << "Error. Parm " << err_msg  << " does not exist in this context."  << Log::LO;	
-							trace();
-							*Logger::log << Log::blockend;
-						} else {
-							if (exist_test == ut_found) {
-								*Logger::log << Log::error << Log::LI << "Error. Parm space. Regex for UCS2 not supported by Obyx."  << Log::LO;	
-								trace();
-								*Logger::log << Log::blockend;
-							}
-						}
-					} else {
-						exists  = true;	//prob this one
-						if (exist_test != ut_existence && ires != NULL) { //empty parms are existing parms..
-							ires->copy(container);
-						}
-					}
-				} break;					
-				case file: {
-					std::string file_path; transcode(input_name,file_path);
-					if (file_path[0] == '/') { //we don't want to use file root, but site root.
-						file_path = env->getpathforroot()  + file_path;
-					} else {
-						string opath = owner->filepath;
-						size_t pathpos = opath.find_last_of('/');
-						if (pathpos != string::npos) {
-							file_path = opath.substr(0,pathpos + 1) + file_path;
-						} else {
-							file_path = FileUtils::Path::wd() + "/" + file_path;
-						}
-					}
-					string orig_wd(FileUtils::Path::wd());
-					FileUtils::Path destination; 
-					destination.cd(file_path);
-					std::string dest_out = destination.output(true);
-					transcode(dest_out,name_v);			//Really not sure what is going on here.
-					FileUtils::File file(dest_out);
-					exists = file.exists();				//used by comparison to test...
-					if ( exist_test != ut_existence ) {
-						if (exists) {
-							off_t flen = file.getSize();
-							if ( flen != 0 ) {
-								string file_content;
-								file.readFile(file_content);
-								if ( !file_content.empty() ) { //errors should be caught outside of this.
-									if (exist_test == ut_significant) {
-										container = DataItem::factory(file_content,di_text); //no test for xml
-									} else {
-										ostringstream* docerrs = NULL;
-										docerrs = new ostringstream();
-										Logger::set_stream(docerrs);
-										container = DataItem::factory(file_content,ikind);   //test for xml!!
-										Logger::unset_stream();
-										string errs = docerrs->str();
-										delete docerrs; docerrs=0;
-										if ( ! errs.empty() ) {
-											*Logger::log << Log::error << Log::LI << "Error with file " << dest_out << Log::LO;
-											trace();
-											*Logger::log << Log::LI << Log::RI << errs << Log::RO << Log::LO;
-											*Logger::log << Log::blockend;
-										}
-									}
-								}
-							} // else container remains null.
-						} else {
-							if (exist_test == ut_value) {
-								string root(env->getpathforroot());
-								string wd(FileUtils::Path::wd());
-								if ( wd.find(root) == 0 ) {
-									wd.erase(0,root.length());
-									if ( wd.empty() ) wd = "/";
-								}
-								std::string err_msg; transcode(name_v.c_str(),err_msg);
-								*Logger::log << Log::error << Log::LI << "Error. File " << err_msg << " does not exist. wd:" << wd << Log::LO;
-								trace();
-								*Logger::log << Log::blockend;
-							}
-							if (exist_test == ut_found) {
-								*Logger::log << Log::error << Log::LI << "Error. File space does not support find." << Log::LO;
-								trace();
-								*Logger::log << Log::blockend;
-							}
-						}
-					}
-					destination.cd(orig_wd);
-				} break;
-				case url: {
-					if (HTTPFetch::available()) {
-						std::string input_url; transcode(input_name.c_str(),input_url);
-						string fresult, errstr;
-						HTTPFetch pr(errstr);
-						HTTPFetchHeader header;
-						std::vector<std::string> redirects;
-						exists = pr.fetchPage(input_url, header, redirects, fresult, errstr);
-						if ( exists ) {
-							if (! fresult.empty()) {
-								if (exist_test == ut_significant) {
-									container = DataItem::factory(fresult,di_text); //don't want to parse for sig.
-								} else {
-									ostringstream* docerrs = NULL;
-									docerrs = new ostringstream();
-									Logger::set_stream(docerrs);
-									container = DataItem::factory(fresult,ikind);   //test for xml!!
-									Logger::unset_stream();
-									string errs = docerrs->str();
-									delete docerrs; docerrs=0;
-									if ( ! errs.empty() ) {
-										*Logger::log << Log::error << Log::LI << "Error with url " << input_url << Log::LO;
-										trace();
-										*Logger::log << Log::LI << Log::RI << errs << Log::RO << Log::LO;
-										*Logger::log << Log::blockend;
-									}
-								}
-							}
-						} else {
-							if (exist_test == ut_value) {
-								if (errstr.empty()) errstr = " failed.";
-								*Logger::log << Log::error << Log::LI << "Error. Url " << input_url << " " << errstr << Log::LO;
-								trace();
-								*Logger::log << Log::blockend;
-							}
-							if (exist_test == ut_found) {
-								*Logger::log << Log::error << Log::LI << "Error. URL space does not support find." << Log::LO;
-								trace();
-								*Logger::log << Log::blockend;
-							}
-						}
-					} else {
-						*Logger::log << Log::error << Log::LI << "Error. Url requires libcurl and this was not found. ";
-						if (env->envexists("OBYX_LIBCURLSO")) {
-							string val; env->getenv("OBYX_LIBCURLSO",val); 
-							*Logger::log << "The environment 'OBYX_LIBCURLSO' of '" << val << "' is not working.";
-						} else {
-							*Logger::log << "Set the environment 'OBYX_LIBCURLSO'.";
-						}
-						*Logger::log << Log::LO;
-						trace();
-						*Logger::log << Log::blockend;
-						finished = false;
-					}
-				} break;
-				case cookie: {
-					std::string cookie_name; transcode(input_name.c_str(),cookie_name); //This really should be converted - being internal.
-					string cookie_value;
-					exists = env->getcookie_req(cookie_name,cookie_value);
-					if( exist_test != ut_existence  ) {
-						if( exists ) {
-							if (exist_test == ut_significant) {
-								container = DataItem::factory(cookie_value,di_text); //no test for xml!!
-							} else {
-								container = DataItem::factory(cookie_value,ikind); //test for xml if needs be.	
-							}
-						} else { // it doesn't exist...
-							if( exist_test == ut_value) {
-								*Logger::log << Log::error << Log::LI << "Error. Cookie " << cookie_name << " does not exist." << Log::LO;
-								trace();
-								*Logger::log << Log::blockend;
-							} else {
-								if (exist_test == ut_found) {
-									exists = env->cookiefind(cookie_name);
-								}
-							}
-						}
-					}
-				} break;
-				case sysparm: {
-					string fresult;
-					std::string sysparm_name; transcode(input_name.c_str(),sysparm_name); //This really should be converted - being internal.
-					exists = env->getparm(sysparm_name,fresult);
-					if ( exist_test != ut_existence ) {
-						if ( exists ) {
-							if (! fresult.empty()) {
-								if (exist_test == ut_significant) {
-									container = DataItem::factory(fresult,di_text); //no test for xml!!
-								} else {
-									container = DataItem::factory(fresult,ikind); //test for xml if needs be.	
-								}
-							}
-						} else { 
-							if (exist_test == ut_value) {
-								*Logger::log << Log::error << Log::LI << "Error. Sysparm " << sysparm_name << " does not exist." << Log::LO;
-								trace();
-								*Logger::log << Log::blockend;
-							} else {
-								if (exist_test == ut_found) {
-									exists = env->parmfind(sysparm_name);
-								}
-							}
-						}
-					}
-				} break;
-				case sysenv: {
-					std::string sysenv_name; transcode(input_name.c_str(),sysenv_name); //This really should be converted - being internal.
-					string fresult;
-					string errmsg = "does not exist.";
-					if ( sysenv_name.find("OBYX_",0,5) == string::npos) {
-						if ( sysenv_name.find("CURRENT_",0,8) == string::npos) { //it's something.
-							exists = env->getenv(sysenv_name,fresult);
-						} else { //it's a CURRENT_
-							exists = currentenv(sysenv_name.substr(8,string::npos),exist_test,this,container);
-						}
-					} else { //it's an OBYX_
-						if ( sysenv_name.compare("OBYX_VERSION") == 0 ) {
-							errmsg = "is restricted. Use CURRENT_VERSION instead";
-						} else {
-							errmsg = "is restricted.";
-						}
-					} 
-					if (exist_test != ut_existence) {
-						if (exists) { 
-							if (!fresult.empty() && container == NULL) { //container test because of CURRENT_OBJECT.
-								if (exist_test == ut_significant) {
-									container = DataItem::factory(fresult,di_text);
-								} else {
-									container = DataItem::factory(fresult,ikind);
-								}
-							}
-						} else {
-							if (exist_test == ut_value) {
-								*Logger::log << Log::error << Log::LI << "Error. Sysenv " << sysenv_name << " " << errmsg << Log::LO;
-								trace();
-								*Logger::log << Log::blockend;
-							} else {
-								if (exist_test == ut_found) {
-									exists = env->envfind(sysenv_name);
-								}
-							}
-						}
-					}
-				} break;
-				case IKO::error: {
-					exists = true;
-					break_happened = true;
-					std::string err_msg; transcode(input_name.c_str(),err_msg); //This really should be converted - being internal.
-					if (err_msg.compare(0,6,"fatal#") == 0) {
-						break_happened = true;
-						err_msg.erase(0,6);
-						*Logger::log << Log::fatal << Log::LI << "Fatal '" << err_msg << "'" << Log::LO;
-						trace();
-						*Logger::log << Log::blockend;
-					} else {
-						if (err_msg.compare(0,6,"debug#") == 0) {
-							err_msg.erase(0,6);
-							*Logger::log << Log::warn << Log::LI << "Debug '" << err_msg << "'" << Log::LO;
-							trace();
-							*Logger::log << Log::LI ;
-							env->list();
-							owner->list();
-							ItemStore::list();
-							Iteration::list(this);		//available fields from here.
-							*Logger::log << Log::LO << Log::blockend;
-						} else {
-							*Logger::log << Log::warn << Log::LI << "Throw '" << err_msg << "'" << Log::LO;
-							trace();
-							*Logger::log << Log::blockend;
-						}
-					}
-				} break;
-				default: { //uncaught input_spaces will hit here.
-					exists = false;
-					*Logger::log << Log::error << Log::LI << "Error. Internal Error. Should not reach here." << Log::LO;
-					trace();
-					*Logger::log << Log::blockend;
-				} break;
-			}	
+		}
+		switch (exist_test) {
+			case ut_value: {
+				exists = valuefromspace(input_name,the_space,release,ikind,container);
+			} break;
+			case ut_existence: {
+				exists = existsinspace(input_name,the_space,release);
+			} break;
+			case ut_significant: {
+				exists = sigfromspace(input_name,the_space,release,container);
+			} break;
+			case ut_found: {
+				exists = foundinspace(input_name,the_space,release);
+			} break;
 		}
 	}
-	if (finished && eval) {
+	if (eval) {
 		if (container != NULL ) {
 			string filestring,dirstring;
 			if (! name_v.empty() ) { 
@@ -893,16 +543,461 @@ bool IKO::evaltype(inp_space the_space, bool release, bool eval,kind_type ikind,
 			}
 			if (the_space == file && !dirstring.empty() ) { FileUtils::Path::pop_wd(); }
 		} else {
-			*Logger::log << Log::error << Log::LI << "Error. eval cannot be applied to an empty value." << Log::LO;
-			trace();
-			*Logger::log << Log::blockend;
+			log(Log::error,"Error. eval cannot be applied to an empty value.");
 		}
 	}
 	if (name_item != NULL) {
 		delete name_item;
 		name_item = NULL; 
 	}
-	return finished;
+}
+bool IKO::foundinspace(const string& input_name,const inp_space the_space,const bool release) {
+	Environment* env = Environment::service();
+	exists = false;
+	string errstring;			
+	string discarded_result; //used to hold result for some spaces.
+	switch ( the_space ) { //now do all the named input_spaces!
+		case immediate: { 
+			exists = true;
+		} break;
+		case none: {
+			exists = false;
+		} break;
+		case field: {
+			if ( input_name.empty() ) {
+				log(Log::error,"Error. Field name missing.");
+			} else {
+				const ObyxElement* par = p;
+				const Iteration* ite = dynamic_cast<const Iteration *>(par);
+				const Mapping* mpp = dynamic_cast<const Mapping *>(par);
+				while (par != NULL && !exists ) {
+					if (ite != NULL && ite->active()) {
+						exists = ite->fieldfind(input_name);
+					}
+					if (mpp != NULL && mpp->active()) {
+						exists = mpp->field(input_name,discarded_result); 
+					}
+					if (par != NULL && !exists) {
+						par = par->p;
+						ite = dynamic_cast<const Iteration *>(par);
+						mpp = dynamic_cast<const Mapping *>(par);
+					}														
+				}
+			}
+		} break;
+		case xmlnamespace: { 
+			log(Log::error,"Error. find key over namespace space not yet supported. use an existence test.");
+		} break;
+		case xmlgrammar: {
+			log(Log::error,"Error. find key over grammar space not yet supported. use an existence test.");
+		} break;
+		case store: {
+			exists = ItemStore::find(input_name,release,errstring);
+			if (!errstring.empty()) {
+				log(Log::error,"Error. Store error: " + errstring);
+			} 
+		} break;
+		case fnparm: {
+			log(Log::error,"Error. find key over parm space not yet supported. use an existence test.");
+		} break;					
+		case file: {
+			log(Log::error,"Error. find key over file space not yet supported. use an existence test.");
+		} break;
+		case url: {
+			log(Log::error,"Error. find key over url space not supported. use an existence test.");
+		} break;
+		case cookie: {
+			exists = env->cookiefind(input_name);
+		} break;
+		case sysparm: {
+			exists = env->parmfind(input_name);
+		} break;
+		case sysenv: {
+			if (legalsysenv(input_name)) {
+				if ( input_name.find("CURRENT_",0,8) == !string::npos) {
+					DataItem* dummy = NULL;
+					exists = currentenv(input_name.substr(8,string::npos),ut_found,this,dummy);
+				} else {
+					exists = env->envfind(input_name);
+				}
+			}
+		} break;
+		case IKO::error: {
+			doerrspace(input_name);
+			exists = true;
+		} break;
+	}	
+	return exists;
+}
+bool IKO::existsinspace(const string& input_name,const inp_space the_space,const bool release) {
+	Environment* env = Environment::service();
+	exists = false;
+	string errstring;			
+	string discarded_result; //used to hold result for some spaces.
+	switch ( the_space ) { //now do all the named input_spaces!
+		case immediate: { 
+			exists = true;
+		} break;
+		case none: {
+			exists = false;
+		} break;
+		case field: {
+			if ( input_name.empty() ) {
+				log(Log::error,"Error. Field name missing.");
+			} else {
+				const ObyxElement* par = p;
+				const Iteration* ite = dynamic_cast<const Iteration *>(par);
+				const Mapping* mpp = dynamic_cast<const Mapping *>(par);
+				while (par != NULL && !exists ) {
+					if (ite != NULL && ite->active()) {
+						exists = ite->fieldexists(input_name,errstring);
+					}
+					if (mpp != NULL && mpp->active()) {
+						exists = mpp->field(input_name,discarded_result); 
+					}
+					if (par != NULL && !exists) {
+						par = par->p;
+						ite = dynamic_cast<const Iteration *>(par);
+						mpp = dynamic_cast<const Mapping *>(par);
+					}														
+				}
+				if (!errstring.empty()) {
+					log(Log::error,"Error. Field " + input_name + " : " + errstring);
+				}
+			}
+		} break;
+		case xmlnamespace: { 
+			exists = ItemStore::nsexists(input_name,release);
+		} break;
+		case xmlgrammar: {
+			exists = ItemStore::grammarexists(input_name,release);
+		} break;
+		case store: {
+			exists = ItemStore::exists(input_name,release,errstring);
+			if (!errstring.empty()) {
+				log(Log::error,"Error. Store error: " + errstring);
+			} 
+		} break;
+		case fnparm: {
+			exists = owner->parmexists(input_name);
+		} break;					
+		case file: {
+			string file_path; setfilepath(input_name,file_path);
+			string orig_wd(FileUtils::Path::wd());
+			FileUtils::Path destination; 
+			destination.cd(file_path);
+			std::string dest_out = destination.output(true);
+			transcode(dest_out,name_v);			//Keep the resulting path for use elsewhere.
+			FileUtils::File file(dest_out);
+			exists = file.exists();				//used by comparison to test...
+			destination.cd(orig_wd);
+		} break;
+		case url: {
+			if (httpready()) {
+				string errstr;
+				HTTPFetch pr(errstr);
+				HTTPFetchHeader header;
+				std::vector<std::string> redirects;
+				exists = pr.fetchPage(input_name, header, redirects, discarded_result, errstr);
+			}
+		} break;
+		case cookie: {
+			exists = env->cookieexists(input_name);
+		} break;
+		case sysparm: {
+			exists = env->parmexists(input_name);
+		} break;
+		case sysenv: {
+			if (legalsysenv(input_name)) {
+				if ( input_name.find("CURRENT_",0,8) == !string::npos) {
+					DataItem* dummy = NULL;
+					exists = currentenv(input_name.substr(8,string::npos),ut_existence,this,dummy);
+				} else { 
+					exists = env->envexists(input_name);
+				}
+			}
+		} break;
+		case IKO::error: {
+			doerrspace(input_name);
+			exists = true;
+		} break;
+	}	
+	return exists;
+}
+bool IKO::valuefromspace(const string& input_name,const inp_space the_space,const bool release,const kind_type ikind, DataItem*& container) {
+	Environment* env = Environment::service();
+	exists = false;
+	string fresult;	//used to hold result for most spaces.
+	switch ( the_space ) { //now do all the named input_spaces!
+		case none: break; //exists = false by default.
+		case immediate: { 
+			exists = true; //value handled by caller!!!
+		} break;
+		case field: {
+			std::string errstring = "It does not exist or is not available."; 
+			if ( input_name.empty() ) {
+				log(Log::error,"Error. Field name missing.");
+			} else {
+				const ObyxElement* par = p;
+				const Iteration* ite = dynamic_cast<const Iteration *>(par);
+				const Mapping* mpp = dynamic_cast<const Mapping *>(par);
+				while (par != NULL && !exists ) {
+					if (ite != NULL && ite->active()) {
+						exists = ite->field(input_name,fresult,errstring);
+					}
+					if (mpp != NULL && mpp->active()) {
+						exists = mpp->field(input_name,fresult); 
+					}
+					if (par != NULL && !exists) {
+						par = par->p;
+						ite = dynamic_cast<const Iteration *>(par);
+						mpp = dynamic_cast<const Mapping *>(par);
+					}														
+				}
+				if (!exists) {
+					log(Log::error,"Error. Field " + input_name + " : " + errstring);
+				}
+			}
+		} break;
+		case xmlnamespace: { 
+			exists = ItemStore::getns(input_name,container,release);
+			if (!exists)  {
+				log(Log::error,"Error. Namespace " + input_name + " does not exist");
+			}
+		} break;
+		case xmlgrammar: {
+			exists = ItemStore::getgrammar(input_name,container,ikind,release);
+			if (!exists)  {
+				log(Log::error,"Error. Grammar " + input_name + " does not exist");
+			}
+		} break;
+		case store: {
+			string errstring;
+			exists = ItemStore::get(input_name,container,release,errstring);
+			if (!exists || !errstring.empty()) {
+				if (errstring.empty()) { errstring = "does not exist.";}
+				log(Log::error,"Error. Store error: " + input_name + " " + errstring);
+			} 
+		} break;
+		case fnparm: {
+			const DataItem* ires = NULL; // we need to copy the parm from owner, not adopt it.
+			exists = owner->getparm(input_name,ires);
+			if (exists && ires != NULL) {
+				ires->copy(container);
+			} else {
+				log(Log::error,"Error. Parm " + input_name + " does not exist here.");
+			} 
+		} break;					
+		case file: {
+			string file_path; setfilepath(input_name,file_path);
+			string orig_wd(FileUtils::Path::wd());
+			FileUtils::Path destination; 
+			destination.cd(file_path);
+			std::string dest_out = destination.output(true);
+			transcode(dest_out,name_v);			//Keep the resulting path for use elsewhere.
+			FileUtils::File file(dest_out);
+			exists = file.exists();				//used by comparison to test...
+			if (exists) {
+				file.readFile(fresult);
+			} else {
+				string root(env->getpathforroot());
+				string wd(FileUtils::Path::wd());	//we are grabbing the derived working directory.
+				if ( wd.find(root) == 0 ) {
+					wd.erase(0,root.length());
+					if ( wd.empty() ) wd = "/";
+				}
+				log(Log::error,"Error. File '" + input_name + "' glossed to '" + dest_out + "' does not exist. wd: " + wd );
+			}
+			destination.cd(orig_wd);
+		} break;
+		case url: {
+			if (httpready()) {
+				string errstr;
+				HTTPFetch pr(errstr);
+				HTTPFetchHeader header;
+				std::vector<std::string> redirects;
+				exists = pr.fetchPage(input_name, header, redirects, fresult, errstr);
+				if ( !exists ) {
+					if (errstr.empty()) errstr = " failed.";
+					log(Log::error,"Error. Url " + input_name + errstr);
+				}
+			}
+		} break;
+		case cookie: {
+			exists = env->getcookie_req(input_name,fresult);
+			if( !exists ) {
+				log(Log::error,"Error. Cookie " + input_name + " does not exist.");
+			}
+		} break;
+		case sysparm: {
+			exists = env->getparm(input_name,fresult);
+			if (!exists) {
+				log(Log::error,"Error. Sysparm " + input_name + " does not exist.");
+			}
+		} break;
+		case sysenv: {
+			if (legalsysenv(input_name)) {
+				string errmsg = " does not exist.";
+				if ( input_name.find("CURRENT_",0,8) == !string::npos) {
+					exists = currentenv(input_name.substr(8,string::npos),ut_value,this,container);
+				} else { //it's a CURRENT_
+					exists = env->getenv(input_name,fresult);
+				}
+				if (!exists) { 
+					log(Log::error,"Error. Sysenv " + input_name + errmsg);
+				}				
+			}
+		} break;
+		case IKO::error: {
+			doerrspace(input_name);
+			exists = true;
+		} break;
+	}	
+	if ( exists && !fresult.empty() && container == NULL ) {
+		container = DataItem::factory(fresult,ikind); //test for xml if needs be.	
+	} 
+	return exists;
+}
+bool IKO::sigfromspace(const string& input_name,const inp_space the_space,const bool release, DataItem*& container) {
+	Environment* env = Environment::service();
+	exists = false;
+	string errstring,fresult;	//used to hold result for most spaces.
+	switch ( the_space ) { //now do all the named input_spaces!
+		case none: break; //exists = false by default.
+		case immediate: { 
+			exists = true; //value handled by caller!!!
+		} break;
+		case field: {
+			if ( input_name.empty() ) {
+				log(Log::error,"Error. Field name missing.");
+			} else {
+				const ObyxElement* par = p;
+				const Iteration* ite = dynamic_cast<const Iteration *>(par);
+				const Mapping* mpp = dynamic_cast<const Mapping *>(par);
+				while (par != NULL && !exists ) {
+					if (ite != NULL && ite->active()) {
+						exists = ite->field(input_name,fresult,errstring);
+					}
+					if (mpp != NULL && mpp->active()) {
+						exists = mpp->field(input_name,fresult); 
+					}
+					if (par != NULL && !exists) {
+						par = par->p;
+						ite = dynamic_cast<const Iteration *>(par);
+						mpp = dynamic_cast<const Mapping *>(par);
+					}														
+				}
+				if (!errstring.empty()) {
+					log(Log::error,"Error. Field " + input_name + " : " + errstring);
+				}
+			}
+		} break;
+		case xmlnamespace: { 
+			exists = ItemStore::nsexists(input_name,release);
+			if (exists) {fresult = input_name;}
+		} break;
+		case xmlgrammar: {
+			exists = ItemStore::grammarexists(input_name,release);
+			if (exists) {fresult = input_name;}
+		} break;
+		case store: {
+			exists = ItemStore::get(input_name,container,release,errstring);
+			if (!errstring.empty()) {
+				log(Log::error,"Error. Store error: " + errstring);
+			} 
+		} break;
+		case fnparm: {
+			const DataItem* ires = NULL; // we need to copy the parm from owner, not adopt it.
+			exists = owner->getparm(input_name,ires);
+			if (exists && ires != NULL) {
+				ires->copy(container);
+			}
+		} break;		
+		case file: {
+			string file_path; setfilepath(input_name,file_path);
+			string orig_wd(FileUtils::Path::wd());
+			FileUtils::Path destination; 
+			destination.cd(file_path);
+			std::string dest_out = destination.output(true);
+			transcode(dest_out,name_v);			//Keep the resulting path for use elsewhere.
+			FileUtils::File file(dest_out);
+			exists = file.exists();				//used by comparison to test...
+			if (exists) {
+				if (file.getSize() == 0) {
+					fresult.clear();
+				} else {
+					fresult = dest_out;
+				}
+			}
+			destination.cd(orig_wd);
+		} break;
+		case url: {
+			if (httpready()) {
+				string errstr;
+				HTTPFetch pr(errstr);
+				HTTPFetchHeader header;
+				std::vector<std::string> redirects;
+				exists = pr.fetchPage(input_name, header, redirects, fresult, errstr);
+			}
+		} break;
+		case cookie: {
+			exists = env->getcookie_req(input_name,fresult);
+		} break;
+		case sysparm: {
+			exists = env->getparm(input_name,fresult);
+		} break;
+		case sysenv: {
+			if (legalsysenv(input_name)) {
+				if ( input_name.find("CURRENT_",0,8) == !string::npos) {
+					exists = currentenv(input_name.substr(8,string::npos),ut_significant,this,container);
+				} else { //it's a CURRENT_
+					exists = env->getenv(input_name,fresult);
+				}
+			}
+		} break;
+		case IKO::error: {
+			doerrspace(input_name);
+			exists = true;
+		} break;
+	}	
+	if ( exists && !fresult.empty() && container == NULL ) {
+		container = DataItem::factory(fresult,di_text); //test for xml if needs be.	
+	} 
+	return exists;
+}
+void IKO::keysinspace(const string& input_name,const inp_space the_space,vector<string>& keylist) {
+	Environment* env = Environment::service();
+	string errstring;			
+	switch ( the_space ) { //now do all the named input_spaces!
+		case immediate: {  keylist.push_back(input_name);} break;
+		case field: {
+			const ObyxElement* par = p;
+			const Iteration* ite = dynamic_cast<const Iteration *>(par);
+			while (par != NULL ) {
+				if (ite != NULL && ite->active()) {
+					ite->fieldkeys(input_name,keylist);
+				}
+				if (par != NULL) {
+					par = par->p;
+					ite = dynamic_cast<const Iteration *>(par);
+				}														
+			}
+		} break;
+		case xmlnamespace: { log(Log::error,"Error. finding key over namespace space not yet supported."); } break;
+		case xmlgrammar: { log(Log::error,"Error. finding key over grammar space not yet supported."); } break;
+		case store: {
+			ItemStore::storekeys(input_name,keylist,errstring);
+			if (!errstring.empty()) { log(Log::error,"Error. Store error: " + errstring); } 
+		} break;
+		case fnparm: { log(Log::error,"Error. finding key over parm space not yet supported."); } break;					
+		case file: { log(Log::error,"Error. finding key over file space not yet supported.");} break;
+		case url: { log(Log::error,"Error. finding keys over url space not supported."); } break;
+		case cookie: { env->cookiekeys(input_name,keylist); } break;
+		case sysparm: { env->parmkeys(input_name,keylist); } break;
+		case sysenv: { if (legalsysenv(input_name)) { env->envkeys(input_name,keylist); } } break;
+		case none:
+		case IKO::error: break; // error was already done.
+	}	
 }
 void IKO::init() {
 }

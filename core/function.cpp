@@ -92,15 +92,12 @@ bool Function::pre_evaluate(string& errs) {
 		} else {
 			fn = dynamic_cast<Function*>(p->p);
 		}
-		if ( fn != NULL && (! fn->deferred || (p->wotzit == xmldocument && p->p == NULL))) {
-			if ( evaluate() ) {
-				DataItem* di = NULL;
-				results.takeresult(di);
-				p->results.append(di);
-				retval = true; 
-			} else {
-				p->results.append(this,errs);
-			}
+		if ( (fn != NULL && ! fn->deferred) || (p->wotzit == xmldocument && p->p == NULL)) {
+			evaluate();
+			DataItem* di = NULL;
+			results.takeresult(di);
+			p->results.append(di);
+			retval = true; 
 		} else {
 			p->results.append(this,errs);
 		}
@@ -146,7 +143,7 @@ stream_is_set(orig->stream_is_set),fnnote(orig->fnnote),outputs(),inputs(),defin
 			outputs.push_back(new Output(this,orig->outputs[i]));
 	} 
 }
-bool Function::evaluate(size_t,size_t) {
+void Function::evaluate(size_t,size_t) {
 	finalised = false;
 	if (!deferred) {
 		prep_breakpoint();
@@ -177,13 +174,12 @@ bool Function::evaluate(size_t,size_t) {
 								erroutput = theoutput;
 								outputs[s] = NULL;
 							} else {
-								if ( theoutput->evaluate(s+1,os) ) { //current is not zero indexed!
-									if ( theoutput->gettype() == out_immediate ) {
-										theoutput->results.takeresult(my_result);
-									}
-									delete theoutput;
-									outputs[s] = NULL;
+								theoutput->evaluate(s+1,os);
+								if ( theoutput->gettype() == out_immediate ) {
+									theoutput->results.takeresult(my_result);
 								}
+								delete theoutput;
+								outputs[s] = NULL;
 							}
 						} else {
 							out_evaluated = false;
@@ -212,7 +208,6 @@ bool Function::evaluate(size_t,size_t) {
 		}
 		do_breakpoint();
 	} 
-	return finalised;	//hmm?!
 }
 bool Function::final() {
 	return finalised;

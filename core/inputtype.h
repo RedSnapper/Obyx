@@ -45,12 +45,13 @@ protected:
 	
 	bool	  eval;				//referring to eval attribute.
 	bool	  release;		    //release attribute - do we release the store/object ?
-	inp_space  type;				//the TYPE of input - ie store, immediate, etc. derived from "type" attribute
+	inp_space  type;			//the TYPE of input - ie store, immediate, etc. derived from "type" attribute
 	u_str    parm_name;			//name as used in the called function parm value
 	
 public:
 	inp_space gettype()	const {return type;}
-	virtual bool evaluate(size_t=0,size_t=0); 
+	virtual void evaluate(size_t=0,size_t=0); 
+	void evalfind(vector<string>&); 
 	InputType(ObyxElement*,const InputType*);
 	InputType(xercesc::DOMNode* const&,ObyxElement* = NULL, elemtype = input);
 	virtual ~InputType() {}
@@ -65,13 +66,13 @@ protected:
 	bool			k_break;			    //key sets this.   - break here. true by default.
 	bool			k_scope;			    //scope sets this. - true (all) by default.
 	unsigned char 	k_format;		        //key_format key sets this. It is either literal or it is regex. 'l' or 'r' 'l' by default.	
-	InputType *key;						//used by match only.
-	bool evaluate_key();
+	InputType *key;							//used by match only.
+	void evaluate_key();
 	
 public:
 	DefInpType(ObyxElement*,const DefInpType* );
 	DefInpType(xercesc::DOMNode* const&,ObyxElement* = NULL, elemtype = input);
-	virtual bool evaluate(size_t=0,size_t=0); 
+	virtual void evaluate(size_t=0,size_t=0); 
 	virtual ~DefInpType();
 };
 

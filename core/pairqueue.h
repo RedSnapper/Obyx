@@ -73,7 +73,7 @@ public:
 	pqpair& back() { return queue.back(); }
 	pqpair& front() { return queue.front(); }
 	size_t size() { return queue.size();  }
-	bool evaluate( bool = false);
+	void evaluate( bool = false);
 	bool final() { return finalised; }
 	
 	void takeresult(DataItem*&); 

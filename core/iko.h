@@ -25,18 +25,30 @@
 
 #include <string>
 #include <xercesc/dom/DOMNode.hpp>
+#include "commons/logger/logger.h"
 #include "obyxelement.h"
 
 using namespace obyx;
 
 class IKO : public ObyxElement {
+public:
+	typedef enum {immediate,none,store,file,error,xmlnamespace,xmlgrammar,cookie,field,sysparm,sysenv,url,fnparm } inp_space;	//cookie_expiry,cookie_path,cookie_domain -- cannot be retrieved from server.. 
+
 private:
 	friend class Function;
 	typedef enum { c_object, c_name, c_request, c_response, c_osi_response, c_time, c_timing, c_version, c_vnumber, c_point, c_cookies } current_type;	//what kind of dataItem
 	typedef std::map< std::string, current_type > current_type_map; 
+	bool valuefromspace(const string&,const inp_space,const bool,const kind_type,DataItem*&);
+	bool sigfromspace(const string&,const inp_space,const bool,DataItem*&);
+	bool existsinspace(const string&,const inp_space,const bool);
+	bool foundinspace(const string&,const inp_space,const bool);
+	void log(const Log::msgtype,const std::string) const;
+	void doerrspace(const string&) const;
+	void setfilepath(const string&,string&) const;
+	bool httpready() const;
+	bool legalsysenv(const string&) const;
 	
 protected:
-	typedef enum {immediate,none,store,file,error,xmlnamespace,xmlgrammar,cookie,field,sysparm,sysenv,url,fnparm } inp_space;	//cookie_expiry,cookie_path,cookie_domain -- cannot be retrieved from server.. 
 	typedef std::map<u_str, inp_space > inp_space_map;
 	friend class Document;
 	friend class ObyxElement;
@@ -53,7 +65,8 @@ protected:
 	bool	  exists;		    //a value exists - is inp_space or has a context != none
 	u_str     name_v;			//name value - used for tracing etc.
 	//            input    release eval name/ref  container 
-	bool evaltype(inp_space, bool, bool, kind_type, DataItem*&,DataItem*&); 
+	void evaltype(inp_space, bool, bool, kind_type, DataItem*&,DataItem*&); 
+	void keysinspace(const string&,const inp_space,vector<string>&);	//gather them keys.
 	
 public:
 	static void init(); 
@@ -63,7 +76,7 @@ public:
 	static bool currentenv(const string&,const usage_tests,const IKO*,DataItem*&);
 	bool getexists() const {return exists;}
 	bool found() const {return exists;}
-	virtual bool evaluate(size_t,size_t)=0;
+	virtual void evaluate(size_t,size_t)=0;
 	IKO(ObyxElement*,const IKO*); 
 	IKO(xercesc::DOMNode* const&,ObyxElement* = NULL, elemtype = endqueue);	
 	virtual ~IKO(); 

@@ -30,7 +30,7 @@ StrObject::StrObject(const std::string& s) : DataItem(),o_str(s) {
 	//	do_alloc("1 "+o_str);
 }
 StrObject::StrObject(u_str s) : DataItem(),o_str("") { 
-	XML::transcode(s.c_str(),o_str);
+		XML::transcode(s.c_str(),o_str);
 	//	do_alloc("2 "+o_str);
 }
 StrObject::StrObject(std::string& s) : DataItem(),o_str(s) {

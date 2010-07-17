@@ -194,263 +194,253 @@ void Output::sethttp(const http_line_type line_type,const string& value) {
 		} break;
 	}
 }
-bool Output::evaluate(size_t out_num,size_t out_count) {
-	bool evaluated = true;
+void Output::evaluate(size_t out_num,size_t out_count) {
 	results.undefer();
 	prep_breakpoint();
-	evaluated = results.evaluate();
-	if ( evaluated ) {
-		DataItem* name_part = NULL; 
-		DataItem* value_part = NULL; 
-		switch ( context ) {
-			case immediate: {
-				results.takeresult(name_part); 
-			} break;
-			default: {
-				DataItem* context_part = NULL; 
-				results.takeresult(context_part);
-				//                   type    release eval					   name/ref    container 
-				evaluated = evaltype(context, false, false, di_auto, context_part,name_part);
-				if ( evaluated ) {
-					delete context_part;
-					context = immediate;
+	results.evaluate();
+	DataItem* name_part = NULL; 
+	DataItem* value_part = NULL; 
+	switch ( context ) {
+		case immediate: {
+			results.takeresult(name_part); 
+		} break;
+		default: {
+			DataItem* context_part = NULL; 
+			results.takeresult(context_part);
+			//       type    release eval					   name/ref    container 
+			evaltype(context, false, false, di_auto, context_part,name_part);
+			delete context_part;
+			context = immediate;
+		} break;
+	}
+	switch ( type ) {
+		case out_immediate: {
+			if ( p->results.result() != NULL ) { // &&  p->results.final() surely this is tested already?
+				DataItem* pe = NULL;
+				if (out_num == out_count) {
+					p->results.takeresult(pe);
 				} else {
-					results.setresult(context_part); 
+					p->results.result()->copy(pe);
 				}
-			} break;
-		}
-		if (evaluated) { // true, unless the context failed!
-			switch ( type ) {
-				case out_immediate: {
-					if ( p->results.result() != NULL ) { // &&  p->results.final() surely this is tested already?
-						DataItem* pe = NULL;
-						if (out_num == out_count) {
-							p->results.takeresult(pe);
-						} else {
-							p->results.result()->copy(pe);
+				if ( encoder != e_none ) { //immediate output - just encode, or something.
+					if (wsstrip) { 
+						pe->trim(); 
+						if ( pe->empty() ) {
+							delete pe;
+							pe = NULL;
 						}
-						if ( encoder != e_none ) { //immediate output - just encode, or something.
-							if (wsstrip) { 
-								pe->trim(); 
-								if ( pe->empty() ) {
-									delete pe;
-									pe = NULL;
-								}
-							}
-							if ( pe != NULL && encoder != e_none ) { 
-								process_encoding(pe);
-							}
-						} 
-						results.setresult(pe);	//This is right, because we may not want to strip or encode every output!!
 					}
-				} break;
-				case out_none: {
-					results.takeresult(value_part); 
-					if (value_part != NULL) {
-						delete value_part;
-						value_part = NULL;
+					if ( pe != NULL && encoder != e_none ) { 
+						process_encoding(pe);
 					}
-				} break;
-				default: {		//into some special container
-					if ( name_part != NULL && ! name_part->empty() ) {
-						name_part->trim();
+				} 
+				results.setresult(pe);	//This is right, because we may not want to strip or encode every output!!
+			}
+		} break;
+		case out_none: {
+			results.takeresult(value_part); 
+			if (value_part != NULL) {
+				delete value_part;
+				value_part = NULL;
+			}
+		} break;
+		default: {		//into some special container
+			if ( name_part != NULL && ! name_part->empty() ) {
+				name_part->trim();
+			}
+			if ( name_part!= NULL && ! name_part->empty() ) { //are we in the right scope
+				DataItem* value_comp= NULL;
+				if (out_num == out_count) {
+					p->results.takeresult(value_comp);
+				} else {
+					if ( p->results.result() != NULL) {
+						p->results.result()->copy(value_comp);
 					}
-					if ( name_part!= NULL && ! name_part->empty() ) { //are we in the right scope
-						DataItem* value_comp= NULL;
-						if (out_num == out_count) {
-							p->results.takeresult(value_comp);
+				}
+				process_encoding( value_comp );	
+				bool deleteval = true;	
+				name_v = *name_part; //stored.
+				switch ( type ) {
+					case out_xmlnamespace: { 
+						if (name_v.find(':') != string::npos) {
+							string val_value = *value_comp;
+							string err_msg; transcode(name_v.c_str(),err_msg);
+							*Logger::log << Log::error << Log::LI << "Error while outputting to namespace. ";
+							*Logger::log << Log::error << "Signature " << err_msg << " for namespace " << val_value << " cannot use colons!" << Log::LO;	
+							trace();
+							*Logger::log << Log::blockend;
 						} else {
-							if ( p->results.result() != NULL) {
-								p->results.result()->copy(value_comp);
-							}
+							ItemStore::setns(name_part,value_comp);
 						}
-						process_encoding( value_comp );	
-						bool deleteval = true;	
-						name_v = *name_part; //stored.
-						switch ( type ) {
-							case out_xmlnamespace: { 
-								if (name_v.find(':') != string::npos) {
-									string val_value = *value_comp;
-									string err_msg; transcode(name_v.c_str(),err_msg);
-									*Logger::log << Log::error << Log::LI << "Error while outputting to namespace. ";
-									*Logger::log << Log::error << "Signature " << err_msg << " for namespace " << val_value << " cannot use colons!" << Log::LO;	
-									trace();
-									*Logger::log << Log::blockend;
-								} else {
-									ItemStore::setns(name_part,value_comp);
+					} break;
+					case out_xmlgrammar: { //what to do when value_comp is null?
+						ItemStore::setgrammar(name_part,value_comp);
+					} break;
+					case out_store: {             //0123456789
+						string errstring;
+						if ( ItemStore::set(name_part,value_comp,kind,errstring) ) { //returns true if all of it is used.
+							value_comp = NULL; //taken by object. 
+						}
+						if (!errstring.empty()) {
+							string err_msg; transcode(name_v.c_str(),err_msg);
+							*Logger::log << Log::error << Log::LI << "Error while outputting to store with " << err_msg << Log::LO;	
+							*Logger::log << Log::LI << errstring << Log::LO;	
+							if (value_comp != NULL) {
+								string val_value = *value_comp;
+								*Logger::log << Log::LI << val_value << Log::LO;	
+							}
+							trace();
+							*Logger::log << Log::blockend;
+						}								
+					} break;
+					case out_error: { 
+						string error_stuff;
+						error_stuff = errs->str();
+						if (! error_stuff.empty() ) {
+							ostringstream err_report;
+							string top_s,tail_s,tmptitle,errstring;
+							Logger::get_title(tmptitle);
+							Logger::set_title("Caught Error");
+							Logger::top(top_s);
+							Logger::tail(tail_s);
+							err_report << top_s << error_stuff << tail_s;
+							string err_result = err_report.str();
+							String::normalise(err_result);
+							Logger::set_title(tmptitle);
+							DataItem* err_doc = new XMLObject(err_result);
+							ItemStore::set(name_part, err_doc, di_object,errstring);
+							if (!errstring.empty()) {
+								string err_msg; transcode(name_v.c_str(),err_msg);
+								*Logger::log << Log::error << Log::LI << "Error while outputting an error space to store with " << err_msg << Log::LO;	
+								*Logger::log << Log::LI << errstring << Log::LO;	
+								trace();
+								*Logger::log << Log::blockend;
+							}
+							//									cout << "-----------------\n";
+							//									cout << err_result;
+							//									cout << "-----------------\n";
+						}
+					} break;
+					case out_file: {
+						Environment* env = Environment::service();
+						string root(env->getpathforroot());
+						string wd(FileUtils::Path::wd());
+						if (wd.empty()) wd = root;
+						string filename; if (name_part != NULL) { filename =  *name_part; }
+						string filetext; if (value_comp != NULL) { filetext = *value_comp; }
+						if (filename[0] == '/') { //we don't want to use file root, but site root.
+							filename = root + filename;
+						} else {
+							filename = wd + '/' + filename;
+						}
+						FileUtils::Path destination; destination.cd(filename);
+						string actual_path = destination.output(true);
+						if ( actual_path.find(root) == 0 ) {
+							FileUtils::File file(filename);
+							bool file_written = file.writeFile(filetext);
+							if ( ! file_written ) {
+								if ( wd.find(root) == 0 ) {
+									wd.erase(0,root.length());
+									if ( wd.empty() ) wd = "/";
 								}
-							} break;
-							case out_xmlgrammar: { //what to do when value_comp is null?
-								ItemStore::setgrammar(name_part,value_comp);
-							} break;
-							case out_store: {             //0123456789
-								string errstring;
-								if ( ItemStore::set(name_part,value_comp,kind,errstring) ) { //returns true if all of it is used.
-									value_comp = NULL; //taken by object. 
-								}
-								if (!errstring.empty()) {
-									string err_msg; transcode(name_v.c_str(),err_msg);
-									*Logger::log << Log::error << Log::LI << "Error while outputting to store with " << err_msg << Log::LO;	
-									*Logger::log << Log::LI << errstring << Log::LO;	
-									if (value_comp != NULL) {
-										string val_value = *value_comp;
-										*Logger::log << Log::LI << val_value << Log::LO;	
-									}
-									trace();
-									*Logger::log << Log::blockend;
-								}								
-							} break;
-							case out_error: { 
-								string error_stuff;
-								error_stuff = errs->str();
-								if (! error_stuff.empty() ) {
-									ostringstream err_report;
-									string top_s,tail_s,tmptitle,errstring;
-									Logger::get_title(tmptitle);
-									Logger::set_title("Caught Error");
-									Logger::top(top_s);
-									Logger::tail(tail_s);
-									err_report << top_s << error_stuff << tail_s;
-									string err_result = err_report.str();
-									String::normalise(err_result);
-									Logger::set_title(tmptitle);
-									DataItem* err_doc = new XMLObject(err_result);
-									ItemStore::set(name_part, err_doc, di_object,errstring);
-									if (!errstring.empty()) {
-										string err_msg; transcode(name_v.c_str(),err_msg);
-										*Logger::log << Log::error << Log::LI << "Error while outputting an error space to store with " << err_msg << Log::LO;	
-										*Logger::log << Log::LI << errstring << Log::LO;	
-										trace();
-										*Logger::log << Log::blockend;
-									}
-									//									cout << "-----------------\n";
-									//									cout << err_result;
-									//									cout << "-----------------\n";
-								}
-							} break;
-							case out_file: {
-								Environment* env = Environment::service();
-								string root(env->getpathforroot());
-								string wd(FileUtils::Path::wd());
-								if (wd.empty()) wd = root;
-								string filename; if (name_part != NULL) { filename =  *name_part; }
-								string filetext; if (value_comp != NULL) { filetext = *value_comp; }
-								if (filename[0] == '/') { //we don't want to use file root, but site root.
-									filename = root + filename;
-								} else {
-									filename = wd + '/' + filename;
-								}
-								FileUtils::Path destination; destination.cd(filename);
-								string actual_path = destination.output(true);
-								if ( actual_path.find(root) == 0 ) {
-									FileUtils::File file(filename);
-									bool file_written = file.writeFile(filetext);
-									if ( ! file_written ) {
-										if ( wd.find(root) == 0 ) {
-											wd.erase(0,root.length());
-											if ( wd.empty() ) wd = "/";
-										}
-										actual_path.erase(0,root.length());
-										*Logger::log << Log::error << Log::LI << "Error. " <<  name() << ":file " << actual_path << " failed to be output. wd:" << wd << Log::LO;
-										trace();
-										*Logger::log << Log::blockend;
-									}
-								} else {
-									*Logger::log << Log::error << Log::LI << "Error. " <<  name() << ":file " << filename << " failed to be output because " << actual_path << " points outside of " << root << Log::LO;
-									trace();
-									*Logger::log << Log::blockend;
-								}
-							} break;
-							case out_http: { 
-								u_str oname; 
-								if (name_part != NULL) { oname = *name_part; }							
-								http_line_type line_type;
-								http_line_type_map::const_iterator i = httplinetypes.find(oname);
-								if( i != httplinetypes.end() ) {
-									line_type = i->second;
-									if (line_type == http_object) {
-										if (value_comp != NULL) {
-											xercesc::DOMDocument* doc = *value_comp;
-											if (doc != NULL) {
-												xercesc::DOMNode* obj_node = doc->getDocumentElement();
-												if (obj_node != NULL) {
-													Httphead* http = Httphead::service();	
-													http->objectparse(obj_node); //ie remove the date headerlines.
-												} else {
-													*Logger::log << Log::error << Log::LI << "Error. Http object had no root element." << Log::LO;	
-													trace();
-													*Logger::log << Log::blockend;
-												}
-											} else {
-												*Logger::log << Log::error << Log::LI << "Error. Http object couldn't be parsed." << Log::LO;	
-												trace();
-												*Logger::log << Log::blockend;
-											}
+								actual_path.erase(0,root.length());
+								*Logger::log << Log::error << Log::LI << "Error. " <<  name() << ":file " << actual_path << " failed to be output. wd:" << wd << Log::LO;
+								trace();
+								*Logger::log << Log::blockend;
+							}
+						} else {
+							*Logger::log << Log::error << Log::LI << "Error. " <<  name() << ":file " << filename << " failed to be output because " << actual_path << " points outside of " << root << Log::LO;
+							trace();
+							*Logger::log << Log::blockend;
+						}
+					} break;
+					case out_http: { 
+						u_str oname; 
+						if (name_part != NULL) { oname = *name_part; }							
+						http_line_type line_type;
+						http_line_type_map::const_iterator i = httplinetypes.find(oname);
+						if( i != httplinetypes.end() ) {
+							line_type = i->second;
+							if (line_type == http_object) {
+								if (value_comp != NULL) {
+									xercesc::DOMDocument* doc = *value_comp;
+									if (doc != NULL) {
+										xercesc::DOMNode* obj_node = doc->getDocumentElement();
+										if (obj_node != NULL) {
+											Httphead* http = Httphead::service();	
+											http->objectparse(obj_node); //ie remove the date headerlines.
 										} else {
-											*Logger::log << Log::error << Log::LI << "Error. Http object was NULL." << Log::LO;	
+											*Logger::log << Log::error << Log::LI << "Error. Http object had no root element." << Log::LO;	
 											trace();
 											*Logger::log << Log::blockend;
 										}
 									} else {
-										string value=""; 
-										if (value_comp != NULL) { value = *value_comp; }
-										sethttp(line_type,value); 
+										*Logger::log << Log::error << Log::LI << "Error. Http object couldn't be parsed." << Log::LO;	
+										trace();
+										*Logger::log << Log::blockend;
 									}
 								} else {
-									string err_type; transcode(oname.c_str(),err_type);
-									*Logger::log << Log::error << Log::LI << "Error. Http line name '" << err_type << "' not recognised." << Log::LO;	
+									*Logger::log << Log::error << Log::LI << "Error. Http object was NULL." << Log::LO;	
 									trace();
 									*Logger::log << Log::blockend;
 								}
-							} break;
-							case out_cookie: {
-								Environment* env = Environment::service();
-								switch (part) {
-									case value: {
-										string oname; if (name_part != NULL) { oname =  *name_part; }
-										string value; if (value_comp != NULL) { value = *value_comp; }
-										env->setcookie_res(oname,value); 
-									} break;
-									case domain: {
-										string oname; if (name_part != NULL) { oname =  *name_part; }
-										string value; if (value_comp != NULL) { value = *value_comp; }
-										env->setcookie_res_domain(oname,value);
-									} break;
-									case expires: {
-										string oname; if (name_part != NULL) { oname =  *name_part; }
-										string value; if (value_comp != NULL) { value = *value_comp; }
-										env->setcookie_res_expires(oname,value);
-									} break;
-									case path: {
-										string oname; if (name_part != NULL) { oname =  *name_part; }
-										string value; if (value_comp != NULL) { value = *value_comp; }
-										env->setcookie_res_path(oname,value);
-									} break;
-								}
-							} break;
-							default: {
-								*Logger::log << Log::error << Log::LI << "Error. Output: unknown output type!" << Log::LO;							
-								trace();
-								*Logger::log << Log::blockend;
-							} break; //out_immediate and out_none are dealt with already.
+							} else {
+								string value=""; 
+								if (value_comp != NULL) { value = *value_comp; }
+								sethttp(line_type,value); 
+							}
+						} else {
+							string err_type; transcode(oname.c_str(),err_type);
+							*Logger::log << Log::error << Log::LI << "Error. Http line name '" << err_type << "' not recognised." << Log::LO;	
+							trace();
+							*Logger::log << Log::blockend;
 						}
-						if ( deleteval && value_comp != NULL ) {
-							delete value_comp;
-							value_comp = NULL;
+					} break;
+					case out_cookie: {
+						Environment* env = Environment::service();
+						switch (part) {
+							case value: {
+								string oname; if (name_part != NULL) { oname =  *name_part; }
+								string value; if (value_comp != NULL) { value = *value_comp; }
+								env->setcookie_res(oname,value); 
+							} break;
+							case domain: {
+								string oname; if (name_part != NULL) { oname =  *name_part; }
+								string value; if (value_comp != NULL) { value = *value_comp; }
+								env->setcookie_res_domain(oname,value);
+							} break;
+							case expires: {
+								string oname; if (name_part != NULL) { oname =  *name_part; }
+								string value; if (value_comp != NULL) { value = *value_comp; }
+								env->setcookie_res_expires(oname,value);
+							} break;
+							case path: {
+								string oname; if (name_part != NULL) { oname =  *name_part; }
+								string value; if (value_comp != NULL) { value = *value_comp; }
+								env->setcookie_res_path(oname,value);
+							} break;
 						}
-						delete name_part;
-						name_part = NULL;
-					} else {
-						*Logger::log << Log::error << Log::LI << "Error. Output: non-immediate, value-holding outputs must have a name!" << Log::LO;							
+					} break;
+					default: {
+						*Logger::log << Log::error << Log::LI << "Error. Output: unknown output type!" << Log::LO;							
 						trace();
 						*Logger::log << Log::blockend;
-					}
-				} break;
+					} break; //out_immediate and out_none are dealt with already.
+				}
+				if ( deleteval && value_comp != NULL ) {
+					delete value_comp;
+					value_comp = NULL;
+				}
+				delete name_part;
+				name_part = NULL;
+			} else {
+				*Logger::log << Log::error << Log::LI << "Error. Output: non-immediate, value-holding outputs must have a name!" << Log::LO;							
+				trace();
+				*Logger::log << Log::blockend;
 			}
-		}
-	} 
+		} break;
+	}
 	do_breakpoint();
-	return evaluated;
 }
 void Output::startup() {
 	part_types.insert(part_type_map::value_type(UCS2(L"value"), value));

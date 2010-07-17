@@ -75,7 +75,7 @@ public:
 	bool final();
 	const string note() const { return fnnote; }
 	
-	bool evaluate(size_t=0,size_t=0);		// new context one..
+	void evaluate(size_t=0,size_t=0);		// new context one..
 	
 };
 

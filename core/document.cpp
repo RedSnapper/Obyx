@@ -91,7 +91,7 @@ const std::string Document::name() const {
 const xercesc::DOMDocument* Document::doc() const {
 	return xdoc;
 }
-bool Document::getparm(u_str const docname,const DataItem*& container) const {
+bool Document::getparm(const u_str& docname,const DataItem*& container) const {
 	bool retval = false;
 	if (parm_map != NULL) {
 		container = NULL;
@@ -102,6 +102,30 @@ bool Document::getparm(u_str const docname,const DataItem*& container) const {
 		}
 	} 
 	return retval; //if we are outside of a function there is no parm.
+}
+bool Document::getparm(const std::string& parmname,const DataItem*& container) const {
+	bool retval = false;
+	if (parm_map != NULL) {
+		container = NULL;
+		u_str pname; XML::transcode(parmname,pname);
+		type_parm_map::const_iterator it = parm_map->find(pname);
+		if (it != parm_map->end()) {
+			container = ((*it).second);
+			retval = true;
+		}
+	} 
+	return retval; //if we are outside of a function there is no parm.
+}
+bool Document::parmexists(const std::string& parmname) const {
+	bool existent = false;
+	if (parm_map != NULL) {
+		u_str pname; XML::transcode(parmname,pname);
+		type_parm_map::const_iterator it = parm_map->find(pname);
+		if (it != parm_map->end()) {
+			existent = true;
+		}
+	} 
+	return existent; //if we are outside of a function there is no parm.
 }
 void Document::list() const {
 	if (parm_map != NULL && ! parm_map->empty() ) {
@@ -323,11 +347,7 @@ void Document::process( xercesc::DOMNode*& n,ObyxElement* par) {
 					fn = NULL;
 				} 
 				if ( (ce != NULL) && (par == doc_par || (par == this) )) { //par = this then use results!
-					if (!results.evaluate(false)) {
-						*Logger::log << Log::syntax << Log::LI << "Error. Document wouln't evaluate." << Log::LO;	
-						par->trace();
-						*Logger::log << Log::blockend;
-					}
+					results.evaluate(false);
 				}
 			}
 		}

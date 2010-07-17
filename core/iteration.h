@@ -43,6 +43,7 @@ private:
 	bool evaluate_this();							//private evaluation
 	bool operation_sql();							//private evaluation
 	bool operation_repeat();						//private evaluation
+	bool operation_each();							//private evaluation
 	bool operation_while(bool);						//private evaluation
 	
 	Vdb::Query *query;		//this is NOT the query -but a reference to it.
@@ -65,11 +66,14 @@ protected:
 	bool		 expanded;				//if this is true, it's the 'last row'
 	unsigned long long currentrow;		//if this is 0, then it's once only..
 	unsigned long long numreps;
+	string currentkey;					//used in each..
 	
 public:
 	bool active() const { return ctlevaluated && !evaluated; }
 	bool field(const string&,string&,string&) const;
-	bool fieldfind(const string& pattern) const;
+	bool fieldfind(const string&) const;
+	unsigned long long forcedbreak() const;
+	void fieldkeys(const string&,vector<string>&) const;
 	bool fieldexists(const string&,string&) const;
 	const unsigned long long row() const {return currentrow;}
 	const it_type op() const {return operation;}

@@ -49,7 +49,7 @@ it_type_map Iteration::it_types;
 
 Iteration::Iteration(xercesc::DOMNode* const& n,ObyxElement* par) : 
 Function(n,iteration,par),ctlevaluated(false),evaluated(false),query(NULL),
-operation(it_repeat),lastrow(false),expanded(false),currentrow(1),numreps(1) {
+operation(it_repeat),lastrow(false),expanded(false),currentrow(1),numreps(1),currentkey("") {
 	u_str op_string;
 	Manager::attribute(n,UCS2(L"operation"),op_string);
 	it_type_map::const_iterator j = it_types.find(op_string);
@@ -69,7 +69,22 @@ operation(it_repeat),lastrow(false),expanded(false),currentrow(1),numreps(1) {
 Iteration::Iteration(ObyxElement* par,const Iteration* orig) : Function(par,orig),
 ctlevaluated(orig->ctlevaluated),evaluated(orig->evaluated),query(orig->query),
 operation(orig->operation),lastrow(orig->lastrow),expanded(orig->expanded),
-currentrow(orig->currentrow),numreps(orig->numreps) {
+currentrow(orig->currentrow),numreps(orig->numreps),currentkey(orig->currentkey) {
+}
+unsigned long long Iteration::forcedbreak() const {
+	unsigned long long forced_break = INT_MAX;
+	string tmp_var;
+	if ( ItemStore::get("ITERATION_BREAK_COUNT",tmp_var) ) {
+		pair<unsigned long long,bool> forced_break_setting = String::znatural(tmp_var);
+		if ( forced_break_setting.second ) { 
+			forced_break = forced_break_setting.first;
+		} else {
+			*Logger::log << Log::error << Log::LI << "Error. ITERATION_BREAK_COUNT expected a natural number, but found [" << tmp_var << "]." << Log::LO;
+			trace();
+			*Logger::log << Log::blockend;
+		}
+	}
+	return forced_break;
 }
 bool Iteration::evaluate_this() { //This can be run as an evaluated iteration within the current iteration.
 	// evaluated returns true only if the control is successful, the body is expanded, and the expansion is successful.
@@ -78,26 +93,23 @@ bool Iteration::evaluate_this() { //This can be run as an evaluated iteration wi
 	if (!evaluated && ! ctlevaluated) { //legal inputs are control
 		ctlevaluated = true;
 		if ( ! inputs.empty() && (operation==it_sql || operation==it_repeat)) {
-			ctlevaluated = inputs[0]->evaluate();
+			inputs[0]->evaluate();
 		}
-		if ( ! ctlevaluated ) {
-			return false;
-		} else {
-			if ( definputs.size() == 0 ) { //This is just a control string, but we must run it if it is a query.
-				if ( operation==it_sql ) {
-					evaluated = operation_sql();
-				} else {				
-					evaluated = true; 
-				}
-				expanded=true;
+		if ( definputs.size() == 0 ) { //This is just a control string, but we must run it if it is a query.
+			if ( operation==it_sql ) {
+				evaluated = operation_sql();
+			} else {				
+				evaluated = true; 
 			}
+			expanded=true;
 		}
 	}
 	///now deal with the body. the actual body exist to the end of the expansion - see output type=error.
 	if ( ctlevaluated && !evaluated && !expanded ) {  //1 body.
 		switch (operation) { 
-			case it_sql: { evaluated = operation_sql(); } break;
+			case it_each: { evaluated = operation_each(); } break; 
 			case it_repeat: { evaluated = operation_repeat(); } break; 
+			case it_sql: { evaluated = operation_sql(); } break;
 			case it_while: { evaluated = operation_while(true); } break; 
 			case it_while_not: { evaluated = operation_while(false); } break; 
 		}
@@ -108,8 +120,7 @@ bool Iteration::evaluate_this() { //This can be run as an evaluated iteration wi
 		size_t n = definputs.size();
 		bool definputs_evaluated = true;
 		for ( size_t i = 0; i < n; i++ ) {
-			bool exp_evaluated = definputs[i]->evaluate();
-			definputs_evaluated = definputs_evaluated && exp_evaluated;
+			definputs[i]->evaluate();
 		}
 		evaluated = definputs_evaluated;
 		if (!evaluated) { //maybe we have to wait
@@ -158,24 +169,37 @@ bool Iteration::fieldfind(const string& pattern) const { //regex..
 	}
 	return retval;
 }
+void Iteration::fieldkeys(const string& pattern,vector<string>& keylist) const { //regex..
+	if (query != NULL) {
+		query->fieldkeys(pattern,keylist);
+	}
+}
+
 bool Iteration::fieldexists(const string& fname,string& errstring) const {
-	bool retval = false,rcfound = false,rfound=false,fcfound=false;
-	bool hashfound = fname.find('#') != string::npos;
-	if (hashfound) {
-		rcfound = fname.find("#rowcount") != string::npos;
-		rfound = fname.find("#row") != string::npos;
-		fcfound = fname.find("#fieldcount") != string::npos;
+	bool retval = false,rcfound = false,rfound=false,fcfound=false,kyfound=false;
+	size_t hashpt = fname.find('#');
+	if (hashpt != string::npos) {
+		if (hashpt > 0 ) { hashpt--; }
+		rcfound = fname.find("#rowcount",hashpt) != string::npos;
+		rfound = fname.find("#row",hashpt) != string::npos;
+		fcfound = fname.find("#fieldcount",hashpt) != string::npos;
+		kyfound = fname.find("#key",hashpt) != string::npos;
 	}
 	switch (operation) {
 		case it_sql: {
 			if (rcfound || rfound || fcfound) {
 				retval = true;
 			} else {
-				if (query != NULL) {
+				if (!kyfound && query != NULL) {
 					retval = query->hasfield(fname);
 				} else {
 					errstring = "The field was not found.";
 				}
+			}
+		} break;
+		case it_each: {
+			if (rcfound || rfound || kyfound ) {
+				retval = true;
 			}
 		} break;
 		case it_repeat: {
@@ -204,7 +228,7 @@ bool Iteration::field(const string& fname,string& container,string& errstring) c
 		size_t hashpos = container.find('#');
 		while (hashpos != string::npos) {
 			if (container.compare(hashpos,9,"#rowcount") == 0) {
-				if ( operation == it_repeat) {
+				if ( operation == it_repeat || operation == it_each ) {
 					String::tostring(tmpval,numreps);
 					container.replace(hashpos,9,tmpval);
 					hashpos--;
@@ -216,6 +240,12 @@ bool Iteration::field(const string& fname,string& container,string& errstring) c
 					container.replace(hashpos,4,tmpval);
 					hashpos--;
 					retval = true;
+				} else {
+					if ( container.compare(hashpos,4,"#key") == 0 ) {
+						container.replace(hashpos,4,currentkey);
+						hashpos--;
+						retval = true;
+					}
 				}
 			}
 			hashpos = container.find('#',++hashpos);
@@ -250,74 +280,37 @@ void Iteration::list(const ObyxElement* base) { //static.
 	}
 	*Logger::log << Log::blockend; //subhead
 }
-bool Iteration::operation_sql() {
-	bool inputsfinal = true;
-	string tmp_var,controlstring;
-	if ( ! inputs.empty() && inputs[0]->results.result() != NULL ) { 
-		controlstring = *(inputs[0]->results.result());
-	}
-	if ( ! controlstring.empty() ) {
-		if (dbs != NULL)  {
-			query = NULL;	 //reset the reference..  (used for iko type="field")
-			if ( dbc->query(query,controlstring) ) {
-				if ( query->execute() ) {
-					if (definputs.size() > 0) {
-						DefInpType* base_template = definputs[0];
-						definputs.clear();
-						unsigned long long forced_break = INT_MAX;
-						long long queryrows = query->getnumrows();
-						numreps = queryrows < 1 ? 0 :  queryrows;
-						if ( ItemStore::get("ITERATION_BREAK_COUNT",tmp_var) ) {
-							pair<unsigned long long,bool> forced_break_setting = String::znatural(tmp_var);
-							if ( forced_break_setting.second ) { 
-								forced_break = forced_break_setting.first;
-							} else {
-								*Logger::log << Log::error << Log::LI << "Error. ITERATION_BREAK_COUNT expected a natural number, but found [" << tmp_var << "]." << Log::LO;
-								trace();
-								*Logger::log << Log::blockend;
-							}
-						}						
-						if (numreps > forced_break) numreps = forced_break;
-						if ( numreps == 0 ) {
-							delete base_template; 
-						} else {
-							for (currentrow = 1; currentrow <= numreps; currentrow++) {
-								DefInpType* iter_input = NULL;	
-								if (currentrow != numreps) {	 //now can delete original 
-									iter_input = new DefInpType(this,base_template);
-								} else {
-									iter_input = base_template;	
-									lastrow = true;
-								}
-								bool row_result = iter_input->evaluate();
-								inputsfinal = inputsfinal && row_result; //stick this on the same line as above and the optimizer won't run evaluate!!
-								definputs.push_back(iter_input);
-							}					
-						}
-					}
-				} else {
-					*Logger::log << Log::error;
-					trace();
-					*Logger::log << Log::blockend;
-					inputsfinal = false; //Just give up.
-				}
-				delete query; query = NULL;	 //reset the reference..  (used for iko type="field")
+bool Iteration::operation_each() {
+	vector<string> spacekeys;
+	if ( ! inputs.empty() ) { 
+		inputs[0]->evalfind(spacekeys);			//now we have the search string	
+		delete inputs[0]; inputs.clear();
+		if (definputs.size() > 0) {
+			DefInpType* base_template = definputs[0]; definputs.clear();
+			numreps = spacekeys.size();
+			unsigned long long forced_break = forcedbreak();
+			if ( forced_break < numreps) { numreps = forced_break;}
+			if ( numreps == 0 ) {
+				delete base_template; //just let it be deleted.
 			} else {
-				*Logger::log << Log::error << Log::LI << "Error. Iteration operation sql needs a database selected. An sql service was found, but the sql connection failed." << Log::LO;
-				trace();
-				*Logger::log << Log::blockend;
+				DefInpType* iter_input = NULL;
+				for (currentrow = 1; currentrow <= numreps; currentrow++) {
+					currentkey = spacekeys[currentrow - 1];
+					if (currentrow != numreps) {
+						iter_input = new DefInpType(this,base_template);
+					} else {
+						iter_input = base_template;		
+						lastrow = true;
+					}
+					iter_input->evaluate();
+					definputs.push_back(iter_input);
+					iter_input = NULL;
+				}
 			}
-		} else {
-			*Logger::log << Log::error << Log::LI << "Error. The iteration sql operation must have an sql service available." << Log::LO;
-			trace();
-			*Logger::log << Log::blockend;
 		}
-	} else {
-		*Logger::log << Log::error << Log::LI << "Error. The value of an SQL control must contain an SQL statement" << Log::LO;
-		trace();
-		*Logger::log << Log::blockend;
-	}
-	return inputsfinal;
+	} 
+	lastrow = true;
+	return true;
 }
 bool Iteration::operation_repeat() {
 	bool fully_evaluated = true;
@@ -368,8 +361,7 @@ bool Iteration::operation_repeat() {
 					iter_input = base_template;		
 					lastrow = true;
 				}
-				bool inp_evaluated = iter_input->evaluate();
-				fully_evaluated = fully_evaluated && inp_evaluated;
+				iter_input->evaluate();
 				definputs.push_back(iter_input);
 				iter_input = NULL;
 			}
@@ -377,6 +369,74 @@ bool Iteration::operation_repeat() {
 	}
 	lastrow = true;
 	return fully_evaluated;
+}
+bool Iteration::operation_sql() {
+	bool inputsfinal = true;
+	string tmp_var,controlstring;
+	if ( ! inputs.empty() && inputs[0]->results.result() != NULL ) { 
+		controlstring = *(inputs[0]->results.result());
+	}
+	if ( ! controlstring.empty() ) {
+		if (dbs != NULL)  {
+			query = NULL;	 //reset the reference..  (used for iko type="field")
+			if ( dbc->query(query,controlstring) ) {
+				if ( query->execute() ) {
+					if (definputs.size() > 0) {
+						DefInpType* base_template = definputs[0];
+						definputs.clear();
+						unsigned long long forced_break = INT_MAX;
+						long long queryrows = query->getnumrows();
+						numreps = queryrows < 1 ? 0 :  queryrows;
+						if ( ItemStore::get("ITERATION_BREAK_COUNT",tmp_var) ) {
+							pair<unsigned long long,bool> forced_break_setting = String::znatural(tmp_var);
+							if ( forced_break_setting.second ) { 
+								forced_break = forced_break_setting.first;
+							} else {
+								*Logger::log << Log::error << Log::LI << "Error. ITERATION_BREAK_COUNT expected a natural number, but found [" << tmp_var << "]." << Log::LO;
+								trace();
+								*Logger::log << Log::blockend;
+							}
+						}						
+						if (numreps > forced_break) numreps = forced_break;
+						if ( numreps == 0 ) {
+							delete base_template; 
+						} else {
+							for (currentrow = 1; currentrow <= numreps; currentrow++) {
+								DefInpType* iter_input = NULL;	
+								if (currentrow != numreps) {	 //now can delete original 
+									iter_input = new DefInpType(this,base_template);
+								} else {
+									iter_input = base_template;	
+									lastrow = true;
+								}
+								iter_input->evaluate();
+								definputs.push_back(iter_input);
+							}					
+						}
+					}
+				} else {
+					*Logger::log << Log::error;
+					trace();
+					*Logger::log << Log::blockend;
+					inputsfinal = false; //Just give up.
+				}
+				delete query; query = NULL;	 //reset the reference..  (used for iko type="field")
+			} else {
+				*Logger::log << Log::error << Log::LI << "Error. Iteration operation sql needs a database selected. An sql service was found, but the sql connection failed." << Log::LO;
+				trace();
+				*Logger::log << Log::blockend;
+			}
+		} else {
+			*Logger::log << Log::error << Log::LI << "Error. The iteration sql operation must have an sql service available." << Log::LO;
+			trace();
+			*Logger::log << Log::blockend;
+		}
+	} else {
+		*Logger::log << Log::error << Log::LI << "Error. The value of an SQL control must contain an SQL statement" << Log::LO;
+		trace();
+		*Logger::log << Log::blockend;
+	}
+	return inputsfinal;
 }
 bool Iteration::operation_while(bool existence) {
 	bool inputsfinal = true;
@@ -401,20 +461,16 @@ bool Iteration::operation_while(bool existence) {
 		if (inputs.size() == 1) {
 			for (currentrow = 1; currentrow < forced_break && !loopdone ; currentrow++ ) {
 				InputType* it_input = new InputType(this,inputs[0]);
-				if ( it_input->evaluate() ) {
-					if ( existence != it_input->getexists() ) {  //eg for while (true) then when !true we break.
-						inputsfinal=true;
-						loopdone = true;
-					} else {
-						numreps = currentrow;
-						iter_input = new DefInpType(this,base_template);
-						inputsfinal = inputsfinal && iter_input->evaluate();
-						definputs.push_back(iter_input);
-						iter_input = NULL;
-					}
-				} else {
-					inputsfinal=false;
+				it_input->evaluate();
+				if ( existence != it_input->getexists() ) {  //eg for while (true) then when !true we break.
+					inputsfinal=true;
 					loopdone = true;
+				} else {
+					numreps = currentrow;
+					iter_input = new DefInpType(this,base_template);
+					iter_input->evaluate();
+					definputs.push_back(iter_input);
+					iter_input = NULL;
 				}
 				delete it_input;
 			}
@@ -473,8 +529,9 @@ void Iteration::init() {
 void Iteration::finalise() {
 }
 void Iteration::startup() {
-	it_types.insert(it_type_map::value_type(UCS2(L"sql"),it_sql));
+	it_types.insert(it_type_map::value_type(UCS2(L"each"),it_each));
 	it_types.insert(it_type_map::value_type(UCS2(L"repeat"),it_repeat));
+	it_types.insert(it_type_map::value_type(UCS2(L"sql"),it_sql));
 	it_types.insert(it_type_map::value_type(UCS2(L"while"),it_while));
 	it_types.insert(it_type_map::value_type(UCS2(L"while_not"),it_while_not));
 }

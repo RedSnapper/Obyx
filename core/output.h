@@ -53,7 +53,7 @@ private:
 public:
 	ostringstream*& geterrs()  { return errs; }
 	output_type gettype() const { return type; }
-	bool evaluate(size_t,size_t);
+	void evaluate(size_t,size_t);
 	Output(xercesc::DOMNode* const&,ObyxElement* = NULL,elemtype = output);
 	Output(ObyxElement*,const Output*); //
 	static void startup(); 

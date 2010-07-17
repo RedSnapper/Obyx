@@ -100,14 +100,14 @@ bool Mapping::evaluate_this() {
 	if (!keys_evaluated ) {
 		keys_evaluated = true;
 		for ( unsigned int i = 1; i < inpsize; i++ ) {  // first definput is the domain.
-			bool wasfinal = definputs[i]->evaluate_key();
-			keys_evaluated = keys_evaluated && wasfinal;
+			definputs[i]->evaluate_key();
 		}
 	} 
 	
 	//2. once the keys are evaluated, we need to evaluate the domain.
 	if (keys_evaluated && !dom_evaluated ) {
-		dom_evaluated = definputs[0]->evaluate();
+		dom_evaluated = true;
+		definputs[0]->evaluate();
 	}
 	
     //3. for each match, we need to find it in the domain, and then evaluate it, iff it is found.
@@ -155,12 +155,11 @@ bool Mapping::evaluate_this() {
 									case m_switch: { // m_switch uses full-matches without changing the domain (repeat illegal).
 										if ( the_domain->same( key->results.result()) ) {
 											tmp_input = match;
-											if ( tmp_input->evaluate() ) {
-												matched = true;
-												DataItem* tmp = NULL;
-												tmp_input->results.takeresult(tmp);
-												results.setresult(tmp,match->wsstrip);
-											} else { t_deferred=true; }
+											tmp_input->evaluate();
+											matched = true;
+											DataItem* tmp = NULL;
+											tmp_input->results.takeresult(tmp);
+											results.setresult(tmp,match->wsstrip);
 										}
 									} break;
 									case m_state: { // m_switch uses full-matches and changes the domain.
@@ -170,11 +169,10 @@ bool Mapping::evaluate_this() {
 											} else {
 												tmp_input = match;
 											}									
-											if ( tmp_input->evaluate() ) {
-												matched = true;
-												delete the_domain;
-												tmp_input->results.takeresult(the_domain);
-											} else { t_deferred=true; }
+											tmp_input->evaluate();
+											matched = true;
+											delete the_domain;
+											tmp_input->results.takeresult(the_domain);
 										}
 									} break;
 									case m_substitute: { // m_substitute uses partial-matching and changes the domain.
@@ -188,22 +186,19 @@ bool Mapping::evaluate_this() {
 											} else {
 												tmp_input = match;
 											}									
-											if ( tmp_input->evaluate() ) {
-												std::string insert="";
-												if (tmp_input->results.result() != NULL) {
-													insert = *tmp_input->results.result();
-												}
-												if (key->results.result() == NULL) {
-													matched = true;
-													sdom = insert;
-												} else {
-													matched = String::fandr(sdom,skey,insert,tmp_input->k_scope);
-												}
-												the_domain->clear();											
-												the_domain = DataItem::factory(sdom,dom_kind);
-											} else { 
-												t_deferred=true; 
+											tmp_input->evaluate();
+											std::string insert="";
+											if (tmp_input->results.result() != NULL) {
+												insert = *tmp_input->results.result();
 											}
+											if (key->results.result() == NULL) {
+												matched = true;
+												sdom = insert;
+											} else {
+												matched = String::fandr(sdom,skey,insert,tmp_input->k_scope);
+											}
+											the_domain->clear();											
+											the_domain = DataItem::factory(sdom,dom_kind);
 										}
 									} break;
 								}
@@ -218,14 +213,11 @@ bool Mapping::evaluate_this() {
 										case m_switch: { // m_switch uses full-matches without changing the domain (repeat illegal).
 											if ( String::Regex::fullmatch(skey, sdom) ) {
 												tmp_input = match;
-												if ( tmp_input->evaluate() ) {
-													matched = true;
-													DataItem* tmp = NULL;
-													tmp_input->results.takeresult(tmp);
-													results.setresult(tmp,match->wsstrip);
-												} else { 
-													t_deferred=true; 
-												}
+												tmp_input->evaluate();
+												matched = true;
+												DataItem* tmp = NULL;
+												tmp_input->results.takeresult(tmp);
+												results.setresult(tmp,match->wsstrip);
 											}
 										} break;
 										case m_state: { // m_switch uses full-matches and changes the domain.
@@ -235,12 +227,9 @@ bool Mapping::evaluate_this() {
 												} else {
 													tmp_input = match;
 												}									
-												if ( tmp_input->evaluate() ) {
-													matched = true;
-													tmp_input->results.takeresult(the_domain);
-												} else { 
-													t_deferred=true; 
-												}
+												tmp_input->evaluate();
+												matched = true;
+												tmp_input->results.takeresult(the_domain);
 											}
 										} break;
 										case m_substitute: { // m_substitute uses partial-matching and changes the domain.
@@ -251,18 +240,15 @@ bool Mapping::evaluate_this() {
 												} else {
 													tmp_input = match;
 												}											
-												if ( tmp_input->evaluate() ) {
-													matched = true;
-													string matchresult="";
-													if (tmp_input->results.result() != NULL) {
-														matchresult = *(tmp_input->results.result());
-													}
-													String::Regex::replace( skey,matchresult, sdom, tmp_input->k_scope);
-													the_domain->clear();											
-													the_domain = DataItem::factory(sdom,dom_kind);
-												} else { 
-													t_deferred=true; 
+												tmp_input->evaluate();
+												matched = true;
+												string matchresult="";
+												if (tmp_input->results.result() != NULL) {
+													matchresult = *(tmp_input->results.result());
 												}
+												String::Regex::replace( skey,matchresult, sdom, tmp_input->k_scope);
+												the_domain->clear();											
+												the_domain = DataItem::factory(sdom,dom_kind);
 											}
 										} break;
 									}
@@ -284,10 +270,9 @@ bool Mapping::evaluate_this() {
 						}						
 					} else { //the format doesn't really matter for NULL matching.
 						if ( key->results.result() == NULL ) {
-							if ( match->evaluate() ) {
-								matched = true;
-								match->results.takeresult(the_domain);
-							} else { t_deferred=true; }
+							match->evaluate();
+							matched = true;
+							match->results.takeresult(the_domain);
 						}
 					}
 					if ( matched && match->k_break ) break; 
@@ -295,18 +280,15 @@ bool Mapping::evaluate_this() {
 			} //end for
 		} while ( !t_deferred && repeated && matched && forced_break > 0 );
 		if (!matched && !t_deferred && def_match != NULL) {
-			if ( def_match->evaluate() ) {
-				matched = true;
-				if (operation == m_switch) {
-					DataItem* tmp = NULL;
-					def_match->results.takeresult(tmp);
-					results.setresult(tmp,def_match->wsstrip);
-				} else {
-					def_match->results.takeresult(the_domain);
-				}
-			} else { 
-				t_deferred=true; 
-			}					
+			def_match->evaluate();
+			matched = true;
+			if (operation == m_switch) {
+				DataItem* tmp = NULL;
+				def_match->results.takeresult(tmp);
+				results.setresult(tmp,def_match->wsstrip);
+			} else {
+				def_match->results.takeresult(the_domain);
+			}
 		}
 		if ( t_deferred ) {
 			definputs[0]->results.setresult(the_domain);

@@ -50,12 +50,16 @@ namespace XML {
 	//u_str	to std::string.
 	void transcode(const u_str& source, std::string& result) {
 		if (!source.empty()) {
-			char* buff = NULL;
-			const XMLCh* src=(const XMLCh*)(source.c_str());
-			buff = (char*)(TranscodeToStr(src,source.size(),"UTF-8").adopt());
-			if (buff != NULL) { 
-				result = buff; 
-				XMLString::release(&buff);
+			if (source.size() == 1) {
+				result = (char)(source[0]); 
+			} else {
+				char* buff = NULL;
+				const XMLCh* src=(const XMLCh*)(source.c_str());
+				buff = (char*)(TranscodeToStr(src,source.size(),"UTF-8").adopt());
+				if (buff != NULL) { 
+					result = buff; 
+					XMLString::release(&buff);
+				}
 			}
 		}
 	}
