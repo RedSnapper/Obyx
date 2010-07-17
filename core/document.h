@@ -49,7 +49,7 @@ private:
 	friend class InputType;
 	friend class Iteration;
 	
-	typedef hash_map<const u_str, DataItem*, hash<const u_str&> > type_parm_map;
+	typedef hash_map<const std::string, DataItem*, hash<const string&> > type_parm_map;
 	
 	static XML::Manager* xmlmanager;
 	static std::string curr_http_req;

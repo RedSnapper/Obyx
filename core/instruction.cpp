@@ -109,10 +109,13 @@ void Instruction::do_function() {
 		u_str pname=inputs[i]->parm_name;
 		if ( ! pname.empty()) {
 			DataItem* rslt = NULL;
+			string parm_key;
+			XML::transcode(pname.c_str(),parm_key);
+
 			if ( ! inputs[i]->results.final() ) {
-				inputs[i]->evaluate(inputs[i]->wsstrip);
+				inputs[i]->evaluate();
 				if ( ! inputs[i]->results.final() ) {
-					*Logger::log <<  Log::error << Log::LI << "Error. Parameter must be able to be evaluated before function is called." << Log::LO;
+					*Logger::log <<  Log::error << Log::LI << "Error. Parameter " << parm_key << " must be able to be evaluated before function is called." << Log::LO;
 					trace();
 					*Logger::log << Log::blockend;
 				} else {
@@ -125,7 +128,7 @@ void Instruction::do_function() {
 					inputs[i]->results.result()->copy(rslt);
 				}
 			}
-			pair<Document::type_parm_map::iterator, bool> ins = function_instance->insert(Document::type_parm_map::value_type(pname,rslt));
+			pair<Document::type_parm_map::iterator, bool> ins = function_instance->insert(Document::type_parm_map::value_type(parm_key,rslt));
 			if (!ins.second) {
 				*Logger::log <<  Log::error << Log::LI << "Error. Duplicate name found. All the name attributes of a function call must be unique." << Log::LO;
 				trace();

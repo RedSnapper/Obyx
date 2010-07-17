@@ -91,11 +91,11 @@ const std::string Document::name() const {
 const xercesc::DOMDocument* Document::doc() const {
 	return xdoc;
 }
-bool Document::getparm(const u_str& docname,const DataItem*& container) const {
+bool Document::getparm(const std::string& parmkey,const DataItem*& container) const {
 	bool retval = false;
 	if (parm_map != NULL) {
 		container = NULL;
-		type_parm_map::const_iterator it = parm_map->find(docname);
+		type_parm_map::const_iterator it = parm_map->find(parmkey);
 		if (it != parm_map->end()) {
 			container = ((*it).second);
 			retval = true;
@@ -103,24 +103,10 @@ bool Document::getparm(const u_str& docname,const DataItem*& container) const {
 	} 
 	return retval; //if we are outside of a function there is no parm.
 }
-bool Document::getparm(const std::string& parmname,const DataItem*& container) const {
-	bool retval = false;
-	if (parm_map != NULL) {
-		container = NULL;
-		u_str pname; XML::transcode(parmname,pname);
-		type_parm_map::const_iterator it = parm_map->find(pname);
-		if (it != parm_map->end()) {
-			container = ((*it).second);
-			retval = true;
-		}
-	} 
-	return retval; //if we are outside of a function there is no parm.
-}
-bool Document::parmexists(const std::string& parmname) const {
+bool Document::parmexists(const std::string& parmkey) const {
 	bool existent = false;
 	if (parm_map != NULL) {
-		u_str pname; XML::transcode(parmname,pname);
-		type_parm_map::const_iterator it = parm_map->find(pname);
+		type_parm_map::const_iterator it = parm_map->find(parmkey);
 		if (it != parm_map->end()) {
 			existent = true;
 		}
@@ -134,15 +120,14 @@ void Document::list() const {
 		*Logger::log << Log::LI << Log::even;
 		while (it != parm_map->end() ) {
 			if ( ! it->first.empty() ) {
-				string name,value;
-				transcode(it->first.c_str(),name);
+				string key,value;
 				DataItem* x= it->second;
 				if ( x == NULL) {
 					value = "[NULL]"; 
 				} else {
 					value = *x;
 				}
-				*Logger::log << Log::LI << Log::II << name << Log::IO << Log::II << value << Log::IO << Log::LO;
+				*Logger::log << Log::LI << Log::II << key << Log::IO << Log::II << value << Log::IO << Log::LO;
 			}
 			it++;
 		}

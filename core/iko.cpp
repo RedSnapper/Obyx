@@ -782,8 +782,10 @@ bool IKO::valuefromspace(const string& input_name,const inp_space the_space,cons
 		case fnparm: {
 			const DataItem* ires = NULL; // we need to copy the parm from owner, not adopt it.
 			exists = owner->getparm(input_name,ires);
-			if (exists && ires != NULL) {
-				ires->copy(container);
+			if (exists) {
+				if (ires != NULL) { //it can be empty and exist.
+					ires->copy(container);
+				}
 			} else {
 				log(Log::error,"Error. Parm " + input_name + " does not exist here.");
 			} 
