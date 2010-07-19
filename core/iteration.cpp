@@ -47,6 +47,11 @@ using namespace Vdb;
 
 it_type_map Iteration::it_types;
 
+//used by std to sort a vector.
+bool Iteration::sortkeys(pair<string,string> n1,pair<string,string> n2) {
+	return (n1.first.compare(n2.first) < 0) ? true : false;
+}
+
 Iteration::Iteration(xercesc::DOMNode* const& n,ObyxElement* par) : 
 Function(n,iteration,par),ctlevaluated(false),evaluated(false),query(NULL),
 operation(it_repeat),lastrow(false),expanded(false),currentrow(1),numreps(1),currentkey("") {
@@ -293,6 +298,7 @@ bool Iteration::operation_each() {
 			if ( numreps == 0 ) {
 				delete base_template; //just let it be deleted.
 			} else {
+				std::sort(spacekeys.begin(),spacekeys.end(), sortkeys); 
 				DefInpType* iter_input = NULL;
 				for (currentrow = 1; currentrow <= numreps; currentrow++) {
 					currentkey = spacekeys[currentrow - 1];

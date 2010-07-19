@@ -37,6 +37,8 @@ using namespace obyx;
 
 class Iteration : public Function {
 private:
+	static bool sortkeys(pair<string,string>,pair<string,string>);
+
 	bool ctlevaluated;								//have we evaluated ctl
 	bool evaluated;									//have we done this one already?
 	bool may_eval_outputs() {return (numreps > 0) && lastrow && results.final();} // if lastrow is false, then there was a null result in control
