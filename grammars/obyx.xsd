@@ -284,6 +284,9 @@
 					<xs:enumeration value="qp"/>
 					<xs:enumeration value="hex"/>
 					<xs:enumeration value="message"/>
+					<xs:enumeration value="md5"/>
+					<xs:enumeration value="sha1"/>
+					<xs:enumeration value="sha512"/>
 				</xs:restriction>
 			</xs:simpleType>
 		</xs:attribute>		

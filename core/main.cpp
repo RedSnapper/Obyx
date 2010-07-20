@@ -52,11 +52,11 @@ void finalise();
 void shutdown();
 
 int main(int argc, char *argv[]) {
- 	string v_number = "1.100717"; //Do NOT put the v here!
+ 	string v_number = "1.100720"; //Do NOT put the v here!
 #ifdef FAST
-	string version  = "Obyx v"+v_number+"F Supported (probationary)";
+	string version  = "Obyx v"+v_number+"F Supported";
 #else
-	string version  = "Obyx v"+v_number+" Supported (probationary)";
+	string version  = "Obyx v"+v_number+" Supported";
 #endif
 	if (argc == 2 && argv[1][0]=='-' && argv[1][1]=='V' ) {
 		string compiledate(__DATE__);

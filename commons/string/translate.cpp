@@ -391,14 +391,14 @@ namespace String {
 		std::string result("%");
 		unsigned char v[2]= { c/16, c%16 };
 		if (v[0] <= 9) result+= (v[0] + '0');
-		else result+= (v[0] - 10 + 'A');
+		else result+= (v[0] - 10 + 'a');
 		if (v[1] <= 9) result+= (v[1] + '0');
-		else result+= (v[1] - 10 + 'A');
+		else result+= (v[1] - 10 + 'a');
 		return result;
 	}
 	//---------------------------------------------------------------------------
 	bool tohex(string& s) {
-		const unsigned char Abase = 'A' - 10;
+		const unsigned char Abase = 'a' - 10;
 		bool success=true;
 		std::string orig;
 		orig.swap(s);

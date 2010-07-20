@@ -17,6 +17,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.100720	
+	Enh.		Additional digest encoders md5/sha1. New sysenv OBYX_LIBSSLSO
+				Obyx can now use libssl to digest dataitems. Digests are returned hexencoded.
+				Initial syntax level support has been made for md5,sha1,sha512. 
+				md2,md4,sha,sha224,sha256,sha384,dss1,mdc2,ripemd160 are also ready to implement.
+				
+				At some point soon, I shall add in crypto operations to instruction. 
+
 v1.100717		(probationary) Though this has passed most tests, the refactor requires more in situ tests.
 				For production services it is better to stay with v1.100709 until 
 	Enh.		Additional Iteration operation: each - enables regex-based searches across spaces.

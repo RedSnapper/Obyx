@@ -17,6 +17,8 @@
 		B53AE9BF0C1DE1CA00B2371C /* httpfetcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B53AE9B70C1DE1CA00B2371C /* httpfetcher.cpp */; };
 		B53AE9C00C1DE1CA00B2371C /* httpfetchheadparser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B53AE9BA0C1DE1CA00B2371C /* httpfetchheadparser.cpp */; };
 		B53AE9C10C1DE1CA00B2371C /* httpfetchleaf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B53AE9BC0C1DE1CA00B2371C /* httpfetchleaf.cpp */; };
+		B53B010311F524D600C1D7E3 /* crypto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B53B010111F524D600C1D7E3 /* crypto.cpp */; };
+		B53B010411F524D600C1D7E3 /* crypto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B53B010111F524D600C1D7E3 /* crypto.cpp */; };
 		B53D233910568020008FC5CB /* libxqilla.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B599F9230F583DEA00AD3D2C /* libxqilla.dylib */; };
 		B541F1E911941E1E0099F07C /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5E31FE609BC584A00F7FC96 /* main.cpp */; };
 		B541F1EA11941E1E0099F07C /* httphead.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B55C29B609A4AB9D00714977 /* httphead.cpp */; };
@@ -185,6 +187,8 @@
 		B53AE9BB0C1DE1CA00B2371C /* httpfetchheadparser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = httpfetchheadparser.h; sourceTree = "<group>"; };
 		B53AE9BC0C1DE1CA00B2371C /* httpfetchleaf.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = httpfetchleaf.cpp; sourceTree = "<group>"; };
 		B53AE9BD0C1DE1CA00B2371C /* httpfetchleaf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = httpfetchleaf.h; sourceTree = "<group>"; };
+		B53B010111F524D600C1D7E3 /* crypto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = crypto.cpp; sourceTree = "<group>"; };
+		B53B010211F524D600C1D7E3 /* crypto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = crypto.h; sourceTree = "<group>"; };
 		B541F1D4119414330099F07C /* fast.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fast.cpp; sourceTree = "<group>"; };
 		B541F1D5119414330099F07C /* fast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fast.h; sourceTree = "<group>"; };
 		B541F22911941E1E0099F07C /* obyx.fcgi */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = obyx.fcgi; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -402,6 +406,8 @@
 				B5072F07099CA2E1002F675A /* strings.h */,
 				B58852A00CC39E1B009D0279 /* regex.h */,
 				B58852A10CC39E1B009D0279 /* regex.cpp */,
+				B53B010211F524D600C1D7E3 /* crypto.h */,
+				B53B010111F524D600C1D7E3 /* crypto.cpp */,
 				B509B983098E4D180001B5AD /* comparison.h */,
 				B509B982098E4D180001B5AD /* comparison.cpp */,
 				B509B985098E4D180001B5AD /* convert.h */,
@@ -862,6 +868,7 @@
 				B541F22111941E1E0099F07C /* osimessage.cpp in Sources */,
 				B541F22211941E1E0099F07C /* fragmentobject.cpp in Sources */,
 				B541F23E11941ECB0099F07C /* fast.cpp in Sources */,
+				B53B010311F524D600C1D7E3 /* crypto.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -927,6 +934,7 @@
 				B5741877119436A80046BE0B /* httplogger.cpp in Sources */,
 				B5741878119436AA0046BE0B /* clilogger.cpp in Sources */,
 				B50E23B311D4C6AD00D62C41 /* dataitem.cpp in Sources */,
+				B53B010411F524D600C1D7E3 /* crypto.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -108,6 +108,9 @@ IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : ObyxElement
 		if( str_process.compare(UCS2(L"decode")) == 0 ) {
 			switch (encoder) {
 				case e_name:
+				case e_md5:
+				case e_sha1:
+				case e_sha512:
 				case e_digits:
 				case e_none: 
 				case e_sql: {
@@ -364,6 +367,7 @@ void IKO::doerrspace(const string& input_name) const {
 }
 void IKO::process_encoding(DataItem*& basis) {
 	if (basis != NULL && encoder != e_none) {
+		string errs;
 		string encoded = *basis;		//xml cannot survive an encoding.
 		delete basis;					//now it is no longer.
 		basis = NULL;					//default for non-implemented encodings.
@@ -443,6 +447,27 @@ void IKO::process_encoding(DataItem*& basis) {
 					trace();
 					*Logger::log << Log::blockend;
 					basis = NULL;
+				}
+			} break;
+			case e_sha1: {
+				if (String::Digest::available(errs)) {
+					String::Digest::do_digest(String::Digest::sha1,encoded);
+					String::tohex(encoded);
+					basis = DataItem::factory(encoded,di_text); //cannot be xml.
+				}
+			} break;
+			case e_sha512: {
+				if (String::Digest::available(errs)) {
+					String::Digest::do_digest(String::Digest::sha512,encoded);
+					String::tohex(encoded);
+					basis = DataItem::factory(encoded,di_text); //cannot be xml.
+				}
+			} break;
+			case e_md5: {
+				if (String::Digest::available(errs)) {
+					String::Digest::do_digest(String::Digest::md5,encoded);
+					String::tohex(encoded);
+					basis = DataItem::factory(encoded,di_text); //cannot be xml.
 				}
 			} break;
 			case e_name: {
@@ -1033,6 +1058,9 @@ void IKO::startup() {
 	enc_types.insert(enc_type_map::value_type(UCS2(L"base64"), e_base64));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"hex"), e_hex));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"message"), e_message));
+	enc_types.insert(enc_type_map::value_type(UCS2(L"md5"), e_md5));
+	enc_types.insert(enc_type_map::value_type(UCS2(L"sha1"), e_sha1));
+	enc_types.insert(enc_type_map::value_type(UCS2(L"sha512"), e_sha512));
 	
 	ctx_types.insert(inp_space_map::value_type(UCS2(L"none"), immediate));
 	ctx_types.insert(inp_space_map::value_type(UCS2(L"field"), field ));
