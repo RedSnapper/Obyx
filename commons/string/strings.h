@@ -29,6 +29,7 @@
 #include "fandr.h"
 #include "translate.h"
 #include "regex.h"
+#include "crypto.h"
 #include "chars.h"
 
 using namespace std;
