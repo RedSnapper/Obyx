@@ -29,7 +29,7 @@
 include ../local.cfg
 CGIHOME  = $(RPATH)/$(CGIDIR)
 CGIHOMEDEV  = $(RPATH)/$(CGIDIR)_dev
-ALL_LIBS = -ldl -lrt -lxerces-c -lxqilla
+ALL_LIBS = -ldl -lrt -lxerces-c -lxqilla -lstdc++
 SHELL    = /bin/sh
 ###############################################################################
 # Standard Library Compiler Settings
