@@ -77,8 +77,11 @@
 			if ( wdstack.size() > 0) {
 				retval = wdstack.top();
 			} else {
-				Environment* env = Environment::service();
-				env->getenv("PWD",retval);
+				char tmp[1023];
+				getcwd(tmp,200 );
+				if (tmp != NULL) {
+					retval = tmp;
+				}
 			}
 			return retval;
 		}
