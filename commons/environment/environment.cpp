@@ -61,14 +61,10 @@ Environment* Environment::instance;
 Environment::Environment() {
 	gDevelop = false;
 	gSQLport = 0;
-	gDatabase="";
 	gRootDir="";
 	gScriptsDir="";
 	gScratchDir="/tmp/";
 	gScratchName="";
-	gSQLhost="";
-	gSQLuser="";
-	gSQLuserPW="";
 	basetime = 0;		 //used for timing.
 	parmprefix="";		//used to prefix parameter numbers
 	gArgc=0;
@@ -1012,6 +1008,35 @@ void Environment::setbenvmap() {//per box/process environment
 		}
 	}
 }
+string Environment::Database() {
+	string result="";
+	if (!getenv("OBYX_SQLDATABASE",result)) {
+		getenv("OBYX_DATABASE",result);
+	}
+	return result;
+}
+string Environment::SQLhost() {
+	string result="";
+	getenv("OBYX_SQLHOST",result);
+	return result;
+}
+string Environment::SQLuser() {
+	string result="";
+	getenv("OBYX_SQLUSER",result);
+	return result;
+}
+string Environment::SQLuserPW() {
+	string result="";
+	getenv("OBYX_SQLUSERPW",result);
+	return result;
+}
+unsigned int Environment::SQLport() {
+	string result="";
+	getenv("OBYX_SQLPORT",result);
+	pair<long long int,bool>port = String::integer(result);
+	return (int)port.first;
+}
+
 void Environment::setbenv(string name,string value) {
 	//Called before LOGGER is initialised, once per process.
 	pair<var_map_type::iterator, bool> ins = benv_map.insert(var_map_type::value_type(name, value));
@@ -1058,11 +1083,6 @@ void Environment::getenvvars_base() {
 		if (tmp.second) gSQLport = (unsigned int)tmp.first;
 	}
 	gDevelop = getenv("OBYX_DEVELOPMENT",envtmp);
-	getenv("OBYX_SQLHOST",gSQLhost); //gSQLhost="localhost";
-	getenv("OBYX_SQLUSER",gSQLuser); //gSQLuser="obyx"; 
-	if (!getenv("OBYX_SQLDATABASE",gDatabase)) {
-		getenv("OBYX_DATABASE",gDatabase);
-	}
 	if (getenv("OBYX_SCRIPTS_DIR",gScriptsDir)) { //defaults to nothing.
 		if ( gScriptsDir[gScriptsDir.size()-1] != '/') gScriptsDir+='/';
 	}
@@ -1077,7 +1097,6 @@ void Environment::getenvvars_base() {
 		String::tostring(pidnum,(unsigned long long)pid); 
 		gScratchName = 'p' + pidnum + '_';
 	}
-	getenv("OBYX_SQLUSERPW",gSQLuserPW);
 	getenv("OBYX_PARM_PREFIX",parmprefix); //Used to prevent ambiguity - someone may need parmxxx
 }
 void Environment::getenvvars() {
@@ -1221,7 +1240,7 @@ bool Environment::envexists(const string& name) {
 	}
 	return retval;
 }
-bool Environment::getenv(string const name,string& container) {
+bool Environment::getenv(const string name,string& container) {
 	bool retval = false;
 	container.clear();  //should we clear this?
 	var_map_type::iterator bt = ienv_map.find(name);

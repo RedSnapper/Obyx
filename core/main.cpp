@@ -52,7 +52,7 @@ void finalise();
 void shutdown();
 
 int main(int argc, char *argv[]) {
- 	string v_number = "1.100720"; //Do NOT put the v here!
+ 	string v_number = "1.100728"; //Do NOT put the v here!
 #ifdef FAST
 	string version  = "Obyx v"+v_number+"F Supported";
 #else
@@ -127,8 +127,8 @@ void startup(std::string& version,std::string& v_number) {
 	Environment::startup(version,v_number);				//unchanging environment stuff.
 #ifdef FAST
 	Fast::startup();
-#endif
 	Vdb::ServiceFactory::startup();
+#endif
 	String::Regex::startup();
 	Httphead::startup();
 	Logger::startup(version);								//Logger
@@ -142,6 +142,9 @@ void startup(std::string& version,std::string& v_number) {
 }
 void init(ostream*& f_out,int argc,char** argv,char** env) {
 	Environment::init(argc,argv,env);	//
+#ifndef FAST
+	Vdb::ServiceFactory::startup();
+#endif
 	Environment* e = Environment::service();
 	ostream* os = Logger::init(f_out);	//Instance Logger
 	Httphead::init(os);					//Instance head
@@ -158,6 +161,9 @@ void finalise() {
 	Document::finalise();		
 	Logger::finalise();
 	Httphead::finalise();
+#ifndef FAST
+	Vdb::ServiceFactory::shutdown();	//Remove the database service
+#endif
 	Environment::finalise();
 }
 void shutdown() {
@@ -170,10 +176,10 @@ void shutdown() {
 	Document::shutdown();		
 	Httphead::shutdown();
 	String::Regex::shutdown();
-	Vdb::ServiceFactory::shutdown();	//Remove the database service
-	Environment::shutdown();
 #ifdef FAST
+	Vdb::ServiceFactory::shutdown();	//Remove the database service
 	Fast::shutdown();
 #endif
+	Environment::shutdown();
 }
 

@@ -431,9 +431,19 @@ ObyxElement::~ObyxElement() {
 void ObyxElement::shutdown() {
 	Function::shutdown();
 	IKO::shutdown();
+#ifdef FAST
+	if (dbc != NULL ) {
+		if (dbc->isopen())  { //dbs is managed by vdb. Just look after Connections.
+			dbc->close();
+			delete dbc; 
+		}
+		dbc = NULL;
+	} 
+#endif
 	ntmap.clear();
 }
 void ObyxElement::startup() {
+#ifdef FAST
 	string dbservice="none";
 	if (!Environment::getbenv("OBYX_SQLSERVICE",dbservice)) {
 #ifdef ALLOW_POSTGRESQL
@@ -444,6 +454,7 @@ void ObyxElement::startup() {
 #endif
 	}
 	dbs = Vdb::ServiceFactory::getService(dbservice);
+#endif
 	Function::startup();
 	IKO::startup();
 	ntmap.insert(nametype_map::value_type(UCS2(L"iteration"), iteration));
@@ -465,6 +476,18 @@ void ObyxElement::startup() {
 	ntmap.insert(nametype_map::value_type(UCS2(L"comment"), comment));
 }
 void ObyxElement::init() {
+#ifndef FAST
+	string dbservice="none";
+	if (!Environment::getbenv("OBYX_SQLSERVICE",dbservice)) {
+#ifdef ALLOW_POSTGRESQL
+		dbservice="postgresql";		//currently hard-coded here by default.
+#endif
+#ifdef ALLOW_MYSQL
+		dbservice="mysql";			//currently hard-coded here by default.
+#endif
+	}
+	dbs = Vdb::ServiceFactory::getService(dbservice);
+#endif
 	Environment* env = Environment::service();
 	Function::init();
 	eval_count = 0;
@@ -507,6 +530,7 @@ void ObyxElement::finalise() {
 	Function::finalise();
 	FragmentObject::finalise();
 	while (!eval_type.empty()) { eval_type.pop();}
+#ifndef FAST
 	if (dbc != NULL ) {
 		if (dbc->isopen())  { //dbs is managed by vdb. Just look after Connections.
 			dbc->close();
@@ -514,6 +538,7 @@ void ObyxElement::finalise() {
 		}
 		dbc = NULL;
 	} 
+#endif
 	/*	
 	 if ( ! ce_map.empty() ) {
 	 *Logger::log << Log::error << Log::LI << "Error. Not all ObyxElements were deleted."  << Log::LO << Log::blockend;	

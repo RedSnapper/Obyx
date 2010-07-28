@@ -61,14 +61,10 @@ private:
 	bool gDevelop;
 	int gSQLport;
 //	buildarea_type the_area;
-	string gDatabase;
 	string gRootDir;
 	string gScriptsDir;
 	string gScratchDir;
 	string gScratchName;
-	string gSQLhost;
-	string gSQLuser;
-	string gSQLuserPW;
 	double basetime;	//used for timing.
 	std::string empty;
 	std::string parmprefix;
@@ -168,7 +164,7 @@ public:
 	bool envexists(const string&);
 	bool parmexists(const string&);
 	bool cookieexists(const string&);
-	bool getenv(string const,string&);
+	bool getenv(const string,string&);
 	bool envfind(const string&);
 	bool parmfind(const string&);
 	bool cookiefind(const string&);
@@ -178,17 +174,15 @@ public:
 
 	bool getenvd(const string,string& , const string);
 	unsigned long long pid() { return getpid(); }
-	int SQLport() { return gSQLport; }
-	string Database() { return gDatabase; }
 	string Path() { return gRootDir; }
 	string ScriptsDir() { return gScriptsDir; }
 	string ScratchDir() { return gScratchDir; }
 	string ScratchName() { return gScratchName; }
-	
-	string SQLhost() { return gSQLhost; }
-	string SQLuser() { return gSQLuser; }
-	string SQLuserPW() { return gSQLuserPW; }
-	
+	string Database() ;
+	string SQLhost() ;
+	string SQLuser() ;
+	string SQLuserPW() ;	
+	unsigned int SQLport();
 	void list();						//for debugging
 	void listEnv();					//for debugging
 	void listParms();

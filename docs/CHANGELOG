@@ -17,6 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.100728	
+	Bugfix.		Fixed issues regarding cli database connection. 
 v1.100720	
 	Enh.		Additional digest encoders md5/sha1. New sysenv OBYX_LIBSSLSO
 				Obyx can now use libssl to digest dataitems. Digests are returned hexencoded.
