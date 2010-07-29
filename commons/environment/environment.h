@@ -129,6 +129,7 @@ public:
 	static void finalise();
 	static Environment* service(); 
 	static bool getbenv(string const,string&);
+	static bool benvexists(const string&);
 	
 	void setienvmap(char ** environment);
 	void gettiming(string&);
