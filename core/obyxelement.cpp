@@ -481,7 +481,7 @@ void ObyxElement::shutdown() {
 	Function::shutdown();
 	IKO::shutdown();
 #ifdef FAST
-	if (!Environment::envexists("OBYX_SQLPER_REQUEST")) { 
+	if (!Environment::benvexists("OBYX_SQLPER_REQUEST")) { 
 		drop_sql_connection();
 	}	
 	drop_sql_service();
@@ -491,7 +491,7 @@ void ObyxElement::shutdown() {
 void ObyxElement::startup() {
 #ifdef FAST
 	get_sql_service();
-	if (!Environment::envexists("OBYX_SQLPER_REQUEST")) { //connect per process
+	if (!Environment::benvexists("OBYX_SQLPER_REQUEST")) { //connect per process
 		get_sql_connection();
 	}
 #endif
@@ -520,7 +520,7 @@ void ObyxElement::init() {
 	get_sql_service();
 	get_sql_connection();
 #else
-	if (Environment::envexists("OBYX_SQLPER_REQUEST")) { //connect per request
+	if (Environment::benvexists("OBYX_SQLPER_REQUEST")) { //connect per request
 		get_sql_connection();
 	}
 #endif
@@ -549,7 +549,7 @@ void ObyxElement::finalise() {
 	drop_sql_connection();
 	drop_sql_service();
 #else
-	if (Environment::envexists("OBYX_SQLPER_REQUEST")) { //connect per request
+	if (Environment::benvexists("OBYX_SQLPER_REQUEST")) { //connect per request
 		drop_sql_connection();
 	}
 #endif
