@@ -1036,7 +1036,6 @@ unsigned int Environment::SQLport() {
 	pair<long long int,bool>port = String::integer(result);
 	return (int)port.first;
 }
-
 void Environment::setbenv(string name,string value) {
 	//Called before LOGGER is initialised, once per process.
 	pair<var_map_type::iterator, bool> ins = benv_map.insert(var_map_type::value_type(name, value));

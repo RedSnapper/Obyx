@@ -428,22 +428,8 @@ ObyxElement* ObyxElement::Factory(DOMNode* const& n,ObyxElement* parent) {
 ObyxElement::~ObyxElement() {
 	//	do_dealloc();
 }
-void ObyxElement::shutdown() {
-	Function::shutdown();
-	IKO::shutdown();
-#ifdef FAST
-	if (dbc != NULL ) {
-		if (dbc->isopen())  { //dbs is managed by vdb. Just look after Connections.
-			dbc->close();
-			delete dbc; 
-		}
-		dbc = NULL;
-	} 
-#endif
-	ntmap.clear();
-}
-void ObyxElement::startup() {
-#ifdef FAST
+
+void ObyxElement::get_sql_service() {
 	string dbservice="none";
 	if (!Environment::getbenv("OBYX_SQLSERVICE",dbservice)) {
 #ifdef ALLOW_POSTGRESQL
@@ -454,6 +440,60 @@ void ObyxElement::startup() {
 #endif
 	}
 	dbs = Vdb::ServiceFactory::getService(dbservice);
+}
+void ObyxElement::drop_sql_service() {
+		dbs = NULL; //vdb deletes this
+}
+void ObyxElement::get_sql_connection() {
+	if (dbs != NULL)  {
+		Environment* env = Environment::service();
+		dbc = dbs->instance();
+		if (dbc != NULL) {
+			dbc->open( env->SQLhost(),env->SQLuser(),env->SQLport(),env->SQLuserPW() );
+			if (dbc->isopen())  {
+				dbc->database(env->Database());
+			} else {
+				*Logger::log << Log::error << Log::LI << "SQL Service."; 
+				*Logger::log << "The Service library was loaded, but the host connection failed using the current host, user, port, and userpassword settings. ";
+				*Logger::log << "If the host is on another box, check the database client configuration or host that networking is enabled. ";
+				*Logger::log << Log::LI << "mysql -D" << env->Database() << " -h" << env->SQLhost() << " -u" << env->SQLuser();
+				int pt = env->SQLport(); if (pt != 0) {
+					*Logger::log << " -P" << pt << Log::LO;
+				}
+				string up = env->SQLuserPW(); if (!up.empty()) {
+					*Logger::log << " -p" << up << Log::LO;
+				}
+				*Logger::log << Log::blockend; 					
+			}
+		}
+	} 
+}
+void ObyxElement::drop_sql_connection() {
+	if (dbc != NULL ) {
+		if (dbc->isopen())  { //dbs is managed by vdb. Just look after Connections.
+			dbc->close();
+			delete dbc; 
+		}
+		dbc = NULL;
+	} 
+}
+void ObyxElement::shutdown() {
+	Function::shutdown();
+	IKO::shutdown();
+#ifdef FAST
+	if (!Environment::envexists("OBYX_SQLPER_REQUEST")) { 
+		drop_sql_connection();
+	}	
+	drop_sql_service();
+#endif
+	ntmap.clear();
+}
+void ObyxElement::startup() {
+#ifdef FAST
+	get_sql_service();
+	if (!Environment::envexists("OBYX_SQLPER_REQUEST")) { //connect per process
+		get_sql_connection();
+	}
 #endif
 	Function::startup();
 	IKO::startup();
@@ -477,16 +517,12 @@ void ObyxElement::startup() {
 }
 void ObyxElement::init() {
 #ifndef FAST
-	string dbservice="none";
-	if (!Environment::getbenv("OBYX_SQLSERVICE",dbservice)) {
-#ifdef ALLOW_POSTGRESQL
-		dbservice="postgresql";		//currently hard-coded here by default.
-#endif
-#ifdef ALLOW_MYSQL
-		dbservice="mysql";			//currently hard-coded here by default.
-#endif
+	get_sql_service();
+	get_sql_connection();
+#else
+	if (Environment::envexists("OBYX_SQLPER_REQUEST")) { //connect per request
+		get_sql_connection();
 	}
-	dbs = Vdb::ServiceFactory::getService(dbservice);
 #endif
 	Environment* env = Environment::service();
 	Function::init();
@@ -496,8 +532,6 @@ void ObyxElement::init() {
 	bool ok_to_break= env->envexists("OBYX_DEVELOPMENT");
 	string BREAK_COUNT_val;
 	env->getcookie_req("BREAK_COUNT",BREAK_COUNT_val);
-	//	ce_map.clear();
-	
 	if (!BREAK_COUNT_val.empty() && ok_to_break ) {
 		pair<unsigned long long,bool> bp_value = String::znatural(BREAK_COUNT_val);
 		if  ( bp_value.second ) {
@@ -506,38 +540,18 @@ void ObyxElement::init() {
 			*Logger::log << Log::error << Log::LI << "Error. BREAK_COUNT: must be a natural." << Log::LO << Log::blockend; 
 		}
 	}	
-	if (dbs != NULL)  {
-		dbc = dbs->instance();
-		dbc->open( env->SQLhost(),env->SQLuser(),env->SQLport(),env->SQLuserPW() );
-		if (dbc->isopen())  {
-			dbc->database(env->Database());
-		} else { // mysql duffy -Hdob.blog.net -u ben -P 0 -p
-			*Logger::log << Log::error << Log::LI << "SQL Service."; 
-			*Logger::log << "The Service library was loaded, but the host connection failed using the current host, user, port, and userpassword settings. ";
-			*Logger::log << "If the host is on another box, check the database client configuration or host that networking is enabled. ";
-			*Logger::log << Log::LI << "mysql -D" << env->Database() << " -h" << env->SQLhost() << " -u" << env->SQLuser();
-			int pt = env->SQLport(); if (pt != 0) {
-				*Logger::log << " -P" << pt << Log::LO;
-			}
-			string up = env->SQLuserPW(); if (!up.empty()) {
-				*Logger::log << " -p" << up << Log::LO;
-			}
-			*Logger::log << Log::blockend; 					
-		}
-	} 
 }
 void ObyxElement::finalise() {
 	Function::finalise();
 	FragmentObject::finalise();
 	while (!eval_type.empty()) { eval_type.pop();}
 #ifndef FAST
-	if (dbc != NULL ) {
-		if (dbc->isopen())  { //dbs is managed by vdb. Just look after Connections.
-			dbc->close();
-			delete dbc; 
-		}
-		dbc = NULL;
-	} 
+	drop_sql_connection();
+	drop_sql_service();
+#else
+	if (Environment::envexists("OBYX_SQLPER_REQUEST")) { //connect per request
+		drop_sql_connection();
+	}
 #endif
 	/*	
 	 if ( ! ce_map.empty() ) {

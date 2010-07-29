@@ -41,14 +41,14 @@ namespace Vdb {
 */
 	class Service {
 	protected:
-			friend class ServiceFactory;
-			bool service;	//used to show if the service is up or down.
-			Service() : service(false) {}
-			virtual ~Service() {}
+		friend class ServiceFactory;
+		bool service;	//used to show if the service is up or down.
+		Service() : service(false) {}
+		virtual ~Service() {}
 
 	public:
-			//Connection instance. This doesn't connect (use open for that), just sets up ready to connect (eg creates a handle)...
-			virtual Connection* instance() =0;
+		//Connection instance. This doesn't connect (use open for that), just sets up ready to connect (eg creates a handle)...
+		virtual Connection* instance() =0;
 	};
 }
 

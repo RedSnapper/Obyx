@@ -17,6 +17,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.100729	
+	Enh.		OBYX_SQLPER_REQUEST - fastcgi support for multiple database connections.
+				This doesn't allow for multiple databases per request, but allows a fastcgi
+				process to handle different database settings per request. As each group of settings
+				requires a new connection, fastcgi works faster when this is not set.
+				However, for virtual hosts sharing the same fastcgi binary, this should be declared.
 v1.100728	
 	Bugfix.		Fixed issues regarding cli database connection. 
 v1.100720	

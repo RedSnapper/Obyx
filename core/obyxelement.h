@@ -100,6 +100,11 @@ protected:
 	void do_breakpoint();
 	void prep_breakpoint(); 
 	
+	static void get_sql_service();		
+	static void drop_sql_service();		
+	static void get_sql_connection();	
+	static void drop_sql_connection();
+	
 	//statics
 public:
 	PairQueue results;
