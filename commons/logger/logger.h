@@ -93,7 +93,7 @@ public:
 	static void tail(string&);		//tail log document
 	
 	static void stripcontainer(string& contents) { log->strip(contents); }
-	static bool opened() { return log->isopened;}
+	static bool opened() { return (log != NULL && log->isopened);}
 	static bool wasfatal() { return log->hadfatal;}
 	static bool debugging() {return log->debugflag;}
 	static bool logging_available() {return log->logging_on;}
