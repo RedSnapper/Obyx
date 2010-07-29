@@ -452,17 +452,19 @@ void ObyxElement::get_sql_connection() {
 			if (dbc->isopen())  {
 				dbc->database(Environment::Database());
 			} else {
-				*Logger::log << Log::error << Log::LI << "SQL Service."; 
-				*Logger::log << "The Service library was loaded, but the host connection failed using the current host, user, port, and userpassword settings. ";
-				*Logger::log << "If the host is on another box, check the database client configuration or host that networking is enabled. ";
-				*Logger::log << Log::LI << "mysql -D" << Environment::Database() << " -h" << Environment::SQLhost() << " -u" << Environment::SQLuser();
-				int pt = Environment::SQLport(); if (pt != 0) {
-					*Logger::log << " -P" << pt << Log::LO;
+				if (logging_available()) {
+					*Logger::log << Log::error << Log::LI << "SQL Service."; 
+					*Logger::log << "The Service library was loaded, but the host connection failed using the current host, user, port, and userpassword settings. ";
+					*Logger::log << "If the host is on another box, check the database client configuration or host that networking is enabled. ";
+					*Logger::log << Log::LI << "mysql -D" << Environment::Database() << " -h" << Environment::SQLhost() << " -u" << Environment::SQLuser();
+					int pt = Environment::SQLport(); if (pt != 0) {
+						*Logger::log << " -P" << pt << Log::LO;
+					}
+					string up = Environment::SQLuserPW(); if (!up.empty()) {
+						*Logger::log << " -p" << up << Log::LO;
+					}
+					*Logger::log << Log::blockend;
 				}
-				string up = Environment::SQLuserPW(); if (!up.empty()) {
-					*Logger::log << " -p" << up << Log::LO;
-				}
-				*Logger::log << Log::blockend; 					
 			}
 		}
 	} 
