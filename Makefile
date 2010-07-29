@@ -36,7 +36,7 @@ SHELL    = /bin/sh
 CC_EXEC         =$(CC_PATH)gcc
 CC_COMPILE_FLAG =-c
 CC_OBJECT_FLAG  =-o
-
+SPECIAL_CCFLAGS =
 #All include directories are mentioned
 CC_ARGS      = -fshort-wchar -I /usr/include $(CC_INCLUDES) -I. $(CC_FLAGS) $(CC_DEFINES)	
 ###############################################################################
@@ -82,7 +82,10 @@ build     =@echo "Installing $(2)"; $(CC_EXEC) $(1) $(LIBDIRS) $($(3)_LIBI) $(CC
 $(CGIHOME)/obyx.cgi        : $(OBYX_OBJ)  ; $(call build,$+,$@,OBYX)
 $(CGIHOMEDEV)/obyx.cgi     : $(OBYX_OBJ)  ; $(call build,$+,$@,OBYX)
 ###############################################################################
+$(CGIHOME)/obyx.fcgi       : SPECIAL_CCFLAGS=-DFAST
 $(CGIHOME)/obyx.fcgi       : $(FOBYX_OBJ) ; $(call build,$+,$@,FOBYX)
+###############################################################################
+$(CGIHOMEDEV)/obyx.fcgi    : SPECIAL_CCFLAGS=-DFAST
 $(CGIHOMEDEV)/obyx.fcgi    : $(FOBYX_OBJ) ; $(call build,$+,$@,FOBYX)
 ###############################################################################
 .PHONY: clean all test
@@ -97,7 +100,7 @@ test:
 $(OBJDIR)/%.o : %.cpp
 	@if [ ! -d $(OBJDIR)/$(dir $*) ]; then mkdir -p $(OBJDIR)/$(dir $*); fi
 	@if [ ! -d $(DEPDIR)/$(dir $*) ]; then mkdir -p $(DEPDIR)/$(dir $*); fi
-	@echo "Compiling $<"; $(CC_EXEC) $(CC_ARGS) $(CC_COMPILE_FLAG) -MD $(CC_OBJECT_FLAG) $@ $<
+	@echo "Compiling $<"; $(CC_EXEC) $(CC_ARGS) $(SPECIAL_CCFLAGS) $(CC_COMPILE_FLAG) -MD $(CC_OBJECT_FLAG) $@ $<
 	@cp $(OBJDIR)/$(dir $*)$(*F).d $(DEPDIR)/$(dir $*)$(*F).P; \
           sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
               -e '/^$$/ d' -e 's/$$/ :/' < $(OBJDIR)/$(dir $*)$(*F).d >> $(DEPDIR)/$(dir $*)$(*F).P; \
