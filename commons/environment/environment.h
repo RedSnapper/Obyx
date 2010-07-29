@@ -179,11 +179,11 @@ public:
 	string ScriptsDir() { return gScriptsDir; }
 	string ScratchDir() { return gScratchDir; }
 	string ScratchName() { return gScratchName; }
-	string Database() ;
-	string SQLhost() ;
-	string SQLuser() ;
-	string SQLuserPW() ;	
-	unsigned int SQLport();
+	static string Database() ;
+	static string SQLhost() ;
+	static string SQLuser() ;
+	static string SQLuserPW() ;	
+	static unsigned int SQLport();
 	void list();						//for debugging
 	void listEnv();					//for debugging
 	void listParms();

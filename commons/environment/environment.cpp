@@ -1010,29 +1010,57 @@ void Environment::setbenvmap() {//per box/process environment
 }
 string Environment::Database() {
 	string result="";
-	if (!getenv("OBYX_SQLDATABASE",result)) {
-		getenv("OBYX_DATABASE",result);
+	if (instance != NULL) {
+		if (!instance->getenv("OBYX_SQLDATABASE",result)) {
+			instance->getenv("OBYX_DATABASE",result);
+		}
+	} else {
+		getbenv("OBYX_SQLDATABASE",result);
 	}
 	return result;
 }
 string Environment::SQLhost() {
 	string result="";
-	getenv("OBYX_SQLHOST",result);
+	if (instance != NULL) {
+		if (!instance->getenv("OBYX_SQLHOST",result)) {
+			instance->getenv("OBYX_SQLHOST",result);
+		}
+	} else {
+		getbenv("OBYX_SQLHOST",result);
+	}
 	return result;
 }
 string Environment::SQLuser() {
 	string result="";
-	getenv("OBYX_SQLUSER",result);
+	if (instance != NULL) {
+		if (!instance->getenv("OBYX_SQLUSER",result)) {
+			instance->getenv("OBYX_SQLUSER",result);
+		}
+	} else {
+		getbenv("OBYX_SQLUSER",result);
+	}
 	return result;
 }
 string Environment::SQLuserPW() {
 	string result="";
-	getenv("OBYX_SQLUSERPW",result);
+	if (instance != NULL) {
+		if (!instance->getenv("OBYX_SQLUSERPW",result)) {
+			instance->getenv("OBYX_SQLUSERPW",result);
+		}
+	} else {
+		getbenv("OBYX_SQLUSERPW",result);
+	}
 	return result;
 }
 unsigned int Environment::SQLport() {
 	string result="";
-	getenv("OBYX_SQLPORT",result);
+	if (instance != NULL) {
+		if (!instance->getenv("OBYX_SQLPORT",result)) {
+			instance->getenv("OBYX_SQLPORT",result);
+		}
+	} else {
+		getbenv("OBYX_SQLPORT",result);
+	}
 	pair<long long int,bool>port = String::integer(result);
 	return (int)port.first;
 }

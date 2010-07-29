@@ -446,21 +446,20 @@ void ObyxElement::drop_sql_service() {
 }
 void ObyxElement::get_sql_connection() {
 	if (dbs != NULL)  {
-		Environment* env = Environment::service();
 		dbc = dbs->instance();
 		if (dbc != NULL) {
-			dbc->open( env->SQLhost(),env->SQLuser(),env->SQLport(),env->SQLuserPW() );
+			dbc->open( Environment::SQLhost(),Environment::SQLuser(),Environment::SQLport(),Environment::SQLuserPW() );
 			if (dbc->isopen())  {
-				dbc->database(env->Database());
+				dbc->database(Environment::Database());
 			} else {
 				*Logger::log << Log::error << Log::LI << "SQL Service."; 
 				*Logger::log << "The Service library was loaded, but the host connection failed using the current host, user, port, and userpassword settings. ";
 				*Logger::log << "If the host is on another box, check the database client configuration or host that networking is enabled. ";
-				*Logger::log << Log::LI << "mysql -D" << env->Database() << " -h" << env->SQLhost() << " -u" << env->SQLuser();
-				int pt = env->SQLport(); if (pt != 0) {
+				*Logger::log << Log::LI << "mysql -D" << Environment::Database() << " -h" << Environment::SQLhost() << " -u" << Environment::SQLuser();
+				int pt = Environment::SQLport(); if (pt != 0) {
 					*Logger::log << " -P" << pt << Log::LO;
 				}
-				string up = env->SQLuserPW(); if (!up.empty()) {
+				string up = Environment::SQLuserPW(); if (!up.empty()) {
 					*Logger::log << " -p" << up << Log::LO;
 				}
 				*Logger::log << Log::blockend; 					
