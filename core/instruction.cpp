@@ -708,7 +708,7 @@ void Instruction::call_system(DataItem* di_cmd) {
 							}
 						} else {
 							*Logger::log << Log::error << Log::LI << "Error. Instruction operation shell.";
-							*Logger::log << "the script " << command_parms.first << " does not exist." << Log::LO;
+							*Logger::log << "the script " << command << " does not exist." << Log::LO;
 							trace();
 							*Logger::log << Log::blockend;
 						}
