@@ -1139,6 +1139,10 @@ bool Environment::getbenv(string const name,string& container) {	//used for base
 	} 
 	return retval;
 }
+bool Environment::benvexists(const string&  name) {	//used for base configuration settings.
+	var_map_type::iterator it = benv_map.find(name);
+	return (it != benv_map.end());
+}
 #pragma mark ENVIRONMENT (PUBLIC)
 bool Environment::envfind(const string& pattern) { //regex..
 	bool retval = false;
