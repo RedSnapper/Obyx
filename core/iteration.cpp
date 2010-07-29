@@ -380,7 +380,8 @@ bool Iteration::operation_sql() {
 	if ( ! controlstring.empty() ) {
 		if (dbs != NULL)  {
 			query = NULL;	 //reset the reference..  (used for iko type="field")
-			if ( dbc->query(query,controlstring) ) {
+//			if ( dbc == NULL) { get_sql_connection(); }
+			if ( dbc != NULL && dbc->query(query,controlstring) ) {
 				if ( query->execute() ) {
 					if (definputs.size() > 0) {
 						DefInpType* base_template = definputs[0];
@@ -423,7 +424,9 @@ bool Iteration::operation_sql() {
 				}
 				delete query; query = NULL;	 //reset the reference..  (used for iko type="field")
 			} else {
-				*Logger::log << Log::error << Log::LI << "Error. Iteration operation sql needs a database selected. An sql service was found, but the sql connection failed." << Log::LO;
+				std::string preq = Environment::benvexists("OBYX_SQLPER_REQUEST") ? "SQLPR" : "NO_SQLPR";
+				*Logger::log << Log::error << Log::LI << "Error. Iteration operation sql needs a database selected. An sql service was found, but the sql connection failed.";
+				*Logger::log << preq << Log::LO;
 				trace();
 				*Logger::log << Log::blockend;
 			}
