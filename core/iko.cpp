@@ -591,17 +591,19 @@ bool IKO::foundinspace(const string& input_name,const inp_space the_space,const 
 			if ( input_name.empty() ) {
 				log(Log::error,"Error. Field name missing.");
 			} else {
+				const ObyxElement* cur = this;
 				const ObyxElement* par = p;
 				const Iteration* ite = dynamic_cast<const Iteration *>(par);
 				const Mapping* mpp = dynamic_cast<const Mapping *>(par);
-				while (par != NULL && !exists ) {
-					if (ite != NULL && ite->active()) {
+				while (par != NULL && !exists) {
+					if (ite != NULL && ite->active() && cur->wotzit==body ) {
 						exists = ite->fieldfind(input_name);
 					}
-					if (mpp != NULL && mpp->active()) {
+					if (mpp != NULL && mpp->active() && cur->wotzit==match) {
 						exists = mpp->field(input_name,discarded_result); 
 					}
 					if (par != NULL && !exists) {
+						cur = par;
 						par = par->p;
 						ite = dynamic_cast<const Iteration *>(par);
 						mpp = dynamic_cast<const Mapping *>(par);
@@ -669,6 +671,7 @@ bool IKO::existsinspace(const string& input_name,const inp_space the_space,const
 			if ( input_name.empty() ) {
 				log(Log::error,"Error. Field name missing.");
 			} else {
+				const ObyxElement* cur = this;
 				const ObyxElement* par = p;
 				const Iteration* ite = dynamic_cast<const Iteration *>(par);
 				const Mapping* mpp = dynamic_cast<const Mapping *>(par);
@@ -680,6 +683,7 @@ bool IKO::existsinspace(const string& input_name,const inp_space the_space,const
 						exists = mpp->field(input_name,discarded_result); 
 					}
 					if (par != NULL && !exists) {
+						cur = par;
 						par = par->p;
 						ite = dynamic_cast<const Iteration *>(par);
 						mpp = dynamic_cast<const Mapping *>(par);
@@ -762,17 +766,19 @@ bool IKO::valuefromspace(const string& input_name,const inp_space the_space,cons
 			if ( input_name.empty() ) {
 				log(Log::error,"Error. Field name missing.");
 			} else {
+				const ObyxElement* cur = this;
 				const ObyxElement* par = p;
 				const Iteration* ite = dynamic_cast<const Iteration *>(par);
 				const Mapping* mpp = dynamic_cast<const Mapping *>(par);
 				while (par != NULL && !exists ) {
-					if (ite != NULL && ite->active()) {
+					if (ite != NULL && ite->active() && (cur->wotzit==body)) {
 						exists = ite->field(input_name,fresult,errstring);
 					}
-					if (mpp != NULL && mpp->active()) {
+					if (mpp != NULL && mpp->active() && (cur->wotzit==match)) {
 						exists = mpp->field(input_name,fresult); 
 					}
 					if (par != NULL && !exists) {
+						cur = par;
 						par = par->p;
 						ite = dynamic_cast<const Iteration *>(par);
 						mpp = dynamic_cast<const Mapping *>(par);
@@ -897,17 +903,19 @@ bool IKO::sigfromspace(const string& input_name,const inp_space the_space,const 
 			if ( input_name.empty() ) {
 				log(Log::error,"Error. Field name missing.");
 			} else {
+				const ObyxElement* cur = this;
 				const ObyxElement* par = p;
 				const Iteration* ite = dynamic_cast<const Iteration *>(par);
 				const Mapping* mpp = dynamic_cast<const Mapping *>(par);
 				while (par != NULL && !exists ) {
-					if (ite != NULL && ite->active()) {
+					if (ite != NULL && ite->active() && cur->wotzit==body ) {
 						exists = ite->field(input_name,fresult,errstring);
 					}
-					if (mpp != NULL && mpp->active()) {
+					if (mpp != NULL && mpp->active() && cur->wotzit==match) {
 						exists = mpp->field(input_name,fresult); 
 					}
 					if (par != NULL && !exists) {
+						cur = par;
 						par = par->p;
 						ite = dynamic_cast<const Iteration *>(par);
 						mpp = dynamic_cast<const Mapping *>(par);
@@ -997,13 +1005,15 @@ void IKO::keysinspace(const string& input_name,const inp_space the_space,vector<
 	switch ( the_space ) { //now do all the named input_spaces!
 		case immediate: {  keylist.push_back(input_name);} break;
 		case field: {
+			const ObyxElement* cur = this;
 			const ObyxElement* par = p;
 			const Iteration* ite = dynamic_cast<const Iteration *>(par);
 			while (par != NULL ) {
-				if (ite != NULL && ite->active()) {
+				if (ite != NULL && ite->active() && cur->wotzit==body ) {
 					ite->fieldkeys(input_name,keylist);
 				}
 				if (par != NULL) {
+					cur = par;
 					par = par->p;
 					ite = dynamic_cast<const Iteration *>(par);
 				}														
@@ -1081,4 +1091,3 @@ void IKO::shutdown() {
 	enc_types.clear();
 	ctx_types.clear();
 }
-

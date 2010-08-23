@@ -17,6 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.100823
+	Bugfix.		Field references within control resolving to current iteration. 
 v1.100729	
 	Enh.		OBYX_SQLPER_REQUEST - fastcgi support for multiple database connections.
 				This doesn't allow for multiple databases per request, but allows a fastcgi
