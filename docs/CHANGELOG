@@ -35,7 +35,6 @@ v1.100720
 				Obyx can now use libssl to digest dataitems. Digests are returned hexencoded.
 				Initial syntax level support has been made for md5,sha1,sha512. 
 				md2,md4,sha,sha224,sha256,sha384,dss1,mdc2,ripemd160 are also ready to implement.
-				
 				At some point soon, I shall add in crypto operations to instruction. 
 
 v1.100717		(probationary) Though this has passed most tests, the refactor requires more in situ tests.
