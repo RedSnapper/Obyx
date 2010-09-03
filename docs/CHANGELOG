@@ -17,6 +17,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.100904
+	Bugfix/Enh.	Changes made to support better round-tripping of OSI requests.
+				Added the ability for http object to accept body also.
 v1.100823
 	Bugfix.		Field references within control resolving to current iteration. 
 v1.100729	
