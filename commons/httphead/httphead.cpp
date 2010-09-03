@@ -234,6 +234,7 @@ Httphead::Httphead(ostream* output) {
 	Environment* env = Environment::service();
 	httpcode			= 200;
 	content_length		= 0;
+	content_set			= false;
 	nocaching			= true;		//true - no cache by default.
 	nodate				= false;	//true - no cache by default.
 	nocodeline			= false;	
@@ -312,7 +313,7 @@ void Httphead::setmime(string newmime)		{
 }
 void Httphead::setdisposition(string newdisp) { dispvalue = newdisp; }	
 void Httphead::setconnection(string newconn)	{ connectionvalue=newconn;}
-void Httphead::setcontent(string c)			{ content=c; content_length = c.length();}	//Use to drive content for 5xx and 4xx
+void Httphead::setcontent(string c)			{ content=c; content_length = c.length(); content_set = true;}	//Use to drive content for 5xx and 4xx
 void Httphead::setcontentlength(size_t l)     { content_length = l;}						//Use to drive content for 5xx and 4xx
 void Httphead::setcode(unsigned int);
 void Httphead::setdate(string dl)				{ datevalue = dl; }

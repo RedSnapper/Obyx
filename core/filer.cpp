@@ -69,14 +69,16 @@ namespace Filer {
 		Environment* env = Environment::service();
 		Httphead* http = Httphead::service();	
 		if ( ! Logger::wasfatal() ) {	  //This means there were some bugs...
-			if (! http->mime_changed() && (kind != di_object)) {
+			if (! http->mime_changed() && (kind != di_object) && (!http->contentset())) {
 				http->setmime("text/plain");
 			}
 			string temp_var;
 			if (env->getenv("REQUEST_METHOD",temp_var) && temp_var.compare("HEAD") == 0) {
 				http->doheader();
 			} else {
-				http->setcontent(finalfile);
+				if (! (http->contentset() && kind == di_null)) {
+					http->setcontent(finalfile);
+				}
 				http->doheader();
 			}
 		}

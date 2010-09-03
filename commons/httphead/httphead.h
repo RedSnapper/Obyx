@@ -72,6 +72,7 @@ private:
 	//httphead settings
 	unsigned int	httpcode;
 	size_t			content_length;
+	bool			content_set;
 	bool			nodate;
 	bool			nocaching;	
 	bool			nocodeline;	
@@ -94,7 +95,6 @@ private:
 	string			connectionvalue;
 	string			p3pline;
 	string			httpsig;
-	bool			contentset;
 	
 	type_nv_map		customlines;
 	
@@ -145,7 +145,8 @@ public:
 	
 	void addcustom(string, string);
 	const bool mime_changed();			
-	const bool done();					
+	const bool done();
+	const bool contentset() { return content_set;}
 	void setmime(string newmime);
 	void setdisposition(string newdisp); 
 	void setconnection(string newconn);	
