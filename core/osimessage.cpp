@@ -22,6 +22,7 @@
 
 #include <string>
 #include <sstream>
+#include "commons/environment/environment.h"
 #include "commons/string/strings.h"
 #include "commons/xml/xml.h"
 #include "osimessage.h"
@@ -364,6 +365,91 @@ void OsiMessage::do_header_subheads(header& h) {
 		h.subheads.push_back(s);
 	}
 }
+
+//  Cookie: CUSTOMER=WILE_E_COYOTE; PART_NUMBER=ROCKET_LAUNCHER_0001; SHIPPING=FEDEX
+// http://www.ietf.org/rfc/rfc2965.txt
+// http://wp.netscape.com/newsref/std/cookie_spec.html
+void OsiMessage::analyse_cookie(header& h,char fn) {	//'q/s' (req/response)
+	string ckname,ckattr,ckvar;        
+	size_t start=0;
+	size_t find = string::npos;
+	string cook = h.v;
+	h.v = "";
+	bool finished = false;
+	while( !finished ) {
+		ckname.clear();
+		ckattr.clear();
+		ckvar.clear();
+		find = cook.find_first_of(";\"",start); 
+		if (find != string::npos ) {
+			if (cook[find] == '\"' ) {
+				size_t qfind = cook.find('\"', find+1);
+				find = cook.find(";",qfind); 
+			}
+		}        
+		string cknamvar(cook.substr(start, find - start));
+		if (! cknamvar.empty() ) {
+			size_t cknaml = cknamvar.find_first_not_of("\t\r\n ");
+			size_t cknamr = cknamvar.find_last_not_of("\t\r\n ");
+			cknamvar=cknamvar.substr(cknaml, (1+cknamr) - cknaml );
+			size_t nvstart=0;
+			size_t nvfind = string::npos;
+			nvfind = cknamvar.find_first_of("=\"",nvstart); //a semicolon will happen on a non-value name
+			if (nvfind != string::npos ) {
+				if (cknamvar[nvfind] == '\"' ) {
+					size_t qfind = cknamvar.find('\"', nvfind+1);
+					nvfind = cknamvar.find("=",qfind); 
+				}
+			}
+			if (nvfind != string::npos ) { //retest because of quotes above.
+				//nvfind should now be '='
+				ckvar=cknamvar.substr(nvfind + 1, string::npos); //This should be e.g. yyy
+				if (! ckvar.empty() ) {
+					size_t stripl=ckvar.find_first_not_of("\t\r\n\" ");
+					size_t stripr=ckvar.find_last_not_of("\t\r\n\" ");
+					ckvar=ckvar.substr(stripl,(1 + stripr) - stripl );
+				}
+			}
+			if (cknamvar[nvstart] == '$') {
+				ckattr=ckname;
+				ckattr.append("_");
+				cknamvar=cknamvar.substr(nvstart+1, (1+nvfind) - nvstart);
+				cknamvar=cknamvar.substr(cknamvar.find_first_not_of("\t\r\n\" "), 1+cknamvar.find_last_not_of("\t\r\n\" ") );
+				ckattr.append(cknamvar); //This should be e.g. yyy
+			} else {
+				ckname.clear();
+				string cnvar=cknamvar.substr(nvstart, (1+nvfind) - nvstart);
+				if (!cnvar.empty()) {
+					size_t cnvl=cnvar.find_first_not_of("\t\r\n\" ");
+					size_t cnvr=cnvar.find_last_not_of("=\t\r\n\" ");
+					cnvar=cnvar.substr( cnvl, (1+cnvr) - cnvl  );
+				} else {
+					cnvar=cknamvar;
+				}
+				ckname.append(cnvar);
+				ckattr=ckname;
+			}
+			switch (fn) {
+				case 'q':
+				case 's': 
+				case 'x': { 
+					ostringstream x;
+					x << "<m:header name=\"Set-Cookie\" cookie=\"" << ckattr << "\">";
+					x << "<m:subhead name=\"" << ckattr << "\" value=\"" << ckvar << "\"";
+					h.x = x.str();
+				} break;
+			}
+			if (find == string::npos ) {
+				finished = true;
+			} else {
+				start = find + 1;
+				ckvar.clear();
+			}
+		}
+	}
+}
+	
+
 void OsiMessage::construct_header_value(header& h) {
 	switch (h.t) {
 		case contenttype: {
@@ -480,6 +566,12 @@ void OsiMessage::construct_header_value(header& h) {
 				} 
 			}
 			h.x = hx.str();
+		} break;
+		case reqcookie:   //special cookie parse.
+		case rescookie: { //special cookie parse.
+			do_comments(h.v,h.comments);  //will leave the value (if there is one) followed by a ;
+			h.s = h.v; h.v.clear();
+			do_header_subheads(h);
 		} break;
 		case qvalue: 
 		case date_time: 
@@ -736,6 +828,9 @@ void OsiMessage::startup() { //(default is  unstructured)
 	//Not sure what RFC.. (common broken headers)
 	header_types.insert(header_type_map::value_type("Delivered-To",mailbox));		//
 	header_types.insert(header_type_map::value_type("Reply-to",mailbox));			//"
+	header_types.insert(header_type_map::value_type("Set-Cookie",rescookie));		//"Special: response cookie 
+	header_types.insert(header_type_map::value_type("Cookie",reqcookie));			//"Special: request cookie 
+	
 }
 void OsiMessage::shutdown() {
 	header_types.clear();
