@@ -94,6 +94,7 @@ private:
 	string			connectionvalue;
 	string			p3pline;
 	string			httpsig;
+	bool			contentset;
 	
 	type_nv_map		customlines;
 	
