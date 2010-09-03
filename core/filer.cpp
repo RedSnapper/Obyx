@@ -64,6 +64,7 @@ namespace Filer {
 		}
 		return success;
 	}
+	
 	void output(string& finalfile,kind_type kind) {
 		Environment* env = Environment::service();
 		Httphead* http = Httphead::service();	
@@ -71,9 +72,6 @@ namespace Filer {
 			if (! http->mime_changed() && (kind != di_object)) {
 				http->setmime("text/plain");
 			}
-//			if ( kind == di_object ) {
-//				finalfile.insert(0,"<?xml version=\"1.0\"?>\r");
-//			}
 			string temp_var;
 			if (env->getenv("REQUEST_METHOD",temp_var) && temp_var.compare("HEAD") == 0) {
 				http->doheader();
@@ -83,6 +81,7 @@ namespace Filer {
 			}
 		}
 	}
+	
 	void outputRedirect() {
 		//get the values that we found in the store, if there are any.
 		Httphead* http = Httphead::service();	
