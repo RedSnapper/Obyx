@@ -583,7 +583,20 @@ void Httphead::objectparse(xercesc::DOMNode* const& n) {
 		}
 	} else {
 		if (elname.compare("body") == 0) {
-			*Logger::log << Log::error << Log::LI << "Sorry. Body not yet supported!" << Log::LO << Log::blockend;
+			string url_encoded;
+			if (! XML::Manager::attribute(n,"urlencoded",url_encoded)  ) {
+				url_encoded = "false";
+			}
+			string bodytext;
+			for ( DOMNode* child=n->getFirstChild(); child != NULL; child=child->getNextSibling()) {
+				string childstr; XML::Manager::parser()->writenode(child,childstr);
+				bodytext.append(childstr);   
+			}
+			String::trim(bodytext);
+			if (url_encoded.compare("true") == 0) {
+				String::urldecode(bodytext);
+			} 
+			setcontent(bodytext);
 		} else {
 			if (elname.compare("response") == 0) {
 				//do the attributes version, code, reason here.
