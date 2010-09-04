@@ -252,6 +252,7 @@ bool IKO::currentenv(const string& req,const usage_tests exist_test, const IKO* 
 					}
 				} break;
 				case c_osi_response: {
+					result = OsiAPP::last_osi_response();					
 					container = DataItem::factory(result,di_object);
 				} break;
 				case c_cookies: {
