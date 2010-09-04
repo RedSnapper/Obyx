@@ -20,8 +20,8 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef OBYX_CONTEXT_OSI_APP_H
-#define OBYX_CONTEXT_OSI_APP_H
+#ifndef OBYX_OSI_APP_H
+#define OBYX_OSI_APP_H
 
 #include <string>
 #include <xercesc/dom/DOMNode.hpp>

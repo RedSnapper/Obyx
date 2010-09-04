@@ -49,9 +49,10 @@ std::string OsiAPP::last_response	= "";	//
 unsigned int OsiAPP::counter = 1;
 
 bool OsiAPP::request(const xercesc::DOMNode* n,DataItem*& the_result) {
+	
 	Environment* env = Environment::service();
+	std::string elname = "";
 	bool request_result = true;
-	std::string elname;
 	XML::transcode(n->getLocalName(),elname);
 	if (elname.compare("http") == 0) {
 		n=n->getFirstChild();		//this is one of request|response - but we only support request here.
@@ -326,7 +327,7 @@ void OsiAPP::decompile_message(const xercesc::DOMNode* n,vector<std::string>& he
 								head.push_back(' ');
 							}
 						} 
-						string subhead;
+						string subhead="";
 						XML::transcode(ch->getLocalName(),subhead);
 						if (subhead.compare("subhead") == 0 || subhead.compare("address") == 0) {
 							while (ch != NULL && (subhead.compare("subhead") == 0 || subhead.compare("address") == 0)) {
@@ -381,10 +382,12 @@ void OsiAPP::decompile_message(const xercesc::DOMNode* n,vector<std::string>& he
 								}
 							}
 						} else {
-							for ( DOMNode* hv=n->getFirstChild(); hv != NULL; hv=hv->getNextSibling()) {
-								if (hv->getNodeType() == DOMNode::ELEMENT_NODE) {
-									string sh; XML::Manager::parser()->writenode(hv,sh);
-									head.append(sh);
+							if (subhead.compare("comment") != 0) {
+								for ( DOMNode* hv=n->getFirstChild(); hv != NULL; hv=hv->getNextSibling()) {
+									if (hv->getNodeType() == DOMNode::ELEMENT_NODE) {
+										string sh; XML::Manager::parser()->writenode(hv,sh);
+										head.append(sh);
+									}
 								}
 							}
 						}

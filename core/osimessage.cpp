@@ -69,12 +69,13 @@ void OsiMessage::identify_nl(string& msg) {
 void OsiMessage::split_msg(string& msg_str) {
 	if(!msg_str.empty()) {
 		string nlnl = nl + nl;
-		string::size_type pos = nl.size() + msg_str.find(nlnl); 
+		string::size_type pos = msg_str.find(nlnl); 
 		if (pos == string::npos) {
 			head = msg_str;
+			body = "";
 		} else {
-			head = msg_str.substr(0, pos - nl.size());
-			body = msg_str.substr(pos + nl.size(), string::npos);
+			head = msg_str.substr(0, pos);
+			body = msg_str.substr(pos + nl.size() + nl.size(), string::npos);
 		}
 	}
 }
@@ -728,7 +729,7 @@ void OsiMessage::compile(string& msg_str, ostringstream& res, bool do_namespace)
 				if (blockend == string::npos) blockend = body.find(endboundary,first_cut);
 				if (blockend == string::npos) bodydone = true;			
 				if (! bodydone ) {
-					string msg_block = body.substr(first_cut, blockend - first_cut);
+					string msg_block = body.substr(first_cut, (blockend - first_cut) - nlsize);
 					OsiMessage msg;
 					msg.compile(msg_block,res,false);
 				}

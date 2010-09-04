@@ -227,8 +227,28 @@ namespace Fetch {
 	
 	//used by OSI Request directly.
 	bool HTTPFetch::doRequest(string& headerString,string& bodyString,string& errstr) {
-		//		processErrorCode(curl_easy_setopt(handle, CURLOPT_VERBOSE, true));
+		string redirect_val,timeout_val;
+		unsigned long maxRedirects = 0,timeout_seconds=30;
+		if (ItemStore::get("REDIRECT_BREAK_COUNT",redirect_val)) {
+			pair<long long,bool> enval = String::integer(redirect_val);
+			maxRedirects = (unsigned long)enval.first;
+		} 
+		if (ItemStore::get("URL_TIMEOUT_SECS",timeout_val)) {
+			pair<long long,bool> toval = String::integer(timeout_val);
+			timeout_seconds = (unsigned long)toval.first;
+		} 
+		if (maxRedirects == 0) {
+			processErrorCode(curl_easy_setopt(handle, CURLOPT_FOLLOWLOCATION,0), errstr);
+		} else {
+			processErrorCode(curl_easy_setopt(handle, CURLOPT_FOLLOWLOCATION,1), errstr);
+			processErrorCode(curl_easy_setopt(handle, CURLOPT_AUTOREFERER,1), errstr);
+			processErrorCode(curl_easy_setopt(handle, CURLOPT_MAXREDIRS,maxRedirects), errstr);
+		}
+		processErrorCode(curl_easy_setopt(handle, CURLOPT_READFUNCTION, readMemoryCallback), errstr);
+		processErrorCode(curl_easy_setopt(handle, CURLOPT_READDATA, body), errstr);
+		processErrorCode(curl_easy_setopt(handle, CURLOPT_TIMEOUT, timeout_seconds), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_NOSIGNAL, 1), errstr);
+		processErrorCode(curl_easy_setopt(handle, CURLOPT_NOBODY, 0), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_POSTFIELDSIZE, body->length()), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_FAILONERROR, false), errstr); //Prevents output on return values > 300
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_WRITEDATA, &bodyString), errstr);
@@ -241,7 +261,8 @@ namespace Fetch {
 			string::const_iterator cp = headerString.begin() + codepoint;
 			unsigned int code = String::natural(cp);
 			if (code > 300) {
-				errstr = "Request Error";
+				errstr = errorBuf;
+				if (errstr.empty()) { errstr  = "Request Error"; }
 				had_error = true;
 			}
 		}

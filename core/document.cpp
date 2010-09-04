@@ -34,10 +34,10 @@
 #include "obyxelement.h"
 #include "iteration.h"
 #include "filer.h"
-#include "osiapp.h"
 #include "xmlobject.h"
 #include "dataitem.h"
 #include "itemstore.h"
+#include "osiapp.h"
 
 using namespace Log;
 using namespace xercesc;
