@@ -469,11 +469,13 @@ bool ItemStore::get(const string& namepath_di, DataItem*& item, bool release,std
 bool ItemStore::get(const string& name, string& container) {	//name container (quick hack)
 	//This is always used to get settings values, such as REDIRECT_BREAK_COUNT
 	bool retval = false;
-	item_map_type::iterator it = the_item_map->find(name);
-	if (it != the_item_map->end()) {
-		retval = true;
-		container = *(it->second);
-	} 
+	if (the_item_map != NULL) { //this happens when eg. using an OSI as root document
+		item_map_type::iterator it = the_item_map->find(name);
+		if (it != the_item_map->end()) {
+			retval = true;
+			container = *(it->second);
+		} 
+	}
 	return retval;
 }
 void ItemStore::prefixpushed(const u_str& prefix) {
