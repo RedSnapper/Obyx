@@ -287,8 +287,11 @@ bool Document::eval() {
 						results.setresult(osi_result);
 					} else {
 						*Logger::log << Log::error << Log::LI << "Error. eval of osi-application-layer object failed." << Log::LO;	
-						trace();
-						*Logger::log << Log::blockend;
+						string troubled_doc;
+						XML::Manager::parser()->writedoc(xdoc,troubled_doc);
+						*Logger::log << Log::LI << "The document that failed is:" << Log::LO;
+						*Logger::log << Log::LI << Log::info << Log::LI << troubled_doc << Log::LO << Log::blockend << Log::LO; 
+						*Logger::log << Log::blockend; //Error
 					}
 				} else {
 					process(root_node,this);
