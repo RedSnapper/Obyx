@@ -387,7 +387,7 @@ namespace String {
 			case -21: msg="Recursion Limit reached. The internal recursion vector of size 1000 was not enough"; break;
 			default: msg="Unknown Error"; break;		
 		}
-		*Logger::log <<  Log::error << "Regex::match() error. Error " << errnum << ". " << msg << Log::LO << Log::blockend; 
+		*Logger::log << Log::error << Log::LI << "Regex::match() error. Error " << errnum << ". " << msg << Log::LO << Log::blockend; 
 	}
 	
 	//• --------------------------------------------------------------------------
