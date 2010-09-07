@@ -367,8 +367,21 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 									if (doc != NULL) {
 										xercesc::DOMNode* obj_node = doc->getDocumentElement();
 										if (obj_node != NULL) {
+											ostringstream* suppressor = new ostringstream();
+											Logger::set_stream(suppressor);
 											Httphead* http = Httphead::service();	
 											http->objectparse(obj_node); //ie remove the date headerlines.
+											Logger::unset_stream();
+											if (!suppressor->str().empty()) {
+												string errdoc; 
+												XML::Manager::parser()->writenode(obj_node,errdoc);
+												*Logger::log << Log::error << Log::LI << "Error. Http object parse failed." << Log::LO;	
+												trace();
+												*Logger::log << Log::LI << "The document that failed is:" << Log::LO;
+												*Logger::log << Log::LI << Log::info << Log::LI << errdoc << Log::LO << Log::blockend << Log::LO; 
+												*Logger::log << Log::blockend; //Error
+											}
+											delete suppressor;
 										} else {
 											*Logger::log << Log::error << Log::LI << "Error. Http object had no root element." << Log::LO;	
 											trace();
