@@ -294,12 +294,15 @@ void DefInpType::evaluate_key() { //result = if key is evaluated.
 	if (wotzit == obyx::match && key != NULL) {
 		key->results.undefer();
 		key->evaluate(0,0);
+//There MAY have been a reason for this, but it is beyond me what. So it's been disabled.
+		/*		
 		if (key->encoder != e_none) {
 			DataItem* pe = NULL;
 			results.takeresult(pe);
 			key->process_encoding(pe);
 			results.setresult(pe);
 		}
+		 */
 	}
 }
 void DefInpType::evaluate(size_t,size_t) {
