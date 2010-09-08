@@ -375,7 +375,7 @@ void Httphead::doheader(ostream* x,bool explaining,const response_format& f) {
 				}
 			}
 		}
-		if (httpcode == 302 && locavalue.empty()) httpcode=200;
+		if (httpcode >= 301 && httpcode <= 303 && locavalue.empty()) httpcode=200;
 		switch (httpcode) { 
 			case 200:
 				if ( ! rangevalue.empty() ) { 
@@ -397,7 +397,9 @@ void Httphead::doheader(ostream* x,bool explaining,const response_format& f) {
 					*x << env->response_cookies(explaining);		// Set-Cookie: xx=yy; aa=bb;
 				}				
 				break;
-			case 302: {
+			case 301:
+			case 302:
+			case 303: {
 				*x << f.header_i << f.name_i << locasig << f.name_o << f.value_i << locavalue << f.value_o << f.header_o;			// Forgot the ever-important extra return..
 				if ( env->cookiecount() != 0 ) {
 					*x << env->response_cookies(explaining);		//cookiecount will not be set if doheader is called by Logger.
@@ -472,42 +474,59 @@ void Httphead::objectparse(xercesc::DOMNode* const& n) {
 				string subhead;
 				XML::transcode(ch->getLocalName(),subhead);
 				if (subhead.compare("subhead") == 0) {
-					if ((name_attr_val.compare("Set-Cookie") != 0) || (name_attr_val.compare("Set-cookie") != 0)) {
-						if ( ! value_attr_val.empty() ) value_attr_val.append("; ");
+					if ( name_attr_val.compare("Set-Cookie") == 0) {
+						std::string cookie_name = "";
 						while (ch != NULL && subhead.compare("subhead") == 0) {
-							std::string shvalue,shname,encoded_s;
-							bool url_encoded=false;
-							if (XML::Manager::attribute(ch,"name",shname)) value_attr_val.append(shname);
-							if( XML::Manager::attribute(ch,"urlencoded",encoded_s)) { //subhead value
-								if ( encoded_s.compare("true") == 0 ) url_encoded=true;
-							}
-							if(! XML::Manager::attribute(ch,"value",shvalue)) { //subhead value
-								DOMNode* shvo=ch->getFirstChild();
-								while ( shvo != NULL ) {
-									if (shvo->getNodeType() == DOMNode::ELEMENT_NODE) {
-										string sh; XML::Manager::parser()->writenode(shvo,sh);
-										shvalue.append(sh);
+							std::string shname,shvalue,shencoded;
+							if (XML::Manager::attribute(ch,"name",shname)) {
+								if (XML::Manager::attribute(ch,"value",shvalue)) {
+									if ( XML::Manager::attribute(n,"url_encoded",shencoded) && (shencoded.compare("true") == 0) ) {
+										String::urldecode(shvalue); 
 									}
-									shvo=shvo->getNextSibling();
+								} else {
+									DOMNode* shvo=ch->getFirstChild();
+									while ( shvo != NULL ) {
+										if (shvo->getNodeType() == DOMNode::ELEMENT_NODE) {
+											string sh; XML::Manager::parser()->writenode(shvo,sh);
+											shvalue.append(sh);
+										}
+										shvo=shvo->getNextSibling();
+									}
+									if ( !shvalue.empty() && XML::Manager::attribute(n,"url_encoded",shencoded) && (shencoded.compare("true") == 0) ) {
+										String::urldecode(shvalue); 
+									}
 								}
 							}
-							if (! shvalue.empty() ) {
-								if (url_encoded) String::urldecode(shvalue);
-								value_attr_val.append("='");
-								value_attr_val.append(shvalue);
-								value_attr_val.push_back('\'');								
+							if ( !cookie_name.empty() ) {
+								if (  shname.compare("expires") ==0 ) {
+									env->setcookie_res_expires(cookie_name,shvalue);
+								} else {
+									if ( shname.compare("path") ==0 ) {
+										env->setcookie_res_path(cookie_name,shvalue);
+									} else {
+										if ( shname.compare("domain") ==0 ) {
+											env->setcookie_res_domain(cookie_name,shvalue);
+										} else {
+											if ( shname.compare("secure") !=0 ) {
+												cookie_name=shname;
+												env->setcookie_res(cookie_name,shvalue);
+											} 							
+										}							
+									}							
+								}
+							} else {
+								cookie_name=shname;
+								env->setcookie_res(cookie_name,shvalue);
 							}
 							ch=ch->getNextSibling();
 							while (ch != NULL && ch->getNodeType() != DOMNode::ELEMENT_NODE) ch=ch->getNextSibling();
 							if (ch != NULL) {
-								value_attr_val.append("; ");
 								XML::transcode(ch->getLocalName(),subhead);
 							} else {
 								subhead.clear();
 							}
 						}
-					}
-					else {
+					} else {
 						bool in_cookie = false;
 						string cookie_name;
 						string sh_name,sh_value,sh_enc;
@@ -578,8 +597,8 @@ void Httphead::objectparse(xercesc::DOMNode* const& n) {
 					}
 					setcache(value_attr_val);
 				} break;
-				case transencoding:
-				case cookie : 
+				case cookie: break;
+				case transencoding : break;
 				case cookie2: break;				
 			}
 		} else {
