@@ -568,9 +568,14 @@ void OsiMessage::construct_header_value(header& h) {
 			}
 			h.x = hx.str();
 		} break;
-		case reqcookie:   //special cookie parse.
-		case rescookie: { //special cookie parse.
+		case reqcookie: { //special cookie parse.
 			h.x.append(" name=\"" + h.n + "\"");
+			do_comments(h.v,h.comments);  //will leave the value (if there is one) followed by a ;
+			h.s = h.v; h.v.clear();
+			do_header_subheads(h);
+		} break;
+		case rescookie: { //special cookie parse.
+			h.x.append(" name=\"Set-Cookie");
 			do_comments(h.v,h.comments);  //will leave the value (if there is one) followed by a ;
 			h.s = h.v; h.v.clear();
 			do_header_subheads(h);
