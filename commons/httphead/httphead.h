@@ -41,7 +41,7 @@ class Httphead {
 	
 private:
 	typedef hash_map<const string, string, hash<const string&> > type_nv_map;	//hashmap of name-values
-	typedef enum { httpdate, server, cookie, cookie2, expires, cache, pragma, modified, range, mime, location, contentlength, disposition, p3p, connection, custom } http_msg;	
+	typedef enum { httpdate, server, cookie, cookie2, expires, cache, pragma, modified, range, mime, location, contentlength, disposition, p3p, connection, custom, transencoding } http_msg;	
 	typedef map<string, http_msg > http_msg_map; 
 	
 	Httphead(ostream*);

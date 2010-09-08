@@ -196,6 +196,7 @@ void Httphead::startup() {
 	http_msgs.insert(http_msg_map::value_type("Date", httpdate));
 	http_msgs.insert(http_msg_map::value_type("Server", server));
 	http_msgs.insert(http_msg_map::value_type("Set-Cookie", cookie));
+	http_msgs.insert(http_msg_map::value_type("Set-cookie", cookie));
 	http_msgs.insert(http_msg_map::value_type("Set-Cookie2", cookie2));
 	http_msgs.insert(http_msg_map::value_type("Expires", expires));
 	http_msgs.insert(http_msg_map::value_type("Cache-Control", cache));
@@ -208,6 +209,7 @@ void Httphead::startup() {
 	http_msgs.insert(http_msg_map::value_type("Content-Disposition", disposition));
 	http_msgs.insert(http_msg_map::value_type("P3P", p3p ));
 	http_msgs.insert(http_msg_map::value_type("Connection", connection));
+	http_msgs.insert(http_msg_map::value_type("Transfer-Encoding", transencoding));
 }
 
 void Httphead::shutdown() {
@@ -470,7 +472,7 @@ void Httphead::objectparse(xercesc::DOMNode* const& n) {
 				string subhead;
 				XML::transcode(ch->getLocalName(),subhead);
 				if (subhead.compare("subhead") == 0) {
-					if (name_attr_val.compare("Set-Cookie") != 0) {
+					if ((name_attr_val.compare("Set-Cookie") != 0) || (name_attr_val.compare("Set-cookie") != 0)) {
 						if ( ! value_attr_val.empty() ) value_attr_val.append("; ");
 						while (ch != NULL && subhead.compare("subhead") == 0) {
 							std::string shvalue,shname,encoded_s;
@@ -576,6 +578,7 @@ void Httphead::objectparse(xercesc::DOMNode* const& n) {
 					}
 					setcache(value_attr_val);
 				} break;
+				case transencoding:
 				case cookie : 
 				case cookie2: break;				
 			}
@@ -584,9 +587,14 @@ void Httphead::objectparse(xercesc::DOMNode* const& n) {
 		}
 	} else {
 		if (elname.compare("body") == 0) {
-			string url_encoded;
+			string url_encoded,type,subtype;
 			if (! XML::Manager::attribute(n,"urlencoded",url_encoded)  ) {
 				url_encoded = "false";
+			}
+			if ( XML::Manager::attribute(n,"type",type)  ) {
+				if (XML::Manager::attribute(n,"subtype",subtype)  ) {
+					mimevalue = type + "/" + subtype;
+				}
 			}
 			string bodytext;
 			for ( DOMNode* child=n->getFirstChild(); child != NULL; child=child->getNextSibling()) {
@@ -600,6 +608,18 @@ void Httphead::objectparse(xercesc::DOMNode* const& n) {
 			setcontent(bodytext);
 		} else {
 			if (elname.compare("response") == 0) {
+				//These all need to be set by the response!
+				mimevalue.clear(); 
+				datevalue.clear();
+				servervalue.clear();
+				connectionvalue.clear();
+				p3pline.clear();
+				customlines.clear();
+				locavalue.clear();
+				rangevalue.clear();
+				dispvalue.clear();
+				expiresline.clear();
+				
 				//do the attributes version, code, reason here.
 				string code_attr_val,reason_attr_val,version_attr_val;
 				if ( XML::Manager::attribute(n,"code",code_attr_val)  ) {
