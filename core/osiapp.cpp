@@ -365,7 +365,11 @@ void OsiAPP::decompile_message(const xercesc::DOMNode* n,vector<std::string>& he
 										if (name.compare("Received") == 0) {
 											head.push_back(' ');head.append(shvalue);	
 										} else {
-											head.append("=\"");head.append(shvalue);head.push_back('"');	
+											if (shvalue.find(';') != string::npos) {
+												head.append("=");head.append(shvalue);
+											} else {
+												head.append("=\"");head.append(shvalue);head.push_back('"');
+											}
 										}
 									}
 								}

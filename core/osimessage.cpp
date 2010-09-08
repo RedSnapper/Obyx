@@ -352,15 +352,21 @@ void OsiMessage::do_header_subheads(header& h) {
 		ostringstream hx;
 		if (!s.n.empty()) {
 			hx << " name=\"" << s.n << "\"";
-		}
-		if (!s.v.empty()) {
-			hx << " value=\"" << s.v << "\"";
-			if (s.a) {
-				hx << " angled=\"true\"";
+			if (!s.v.empty()) {
+				hx << " value=\"" << s.v << "\"";
+				if (s.a) {
+					hx << " angled=\"true\"";
+				}
+				if (s.u) {
+					hx << " urlencoded=\"true\"";
+				} 
 			}
-			if (s.u) {
-				hx << " urlencoded=\"true\"";
-			} 
+		} else {
+			//angled/urlencoded will fail here.
+			if (!s.v.empty()) {
+				hx << " name=\"" << s.v << "\"";
+				s.n = s.v; s.v.clear();
+			}
 		}
 		s.x = hx.str();
 		h.subheads.push_back(s);
