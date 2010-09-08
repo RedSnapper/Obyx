@@ -464,7 +464,7 @@ void Httphead::objectparse(xercesc::DOMNode* const& n) {
 			string value_attr_val="";
 			if ( XML::Manager::attribute(n,"value",value_attr_val)  ) {
 				string urlenc_attr_val;
-				if ( XML::Manager::attribute(n,"url_encoded",urlenc_attr_val)  && (urlenc_attr_val.compare("true") == 0) ) {
+				if ( XML::Manager::attribute(n,"urlencoded",urlenc_attr_val)  && (urlenc_attr_val.compare("true") == 0) ) {
 					String::urldecode(value_attr_val); 
 				}
 			}
@@ -480,7 +480,7 @@ void Httphead::objectparse(xercesc::DOMNode* const& n) {
 							std::string shname,shvalue,shencoded;
 							if (XML::Manager::attribute(ch,"name",shname)) {
 								if (XML::Manager::attribute(ch,"value",shvalue)) {
-									if ( XML::Manager::attribute(n,"url_encoded",shencoded) && (shencoded.compare("true") == 0) ) {
+									if ( XML::Manager::attribute(n,"urlencoded",shencoded) && (shencoded.compare("true") == 0) ) {
 										String::urldecode(shvalue); 
 									}
 								} else {
@@ -492,7 +492,7 @@ void Httphead::objectparse(xercesc::DOMNode* const& n) {
 										}
 										shvo=shvo->getNextSibling();
 									}
-									if ( !shvalue.empty() && XML::Manager::attribute(n,"url_encoded",shencoded) && (shencoded.compare("true") == 0) ) {
+									if ( !shvalue.empty() && XML::Manager::attribute(n,"urlencoded",shencoded) && (shencoded.compare("true") == 0) ) {
 										String::urldecode(shvalue); 
 									}
 								}
