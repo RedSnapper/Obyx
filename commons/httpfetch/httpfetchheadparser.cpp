@@ -102,7 +102,7 @@ namespace Fetch {
 			return nextLine(endLinePos);
 		std::string name(headerString, startLinePos, pos-startLinePos);
 		// skip leading white space
-		if (name.compare("Set-Cookie") == 0) {
+		if ((name.compare("Set-Cookie") == 0) || (name.compare("Set-cookie") == 0)) {
 			std::string ckline(headerString, startLinePos, endLinePos);
 			cookiesString.append(ckline); 
 		}
