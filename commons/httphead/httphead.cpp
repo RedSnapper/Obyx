@@ -498,16 +498,16 @@ void Httphead::objectparse(xercesc::DOMNode* const& n) {
 								}
 							}
 							if ( !cookie_name.empty() ) {
-								if (  shname.compare("expires") ==0 ) {
+								if (  (shname.compare("expires") ==0) || (shname.compare("Expires") ==0) ) {
 									env->setcookie_res_expires(cookie_name,shvalue);
 								} else {
-									if ( shname.compare("path") ==0 ) {
+									if ( (shname.compare("path") ==0 ) || (shname.compare("Path") ==0 )) {
 										env->setcookie_res_path(cookie_name,shvalue);
 									} else {
-										if ( shname.compare("domain") ==0 ) {
+										if ( (shname.compare("domain") ==0) || (shname.compare("Domain") ==0) ) {
 											env->setcookie_res_domain(cookie_name,shvalue);
 										} else {
-											if ( shname.compare("secure") !=0 ) {
+											if ( (shname.compare("secure") !=0) && (shname.compare("Secure") !=0) ) {
 												cookie_name=shname;
 												env->setcookie_res(cookie_name,shvalue);
 											} 							
