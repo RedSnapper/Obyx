@@ -332,18 +332,18 @@ string Environment::response_cookies(bool explaining) {
 				} else {
 					this_cookie_expires.clear();
 				}
-				bool urlenc = true;
-				std::string ck_val = this_cookie_value;
-				String::urlencode(ck_val);
-				if (this_cookie_value.compare(ck_val) == 0) urlenc = false;
 				if (explaining) {
+					bool urlenc = true;
+					std::string ck_val = this_cookie_value;
+					String::urlencode(ck_val);
+					if (this_cookie_value.compare(ck_val) == 0) urlenc = false;
 					XMLChar::encode(this_cookie_name);
 					cookiestream << "<m:header name=\"Set-Cookie\" cookie=\"" << this_cookie_name << "\">";
 					cookiestream << "<m:subhead name=\"" << this_cookie_name << "\" value=\"" << ck_val << "\"";
 					if (urlenc) { cookiestream << " urlencoded=\"true\""; }
 					cookiestream << "/>";
 				} else {
-					cookiestream << Httphead::cookiesig << ": " << this_cookie_name << "=" << ck_val;
+					cookiestream << Httphead::cookiesig << ": " << this_cookie_name << "=" << this_cookie_value;
 				}
 				if ( ( !this_cookie_expires.empty() ) && ( this_cookie_expires.compare("session") != 0) ) {
 					if (this_cookie_expires.compare("persist") == 0) {
