@@ -289,7 +289,7 @@ bool Document::eval() {
 						*Logger::log << Log::error << Log::LI << "Error. eval of osi-application-layer object failed." << Log::LO;	
 						string troubled_doc;
 						XML::Manager::parser()->writedoc(xdoc,troubled_doc);
-						*Logger::log << Log::LI << "The document that failed is:" << Log::LO;
+						*Logger::log << Log::LI << "The request was:" << Log::LO;
 						*Logger::log << Log::LI << Log::info << Log::LI << troubled_doc << Log::LO << Log::blockend << Log::LO; 
 
 						troubled_doc = OsiAPP::last_osi_response();
