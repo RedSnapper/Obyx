@@ -222,7 +222,7 @@ namespace String {
 		string::const_iterator f1=container.begin();
 		string::const_iterator l1=container.end();
 		while (f1 != l1) {
-			if ((*f1 & 0x80) == 0x00) {
+			if (((*f1 & 0x80) == 0x00) && (*f1 != 0x00)) {
 				result.put(*f1++);
 			} else if ((*f1 & 0xe0) == 0xc0 && f1 + 1 != l1 && (f1[1] & 0xc0) == 0x80) {
 				result.put(*f1++);
@@ -234,6 +234,7 @@ namespace String {
 			} else {
 				f1++;
 				retval = false; // illegal utf-8 found
+				break;
 			}
 		}
 		container = result.str();
