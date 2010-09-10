@@ -262,6 +262,10 @@ Logger& Logger::operator << (const extratype extrabit) {
 
 Logger& Logger::operator<< (const char* msg) { 
 	string mesg(msg);
+	if (! String::normalise(mesg)) {
+		mesg = msg;
+		String::base64encode(mesg);
+	}
 	if (log->top_line && log->syslogging) { log->syslogbuffer << mesg;}
 	XMLChar::encode(mesg);
 	if ( logging_on && (type_stack.top() != debug || debugging()) )  {
@@ -273,6 +277,10 @@ Logger& Logger::operator<< (const char* msg) {
 Logger& Logger::operator<< (const std::string msg ) {  
 	if (log->top_line && log->syslogging) { log->syslogbuffer << msg;}
 	string mesg(msg);
+	if (! String::normalise(mesg)) {
+		mesg = msg;
+		String::base64encode(mesg);
+	}
 	if ( logging_on && (type_stack.top() != debug || debugging()) )  {
 		if (!inraw) { 
 			XMLChar::encode(mesg);
