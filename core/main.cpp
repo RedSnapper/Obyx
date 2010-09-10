@@ -52,7 +52,7 @@ void finalise();
 void shutdown();
 
 int main(int argc, char *argv[]) {
- 	string v_number = "1.100909"; //Do NOT put the v here!
+ 	string v_number = "1.100910"; //Do NOT put the v here!
 #ifdef FAST
 	string version  = "Obyx v"+v_number+"F Supported";
 #else
