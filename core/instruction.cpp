@@ -663,8 +663,6 @@ void Instruction::call_system(std::string& cmd) {
 	Environment* env = Environment::service();
 	string command(env->ScriptsDir());
 	if (!command.empty()) {
-		string mypid;
-		String::tostring(mypid,env->pid());
 		String::trim(cmd);
 		if ( ! cmd.empty() ) {
 			pair<string,string> command_parms;
@@ -693,17 +691,34 @@ void Instruction::call_system(std::string& cmd) {
 					command.append(command_parms.first);
 					FileUtils::File cfile(command);
 					if (cfile.exists()) {
-						if (!command_parms.second.empty()) {
-							command.append(" ");
-							command.append(command_parms.second);
-						}							
-						string resultfile= env->ScratchDir();
+						int res = 0;
+						string resultfile;
+						resultfile= env->ScratchDir();
 						resultfile.append( env->ScratchName());
-						resultfile.append("obyx_call");
-						resultfile.append(mypid);
-						command.append(" > ");
-						command.append(resultfile);
-						system(command.c_str());
+						resultfile.append("obyx_rslt");
+						if (!command_parms.second.empty()) {
+							if ( command_parms.second.size() + command.size() <= 200 ) {
+								command.append(" ");
+								command.append(command_parms.second);
+								command.append(" > ");
+								command.append(resultfile);
+								res = system(command.c_str());
+							} else {
+								string sourcefile;
+								ostringstream cmd;
+								sourcefile = env->ScratchDir();
+								sourcefile.append( env->ScratchName());
+								sourcefile.append("obyx_srce");
+								FileUtils::File srce(sourcefile);
+								srce.writeFile(command_parms.second);
+								cmd << "cat " << sourcefile << " | " << command << " > " << resultfile;
+								command = cmd.str();
+								res = system(command.c_str());
+								if (srce.exists()) {
+									srce.removeFile();
+								}
+							}
+						}							
 						FileUtils::File file(resultfile);
 						if (file.exists()) {
 							long long flen = file.getSize();
@@ -713,6 +728,12 @@ void Instruction::call_system(std::string& cmd) {
 								results.append(ffile,di_auto);
 							}
 							file.removeFile();
+						}
+						if (res != 0) {
+							*Logger::log << Log::error << Log::LI << "Error. Instruction operation shell.";
+							*Logger::log << "the script " << command_parms.first << " returned error " << res << Log::LO;
+							trace();
+							*Logger::log << Log::blockend;
 						}
 					} else {
 						*Logger::log << Log::error << Log::LI << "Error. Instruction operation shell.";
