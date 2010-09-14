@@ -697,7 +697,7 @@ void Instruction::call_system(std::string& cmd) {
 						resultfile.append( env->ScratchName());
 						resultfile.append("obyx_rslt");
 						if (!command_parms.second.empty()) {
-							if ( command_parms.second.size() + command.size() <= 200 ) {
+							if ( command_parms.second.size() <= 200 ) {
 								command.append(" ");
 								command.append(command_parms.second);
 								command.append(" > ");
