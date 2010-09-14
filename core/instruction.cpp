@@ -262,8 +262,12 @@ bool Instruction::evaluate_this() {
 								case function:
 									break; //operations handled outside of this switch.
 									
-								case query_command: call_sql(first_value); break;
-								case shell_command: call_system(first_value); break; 
+								case query_command:		// call_sql(first_value); break;
+								case shell_command:	{	// call_system(first_value); break;
+									if (first_value != NULL) {
+										accumulator.append(*first_value);
+									}
+								} break;
 								case obyx::append: {	//
 									results.append(first_value);
 								} break;
@@ -338,6 +342,13 @@ bool Instruction::evaluate_this() {
 								case kind:
 								case function: 
 									break; //operations handled outside of this switch.
+									
+								case query_command: 
+								case shell_command:	{	// call_system(first_value); break;
+									if (srcval != NULL) {
+										accumulator.append(*srcval);
+									}
+								} break;
 								case obyx::append: {
 									results.append(srcval);
 								} break; //done differently.
@@ -510,8 +521,6 @@ bool Instruction::evaluate_this() {
 										}
 									}
 								} break;
-								case query_command: call_sql(srcval); break;
-								case shell_command: call_system(srcval); break; 
 							}
 						}
 					} else {
@@ -522,13 +531,17 @@ bool Instruction::evaluate_this() {
 				}
 				
 				switch ( operation ) {
-					case query_command: 
-					case shell_command: 
 					case obyx::append:
 					case function:
 					case move: 
 					case kind:
 						break;
+					case query_command: {
+						call_sql(accumulator);
+					} break;
+					case shell_command: { 
+						call_system(accumulator);  
+					} break;
 					case position: {
 						if (n < 2) {
 							*Logger::log << Log::error << Log::LI << "Error. Operation 'position' needs two inputs." << Log::LO;
@@ -623,103 +636,97 @@ bool Instruction::evaluate_this() {
 	}
 	return inputsfinal;
 }
-void Instruction::call_sql(DataItem* di_query) {
-	if (di_query != NULL) {
-		std::string querystring = *di_query;
-		if ( ! querystring.empty() ) {
-			if ( dbs != NULL && dbc != NULL ) {
-				Vdb::Query *query = NULL;
-				if (dbc->query(query,querystring)) {
-					if (! query->execute() ) {
-						*Logger::log << Log::error << Log::LI << "Error. DB Error: SQL Query:" << querystring << Log::LO;
-						trace();
-						*Logger::log << Log::blockend;
-					}	
-					delete query;
-				} else {
-					*Logger::log << Log::error << Log::LI << "Error. Instruction operation query needs a database selected. An sql service was found, but the sql connection failed." << Log::LO;
+void Instruction::call_sql(std::string& querystring) {
+	if ( ! querystring.empty() ) {
+		if ( dbs != NULL && dbc != NULL ) {
+			Vdb::Query *query = NULL;
+			if (dbc->query(query,querystring)) {
+				if (! query->execute() ) {
+					*Logger::log << Log::error << Log::LI << "Error. DB Error: SQL Query:" << querystring << Log::LO;
 					trace();
 					*Logger::log << Log::blockend;
-				}
+				}	
+				delete query;
 			} else {
-				*Logger::log << Log::error << Log::LI << "Error. Instruction operation query needs an sql service, and there is none." << Log::LO;
+				*Logger::log << Log::error << Log::LI << "Error. Instruction operation query needs a database selected. An sql service was found, but the sql connection failed." << Log::LO;
 				trace();
 				*Logger::log << Log::blockend;
 			}
-		}
-	}
-}
-void Instruction::call_system(DataItem* di_cmd) {
-	Environment* env = Environment::service();
-	if (di_cmd != NULL) {
-		string command(env->ScriptsDir());
-		if (!command.empty() ) {
-			std::string cmd = *di_cmd;
-			string mypid;
-			String::tostring(mypid,env->pid());
-			String::trim(cmd);
-			if ( ! cmd.empty() ) {
-				pair<string,string> command_parms;
-				if (! String::split(' ',cmd,command_parms)) { //just a command.
-					command_parms.first = cmd;
-					command_parms.second = "";
-				}
-				const char sn[]="_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.";
-				size_t endcmdpos = command_parms.first.find_first_not_of(sn);
-				if (endcmdpos != string::npos) {
-					*Logger::log << Log::error << Log::LI << "Error. Instruction operation shell The shell command must be alphanumeric (and _ or .)" << Log::LO;
-					*Logger::log << Log::LI << command_parms.first << Log::LO;
-					trace();
-					*Logger::log << Log::blockend;
-				} else {
-					//base 64 with spaces plus _
-					const char pm[]="_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789=+/ ";
-					size_t endprmpos = command_parms.second.find_first_not_of(pm);
-					if (endprmpos != string::npos) {
-						*Logger::log << Log::error << Log::LI << "Error. Instruction operation shell.";
-						*Logger::log << "The shell parameter list must only be base64 characters and spaces." << Log::LO;
-						*Logger::log << Log::LI << command_parms.second << Log::LO;
-						trace();
-						*Logger::log << Log::blockend;
-					} else {
-						command.append(command_parms.first);
-						FileUtils::File cfile(command);
-						if (cfile.exists()) {
-							if (!command_parms.second.empty()) {
-								command.append(" ");
-								command.append(command_parms.second);
-							}							
-							string resultfile= env->ScratchDir();
-							resultfile.append( env->ScratchName());
-							resultfile.append("obyx_call");
-							resultfile.append(mypid);
-							command.append(" > ");
-							command.append(resultfile);
-							system(command.c_str());
-							FileUtils::File file(resultfile);
-							if (file.exists()) {
-								long long flen = file.getSize();
-								if ( flen != 0 ) {
-									string ffile;
-									file.readFile(ffile);
-									results.append(ffile,di_auto);
-								}
-								file.removeFile();
-							}
-						} else {
-							*Logger::log << Log::error << Log::LI << "Error. Instruction operation shell.";
-							*Logger::log << "the script " << command << " does not exist." << Log::LO;
-							trace();
-							*Logger::log << Log::blockend;
-						}
-					}				
-				}
-			}
 		} else {
-			*Logger::log << Log::error << Log::LI << "Error. Instruction operation shell. The OBYX_SCRIPTS_DIR environment must be set." << Log::LO;
+			*Logger::log << Log::error << Log::LI << "Error. Instruction operation query needs an sql service, and there is none." << Log::LO;
 			trace();
 			*Logger::log << Log::blockend;
 		}
+	}
+}
+void Instruction::call_system(std::string& cmd) {
+	Environment* env = Environment::service();
+	string command(env->ScriptsDir());
+	if (!command.empty()) {
+		string mypid;
+		String::tostring(mypid,env->pid());
+		String::trim(cmd);
+		if ( ! cmd.empty() ) {
+			pair<string,string> command_parms;
+			if (! String::split(' ',cmd,command_parms)) { //just a command.
+				command_parms.first = cmd;
+				command_parms.second = "";
+			}
+			const char sn[]="_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.";
+			size_t endcmdpos = command_parms.first.find_first_not_of(sn);
+			if (endcmdpos != string::npos) {
+				*Logger::log << Log::error << Log::LI << "Error. Instruction operation shell The shell command must be alphanumeric (and _ or .)" << Log::LO;
+				*Logger::log << Log::LI << command_parms.first << Log::LO;
+				trace();
+				*Logger::log << Log::blockend;
+			} else {
+				//base 64 with spaces plus _
+				const char pm[]="_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789=+/ ";
+				size_t endprmpos = command_parms.second.find_first_not_of(pm);
+				if (endprmpos != string::npos) {
+					*Logger::log << Log::error << Log::LI << "Error. Instruction operation shell.";
+					*Logger::log << "The shell parameter list must only be base64 characters and spaces." << Log::LO;
+					*Logger::log << Log::LI << command_parms.second << Log::LO;
+					trace();
+					*Logger::log << Log::blockend;
+				} else {
+					command.append(command_parms.first);
+					FileUtils::File cfile(command);
+					if (cfile.exists()) {
+						if (!command_parms.second.empty()) {
+							command.append(" ");
+							command.append(command_parms.second);
+						}							
+						string resultfile= env->ScratchDir();
+						resultfile.append( env->ScratchName());
+						resultfile.append("obyx_call");
+						resultfile.append(mypid);
+						command.append(" > ");
+						command.append(resultfile);
+						system(command.c_str());
+						FileUtils::File file(resultfile);
+						if (file.exists()) {
+							long long flen = file.getSize();
+							if ( flen != 0 ) {
+								string ffile;
+								file.readFile(ffile);
+								results.append(ffile,di_auto);
+							}
+							file.removeFile();
+						}
+					} else {
+						*Logger::log << Log::error << Log::LI << "Error. Instruction operation shell.";
+						*Logger::log << "the script " << command << " does not exist." << Log::LO;
+						trace();
+						*Logger::log << Log::blockend;
+					}
+				}				
+			}
+		}
+	} else {
+		*Logger::log << Log::error << Log::LI << "Error. Instruction operation shell. The OBYX_SCRIPTS_DIR environment must be set." << Log::LO;
+		trace();
+		*Logger::log << Log::blockend;
 	}
 }
 void Instruction::addInputType(InputType* i) {

@@ -44,8 +44,8 @@ private:
 private:
 	//special operations
 	void do_function();
-	void call_system(DataItem*);
-	void call_sql(DataItem*);
+	void call_system(std::string&);
+	void call_sql(std::string&);
 	
 public:
 	const op_type op() const {return operation;}

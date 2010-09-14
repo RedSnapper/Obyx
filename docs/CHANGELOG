@@ -17,6 +17,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.100914
+	Enh.		Instruction operations sql / shell now use appended 
+				inputs for one call,rather than one input per call.
 v1.100908
 	BUG:		cookies were not being set by http object
 v1.100907
