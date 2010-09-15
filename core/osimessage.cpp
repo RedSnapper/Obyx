@@ -543,7 +543,7 @@ void OsiMessage::construct_header_value(header& h) {
 			}
 			if (!h.v.empty()) {
 				h.a = do_angled(h.v);
-				h.u=do_encoding(h.v);
+				h.u = do_encoding(h.v);
 				hx << " value=\"" << h.v << "\"";
 				if (h.a) {
 					hx << " angled=\"true\"";
