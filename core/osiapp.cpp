@@ -333,7 +333,13 @@ void OsiAPP::decompile_message(const xercesc::DOMNode* n,vector<std::string>& he
 							while (ch != NULL && (subhead.compare("subhead") == 0 || subhead.compare("address") == 0)) {
 								std::string shvalue,shnote,shname;
 								bool url_encoded=false;
-								if (XML::Manager::attribute(ch,"name",shname)) head.append(shname);
+								bool usequotes=false;
+								if (XML::Manager::attribute(ch,"name",shname)) { 
+									head.append(shname);
+									if (shname.compare("name") == 0) {
+										usequotes = true;
+									}
+								}
 								if( XML::Manager::attribute(ch,"urlencoded",encoded_s)) { //subhead value
 									if ( encoded_s.compare("true") == 0 ) url_encoded=true;
 								}
@@ -368,7 +374,14 @@ void OsiAPP::decompile_message(const xercesc::DOMNode* n,vector<std::string>& he
 											if (name.compare("Content-Disposition") == 0 || shvalue.find(';') != string::npos) {
 												head.append("=\"");head.append(shvalue);head.push_back('"');
 											} else {
-												head.append("=");head.append(shvalue);
+												if (usequotes) {
+													head.append("=\"");
+													head.append(shvalue);
+													head.push_back('"');
+												} else {
+													head.append("=");
+													head.append(shvalue);
+												}
 											}
 										}
 									}
