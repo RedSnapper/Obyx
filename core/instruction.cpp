@@ -703,9 +703,7 @@ void Instruction::call_system(std::string& cmd) {
 							}
 							command.append(" > ");
 							command.append(resultfile);
-							env->setienv("scriptresultloc",resultfile);
 							res = system(command.c_str());
-							env->setienv("scriptresultval",String::tostring((long long)res));
 						} else {
 							string sourcefile;
 							ostringstream cmd;
