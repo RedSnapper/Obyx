@@ -689,6 +689,7 @@ void Instruction::call_system(std::string& cmd) {
 					*Logger::log << Log::blockend;
 				} else {
 					command.append(command_parms.first);
+					env->setienv("scriptloc",command);
 					FileUtils::File cfile(command);
 					if (cfile.exists()) {
 						int res = 0;
