@@ -696,14 +696,15 @@ void Instruction::call_system(std::string& cmd) {
 						resultfile= env->ScratchDir();
 						resultfile.append( env->ScratchName());
 						resultfile.append("obyx_rslt");
-						env->setienv("scriptresultloc",resultfile);
 						if (!command_parms.second.empty()) {
 							if ( command_parms.second.size() <= 200 ) {
 								command.append(" ");
 								command.append(command_parms.second);
 								command.append(" > ");
 								command.append(resultfile);
+								env->setienv("scriptresultloc",resultfile);
 								res = system(command.c_str());
+								env->setienv("scriptresultval",String::tostring((long long)res));
 							} else {
 								string sourcefile;
 								ostringstream cmd;
