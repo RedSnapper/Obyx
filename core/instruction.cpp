@@ -731,7 +731,7 @@ void Instruction::call_system(std::string& cmd) {
 						}
 						if (res != 0) {
 							*Logger::log << Log::error << Log::LI << "Error. Instruction operation shell.";
-							*Logger::log << "the script " << command_parms.first << " returned error " << res << Log::LO;
+							*Logger::log << " The script " << command_parms.first << " returned error " << res << Log::LO;
 							trace();
 							*Logger::log << Log::blockend;
 						}
