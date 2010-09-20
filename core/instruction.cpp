@@ -696,31 +696,31 @@ void Instruction::call_system(std::string& cmd) {
 						resultfile= env->ScratchDir();
 						resultfile.append( env->ScratchName());
 						resultfile.append("obyx_rslt");
-						if (!command_parms.second.empty()) {
-							if ( command_parms.second.size() <= 200 ) {
+						if ( command_parms.second.empty() || (command_parms.second.size() <= 200) ) {
+							if (!command_parms.second.empty()) {
 								command.append(" ");
 								command.append(command_parms.second);
-								command.append(" > ");
-								command.append(resultfile);
-								env->setienv("scriptresultloc",resultfile);
-								res = system(command.c_str());
-								env->setienv("scriptresultval",String::tostring((long long)res));
-							} else {
-								string sourcefile;
-								ostringstream cmd;
-								sourcefile = env->ScratchDir();
-								sourcefile.append( env->ScratchName());
-								sourcefile.append("obyx_srce");
-								FileUtils::File srce(sourcefile);
-								srce.writeFile(command_parms.second);
-								cmd << "cat " << sourcefile << " | " << command << " > " << resultfile;
-								command = cmd.str();
-								res = system(command.c_str());
-								if (srce.exists()) {
-									srce.removeFile();
-								}
 							}
-						}							
+							command.append(" > ");
+							command.append(resultfile);
+							env->setienv("scriptresultloc",resultfile);
+							res = system(command.c_str());
+							env->setienv("scriptresultval",String::tostring((long long)res));
+						} else {
+							string sourcefile;
+							ostringstream cmd;
+							sourcefile = env->ScratchDir();
+							sourcefile.append( env->ScratchName());
+							sourcefile.append("obyx_srce");
+							FileUtils::File srce(sourcefile);
+							srce.writeFile(command_parms.second);
+							cmd << "cat " << sourcefile << " | " << command << " > " << resultfile;
+							command = cmd.str();
+							res = system(command.c_str());
+							if (srce.exists()) {
+								srce.removeFile();
+							}
+						}
 						FileUtils::File file(resultfile);
 						if (file.exists()) {
 							long long flen = file.getSize();
