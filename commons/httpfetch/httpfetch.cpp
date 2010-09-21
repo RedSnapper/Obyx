@@ -139,14 +139,6 @@ namespace Fetch {
 				if ( err.empty() ) {
 					if ( curl_slist_append != NULL && curl_slist_free_all != NULL && curl_easy_init != NULL && curl_easy_setopt!=NULL && curl_easy_perform!=NULL && curl_easy_cleanup!=NULL) {
 						loaded = true;
-						if ( Logger::debugging() ) {
-							curl_version_info_data* info = curl_version_info(CURLVERSION_NOW);
-							if (info != NULL) {
-								*Logger::log << Log::debug << Log::LI << "HTTPFetch Version Info: ";
-								*Logger::log << info->version << ", " << info->ssl_version << ", " << info->libz_version;
-								*Logger::log << Log::LO << Log::blockend;
-							}
-						}
 					}
 				} else {
 					//					string msg = err;
