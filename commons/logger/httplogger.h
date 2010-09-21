@@ -34,7 +34,8 @@ using namespace Log;
 // class for http reporting  
 class HTTPLogger : public Logger {
 private:
-	static bool minititle;									//for show/hide
+	static bool minititle;						//for show/hide
+	bool topped;								//top just once.
 	
 protected:
 	friend class Logger;
