@@ -56,15 +56,13 @@ namespace Fetch {
  The data pointed to by the char * passed to this function WILL NOT be zero terminated, 
  but will be exactly of the size as told by the size_t argument.
   */	
-	int HTTPFetch::debugCallback(CURL*,curl_infotype i,char* m,size_t len,void* v) {
+	int HTTPFetch::debugCallback(CURL*,curl_infotype i,char* m,size_t len,void*) {
 		switch (i) {
 			case CURLINFO_HEADER_OUT:
 			case CURLINFO_DATA_OUT:
 			case CURLINFO_TEXT: {
 				string message(m,len);
-				*Logger::log << Log::debug << Log::LI << "HTTPFetch '" << message << "'.";
-				if (v != NULL) { *Logger::log << " (body has text)"; }
-				*Logger::log << Log::LO << Log::blockend;
+				*Logger::log << Log::debug << Log::LI << "HTTPFetch '" << message << "'." << Log::LO << Log::blockend;
 			} break;
 			default: break;
 		}
@@ -106,6 +104,8 @@ namespace Fetch {
 	CURLcode (*HTTPFetch::curl_easy_setopt)(CURL*, CURLoption, ...) = NULL;
 	CURLcode (*HTTPFetch::curl_easy_perform)(CURL*)= NULL;
 	void (*HTTPFetch::curl_easy_cleanup)(CURL*) = NULL;
+	curl_version_info_data* (*HTTPFetch::curl_version_info)(CURLversion)  = NULL;
+
 	
 	bool HTTPFetch::available() {
 		if (!loadattempted) startup();
@@ -134,10 +134,19 @@ namespace Fetch {
 				curl_easy_cleanup = (void (*)(CURL *)) dlsym(lib_handle,"curl_easy_cleanup");
 				curl_slist_free_all = (void (*)(struct curl_slist*)) dlsym(lib_handle,"curl_slist_free_all");
 				curl_slist_append = (curl_slist* (*)(struct curl_slist*,const char *)) dlsym(lib_handle,"curl_slist_append");
+				curl_version_info = (curl_version_info_data* (*)(CURLversion)) dlsym(lib_handle,"curl_version_info");
 				dlerr(err);
 				if ( err.empty() ) {
 					if ( curl_slist_append != NULL && curl_slist_free_all != NULL && curl_easy_init != NULL && curl_easy_setopt!=NULL && curl_easy_perform!=NULL && curl_easy_cleanup!=NULL) {
 						loaded = true;
+						if ( Logger::debugging() ) {
+							curl_version_info_data* info = curl_version_info(CURLVERSION_NOW);
+							if (info != NULL) {
+								*Logger::log << Log::debug << Log::LI << "HTTPFetch Version Info: ";
+								*Logger::log << info->version << ", " << info->ssl_version << ", " << info->libz_version;
+								*Logger::log << Log::LO << Log::blockend;
+							}
+						}
 					}
 				} else {
 					//					string msg = err;
@@ -201,6 +210,7 @@ namespace Fetch {
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_ERRORBUFFER, errorBuf), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_POSTFIELDS, NULL), errstr);
 		if ( Logger::debugging() ) {
+//			processErrorCode(curl_easy_setopt(handle, CURLOPT_DEBUGDATA, &body), errstr); //
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_DEBUGFUNCTION, debugCallback), errstr);
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_VERBOSE, 1), errstr);
 		}
@@ -271,7 +281,6 @@ namespace Fetch {
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_TIMEOUT, timeout_seconds), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_NOSIGNAL, 1), errstr);
 		if (!body.empty()) {
-			processErrorCode(curl_easy_setopt(handle, CURLOPT_DEBUGDATA, &body), errstr); //
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_POST, 1), errstr); //
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_READFUNCTION, readMemoryCallback), errstr);
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_READDATA, &body), errstr);	//This is not a c_string- it's used by readMemoryCallback.

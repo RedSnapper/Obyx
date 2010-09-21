@@ -50,6 +50,8 @@ namespace Fetch {
 		static void (*curl_easy_cleanup)(CURL *);
 		static void (*curl_slist_free_all)(struct curl_slist *);
 		static struct curl_slist* (*curl_slist_append)(struct curl_slist*,const char *);
+		static curl_version_info_data* (*curl_version_info)(CURLversion);
+
 		static size_t writeMemoryCallback(char *, size_t, size_t, void *);
 		static size_t readMemoryCallback(void *, size_t, size_t, void *);
 		static int debugCallback(CURL*,curl_infotype,char*,size_t,void*);
