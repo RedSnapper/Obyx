@@ -57,17 +57,22 @@ namespace Fetch {
  but will be exactly of the size as told by the size_t argument.
   */	
 	int HTTPFetch::debugCallback(CURL*,curl_infotype i,char* m,size_t len,void*) {
-//		switch (i) {
-//			case CURLINFO_HEADER_OUT:
-//			case CURLINFO_DATA_OUT:
-//			case CURLINFO_TEXT: 
-			
-//			{
+		switch (i) {
+			case CURLINFO_HEADER_OUT:
+			case CURLINFO_DATA_OUT: {
 				string message(m,len);
-				*Logger::log << Log::debug << Log::LI << "HTTPFetch '" << message << "'." << Log::LO << Log::blockend;
-//			} break;
-//			default: break;
-//		}
+				*Logger::log << Log::debug << Log::LI << "curl (out) '" << message << "'." << Log::LO << Log::blockend;
+			} break;
+			case CURLINFO_HEADER_IN:
+			case CURLINFO_DATA_IN: {
+				string message(m,len);
+				*Logger::log << Log::debug << Log::LI << "curl (in) '" << message << "'." << Log::LO << Log::blockend;
+			} break;
+			default: {
+				string message(m,len);
+				*Logger::log << Log::debug << Log::LI << "curl (--) '" << message << "'." << Log::LO << Log::blockend;
+			} break; 
+		}
 		return 0;
 	}
 	
