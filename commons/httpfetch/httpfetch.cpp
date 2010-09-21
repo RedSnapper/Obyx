@@ -284,7 +284,7 @@ namespace Fetch {
 		if (!body.empty()) {
 			string cl="Content-Length: ";
 			cl.append(String::tostring((unsigned long long)body.size()));
-			addHeader(cl);
+			headers = curl_slist_append(headers, headerString.c_str());
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_POST, 1), errstr); //
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_READFUNCTION, readMemoryCallback), errstr);
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_READDATA, &body), errstr);	//This is not a c_string- it's used by readMemoryCallback.
