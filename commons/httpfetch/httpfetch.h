@@ -50,13 +50,17 @@ namespace Fetch {
 		static void (*curl_easy_cleanup)(CURL *);
 		static void (*curl_slist_free_all)(struct curl_slist *);
 		static struct curl_slist* (*curl_slist_append)(struct curl_slist*,const char *);
+		static size_t writeMemoryCallback(char *, size_t, size_t, void *);
+		static size_t readMemoryCallback(void *, size_t, size_t, void *);
 		
 		//-- End of dll stuff		
 		struct curl_slist *headers;		
 		std::string cookies;
-		std::string* body;
+		std::string body;
 		CURL* handle;
 		char* errorBuf;
+//		char* bodyBuf;
+//		size_t bodyLen;
 		bool had_error;
 		
 		class PageFetcher;
@@ -65,6 +69,8 @@ namespace Fetch {
 	private:
 		friend class HTTPFetchPage;	
 		friend class HTTPFetchHead;	
+		
+		
 		void processErrorCode(CURLcode, std::string&);
 		bool fetchHeader(std::string&, HTTPFetchHeader&, Redirects&,std::string&);
 		void setBody(std::string&);
@@ -74,7 +80,7 @@ namespace Fetch {
 		
 	public:
 		HTTPFetch(string&);
-		HTTPFetch(string&,string&,string&,string*,string&);
+		HTTPFetch(string&,string&,string&,string&,string&);
 		~HTTPFetch();
 		bool fetchPage(std::string, HTTPFetchHeader&, Redirects&, std::string&, std::string&);
 		void addHeader(std::string&);

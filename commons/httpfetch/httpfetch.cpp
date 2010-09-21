@@ -41,8 +41,8 @@
 using namespace Log;
 using namespace XML;
 
-namespace {
-	size_t writeMemoryCallback(char *ptr, size_t size, size_t nmemb, void *data) {
+namespace Fetch {
+	size_t HTTPFetch::writeMemoryCallback(char *ptr, size_t size, size_t nmemb, void *data) {
 		std::string* s = static_cast<std::string*>(data);
 		size_t realSize = size * nmemb;
 		s->append(ptr, ptr + realSize);
@@ -64,11 +64,11 @@ namespace {
 	 If you set the callback pointer to NULL, or doesn't set it at all, the default internal read 
 	 function will be used. It is simply doing an fread() on the FILE * stream set with CURLOPT_READDATA.	
 	 */ 
-	size_t readMemoryCallback(void *ptr, size_t size, size_t nmemb, void *stream) {
+	size_t HTTPFetch::readMemoryCallback(void *ptr, size_t size, size_t nmemb, void *stream) {
 		std::string* s = static_cast<std::string*>(stream); //we must actually change the string...
 		size_t realSize = size * nmemb;
 		size_t result = s->copy(static_cast<char*>(ptr), realSize);
-		try { s->erase(0, result); } catch(...) { return result; }
+		try { s->erase(0, result); } catch(...) { }
 		return result;
 	}
 	
@@ -151,8 +151,10 @@ namespace Fetch {
 	
 	// http://curl.haxx.se/libcurl/c/curl_easy_setopt.html
 	
-	HTTPFetch::HTTPFetch(string& u,string& m,string& v,string* b,string& errstr) : headers(NULL),cookies(),body(b),handle(NULL),errorBuf(new char[CURL_ERROR_SIZE]),had_error(false) {
-		Environment* env = Environment::service();
+	HTTPFetch::HTTPFetch(string& u,string& m,string& v,string& b,string& errstr) : headers(NULL),cookies(),body(b),handle(NULL),errorBuf(new char[CURL_ERROR_SIZE]),had_error(false) {
+		//		bodyLen(b.size()),bodyBuf(new char[bodyLen])
+		//		body.first = bodyBuf; body.second=bodyLen;
+		//		memcpy(bodyBuf,b.c_str(),bodyLen);
 		errorBuf[0] = '\0'; 
 		handle = curl_easy_init();
 		assert(handle != NULL);
@@ -182,21 +184,17 @@ namespace Fetch {
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_ERRORBUFFER, errorBuf), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_POSTFIELDS, NULL), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_READFUNCTION, readMemoryCallback), errstr);
-		processErrorCode(curl_easy_setopt(handle, CURLOPT_READDATA, body), errstr);
+		processErrorCode(curl_easy_setopt(handle, CURLOPT_READDATA, &body), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, writeMemoryCallback), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_HEADERFUNCTION, writeMemoryCallback), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_SSL_VERIFYPEER, 0), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_SSL_VERIFYHOST, 0), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_URL, u.c_str()), errstr);
 		if (m.compare("GET") == 0) {
-//			env->setienv("lastCURL","get");
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_HTTPGET, 1), errstr);
 		} else if (m.compare("POST") == 0) {
-//			env->setienv("lastCURL","post");
-			env->setienv("lastCURLbody",*body);
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_POST, 1), errstr); //or CURLOPT_HTTPPOST ??
 		} else {
-//			env->setienv("lastCURL","other");
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_CUSTOMREQUEST, m.c_str()), errstr);
 		}
 		if (v.compare("HTTP/1.1") == 0) {
@@ -207,7 +205,7 @@ namespace Fetch {
 	}
 	
 	//- HTTPFetch methods -//
-	HTTPFetch::HTTPFetch(std::string& errstr) : headers(NULL),cookies(),body(NULL),handle(NULL),errorBuf(new char[CURL_ERROR_SIZE]),had_error(false) {
+	HTTPFetch::HTTPFetch(std::string& errstr) : headers(NULL),cookies(),body(),handle(NULL),errorBuf(new char[CURL_ERROR_SIZE]),had_error(false) {
 		Environment* env = Environment::service();
 		errorBuf[0] = '\0'; 
 		cookies = env->response_cookies(false); //We may want to think about this...
@@ -227,7 +225,7 @@ namespace Fetch {
 		}
 		curl_easy_cleanup(handle);
 		delete [] errorBuf;
-		//		body->clear(); //it's not ours to free...
+		body.clear();
 	}
 	
 	//used by OSI Request directly.
@@ -250,11 +248,11 @@ namespace Fetch {
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_MAXREDIRS,maxRedirects), errstr);
 		}
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_READFUNCTION, readMemoryCallback), errstr);
-		processErrorCode(curl_easy_setopt(handle, CURLOPT_READDATA, body), errstr);
+		processErrorCode(curl_easy_setopt(handle, CURLOPT_READDATA, &body), errstr);	//This is not a c_string- it's used by readMemoryCallback.
+		processErrorCode(curl_easy_setopt(handle, CURLOPT_POSTFIELDSIZE, body.size()), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_TIMEOUT, timeout_seconds), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_NOSIGNAL, 1), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_NOBODY, 0), errstr);
-		processErrorCode(curl_easy_setopt(handle, CURLOPT_POSTFIELDSIZE, body->length()), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_FAILONERROR, false), errstr); //Prevents output on return values > 300
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_WRITEDATA, &bodyString), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_WRITEHEADER, &headerString), errstr);
