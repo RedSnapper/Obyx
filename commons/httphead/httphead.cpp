@@ -191,7 +191,7 @@ void Httphead::setcode(unsigned int code) {
 	httpcode = code;
 }
 
-void Httphead::startup() {
+void Httphead::startup() { //note sure how this is used anymore.
 	instances = 0;
 	http_msgs.insert(http_msg_map::value_type("Date", httpdate));
 	http_msgs.insert(http_msg_map::value_type("Server", server));
@@ -204,12 +204,15 @@ void Httphead::startup() {
 	http_msgs.insert(http_msg_map::value_type("Last-Modified", modified));
 	http_msgs.insert(http_msg_map::value_type("Accept-Ranges", range));
 	http_msgs.insert(http_msg_map::value_type("Content-Type", mime));
+	http_msgs.insert(http_msg_map::value_type("content-type", mime));
 	http_msgs.insert(http_msg_map::value_type("Location", location));
 	http_msgs.insert(http_msg_map::value_type("Content-Length", contentlength));
 	http_msgs.insert(http_msg_map::value_type("Content-Disposition", disposition));
+	http_msgs.insert(http_msg_map::value_type("content-disposition", disposition));
 	http_msgs.insert(http_msg_map::value_type("P3P", p3p ));
 	http_msgs.insert(http_msg_map::value_type("Connection", connection));
 	http_msgs.insert(http_msg_map::value_type("Transfer-Encoding", transencoding));
+	http_msgs.insert(http_msg_map::value_type("transfer-encoding", transencoding));
 }
 
 void Httphead::shutdown() {
