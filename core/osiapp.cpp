@@ -77,7 +77,6 @@ bool OsiAPP::request(const xercesc::DOMNode* n,DataItem*& the_result) {
 				string body;		//we need to initialise this before initializing the HTTPFetch.
 				string req_errors;
 				if ( HTTPFetch::available() ) {
-					HTTPFetch my_req(req_url,req_method,req_version,&body,req_errors);
 					vector<std::string> heads;
 					DOMNode* msg=n->getFirstChild();		//this is one of request|response - but we only support request here.
 					while ( msg != NULL && msg->getNodeType() != DOMNode::ELEMENT_NODE)  {
@@ -98,6 +97,7 @@ bool OsiAPP::request(const xercesc::DOMNode* n,DataItem*& the_result) {
 					 logFile.close(); 
 					 */
 					//---------------- COMMENT  when NOT debugging
+					HTTPFetch my_req(req_url,req_method,req_version,body,req_errors);
 					for (unsigned int i=0; i < heads.size(); i++) {
 						my_req.addHeader(heads[i]);
 					}
