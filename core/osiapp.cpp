@@ -66,7 +66,8 @@ bool OsiAPP::request(const xercesc::DOMNode* n,DataItem*& the_result) {
 				*Logger::log << Log::error << Log::LI << "Error. OSI 'http' must have a URL attribute." << Log::LO << Log::blockend;
 				request_result=false;
 			} else {
-				if ( ! XML::Manager::attribute(n,"method",req_method))  req_method="GET";
+				if ( ! XML::Manager::attribute(n,"method",req_method)) { req_method="GET"; }
+				String::toupper(req_method);
 				if ( ! XML::Manager::attribute(n,"version",req_version)) req_version="HTTP/1.1";
 				string body;		//we need to initialise this before initializing the HTTPFetch.
 				string req_errors;
