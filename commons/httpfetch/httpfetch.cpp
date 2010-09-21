@@ -152,6 +152,7 @@ namespace Fetch {
 	// http://curl.haxx.se/libcurl/c/curl_easy_setopt.html
 	
 	HTTPFetch::HTTPFetch(string& u,string& m,string& v,string* b,string& errstr) : headers(NULL),cookies(),body(b),handle(NULL),errorBuf(new char[CURL_ERROR_SIZE]),had_error(false) {
+		Environment* env = Environment::service();
 		errorBuf[0] = '\0'; 
 		handle = curl_easy_init();
 		assert(handle != NULL);
@@ -188,10 +189,13 @@ namespace Fetch {
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_SSL_VERIFYHOST, 0), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_URL, u.c_str()), errstr);
 		if (m.compare("GET") == 0) {
+			env->setienv("lastCURL","get");
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_HTTPGET, 1), errstr);
 		} else if (m.compare("POST") == 0) {
+			env->setienv("lastCURL","post");
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_POST, 1), errstr); //or CURLOPT_HTTPPOST ??
 		} else {
+			env->setienv("lastCURL","other");
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_CUSTOMREQUEST, m.c_str()), errstr);
 		}
 		if (v.compare("HTTP/1.1") == 0) {
