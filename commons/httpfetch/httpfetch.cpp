@@ -193,6 +193,7 @@ namespace Fetch {
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_HTTPGET, 1), errstr);
 		} else if (m.compare("POST") == 0) {
 //			env->setienv("lastCURL","post");
+			env->setienv("lastCURLbody",*body);
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_POST, 1), errstr); //or CURLOPT_HTTPPOST ??
 		} else {
 //			env->setienv("lastCURL","other");
