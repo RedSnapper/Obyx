@@ -583,7 +583,7 @@ void OsiMessage::construct_header_value(header& h) {
 			h.s = h.v; h.v.clear();
 			do_header_subheads(h);
 		} break;
-		case cdisp: {
+		case cdisp:
 			h.n = "Content-Disposition"; //otherwise, unstructured.
 		case qvalue: 
 		case date_time: 
