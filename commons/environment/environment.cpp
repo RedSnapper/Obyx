@@ -447,9 +447,7 @@ void Environment::do_request_cookies() {
 	size_t find = string::npos;
 	bool finished = false;
 	if ( Logger::debugging() ) {
-		*Logger::log << Log::debug << Log::LI;
-		*Logger::log << Log::subhead << Log::LI << "Cookie Processing Initiated" << Log::LO << Log::blockend;
-		*Logger::log << Log::LO;
+		*Logger::log << Log::subhead << Log::LI << "Cookie Processing Initiated" << Log::LO;
 	}
 	if (getenv("HTTP_COOKIE",cook))  {
 		while( !finished ) {
@@ -777,7 +775,7 @@ void Environment::dopostparms() {
 				} // end of while
 				setparm(parmprefix+"_count",String::tostring(numparms)); 
 				if ( Logger::debugging() ) {
-					*Logger::log << Log::blockend << Log::LI << "POST Processing Completed" << Log::LO << Log::blockend; //
+					*Logger::log << Log::debug << Log::LI << "POST Processing Completed" << Log::LO << Log::blockend; //
 				}
 			} //if CONTENT_TYPE
 		} 
