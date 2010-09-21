@@ -19,7 +19,6 @@
 		B53AE9C10C1DE1CA00B2371C /* httpfetchleaf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B53AE9BC0C1DE1CA00B2371C /* httpfetchleaf.cpp */; };
 		B53B010311F524D600C1D7E3 /* crypto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B53B010111F524D600C1D7E3 /* crypto.cpp */; };
 		B53B010411F524D600C1D7E3 /* crypto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B53B010111F524D600C1D7E3 /* crypto.cpp */; };
-		B53D233910568020008FC5CB /* libxqilla.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B599F9230F583DEA00AD3D2C /* libxqilla.dylib */; };
 		B541F1E911941E1E0099F07C /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5E31FE609BC584A00F7FC96 /* main.cpp */; };
 		B541F1EA11941E1E0099F07C /* httphead.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B55C29B609A4AB9D00714977 /* httphead.cpp */; };
 		B541F1EB11941E1E0099F07C /* environment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B55C287409A4903700714977 /* environment.cpp */; };
@@ -102,6 +101,7 @@
 		B568C3030CC63C1600B1EBFF /* connection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B568C2FB0CC63C1600B1EBFF /* connection.cpp */; };
 		B5741877119436A80046BE0B /* httplogger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B50F509E09939223002FC561 /* httplogger.cpp */; };
 		B5741878119436AA0046BE0B /* clilogger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B50F509C09939223002FC561 /* clilogger.cpp */; };
+		B5798122124282DA004752BE /* libxqilla.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B599F9230F583DEA00AD3D2C /* libxqilla.dylib */; };
 		B58852A60CC39E1B009D0279 /* regex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B58852A10CC39E1B009D0279 /* regex.cpp */; };
 		B58DA8C21104B05E00C34661 /* fragmentobject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B58DA8C11104B05E00C34661 /* fragmentobject.cpp */; };
 		B5A68E9209CF266B00D69316 /* pairqueue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5A68E9109CF266B00D69316 /* pairqueue.cpp */; };
@@ -313,8 +313,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				B51648170CBB8285000995D5 /* libdl.dylib in Frameworks */,
-				B53D233910568020008FC5CB /* libxqilla.dylib in Frameworks */,
 				B5CA58FD11B66946001A56D4 /* libxerces-c-3.1.dylib in Frameworks */,
+				B5798122124282DA004752BE /* libxqilla.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -721,6 +721,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
+				ORGANIZATIONNAME = "Red Snapper Ltd";
 			};
 			buildConfigurationList = B59B3B1E08E2B9FB0065257B /* Build configuration list for PBXProject "obyx" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -958,9 +959,9 @@
 		B59B3B1F08E2B9FB0065257B /* General */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
 				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEPLOYMENT_LOCATION = YES;
 				DEPLOYMENT_POSTPROCESSING = YES;
 				DSTROOT = /;
@@ -981,7 +982,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
 				GCC_TREAT_NONCONFORMANT_CODE_ERRORS_AS_WARNINGS = NO;
-				GCC_VERSION = "";
+				GCC_VERSION = 4.2;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
@@ -1021,6 +1022,7 @@
 				);
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
 				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = YES;
