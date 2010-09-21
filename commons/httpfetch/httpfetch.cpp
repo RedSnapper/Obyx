@@ -61,16 +61,16 @@ namespace Fetch {
 			case CURLINFO_HEADER_OUT:
 			case CURLINFO_DATA_OUT: {
 				string message(m,len);
-				*Logger::log << Log::debug << Log::LI << "curl (out) '" << message << "'." << Log::LO << Log::blockend;
+				*Logger::log << Log::debug << Log::LI << "curl (o) '" << message << "'." << Log::LO << Log::blockend;
 			} break;
 			case CURLINFO_HEADER_IN:
 			case CURLINFO_DATA_IN: {
 				string message(m,len);
-				*Logger::log << Log::debug << Log::LI << "curl (in) '" << message << "'." << Log::LO << Log::blockend;
+				*Logger::log << Log::debug << Log::LI << "curl (i) '" << message << "'." << Log::LO << Log::blockend;
 			} break;
 			default: {
 				string message(m,len);
-				*Logger::log << Log::debug << Log::LI << "curl (--) '" << message << "'." << Log::LO << Log::blockend;
+				*Logger::log << Log::debug << Log::LI << "curl (-) '" << message << "'." << Log::LO << Log::blockend;
 			} break; 
 		}
 		return 0;
