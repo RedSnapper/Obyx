@@ -101,6 +101,11 @@ bool OsiAPP::request(const xercesc::DOMNode* n,DataItem*& the_result) {
 					for (unsigned int i=0; i < heads.size(); i++) {
 						my_req.addHeader(heads[i]);
 					}
+					if (!body.empty()) {
+						string cl="Content-Length: ";
+						cl.append(String::tostring((unsigned long long)body.size()));
+						my_req.addHeader(cl);
+					}
 					last_response.clear();
 					string response_head,response_body;	//what was returned by remote server...
 					if (! my_req.doRequest(response_head,response_body,req_errors) ) {

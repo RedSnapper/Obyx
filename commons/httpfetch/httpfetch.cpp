@@ -55,7 +55,7 @@ namespace Fetch {
  This function must return 0. 
  The data pointed to by the char * passed to this function WILL NOT be zero terminated, 
  but will be exactly of the size as told by the size_t argument.
-  */	
+*/	
 	int HTTPFetch::debugCallback(CURL*,curl_infotype i,char* m,size_t len,void*) {
 		switch (i) {
 			case CURLINFO_HEADER_OUT:
@@ -292,9 +292,6 @@ namespace Fetch {
 			if ( Logger::debugging() ) {
 				*Logger::log << Log::LI << "There is a body to process. This will be a POST." << Log::LO;
 			}
-			string cl="Content-Length: ";
-			cl.append(String::tostring((unsigned long long)body.size()));
-			headers = curl_slist_append(headers, headerString.c_str());
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_POST, 1), errstr); //
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_READFUNCTION, readMemoryCallback), errstr);
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_READDATA, &body), errstr);	//This is not a c_string- it's used by readMemoryCallback.
