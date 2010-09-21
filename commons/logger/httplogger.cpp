@@ -121,7 +121,8 @@ void HTTPLogger::ltail(string& container) {		//tail log document
 
 void HTTPLogger::open() {	//This should always be called ..
 	minititle = true;
-	if (debugflag || hadfatal) {
+	if ((debugflag || hadfatal) && !topped ) {
+		topped = true;
 		string top_str;
 		top(top_str);
 		*o << top_str;
