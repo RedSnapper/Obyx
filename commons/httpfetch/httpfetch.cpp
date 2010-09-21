@@ -266,12 +266,15 @@ namespace Fetch {
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_AUTOREFERER,1), errstr);
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_MAXREDIRS,maxRedirects), errstr);
 		}
-		processErrorCode(curl_easy_setopt(handle, CURLOPT_READFUNCTION, readMemoryCallback), errstr);
-		processErrorCode(curl_easy_setopt(handle, CURLOPT_READDATA, &body), errstr);	//This is not a c_string- it's used by readMemoryCallback.
-		processErrorCode(curl_easy_setopt(handle, CURLOPT_POSTFIELDSIZE, body.size()), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_TIMEOUT, timeout_seconds), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_NOSIGNAL, 1), errstr);
-		processErrorCode(curl_easy_setopt(handle, CURLOPT_NOBODY, 0), errstr);
+		if (!body.empty()) {
+			processErrorCode(curl_easy_setopt(handle, CURLOPT_POST, 1), errstr); //
+			processErrorCode(curl_easy_setopt(handle, CURLOPT_READFUNCTION, readMemoryCallback), errstr);
+			processErrorCode(curl_easy_setopt(handle, CURLOPT_READDATA, &body), errstr);	//This is not a c_string- it's used by readMemoryCallback.
+			processErrorCode(curl_easy_setopt(handle, CURLOPT_POSTFIELDSIZE, body.size()), errstr);
+			processErrorCode(curl_easy_setopt(handle, CURLOPT_NOBODY, 0), errstr);
+		}
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_FAILONERROR, false), errstr); //Prevents output on return values > 300
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_WRITEDATA, &bodyString), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_WRITEHEADER, &headerString), errstr);
