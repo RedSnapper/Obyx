@@ -290,7 +290,7 @@ namespace Fetch {
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_NOSIGNAL, 1), errstr);
 		if (!body.empty()) {
 			if ( Logger::debugging() ) {
-				*Logger::log << Log::LI << "There is a body to process." << Log::LO;
+				*Logger::log << Log::LI << "There is a body to process. This will be a POST." << Log::LO;
 			}
 			string cl="Content-Length: ";
 			cl.append(String::tostring((unsigned long long)body.size()));
