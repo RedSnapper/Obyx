@@ -59,8 +59,6 @@ namespace Fetch {
 		std::string body;
 		CURL* handle;
 		char* errorBuf;
-//		char* bodyBuf;
-//		size_t bodyLen;
 		bool had_error;
 		
 		class PageFetcher;
