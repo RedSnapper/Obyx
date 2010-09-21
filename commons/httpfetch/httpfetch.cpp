@@ -257,9 +257,9 @@ namespace Fetch {
 		unsigned long maxRedirects = 0,timeout_seconds=30;
 		if ( Logger::debugging() ) {
 			curl_version_info_data* info = curl_version_info(CURLVERSION_NOW);
-			if (info != NULL) { //curl 7.18.2 (x86_64-pc-linux-gnu) libcurl/7.18.2 OpenSSL/0.9.8g zlib/1.2.3.3 libidn/1.8 libssh2/0.18
+			if (info != NULL) {
 				*Logger::log << Log::debug << Log::LI << "libcurl/";
-				*Logger::log << info->version << ", " << info->ssl_version << ", zlib/" << info->libz_version << ", " << info->libssh_version;
+				*Logger::log << info->version << " " << info->ssl_version << " libz/" << info->libz_version << " " << info->libssh_version;
 				*Logger::log << Log::LO << Log::blockend;
 			}
 		}
