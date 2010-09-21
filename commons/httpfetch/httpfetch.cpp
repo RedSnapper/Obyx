@@ -56,13 +56,15 @@ namespace Fetch {
  The data pointed to by the char * passed to this function WILL NOT be zero terminated, 
  but will be exactly of the size as told by the size_t argument.
   */	
-	int HTTPFetch::debugCallback(CURL*,curl_infotype i,char* m,size_t len,void*) {
+	int HTTPFetch::debugCallback(CURL*,curl_infotype i,char* m,size_t len,void* v) {
 		switch (i) {
 			case CURLINFO_HEADER_OUT:
 			case CURLINFO_DATA_OUT:
 			case CURLINFO_TEXT: {
 				string message(m,len);
-				*Logger::log << Log::debug << Log::LI << "HTTPFetch '" << message << "'." << Log::LO << Log::blockend;
+				*Logger::log << Log::debug << Log::LI << "HTTPFetch '" << message << "'.";
+				if (v != NULL) { *Logger::log << " (body has text)"; }
+				*Logger::log << Log::LO << Log::blockend;
 			} break;
 			default: break;
 		}
@@ -269,6 +271,7 @@ namespace Fetch {
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_TIMEOUT, timeout_seconds), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_NOSIGNAL, 1), errstr);
 		if (!body.empty()) {
+			processErrorCode(curl_easy_setopt(handle, CURLOPT_DEBUGDATA, &body), errstr); //
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_POST, 1), errstr); //
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_READFUNCTION, readMemoryCallback), errstr);
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_READDATA, &body), errstr);	//This is not a c_string- it's used by readMemoryCallback.
