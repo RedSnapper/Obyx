@@ -61,16 +61,16 @@ namespace Fetch {
 			case CURLINFO_HEADER_OUT:
 			case CURLINFO_DATA_OUT: {
 				string message(m,len);
-				*Logger::log << Log::debug << Log::LI << "curl (o) '" << message << "'." << Log::LO << Log::blockend;
+				*Logger::log << Log::LI << "curl (o) '" << message << "'." << Log::LO;
 			} break;
 			case CURLINFO_HEADER_IN:
 			case CURLINFO_DATA_IN: {
 				string message(m,len);
-				*Logger::log << Log::debug << Log::LI << "curl (i) '" << message << "'." << Log::LO << Log::blockend;
+				*Logger::log << Log::LI << "curl (i) '" << message << "'." << Log::LO;
 			} break;
 			default: {
 				string message(m,len);
-				*Logger::log << Log::debug << Log::LI << "curl (-) '" << message << "'." << Log::LO << Log::blockend;
+				*Logger::log << Log::LI << "curl (-) '" << message << "'." << Log::LO;
 			} break; 
 		}
 		return 0;
@@ -267,7 +267,7 @@ namespace Fetch {
 			if (info != NULL) {
 				*Logger::log << Log::debug << Log::LI << "libcurl/";
 				*Logger::log << info->version << " " << info->ssl_version << " libz/" << info->libz_version << " " << info->libssh_version;
-				*Logger::log << Log::LO << Log::blockend;
+				*Logger::log << Log::LO;
 			}
 		}
 		
@@ -313,6 +313,9 @@ namespace Fetch {
 				if (errstr.empty()) { errstr  = "Request Error"; }
 				had_error = true;
 			}
+		}
+		if ( Logger::debugging() ) {
+			*Logger::log << Log::blockend;
 		}
 		return ! had_error; //This does NOT return an error if the return code is > 300.
 	}
