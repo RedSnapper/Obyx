@@ -93,7 +93,6 @@ namespace Fetch {
 	 */ 
 	size_t HTTPFetch::readMemoryCallback(void *ptr, size_t size, size_t nmemb, void *stream) {
 		Environment* env = Environment::service();
-		env->setparm("bodyread","true");
 		std::string* s = static_cast<std::string*>(stream); //we must actually change the string...
 		size_t realSize = size * nmemb;
 		size_t result = s->copy(static_cast<char*>(ptr), realSize);
