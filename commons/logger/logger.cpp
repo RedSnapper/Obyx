@@ -141,23 +141,27 @@ ostream* Logger::init(ostream*& final_out) {
 	 */
 	log->syslogging = ! env->getenv("OBYX_SYSLOG_OFF",tmp_env);
 	log->logging_on =   env->getenv("OBYX_DEVELOPMENT",tmp_env);
-	if (log->syslogging) {
-		if (log->logging_on) {
-			log->debugflag = env->getenv("OBYX_DEBUG", tmp_env);
-			if (log->debugflag) {
+	if (log->logging_on) {
+		log->debugflag = env->getenv("OBYX_DEBUG", tmp_env);
+		if (log->debugflag) {
+			if (log->syslogging) {
 				setlogmask(LOG_UPTO (LOG_DEBUG ));
-				openlog("Obyx",0,LOG_USER);
-			} else {
-				if (!env->getenv("OBYX_LOGGING_OFF",tmp_env)) {
-					setlogmask(LOG_UPTO (LOG_WARNING));
-					openlog("Obyx",0,LOG_USER);
-				}
 			}
+			openlog("Obyx",0,LOG_USER);
 		} else {
-			if (! env->getenv("OBYX_LOGGING_OFF",tmp_env)) {
-				setlogmask(LOG_UPTO (LOG_WARNING));
+			if (!env->getenv("OBYX_LOGGING_OFF",tmp_env)) {
+				if (log->syslogging) {
+					setlogmask(LOG_UPTO (LOG_WARNING));
+				}
 				openlog("Obyx",0,LOG_USER);
 			}
+		}
+	} else {
+		if (! env->getenv("OBYX_LOGGING_OFF",tmp_env)) {
+			if (log->syslogging) {
+				setlogmask(LOG_UPTO (LOG_WARNING));
+			}
+			openlog("Obyx",0,LOG_USER);
 		}
 	}
 	if (final_out != NULL) {
@@ -261,15 +265,17 @@ Logger& Logger::operator << (const extratype extrabit) {
 }	
 
 Logger& Logger::operator<< (const char* msg) { 
-	string mesg(msg);
-	if (! String::normalise(mesg)) {
-		mesg = msg;
-		String::base64encode(mesg);
-	}
-	if (log->top_line && log->syslogging) { log->syslogbuffer << mesg;}
-	XMLChar::encode(mesg);
-	if ( logging_on && (type_stack.top() != debug || debugging()) )  {
-		*o << mesg;  
+	if (msg != NULL) {
+		string mesg(msg);
+		if (! String::normalise(mesg)) {
+			mesg = msg;
+			String::base64encode(mesg);
+		}
+		if (log->top_line && log->syslogging) { log->syslogbuffer << mesg;}
+		XMLChar::encode(mesg);
+		if ( logging_on && (type_stack.top() != debug || debugging()) )  {
+			*o << mesg;  
+		}
 	}
 	return *this;
 }
