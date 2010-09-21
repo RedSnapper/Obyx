@@ -189,13 +189,13 @@ namespace Fetch {
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_SSL_VERIFYHOST, 0), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_URL, u.c_str()), errstr);
 		if (m.compare("GET") == 0) {
-			env->setienv("lastCURL","get");
+//			env->setienv("lastCURL","get");
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_HTTPGET, 1), errstr);
 		} else if (m.compare("POST") == 0) {
-			env->setienv("lastCURL","post");
+//			env->setienv("lastCURL","post");
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_POST, 1), errstr); //or CURLOPT_HTTPPOST ??
 		} else {
-			env->setienv("lastCURL","other");
+//			env->setienv("lastCURL","other");
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_CUSTOMREQUEST, m.c_str()), errstr);
 		}
 		if (v.compare("HTTP/1.1") == 0) {
