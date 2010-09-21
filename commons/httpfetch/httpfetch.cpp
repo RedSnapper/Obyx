@@ -192,9 +192,6 @@ namespace Fetch {
 		if (m.compare("GET") == 0) {
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_HTTPGET, 1), errstr);
 		} else if (m.compare("POST") == 0) {
-//			string hbody(body);
-//			String::tohex(hbody);
-//			env->setparm("curlbody",hbody);
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_POST, 1), errstr); //or CURLOPT_HTTPPOST ??
 		} else {
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_CUSTOMREQUEST, m.c_str()), errstr);
