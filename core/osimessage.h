@@ -41,7 +41,7 @@ private:
 		//RFC 2369
 		list,
 		//Specials
-		rescookie,reqcookie
+		rescookie,reqcookie,cdisp
 	} header_type;	//what kind of dataItem
 	
 	typedef std::map<std::string, header_type > header_type_map; 

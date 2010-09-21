@@ -583,6 +583,8 @@ void OsiMessage::construct_header_value(header& h) {
 			h.s = h.v; h.v.clear();
 			do_header_subheads(h);
 		} break;
+		case cdisp: {
+			h.n = "Content-Disposition"; //otherwise, unstructured.
 		case qvalue: 
 		case date_time: 
 		case msg_id: 
@@ -842,6 +844,8 @@ void OsiMessage::startup() { //(default is  unstructured)
 	header_types.insert(header_type_map::value_type("Set-cookie",rescookie));		//Special: response cookie 
 	header_types.insert(header_type_map::value_type("content-type",contenttype));	//Special: May be broken.
 	header_types.insert(header_type_map::value_type("Cookie",reqcookie));			//Special: request cookie 
+	header_types.insert(header_type_map::value_type("content-disposition",cdisp));	//homogenise c-d.
+	header_types.insert(header_type_map::value_type("Content-Disposition",cdisp));	//
 	
 }
 void OsiMessage::shutdown() {
