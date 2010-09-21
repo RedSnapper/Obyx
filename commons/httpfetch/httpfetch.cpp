@@ -289,6 +289,9 @@ namespace Fetch {
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_TIMEOUT, timeout_seconds), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_NOSIGNAL, 1), errstr);
 		if (!body.empty()) {
+			if ( Logger::debugging() ) {
+				*Logger::log << Log::LI << "There is a body to process." << Log::LO;
+			}
 			string cl="Content-Length: ";
 			cl.append(String::tostring((unsigned long long)body.size()));
 			headers = curl_slist_append(headers, headerString.c_str());
