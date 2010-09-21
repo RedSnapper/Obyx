@@ -35,11 +35,11 @@ using namespace Log;
 class HTTPLogger : public Logger {
 private:
 	static bool minititle;						//for show/hide
-	bool topped;								//top just once.
+	bool topped,tailed;							//top just once.
 	
 protected:
 	friend class Logger;
-	HTTPLogger() : Logger(1),topped(false) {}
+	HTTPLogger() : Logger(1),topped(false),tailed(false) {}
 	~HTTPLogger() {}
 	virtual void wrap(bool);
 	virtual void extra(extratype); 
