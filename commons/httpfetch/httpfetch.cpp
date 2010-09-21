@@ -48,6 +48,26 @@ namespace Fetch {
 		s->append(ptr, ptr + realSize);
 		return realSize;
 	}
+/*
+ Function pointer that should match the following prototype: int curl_debug_callback (CURL *, curl_infotype, char *, size_t, void *); 
+ CURLOPT_DEBUGFUNCTION replaces the standard debug function used when CURLOPT_VERBOSE is in effect. 
+ This callback receives debug information, as specified with the curl_infotype argument. 
+ This function must return 0. 
+ The data pointed to by the char * passed to this function WILL NOT be zero terminated, 
+ but will be exactly of the size as told by the size_t argument.
+  */	
+	int HTTPFetch::debugCallback(CURL*,curl_infotype i,char* m,size_t len,void*) {
+		switch (i) {
+			case CURLINFO_HEADER_OUT:
+			case CURLINFO_DATA_OUT:
+			case CURLINFO_TEXT: {
+				string message(m,len);
+				*Logger::log << Log::debug << Log::LI << "HTTPFetch '" << message << "'." << Log::LO << Log::blockend;
+			} break;
+			default: break;
+		}
+		return 0;
+	}
 	
 	/*
 	 Function pointer that should match the following prototype: 
@@ -73,10 +93,6 @@ namespace Fetch {
 		try { s->erase(0, result); } catch(...) { }
 		return result;
 	}
-	
-}
-
-namespace Fetch {
 	
 	bool HTTPFetch::loadattempted = false;
 	bool HTTPFetch::loaded = false;
@@ -182,6 +198,10 @@ namespace Fetch {
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_COOKIEFILE, ""), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_ERRORBUFFER, errorBuf), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_POSTFIELDS, NULL), errstr);
+		if ( Logger::debugging() ) {
+			processErrorCode(curl_easy_setopt(handle, CURLOPT_DEBUGFUNCTION, debugCallback), errstr);
+			processErrorCode(curl_easy_setopt(handle, CURLOPT_VERBOSE, 1), errstr);
+		}
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_READFUNCTION, readMemoryCallback), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_READDATA, &body), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, writeMemoryCallback), errstr);

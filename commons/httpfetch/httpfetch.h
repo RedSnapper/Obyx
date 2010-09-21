@@ -52,6 +52,7 @@ namespace Fetch {
 		static struct curl_slist* (*curl_slist_append)(struct curl_slist*,const char *);
 		static size_t writeMemoryCallback(char *, size_t, size_t, void *);
 		static size_t readMemoryCallback(void *, size_t, size_t, void *);
+		static int debugCallback(CURL*,curl_infotype,char*,size_t,void*);
 		
 		//-- End of dll stuff		
 		struct curl_slist *headers;		
