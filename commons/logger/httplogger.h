@@ -39,7 +39,7 @@ private:
 	
 protected:
 	friend class Logger;
-	HTTPLogger() : Logger(1) {}
+	HTTPLogger() : Logger(1),topped(false) {}
 	~HTTPLogger() {}
 	virtual void wrap(bool);
 	virtual void extra(extratype); 
