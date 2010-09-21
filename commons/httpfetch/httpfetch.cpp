@@ -255,6 +255,15 @@ namespace Fetch {
 	bool HTTPFetch::doRequest(string& headerString,string& bodyString,string& errstr) {
 		string redirect_val,timeout_val;
 		unsigned long maxRedirects = 0,timeout_seconds=30;
+		if ( Logger::debugging() ) {
+			curl_version_info_data* info = curl_version_info(CURLVERSION_NOW);
+			if (info != NULL) {
+				*Logger::log << Log::debug << Log::LI << "HTTPFetch Version Info: ";
+				*Logger::log << info->version << ", " << info->ssl_version << ", " << info->libz_version;
+				*Logger::log << Log::LO << Log::blockend;
+			}
+		}
+		
 		if (ItemStore::get("REDIRECT_BREAK_COUNT",redirect_val)) {
 			pair<long long,bool> enval = String::integer(redirect_val);
 			maxRedirects = (unsigned long)enval.first;
