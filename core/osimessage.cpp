@@ -837,10 +837,11 @@ void OsiMessage::startup() { //(default is  unstructured)
 	
 	//Not sure what RFC.. (common broken headers)
 	header_types.insert(header_type_map::value_type("Delivered-To",mailbox));		//
-	header_types.insert(header_type_map::value_type("Reply-to",mailbox));			//"
-	header_types.insert(header_type_map::value_type("Set-Cookie",rescookie));		//"Special: response cookie 
-	header_types.insert(header_type_map::value_type("Set-cookie",rescookie));		//"Special: response cookie 
-	header_types.insert(header_type_map::value_type("Cookie",reqcookie));			//"Special: request cookie 
+	header_types.insert(header_type_map::value_type("Reply-to",mailbox));			//
+	header_types.insert(header_type_map::value_type("Set-Cookie",rescookie));		//Special: response cookie 
+	header_types.insert(header_type_map::value_type("Set-cookie",rescookie));		//Special: response cookie 
+	header_types.insert(header_type_map::value_type("content-type",contenttype));	//Special: May be broken.
+	header_types.insert(header_type_map::value_type("Cookie",reqcookie));			//Special: request cookie 
 	
 }
 void OsiMessage::shutdown() {
