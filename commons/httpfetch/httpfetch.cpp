@@ -292,6 +292,7 @@ namespace Fetch {
 				*Logger::log << Log::LI << "There is a body to process. This will be a POST." << Log::LO;
 			}
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_POST, 1), errstr); //
+			processErrorCode(curl_easy_setopt(handle, CURLOPT_POSTFIELDS, NULL), errstr); //
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_READFUNCTION, readMemoryCallback), errstr);
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_READDATA, &body), errstr);	//This is not a c_string- it's used by readMemoryCallback.
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_POSTFIELDSIZE, body.size()), errstr);
