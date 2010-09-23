@@ -18,21 +18,21 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 ------------------------------------------------------------------------------------
 THANKS File
 
-Obyx was designed and written by Ben Griffin <ben@redsnapper.net>
+Obyx was designed and written by Ben Griffin <ben[at]redsnapper.net>
 The maintainer for Obyx is Ben Griffin from 2005-2010.
 
 The following is a list of people who contributed to Obyx by reporting problems, 
 suggesting various improvements or submitting actual code. 
 Help us keep it complete and exempt of errors.
 
-David    			<david@redsnapper.net>
-James				<james@redsnapper.net>
-Kris				<kris@redsnapper.net>
-Alan    			<alan@redsnapper.net>
-Jimmy    			<jpw@redsnapper.net>
-Tony    			<tony@redsnapper.net>
-Sam Lindley			<sam@redsnapper.net>
+David    			<david[at]redsnapper.net>
+James				<james[at]redsnapper.net>
+Kris				<kris[at]redsnapper.net>
+Alan    			<alan[at]redsnapper.net>
+Jimmy    			<jpw[at]redsnapper.net>
+Tony    			<tony[at]redsnapper.net>
+Sam Lindley			<sam[at]redsnapper.net>
 
 The ImageInfo c++,  from which a derivation is used, was originally authored by
-Marco Schmidt		<marcoschmidt@users.sourceforge.net>
-Alexandre Klaey		<alkla80@hotmail.com>
+Marco Schmidt		<marcoschmidt[at]users.sourceforge.net>
+Alexandre Klaey		<alkla80[at]hotmail.com>
