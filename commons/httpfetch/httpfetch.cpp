@@ -265,7 +265,7 @@ namespace Fetch {
 			curl_version_info_data* info = curl_version_info(CURLVERSION_NOW);
 			if (info != NULL) {
 				*Logger::log << Log::debug << Log::LI << "libcurl/";
-				*Logger::log << info->version << " " << info->ssl_version << " libz/" << info->libz_version << " " << info->libssh_version;
+				*Logger::log << info->version << " " << info->ssl_version << " libz/" << info->libz_version; //<< " " << info->libssh_version;
 				*Logger::log << Log::LO;
 			}
 		}
