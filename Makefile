@@ -38,7 +38,7 @@ CC_COMPILE_FLAG =-c
 CC_OBJECT_FLAG  =-o
 SPECIAL_CCFLAGS =
 #All include directories are mentioned
-CC_ARGS      = -fshort-wchar -I /usr/include $(CC_INCLUDES) -I. $(CC_FLAGS) $(CC_DEFINES)	
+CC_ARGS      = -fshort-wchar -Wl,--as-needed -I /usr/include $(CC_INCLUDES) -I. $(CC_FLAGS) $(CC_DEFINES)	
 ###############################################################################
 #commons
 FAST_SRCS        =fast/fast.cpp 
