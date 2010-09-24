@@ -38,7 +38,8 @@ CC_COMPILE_FLAG =-c
 CC_OBJECT_FLAG  =-o
 SPECIAL_CCFLAGS =
 #All include directories are mentioned
-CC_ARGS      = -fshort-wchar -Wl,--as-needed -I /usr/include $(CC_INCLUDES) -I. $(CC_FLAGS) $(CC_DEFINES)	
+CC_ARGS      = -fshort-wchar -I /usr/include $(CC_INCLUDES) -I. $(CC_FLAGS) $(CC_DEFINES)
+CC_LINKFLAGS = -Wl,--as-needed 
 ###############################################################################
 #commons
 FAST_SRCS        =fast/fast.cpp 
@@ -77,7 +78,7 @@ setobjs   =$(call objs,$($(1)_USES),commons) \
 OBYX_OBJ      = $(call setobjs,OBYX,core)
 FOBYX_OBJ     = $(call setobjs,FOBYX,core)
 ###############################################################################
-build     =@echo "Installing $(2)"; $(CC_EXEC) $(1) $(LIBDIRS) $($(3)_LIBI) $(CC_LIBS) $(ALL_LIBS) $($(3)_LIBS) $(CC_OBJECT_FLAG) $(2)
+build     =@echo "Installing $(2)"; $(CC_EXEC) $(1) $(CC_LINKFLAGS) $(LIBDIRS) $($(3)_LIBI) $(CC_LIBS) $(ALL_LIBS) $($(3)_LIBS) $(CC_OBJECT_FLAG) $(2)
 ###############################################################################
 $(CGIHOME)/obyx.cgi        : $(OBYX_OBJ)  ; $(call build,$+,$@,OBYX)
 $(CGIHOMEDEV)/obyx.cgi     : $(OBYX_OBJ)  ; $(call build,$+,$@,OBYX)
