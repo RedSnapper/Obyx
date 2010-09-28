@@ -23,6 +23,7 @@
 #include <ctype.h>
 #include <math.h>
 #include <cfloat>
+#include <errno.h>
 #include <xercesc/dom/DOMNode.hpp>
 
 #include "commons/logger/logger.h"
@@ -662,6 +663,7 @@ void Instruction::call_sql(std::string& querystring) {
 void Instruction::call_system(std::string& cmd) {
 	Environment* env = Environment::service();
 	string command(env->ScriptsDir());
+	string errmsg("");
 	if (!command.empty()) {
 		String::trim(cmd);
 		if ( ! cmd.empty() ) {
@@ -704,6 +706,7 @@ void Instruction::call_system(std::string& cmd) {
 							command.append(" > ");
 							command.append(resultfile);
 							res = system(command.c_str());
+							if (res != 0) { errmsg = strerror(errno); }
 						} else {
 							string sourcefile;
 							ostringstream cmd;
@@ -715,6 +718,7 @@ void Instruction::call_system(std::string& cmd) {
 							cmd << "cat " << sourcefile << " | " << command << " > " << resultfile;
 							command = cmd.str();
 							res = system(command.c_str());
+							if (res != 0) { errmsg = strerror(errno); }
 							if (srce.exists()) {
 								srce.removeFile();
 							}
@@ -731,7 +735,7 @@ void Instruction::call_system(std::string& cmd) {
 						}
 						if (res != 0) {
 							*Logger::log << Log::error << Log::LI << "Error. Instruction operation shell.";
-							*Logger::log << " The script " << command_parms.first << " returned error " << res << Log::LO;
+							*Logger::log << " The script " << command_parms.first << " returned error " << errmsg << Log::LO;
 							trace();
 							*Logger::log << Log::blockend;
 						}
