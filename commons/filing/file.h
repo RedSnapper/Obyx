@@ -74,7 +74,7 @@
 			off_t getSize() const;
 			long getCreateDate() const;
 			long getModDate() const;
-			bool copyTo(const File newfile, bool overwrite = false) const;
+			bool copyTo(const File, string&, bool) const;
 			bool copyTo(const Path newpath, bool overwrite = false) const;
 			void readFile(string&) const;
 			bool writeFile(const string contents) const;

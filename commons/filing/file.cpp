@@ -21,7 +21,6 @@
  */
 
 #include <iostream>
-#include <fstream>
 #include <sstream>
 #include <iomanip>
 #include <cstdio>
@@ -29,8 +28,10 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <time.h>
 #include "file.h"
+#include <errno.h>
 
 	namespace FileUtils
 	{
@@ -366,31 +367,41 @@
 		// Copies the current File to the specified File
 		// overwrite = true, overwrites the dest
 		//-------------------------------------------------------------------------
-		bool File::copyTo(const File newfile, bool overwrite) const {
-			if ((newfile.exists() && overwrite) || !newfile.exists())
-			{
-				FILE *in = fopen(output().c_str(), "rb");
-				if (!in)
-					return false;	
-				FILE *out = fopen(newfile.output().c_str(), "w+b");
-				if (!out)
-				{
-					fclose(in);
-					return false;
+		bool File::copyTo(const File newfile, string& errs, bool overwrite) const {
+			bool retval = false;
+			string from_path = output();
+			string dest_path = newfile.output();
+			if ((newfile.exists() && overwrite) || !newfile.exists()) {
+				FILE *in = fopen(from_path.c_str(), "rb");
+				if (in != 0) {
+					struct stat in_stat;
+					int err = stat(from_path.c_str(),&in_stat);
+					if (err != 0) { string ers = strerror(errno); errs.append(ers); errs.append("; "); retval = false; }
+					FILE *out = fopen(dest_path.c_str(), "w+b");
+					if (out == 0) {
+						fclose(in);
+					} else {
+						retval = true;
+						struct timeval times[2] = {{0,0},{0,0}};	/* initialise microseconds to zero */
+						times[0].tv_sec = in_stat.st_atime;			/* time of last access */
+						times[1].tv_sec = in_stat.st_mtime;			/* time of last modification */
+						err = chmod(dest_path.c_str(),S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH);
+						if (err != 0) { string ers = strerror(errno); errs.append(ers); errs.append("; "); retval = false; }
+						char buf[8192];
+						size_t i;
+						while((i = fread(buf, 1, 8192, in)) != 0) {
+							fwrite(buf, 1, i, out);
+						}
+						fclose(in);
+						fclose(out);
+						err = utimes(dest_path.c_str(),times);
+						if (err != 0) { string ers = strerror(errno); errs.append(ers); errs.append("; "); retval = false; }
+					}
 				}
-				char buf[8192];
-				size_t i;
-				while((i = fread(buf, 1, 8192, in)) != 0)
-					fwrite(buf, 1, i, out);
-				fclose(in);
-				fclose(out);
-				chmod(newfile.output().c_str(),S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH );
-				return true;
 			}
-			return false;
+			return retval;
 		}
-
-
+		
 		//-------------------------------------------------------------------------
 		// Copy the current File to the specified Path
 		// overwrite = true, overwrites the dest
