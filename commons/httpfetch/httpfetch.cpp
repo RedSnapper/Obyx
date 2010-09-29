@@ -92,7 +92,6 @@ namespace Fetch {
 	 function will be used. It is simply doing an fread() on the FILE * stream set with CURLOPT_READDATA.	
 	 */ 
 	size_t HTTPFetch::readMemoryCallback(void *ptr, size_t size, size_t nmemb, void *stream) {
-		Environment* env = Environment::service();
 		std::string* s = static_cast<std::string*>(stream); //we must actually change the string...
 		size_t realSize = size * nmemb;
 		size_t result = s->copy(static_cast<char*>(ptr), realSize);
