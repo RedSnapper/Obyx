@@ -125,6 +125,7 @@ IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : ObyxElement
 				case e_xml:
 				case e_url: 
 				case e_base64: 
+				case e_deflate:
 				case e_hex:	{
 					process = obyx::decode; 					
 				} break;
@@ -469,6 +470,17 @@ void IKO::process_encoding(DataItem*& basis) {
 					String::Digest::do_digest(String::Digest::md5,encoded);
 					String::tohex(encoded);
 					basis = DataItem::factory(encoded,di_text); //cannot be xml.
+				}
+			} break;
+			case e_deflate: {
+				if (String::Deflate::available(errs)) {
+					if ( process == encode) {
+						String::Deflate::deflate(encoded,errs);
+						basis = DataItem::factory(encoded,di_text); //cannot be xml.
+					} else {
+						String::Deflate::inflate(encoded,errs);
+						basis = DataItem::factory(encoded,kind); //MAY be XML - maybe not.
+					}
 				}
 			} break;
 			case e_name: {
