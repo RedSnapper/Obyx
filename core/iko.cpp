@@ -1084,6 +1084,7 @@ void IKO::startup() {
 	enc_types.insert(enc_type_map::value_type(UCS2(L"md5"), e_md5));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"sha1"), e_sha1));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"sha512"), e_sha512));
+	enc_types.insert(enc_type_map::value_type(UCS2(L"deflate"), e_deflate));
 	
 	ctx_types.insert(inp_space_map::value_type(UCS2(L"none"), immediate));
 	ctx_types.insert(inp_space_map::value_type(UCS2(L"field"), field ));
