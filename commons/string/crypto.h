@@ -25,9 +25,43 @@
 
 #include <string>
 #include <openssl/evp.h>
+#include <openssl/rand.h>
+#include <zlib.h>
 using namespace std;
 
 namespace String {
+	class Deflate {
+	private:
+		static void* lib_handle;
+		static bool loadattempted;	//used to show if the service is up or down.
+		static bool loaded;			//used to show if the service is up or down.
+		static void dlerr(string&);
+		//used / loaded functions
+		static const char* (*obyx_zlibVersion)(void);
+		static int (*obyx_deflateInit)(z_streamp,int,const char*,int);
+		static int (*obyx_deflate)(z_streamp,int);
+		static int (*obyx_deflateEnd)(z_streamp);
+		static int (*obyx_inflateInit)(z_streamp,const char*,int);
+		static int (*obyx_inflate)(z_streamp,int);
+		static int (*obyx_inflateEnd)(z_streamp);
+		static uLong (*obyx_deflateBound)(z_streamp,uLong);
+
+	
+		//specific private functions
+		static string libversion;
+		static int zsize;
+		static int level;
+		static bool noerrs(int,int,string&);
+		
+	public:
+		static bool startup(string&);
+		static bool available(string&);
+		static bool shutdown();
+		static void deflate(string&,string&);
+		static void inflate(string&,string&);
+		
+	};
+
 	class Digest {
 	private:
 		static void* lib_handle;
@@ -41,6 +75,9 @@ namespace String {
 		static int (*EVP_DigestInit_ex)(EVP_MD_CTX*, const EVP_MD*,ENGINE*);
 		static int (*EVP_DigestUpdate)(EVP_MD_CTX*, const void *,size_t);
 		static int (*EVP_DigestFinal_ex)(EVP_MD_CTX*,unsigned char *,unsigned int*);
+	
+		static int (*RAND_bytes)(unsigned char*,int);
+		static int (*RAND_pseudo_bytes)(unsigned char*,int);
 		
 		static EVP_MD_CTX* context;
 		static const EVP_MD* md[16];	//the different digests
@@ -53,6 +90,8 @@ namespace String {
 		static bool available(string&);
 		static bool shutdown();
 		static void do_digest(const digest,string&);
+		static void random(string&,unsigned short);
+
 	};
 }
 #endif

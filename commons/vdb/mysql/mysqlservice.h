@@ -42,7 +42,6 @@ namespace Vdb {
 	 */
 	class MySQLService : public Service {
 private:
-		void * zip_lib_handle;
 		void * mysql_lib_handle;
 		MYSQL* serviceHandle;		//for services only. Use a separate connectionHandle for connections.
 		

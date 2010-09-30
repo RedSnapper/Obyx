@@ -64,7 +64,6 @@ private:
 	string gRootDir;
 	string gScriptsDir;
 	string gScratchDir;
-	string gScratchName;
 	double basetime;	//used for timing.
 	std::string empty;
 	std::string parmprefix;
@@ -174,11 +173,11 @@ public:
 	void cookiekeys(const string&,vector<string>&);
 
 	bool getenvd(const string,string& , const string);
-	unsigned long long pid() { return getpid(); }
+	void uniq(string&); //attempts to supply a unique value.
 	string Path() { return gRootDir; }
 	string ScriptsDir() { return gScriptsDir; }
 	string ScratchDir() { return gScratchDir; }
-	string ScratchName() { return gScratchName; }
+	string ScratchName();
 	static string Database() ;
 	static string SQLhost() ;
 	static string SQLuser() ;

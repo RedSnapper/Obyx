@@ -64,7 +64,6 @@ Environment::Environment() {
 	gRootDir="";
 	gScriptsDir="";
 	gScratchDir="/tmp/";
-	gScratchName="";
 	basetime = 0;		 //used for timing.
 	parmprefix="";		//used to prefix parameter numbers
 	gArgc=0;
@@ -1114,14 +1113,6 @@ void Environment::getenvvars_base() {
 	if (getenvd("OBYX_SCRATCH_DIR",gScratchDir,"/tmp/")) { //defaults to /tmp/.
 		if ( gScratchDir[gScratchDir.size()-1] != '/') gScratchDir+='/';
 	}
-	pid_t pid = getpid();
-	if (pid < 0) {
-		//Need to add some sort of unique thing for this process here..		
-	} else {
-		string pidnum;
-		String::tostring(pidnum,(unsigned long long)pid); 
-		gScratchName = 'p' + pidnum + '_';
-	}
 	getenv("OBYX_PARM_PREFIX",parmprefix); //Used to prevent ambiguity - someone may need parmxxx
 }
 void Environment::getenvvars() {
@@ -1170,6 +1161,23 @@ bool Environment::benvexists(const string&  name) {	//used for base configuratio
 	return (it != benv_map.end());
 }
 #pragma mark ENVIRONMENT (PUBLIC)
+string Environment::ScratchName() {
+	string unique;
+	uniq(unique);
+	string scratchname = 'p' + unique + '_';
+	return scratchname;
+}
+
+void Environment::uniq(string& basis) {
+	string errs;
+	if ( String::Digest::available(errs) ) {
+		String::Digest::random(basis,8);
+		String::tohex(basis);
+	} else {
+		basis=String::tostring((unsigned long long)getpid());
+	}
+}
+
 bool Environment::envfind(const string& pattern) { //regex..
 	bool retval = false;
 	if ( String::Regex::available() ) {

@@ -25,6 +25,7 @@
 
 #include "mysql.h"
 
+#include "commons/string/strings.h"
 #include "commons/logger/logger.h"
 #include "commons/environment/environment.h"
 
@@ -45,18 +46,17 @@ namespace Vdb {
 	//	otool -Rv  /usr/local/mysql/lib/libmysqlclient_r.dylib | grep -v undefined | grep -v private | sort
 	
 	MySQLService::MySQLService(bool fatal_necessity) : 
-	Service(),zip_lib_handle(NULL),mysql_lib_handle(NULL),serviceHandle(NULL),
+	Service(),mysql_lib_handle(NULL),serviceHandle(NULL),
 	library_init(NULL),library_end(NULL),select_db(NULL),close(NULL),data_seek(NULL),my_errno(NULL),error(NULL),
 	fetch_field_direct(NULL),
 	fetch_lengths(NULL),fetch_row(NULL),free_result(NULL),init(NULL),insert_id(NULL),list_fields(NULL),
 	list_tables(NULL),num_fields(NULL),num_rows(NULL),options(NULL),real_connect(NULL),real_escape_string(NULL),
 	real_query(NULL),row_seek(NULL),row_tell(NULL),character_set_name(NULL),set_character_set(NULL),store_result(NULL)
 	{ 
-		string ziplib, mysqllib;
-		if (!Environment::getbenv("OBYX_LIBZIPSO",ziplib)) ziplib = "libz.so";
-		if (!Environment::getbenv("OBYX_LIBMYSQLCRSO",mysqllib)) mysqllib = "libmysqlclient_r.so";
-		zip_lib_handle = dlopen(ziplib.c_str(),RTLD_LAZY | RTLD_GLOBAL);  //dlopen MUST have one of RTLD_LAZY,RTLD_NOW
-		if (zip_lib_handle != NULL ) {
+		string errstr;
+		if (String::Deflate::available(errstr)) {			
+			string mysqllib;
+			if (!Environment::getbenv("OBYX_LIBMYSQLCRSO",mysqllib)) mysqllib = "libmysqlclient_r.so";
 			mysql_lib_handle = dlopen(mysqllib.c_str(),RTLD_LAZY);
 			if (mysql_lib_handle != NULL ) {
 				library_init = (int (*)(int, char **,char **)) dlsym(mysql_lib_handle,"mysql_server_init");
@@ -86,7 +86,6 @@ namespace Vdb {
 				set_character_set = (int (*)(MYSQL*, const char*)) dlsym(mysql_lib_handle,"mysql_set_character_set"); 
 				store_result = (MYSQL_RES* (*)(MYSQL*)) dlsym(mysql_lib_handle,"mysql_store_result");
 				service=true;
-				
 			} else {
 				service=false;
 				if (fatal_necessity) {
@@ -94,48 +93,36 @@ namespace Vdb {
 					*Logger::log <<  Log::fatal << Log::LI << "MySQLService error:: Failed to load the " << mysqllib << " dynamic library. " << msg << Log::LO << Log::blockend; 
 				}
 			}
+			if (service) {
+				serviceHandle = init(NULL);
+				if (serviceHandle == NULL) {
+					service=false;
+					if (fatal_necessity) {
+						*Logger::log <<  Log::fatal << Log::LI << "MySQLService error:: Failed to initialise a MySQL client service handle." << Log::LO << Log::blockend; 
+					}				
+					if ( mysql_lib_handle != NULL ) { 
+						if (fatal_necessity) {
+							*Logger::log << " mysql_lib_handle was found."; 
+						}				
+						dlclose(mysql_lib_handle);
+						mysql_lib_handle = NULL;
+					} else {
+						if (fatal_necessity) {
+							*Logger::log << " mysql_lib_handle was NOT found."; 
+						}				
+					}
+					if (fatal_necessity) {
+						*Logger::log << Log::LO << Log::blockend; 
+					}				
+				} else {
+					options(serviceHandle,MYSQL_READ_DEFAULT_GROUP,"cgi_sql_services");
+					options(serviceHandle,MYSQL_SET_CHARSET_NAME,"utf8");
+				}
+			}
 		} else {
 			service=false;
 			if (fatal_necessity) {
-				string msg;	char* err = dlerror(); if ( err != NULL) msg=err;
-				*Logger::log <<  Log::fatal << Log::LI << "MySQLService error:: Failed to load the " << ziplib << " dynamic library. " << msg << Log::LO << Log::blockend; 
-			}
-		}
-		if (service) {
-			serviceHandle = init(NULL);
-			if (serviceHandle == NULL) {
-				service=false;
-				if (fatal_necessity) {
-					*Logger::log <<  Log::fatal << Log::LI << "MySQLService error:: Failed to initialise a MySQL client service handle." << Log::LO << Log::blockend; 
-				}				
-				if ( mysql_lib_handle != NULL ) { 
-					if (fatal_necessity) {
-						*Logger::log << " mysql_lib_handle was found."; 
-					}				
-					dlclose(mysql_lib_handle);
-					mysql_lib_handle = NULL;
-				} else {
-					if (fatal_necessity) {
-						*Logger::log << " mysql_lib_handle was NOT found."; 
-					}				
-				}
-				if ( zip_lib_handle != NULL ) { 
-					if (fatal_necessity) {
-						*Logger::log << " zip_lib_handle was found."; 
-					}				
-					dlclose(zip_lib_handle);
-					zip_lib_handle = NULL;
-				} else {
-					if (fatal_necessity) {
-						*Logger::log << " zip_lib_handle was NOT found."; 
-					}				
-				}
-				if (fatal_necessity) {
-					*Logger::log << Log::LO << Log::blockend; 
-				}				
-			} else {
-				options(serviceHandle,MYSQL_READ_DEFAULT_GROUP,"cgi_sql_services");
-				options(serviceHandle,MYSQL_SET_CHARSET_NAME,"utf8");
+				*Logger::log <<  Log::fatal << Log::LI << "MySQLService error:: Failed to load zip dynamic library. " << errstr << Log::LO << Log::blockend; 
 			}
 		}
 	}
@@ -146,9 +133,6 @@ namespace Vdb {
 		}
 		if ( mysql_lib_handle != NULL ) { 
 			dlclose(mysql_lib_handle);
-		}
-		if ( zip_lib_handle != NULL ) { 
-			dlclose(zip_lib_handle);
 		}
 	}
 	
