@@ -174,11 +174,11 @@ bool OsiAPP::request(const xercesc::DOMNode* n,DataItem*& the_result) {
 							file.readFile(file_content);
 							the_result = DataItem::factory(file_content);
 						}
-						file.removeFile();
+//						file.removeFile();
 					}
 					FileUtils::File srcfile(mfil);
 					if (srcfile.exists()) {
-						srcfile.removeFile();
+//						srcfile.removeFile();
 					}					
 					request_result=true;
 					//---------------- COMMENT  when NOT debugging
