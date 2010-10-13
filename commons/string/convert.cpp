@@ -296,7 +296,7 @@ namespace String {
 		long long val = 0;
 		if (!s.empty()) {
 			if (s.size() > 2 && s[0]=='0' && ( s[1]=='x' || s[1]=='X' )) {
-				pair<unsigned long long,bool> rsp = hex(s.substr(2));
+				pair<long long,bool> rsp = hex(s.substr(2));
 				if (rsp.second) {
 					isnumber = true;
 					val = rsp.first;
@@ -304,7 +304,7 @@ namespace String {
 			} else {
 				istringstream ist(s);
 				ist >> val;
-				unsigned long long sti,ssj;
+				long long sti,ssj;
 				sti = ist.tellg();
 				ssj = s.length();
 				if (sti == ssj ) {

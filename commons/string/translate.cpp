@@ -210,7 +210,7 @@ namespace String {
 
 	void xmlencode(string& s) {  //XML de-escape
 		if (! s.empty() ) {
-			fandr(s,"&","&amp;");	//otherwise the amp will do a double decode.
+			fandr(s,"&","&amp;");	//otherwise the amp will do a long double decode.
 			fandr(s,"<","&lt;");
 			fandr(s,">","&gt;"); 
 		}

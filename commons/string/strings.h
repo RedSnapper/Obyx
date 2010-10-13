@@ -52,4 +52,6 @@ namespace __gnu_cxx {	//used in various places..
 	
 } //namespace __gnu_cxx
 
+#include "infix.h"
+
 #endif
