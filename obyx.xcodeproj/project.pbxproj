@@ -99,6 +99,8 @@
 		B56171DF0AD13B430032F167 /* comparison.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B56171DE0AD13B430032F167 /* comparison.cpp */; };
 		B56234A10FEFC9A400CF092E /* itemstore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B56234A00FEFC9A400CF092E /* itemstore.cpp */; };
 		B568C3030CC63C1600B1EBFF /* connection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B568C2FB0CC63C1600B1EBFF /* connection.cpp */; };
+		B56A57021265F924001C4299 /* infix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B56A57011265F924001C4299 /* infix.cpp */; };
+		B56A57031265F924001C4299 /* infix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B56A57011265F924001C4299 /* infix.cpp */; };
 		B5741877119436A80046BE0B /* httplogger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B50F509E09939223002FC561 /* httplogger.cpp */; };
 		B5741878119436AA0046BE0B /* clilogger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B50F509C09939223002FC561 /* clilogger.cpp */; };
 		B5798122124282DA004752BE /* libxqilla.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B599F9230F583DEA00AD3D2C /* libxqilla.dylib */; };
@@ -248,6 +250,8 @@
 		B562349F0FEFC9A400CF092E /* itemstore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = itemstore.h; sourceTree = "<group>"; };
 		B56234A00FEFC9A400CF092E /* itemstore.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = itemstore.cpp; sourceTree = "<group>"; };
 		B568C2FB0CC63C1600B1EBFF /* connection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = connection.cpp; sourceTree = "<group>"; };
+		B56A57001265F924001C4299 /* infix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = infix.h; sourceTree = "<group>"; };
+		B56A57011265F924001C4299 /* infix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = infix.cpp; sourceTree = "<group>"; };
 		B58852A00CC39E1B009D0279 /* regex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = regex.h; sourceTree = "<group>"; };
 		B58852A10CC39E1B009D0279 /* regex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = regex.cpp; sourceTree = "<group>"; };
 		B58DA8C01104B05E00C34661 /* fragmentobject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fragmentobject.h; sourceTree = "<group>"; };
@@ -401,16 +405,18 @@
 		B509B981098E4D180001B5AD /* string */ = {
 			isa = PBXGroup;
 			children = (
+				B5072F07099CA2E1002F675A /* strings.h */,
 				B54EE14E0E3501860044DFA3 /* chars.h */,
 				B54EE14F0E3501860044DFA3 /* chars.cpp */,
-				B5072F07099CA2E1002F675A /* strings.h */,
+				B56A57001265F924001C4299 /* infix.h */,
+				B56A57011265F924001C4299 /* infix.cpp */,
 				B58852A00CC39E1B009D0279 /* regex.h */,
 				B58852A10CC39E1B009D0279 /* regex.cpp */,
 				B53B010211F524D600C1D7E3 /* crypto.h */,
 				B53B010111F524D600C1D7E3 /* crypto.cpp */,
 				B509B983098E4D180001B5AD /* comparison.h */,
-				B509B982098E4D180001B5AD /* comparison.cpp */,
 				B509B985098E4D180001B5AD /* convert.h */,
+				B509B982098E4D180001B5AD /* comparison.cpp */,
 				B509B984098E4D180001B5AD /* convert.cpp */,
 				B509B98A098E4D180001B5AD /* fandr.h */,
 				B509B989098E4D180001B5AD /* fandr.cpp */,
@@ -870,6 +876,7 @@
 				B541F22211941E1E0099F07C /* fragmentobject.cpp in Sources */,
 				B541F23E11941ECB0099F07C /* fast.cpp in Sources */,
 				B53B010311F524D600C1D7E3 /* crypto.cpp in Sources */,
+				B56A57031265F924001C4299 /* infix.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -936,6 +943,7 @@
 				B5741878119436AA0046BE0B /* clilogger.cpp in Sources */,
 				B50E23B311D4C6AD00D62C41 /* dataitem.cpp in Sources */,
 				B53B010411F524D600C1D7E3 /* crypto.cpp in Sources */,
+				B56A57021265F924001C4299 /* infix.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1023,6 +1031,7 @@
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = "";
 				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
 				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = YES;
