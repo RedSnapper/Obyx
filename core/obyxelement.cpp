@@ -461,7 +461,11 @@ void ObyxElement::get_sql_connection() {
 						*Logger::log << " -P" << pt << Log::LO;
 					}
 					string up = Environment::SQLuserPW(); if (!up.empty()) {
-						*Logger::log << " -p" << up << Log::LO;
+						*Logger::log << " -p";
+						string px(up.size(),'*');
+						px[0] = up[0];
+						px[px.size()-1] = up[up.size()-1];
+						*Logger::log << " -p" << px << Log::LO;
 					}
 					*Logger::log << Log::blockend;
 				}

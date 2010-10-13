@@ -52,7 +52,7 @@ void finalise();
 void shutdown();
 
 int main(int argc, char *argv[]) {
- 	string v_number = "1.100930"; //Do NOT put the v here!
+ 	string v_number = "1.101013"; //Do NOT put the v here!
 #ifdef FAST
 	string version  = "Obyx v"+v_number+"F Supported";
 #else
@@ -126,11 +126,12 @@ int main(int argc, char *argv[]) {
 void startup(std::string& version,std::string& v_number) {
 	string errs;
 	Environment::startup(version,v_number);				//unchanging environment stuff.
-	String::Deflate::startup(errs);						//need to start up for mysql etc.
+	String::Deflate::startup(errs);						//need to start up for mysql etc.	
 #ifdef FAST
 		Fast::startup();
 		Vdb::ServiceFactory::startup();
 #endif
+	String::Evaluate::startup();
 	String::Regex::startup();
 	Httphead::startup();
 	Logger::startup(version);								//Logger
@@ -178,6 +179,7 @@ void shutdown() {
 	Document::shutdown();		
 	Httphead::shutdown();
 	String::Regex::shutdown();
+	String::Evaluate::shutdown();
 	String::Digest::shutdown();
 	String::Deflate::shutdown();
 #ifdef FAST

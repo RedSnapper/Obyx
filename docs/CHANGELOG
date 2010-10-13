@@ -17,6 +17,17 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.101013
+	Enh.		Operation expression. The first input is the expression, subsequent inputs are named.
+	BUG:		The bitprecision was capped at 63, even though the error message says 64.
+
+v1.101011
+	Enh.		Operation random. takes 2 values representing the high/low values of the interval.
+				so eg. precision 0 with inputs 1 and 2 will return either 1 or 2. 
+				But precision 1 with the same inputs will return 1.0,1.1,1.2,1.3, ... 2.0
+				The precision attribute affects the number of decimal points (and therefore the size of the interval)
+	BUG:		In errors, mysql password was being shown. Now it is obscured with eg: p******d.
+
 v1.100930
 	Enh.		encoder: deflate. Returns a binary deflate of what is passed to it. 
 	BUG:		Unique filenames were depending on process id, which is no good on fastcgi.
@@ -318,7 +329,7 @@ v9.10.13
  v9.09.02 SEC: Locked BREAK_COUNT to when REMOTE_ADDRESS=SERVER_ADDRESS
  v9.09.01 BUG: xpaths mangled in logging.
  v9.08.28 FEA: xml decode now handles character encoding properly.
- v9.08.28 BUG: xml decode was double decoding. 
+ v9.08.28 BUG: xml decode was long double decoding. 
  v9.08.25 BUG: xml schema includes deprecated values.
  v9.08.25 BUG: significant not the same as existent within iko.
  v9.08.25 BUG: getns not properly defined.
@@ -368,7 +379,7 @@ v9.10.13
  v9.04.06 Log:  BUG: Logger works better than it used to.
  v9.04.03 MEM: Many memory leaks patched.
  v9.04.02 BUG: Several memory issues..
- v9.04.02 BUG: double delete on empty repeat.
+ v9.04.02 BUG: long double delete on empty repeat.
  v9.03.24 Env:  FEA: Added Access to OBYX_VERSION.
  v9.03.22 BUG: Several major bugs cleared up: cdata, namespace, pairqueue, appends, etc.
  v9.03.21 FEA: DataItem intro and rewrite.

@@ -44,6 +44,7 @@ private:
 private:
 	//special operations
 	void do_function();
+	void do_random(long double&,long double,long double);
 	void call_system(std::string&);
 	void call_sql(std::string&);
 	

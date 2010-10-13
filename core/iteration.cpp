@@ -72,7 +72,7 @@ operation(orig->operation),lastrow(orig->lastrow),expanded(orig->expanded),
 currentrow(orig->currentrow),numreps(orig->numreps),currentkey(orig->currentkey) {
 }
 unsigned long long Iteration::forcedbreak() const {
-	unsigned long long forced_break = INT_MAX;
+	unsigned long long forced_break = ULLONG_MAX;
 	string tmp_var;
 	if ( ItemStore::get("ITERATION_BREAK_COUNT",tmp_var) ) {
 		pair<unsigned long long,bool> forced_break_setting = String::znatural(tmp_var);
@@ -317,7 +317,7 @@ bool Iteration::operation_repeat() {
 	bool fully_evaluated = true;
 	string tmp_var;
 	string controlstring;
-	unsigned long long forced_break = INT_MAX;
+	unsigned long long forced_break = ULLONG_MAX;
 	if ( ! inputs.empty() ) { 
 		const DataItem* res = inputs[0]->results.result();
 		if (res != NULL) {
@@ -385,7 +385,7 @@ bool Iteration::operation_sql() {
 					if (definputs.size() > 0) {
 						DefInpType* base_template = definputs[0];
 						definputs.clear();
-						unsigned long long forced_break = INT_MAX;
+						unsigned long long forced_break = ULLONG_MAX;
 						long long queryrows = query->getnumrows();
 						numreps = queryrows < 1 ? 0 :  queryrows;
 						if ( ItemStore::get("ITERATION_BREAK_COUNT",tmp_var) ) {

@@ -24,6 +24,7 @@
 #include <math.h>
 #include <cfloat>
 #include <errno.h>
+#include <float.h>
 #include <xercesc/dom/DOMNode.hpp>
 
 #include "commons/logger/logger.h"
@@ -65,7 +66,8 @@ Function(n,instruction,par),operation(move),precision(0),bitpadding(0),base_conv
 	}
 	if ( 
 		(operation == obyx::divide) || (operation == obyx::multiply) || 
-		(operation == obyx::add) || (operation == obyx::subtract) 
+		(operation == obyx::add) || (operation == obyx::subtract) || 
+		(operation == obyx::random) || (operation == obyx::expression) 
 		) {
 		std::string str_prec;
 		Manager::attribute(n,"precision",str_prec);
@@ -77,7 +79,7 @@ Function(n,instruction,par),operation(move),precision(0),bitpadding(0),base_conv
 				if (bcpt != string::npos) {
 					string bits=str_prec.substr(bcpt+1,string::npos);
 					pair<unsigned long long,bool> bits_value = String::znatural(bits);
-					if  ( bits_value.second && bits_value.first < 64) {
+					if  ( bits_value.second && bits_value.first <= 64) {
 						bitpadding = (unsigned int)bits_value.first;
 					} else {
 						*Logger::log << Log::syntax << Log::LI << "Syntax Error. Instruction: bits component of precision must be a number between 1 and 64." << Log::LO;
@@ -201,6 +203,10 @@ bool Instruction::evaluate_this() {
 		}
 	}
 	if (inputsfinal) {
+		String::Evaluate* expr_eval = NULL;		//use this only if op = expression.
+		if (operation == expression) {
+			expr_eval = new String::Evaluate();
+		}
 		switch (operation) {
 			case function: {
 				do_function();
@@ -250,7 +256,7 @@ bool Instruction::evaluate_this() {
 				long long iaccumulator = 0;
 				std::string accumulator;
 				unsigned long long naccumulator = 0;
-				double daccumulator = 0;
+				long double daccumulator = 0;
 				for ( size_t i = 0; i < n; i++ ) {
 					if ( inputs[i]->wotzit == input ) {					
 						inputs[i]->results.takeresult(srcval); //final stuff here - this is always right - see above
@@ -262,7 +268,10 @@ bool Instruction::evaluate_this() {
 								case kind:
 								case function:
 									break; //operations handled outside of this switch.
-									
+								case expression: {
+									string fv; if (srcval != NULL) { fv = *first_value; }
+									expr_eval->set_expression(fv);
+								} break;
 								case query_command:		// call_sql(first_value); break;
 								case shell_command:	{	// call_system(first_value); break;
 									if (first_value != NULL) {
@@ -292,6 +301,13 @@ bool Instruction::evaluate_this() {
 									daccumulator = String::real(fv);
 									if ( isnan(daccumulator) ) {
 										daccumulator =   DBL_MAX;
+									}
+								} break;
+								case obyx::random: { 
+									string fv; if (first_value != NULL) { fv = *first_value; }
+									daccumulator = String::real(fv);
+									if (n == 1) { // this is from  lowbound .. .dacc.
+										do_random(daccumulator,0,daccumulator);
 									}
 								} break;
 								case divide: 
@@ -343,6 +359,17 @@ bool Instruction::evaluate_this() {
 								case kind:
 								case function: 
 									break; //operations handled outside of this switch.
+
+								case expression: {
+									string fv; if (srcval != NULL) { fv = *srcval; }
+									double dble = String::real(fv);
+									u_str pname=inputs[i]->parm_name;
+									if ( ! pname.empty()) {
+										string parm_key;
+										XML::transcode(pname.c_str(),parm_key);
+										expr_eval->add_parm(parm_key,dble);
+									}
+								} break;
 									
 								case query_command: 
 								case shell_command:	{	// call_system(first_value); break;
@@ -451,6 +478,15 @@ bool Instruction::evaluate_this() {
 										naccumulator += bacc;
 									}
 								} break;
+								case obyx::random: { 
+									if (srcval != NULL) {
+										string sv = *srcval;
+										long double lowbound = daccumulator;
+										daccumulator = String::real(sv);
+										do_random(daccumulator,lowbound,daccumulator);
+									}
+								} break;
+									
 								case obyx::add: {
 									string rstring;
 									if (srcval != NULL) {
@@ -537,6 +573,22 @@ bool Instruction::evaluate_this() {
 					case move: 
 					case kind:
 						break;
+					case expression: {
+						std::string expr_result, errs;
+						long double retval = expr_eval->process(errs);
+						if (!errs.empty()) {
+							*Logger::log << Log::error << Log::LI << errs << Log::LO;
+							trace();
+							*Logger::log << Log::blockend;
+						}
+						if (base_convert) {
+							String::tobasestring(retval,precision,bitpadding,expr_result);
+						} else {
+							expr_result = String::tostring(retval,precision);
+						}
+						results.append(expr_result,di_text);
+						delete expr_eval;
+					} break;
 					case query_command: {
 						call_sql(accumulator);
 					} break;
@@ -560,6 +612,15 @@ bool Instruction::evaluate_this() {
 					case obyx::upper:
 					case obyx::lower: {
 						results.append(accumulator,di_text);
+					} break;
+					case obyx::random: {
+						std::string math_result;
+						if (base_convert) {
+							String::tobasestring(daccumulator,precision,bitpadding,math_result);
+						} else {
+							math_result = String::tostring(daccumulator,precision);
+						}
+						results.append(math_result,di_text);
 					} break;
 					case obyx::add: 
 					case subtract: 
@@ -658,6 +719,35 @@ void Instruction::call_sql(std::string& querystring) {
 			trace();
 			*Logger::log << Log::blockend;
 		}
+	}
+}
+void Instruction::do_random(long double& result,long double low_endpoint,long double high_endpoint) {
+	string errs;
+	if ( String::Digest::available(errs) ) {
+		unsigned long long base = ULLONG_MAX;
+		long double dbase = base,calc = 0.0;
+		result = 0.0;
+		string rnd;
+		int x = sizeof(unsigned long long);
+		String::Digest::random(rnd,x);
+		String::tohex(rnd);
+		string hx = "0x";
+		hx.append(rnd);
+		pair<unsigned long long,bool> num_pr = String::znatural(hx);
+		calc = num_pr.first;
+		long double lowv = low_endpoint;          //C$14
+		long double high = high_endpoint;         //C$15
+		long double decp = pow(10,precision);	  //C$17
+		long double r = calc/dbase;               //0.84036
+//Seems to weigh slightly to the lower side. not sure why.	
+//		       = C$14+FLOOR(R*(C$17*(C$15-C$14)+1),1)/C$17
+//		       = lowv+floor(r*(decp*(high-lowv)+1.0))/decp
+		
+		result = lowv+floor(r*(decp*(high-lowv)+1.0))/decp;
+	} else {
+		*Logger::log <<  Log::error << Log::LI << "Error. Instruction operation random requires ssl service. " << errs << Log::LO;
+		trace();
+		*Logger::log << Log::blockend;
 	}
 }
 void Instruction::call_system(std::string& cmd) {
@@ -778,6 +868,7 @@ void Instruction::startup() {
 	op_types.insert(op_type_map::value_type(UCS2(L"append"), obyx::append));
 	op_types.insert(op_type_map::value_type(UCS2(L"assign"), move));
 	op_types.insert(op_type_map::value_type(UCS2(L"divide"), divide));
+	op_types.insert(op_type_map::value_type(UCS2(L"expression"), expression));
 	op_types.insert(op_type_map::value_type(UCS2(L"function"), function));
 	op_types.insert(op_type_map::value_type(UCS2(L"kind"), obyx::kind));
 	op_types.insert(op_type_map::value_type(UCS2(L"left"), obyx::left));
@@ -786,6 +877,7 @@ void Instruction::startup() {
 	op_types.insert(op_type_map::value_type(UCS2(L"max"), maximum ));
 	op_types.insert(op_type_map::value_type(UCS2(L"min"), minimum ));
 	op_types.insert(op_type_map::value_type(UCS2(L"multiply"), multiply));
+	op_types.insert(op_type_map::value_type(UCS2(L"random"), obyx::random));
 	op_types.insert(op_type_map::value_type(UCS2(L"position"), position));
 	op_types.insert(op_type_map::value_type(UCS2(L"query"), query_command));
 	op_types.insert(op_type_map::value_type(UCS2(L"quotient"), quotient ));
