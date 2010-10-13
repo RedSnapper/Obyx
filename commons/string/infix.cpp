@@ -196,6 +196,7 @@ namespace String {
 		bool retval(false);
 		if (*x == '0' && *(x+1) == 'x') {
 			double hexresult;
+			x++; x++;
 			String::hex(x,hexresult);
 			v = hexresult;
 			retval = true;
