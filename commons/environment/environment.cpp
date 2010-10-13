@@ -58,14 +58,7 @@ var_map_type Environment::benv_map;
 var_map_type Environment::cgi_rfc_map;
 Environment* Environment::instance;
 
-Environment::Environment() {
-	gDevelop = false;
-	gSQLport = 0;
-	gRootDir="";
-	gScriptsDir="";
-	gScratchDir="/tmp/";
-	basetime = 0;		 //used for timing.
-	parmprefix="";		//used to prefix parameter numbers
+Environment::Environment()  : gDevelop(false),gSQLport(0),gRootDir(""),gScriptsDir(""),gScratchDir("/tmp/"),basetime(0),parmprefix("")  {
 	gArgc=0;
 	gArgv=NULL;
 }
@@ -969,12 +962,12 @@ void Environment::setbasetime() {
 	struct tms tb;
 	times(&tb);
 	unsigned long long clocktime = tb.tms_utime + tb.tms_stime + tb.tms_cutime + tb.tms_cstime;;
-	basetime = static_cast<double>(clocktime) / sysconf(_SC_CLK_TCK);	
+	basetime = static_cast<long double>(clocktime) / sysconf(_SC_CLK_TCK);	
 #else
 	struct timespec tb = {0,0};
 	clock_gettime(CLOCK_REALTIME,&tb);
 	unsigned long long clocktime = tb.tv_sec * 1000000000 + tb.tv_nsec;
-	basetime = static_cast<double>(clocktime) / 1000000000; // nanoseconds
+	basetime = static_cast<long double>(clocktime) / 1000000000; // nanoseconds
 #endif
 }
 void Environment::setienv(string name,string value) {
@@ -1006,7 +999,7 @@ void Environment::setbenvmap() {//per box/process environment
 	}
 }
 string Environment::Database() {
-	string result="";
+	string result("");
 	if (instance != NULL) {
 		if (!instance->getenv("OBYX_SQLDATABASE",result)) {
 			instance->getenv("OBYX_DATABASE",result);
@@ -1017,7 +1010,7 @@ string Environment::Database() {
 	return result;
 }
 string Environment::SQLhost() {
-	string result="";
+	string result("");
 	if (instance != NULL) {
 		if (!instance->getenv("OBYX_SQLHOST",result)) {
 			instance->getenv("OBYX_SQLHOST",result);
@@ -1028,7 +1021,7 @@ string Environment::SQLhost() {
 	return result;
 }
 string Environment::SQLuser() {
-	string result="";
+	string result("");
 	if (instance != NULL) {
 		if (!instance->getenv("OBYX_SQLUSER",result)) {
 			instance->getenv("OBYX_SQLUSER",result);
@@ -1039,7 +1032,7 @@ string Environment::SQLuser() {
 	return result;
 }
 string Environment::SQLuserPW() {
-	string result="";
+	string result("");
 	if (instance != NULL) {
 		if (!instance->getenv("OBYX_SQLUSERPW",result)) {
 			instance->getenv("OBYX_SQLUSERPW",result);
@@ -1050,7 +1043,7 @@ string Environment::SQLuserPW() {
 	return result;
 }
 unsigned int Environment::SQLport() {
-	string result="";
+	string result("");
 	if (instance != NULL) {
 		if (!instance->getenv("OBYX_SQLPORT",result)) {
 			instance->getenv("OBYX_SQLPORT",result);
@@ -1316,7 +1309,7 @@ void Environment::gettiming(string& result) {
 	struct tms tb;
 	times(&tb);
 	unsigned long long clocktime = tb.tms_utime + tb.tms_stime + tb.tms_cutime + tb.tms_cstime;
-	double timing = static_cast<double>(clocktime) / sysconf(_SC_CLK_TCK);
+	long double timing = static_cast<long double>(clocktime) / sysconf(_SC_CLK_TCK);
 	timing = timing - basetime;
 	result = String::tostring(timing,12L);
 	
@@ -1325,7 +1318,7 @@ void Environment::gettiming(string& result) {
 	int err = clock_gettime(CLOCK_REALTIME,&tb);
 	if ( err != 0 ) *Logger::log << Log::error << Log::LI << "Error. Environment::setbasetime error:" << err << Log::LO << Log::blockend;
 	unsigned long long clocktime = tb.tv_sec * 1000000000 + tb.tv_nsec;
-	double timing = static_cast<double>(clocktime) / 1000000000; // nanoseconds
+	long double timing = static_cast<long double>(clocktime) / 1000000000; // nanoseconds
 	timing = timing - basetime;
 	result = String::tostring(timing,12L);
 #endif

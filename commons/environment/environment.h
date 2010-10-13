@@ -64,7 +64,7 @@ private:
 	string gRootDir;
 	string gScriptsDir;
 	string gScratchDir;
-	double basetime;	//used for timing.
+	long double basetime;	//used for timing.
 	std::string empty;
 	std::string parmprefix;
 	//-- The following are RESPONSE cookies
