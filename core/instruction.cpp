@@ -67,7 +67,7 @@ Function(n,instruction,par),operation(move),precision(0),bitpadding(0),base_conv
 	if ( 
 		(operation == obyx::divide) || (operation == obyx::multiply) || 
 		(operation == obyx::add) || (operation == obyx::subtract) || 
-		(operation == obyx::random) || (operation == obyx::expression) 
+		(operation == obyx::random) || (operation == obyx::arithmetic) || (operation == obyx::bitwise)
 		) {
 		std::string str_prec;
 		Manager::attribute(n,"precision",str_prec);
@@ -203,8 +203,8 @@ bool Instruction::evaluate_this() {
 		}
 	}
 	if (inputsfinal) {
-		String::Evaluate* expr_eval = NULL;		//use this only if op = expression.
-		if (operation == expression) {
+		String::Evaluate* expr_eval = NULL;		//use this only if op = arithmetic.
+		if (operation == arithmetic) {
 			expr_eval = new String::Evaluate();
 		}
 		switch (operation) {
@@ -268,7 +268,9 @@ bool Instruction::evaluate_this() {
 								case kind:
 								case function:
 									break; //operations handled outside of this switch.
-								case expression: {
+								case bitwise: {
+								} break;
+								case arithmetic: {
 									string fv; if (srcval != NULL) { fv = *first_value; }
 									expr_eval->set_expression(fv);
 								} break;
@@ -359,8 +361,9 @@ bool Instruction::evaluate_this() {
 								case kind:
 								case function: 
 									break; //operations handled outside of this switch.
-
-								case expression: {
+								case bitwise: {
+								} break;
+								case arithmetic: {
 									string fv; if (srcval != NULL) { fv = *srcval; }
 									double dble = String::real(fv);
 									u_str pname=inputs[i]->parm_name;
@@ -573,7 +576,9 @@ bool Instruction::evaluate_this() {
 					case move: 
 					case kind:
 						break;
-					case expression: {
+					case bitwise: {
+					} break;
+					case arithmetic: {
 						std::string expr_result, errs;
 						long double retval = expr_eval->process(errs);
 						if (!errs.empty()) {
@@ -867,8 +872,9 @@ void Instruction::startup() {
 	op_types.insert(op_type_map::value_type(UCS2(L"add"), obyx::add));
 	op_types.insert(op_type_map::value_type(UCS2(L"append"), obyx::append));
 	op_types.insert(op_type_map::value_type(UCS2(L"assign"), move));
+	op_types.insert(op_type_map::value_type(UCS2(L"arithmetic"), arithmetic));
+	op_types.insert(op_type_map::value_type(UCS2(L"bitwise"), bitwise));
 	op_types.insert(op_type_map::value_type(UCS2(L"divide"), divide));
-	op_types.insert(op_type_map::value_type(UCS2(L"expression"), expression));
 	op_types.insert(op_type_map::value_type(UCS2(L"function"), function));
 	op_types.insert(op_type_map::value_type(UCS2(L"kind"), obyx::kind));
 	op_types.insert(op_type_map::value_type(UCS2(L"left"), obyx::left));
