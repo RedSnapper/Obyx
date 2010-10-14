@@ -184,7 +184,7 @@ IKO(n,par,el),eval(false),release(false),type(immediate),parm_name() {
 		switch (wotzit) { //don't push back the definputs here..
 			case input: {
 				Instruction * ix = dynamic_cast<Instruction *>(i);
-				if (ix != NULL && (ix->op() == function || ix->op() == expression)) {
+				if (ix != NULL && (ix->op() == function || ix->op() == arithmetic || ix->op() == bitwise )) {
 					Manager::attribute(n,UCS2(L"name"),parm_name);
 				}
 			}
