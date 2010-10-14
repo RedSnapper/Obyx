@@ -58,8 +58,9 @@
 								<xs:enumeration value="assign"/>
 								<xs:enumeration value="add"/>
 								<xs:enumeration value="append"/>
+								<xs:enumeration value="arithmetic"/>
+								<xs:enumeration value="bitwise"/>
 								<xs:enumeration value="divide"/>
-								<xs:enumeration value="expression"/>
 								<xs:enumeration value="random"/>
 								<xs:enumeration value="function"/>
 								<xs:enumeration value="kind"/>
