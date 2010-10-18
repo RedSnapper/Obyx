@@ -51,11 +51,19 @@ namespace String {
 		}
 		Num::Num(const string str) { 
 			GMP::mpz_init(value); 
-			GMP::mpz_set_str(value,str.c_str(),16); 			
+			if (!str.empty()) {
+				if ((str.size() > 2) && (str[0]=='0') && (str[1] == 'x' || str[1] =='X') ) {
+					GMP::mpz_set_str(value,str.c_str(),0);
+				} else {
+					GMP::mpz_set_str(value,str.c_str(),16);
+				}
+			} else {
+				GMP::mpz_set_ui(value,0);
+			}
 		}
 		Num::Num(string::const_iterator& x) { //load a number from a string iterator.
 			GMP::mpz_init(value); 
-			if (*x == '0' && *(x+1) == 'x') {
+			if (*x == '0' && (*(x+1) == 'x' || *(x+1) == 'X')) {
 				x++; x++;
 			} 
 			string::const_iterator y(x); //Start position as copy constructor.
