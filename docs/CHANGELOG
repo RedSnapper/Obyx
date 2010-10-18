@@ -17,6 +17,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.101018
+	CHANGE.		Operation 'bitwise'.  The first input is the expression, subsequent inputs are named.
+				All numbers are integers and are treated as base 16 (hexadecimal) including constants.
+				0x Prefix is optional. Both "0x134" and "134" are evaluated to the same number.
+				x - y; x + y; x * y; x / y; x % y; and(x,y); xor(x,y); not(x); or(x,y); 
+				abs(x); pow(x,y) y; max(x,y); min(x,y); shl(x,y) y; shr(x,y) d; rol(x,y,z); 
+				ror(x,y,z); 
+
 v1.101014
 	CHANGE.		Operation 'expression' changed to 'arithmetic'. Grammar support for 'bitwise' added also.
 

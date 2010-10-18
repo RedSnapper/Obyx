@@ -7,16 +7,19 @@
  *
  */
 
-
 #include "commons/environment/environment.h"
 #include "commons/string/strings.h"
 
 namespace String {
 
+	namespace Infix {
 	Evaluate::lut_t Evaluate::lut;
 
 	//public static stuff
 	void Evaluate::startup() {
+		lut.insert(lut_t::value_type("(",new lb()));
+		lut.insert(lut_t::value_type(")",new rb()));
+		lut.insert(lut_t::value_type(",",new delim()));
 		lut.insert(lut_t::value_type("-",new subtract()));
 		lut.insert(lut_t::value_type("+",new add()));
 		lut.insert(lut_t::value_type("*",new multiply()));
@@ -24,9 +27,6 @@ namespace String {
 		lut.insert(lut_t::value_type("\\",new quotient()));
 		lut.insert(lut_t::value_type("_",new uminus()));
 		lut.insert(lut_t::value_type("%",new modulo()));
-		lut.insert(lut_t::value_type("(",new lb()));
-		lut.insert(lut_t::value_type(")",new rb()));
-		lut.insert(lut_t::value_type(",",new delim()));
 		lut.insert(lut_t::value_type("pow",new powfn()));
 		lut.insert(lut_t::value_type("max",new maxfn()));
 		lut.insert(lut_t::value_type("min",new minfn()));
@@ -289,3 +289,4 @@ namespace String {
 
 }
 
+}

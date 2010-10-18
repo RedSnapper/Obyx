@@ -33,25 +33,25 @@
 using namespace std;
 
 namespace String {
-	
-	class Op {
-	public:
-		typedef enum {none, left, right} association;
-		int precedence; //the order in which things are done. low = first.
-		association assoc;
-		size_t parms;
-		Op(int prec,association a = left,size_t p = 2) : precedence(prec),assoc(a),parms(p) {}
-		virtual char sig() const = 0;
-		virtual long double evaluate(const long double,const long double,const long double) const { return NAN; }
-		virtual ~Op() {}
-	};
-	class subtract : public Op {
-	public:
-		subtract() : Op(6){}
-		long double evaluate(const long double,const long double,const long double) const;
-		char sig() const { return '-';}
-	};
-	class add : public Op {
+	namespace Infix {
+		class Op {
+		public:
+			typedef enum {none, left, right} association;
+			int precedence; //the order in which things are done. low = first.
+			association assoc;
+			size_t parms;
+			Op(int prec,association a = left,size_t p = 2) : precedence(prec),assoc(a),parms(p) {}
+			virtual char sig() const = 0;
+			virtual long double evaluate(const long double,const long double,const long double) const { return NAN; }
+			virtual ~Op() {}
+		};
+		class subtract : public Op {
+		public:
+			subtract() : Op(6){}
+			long double evaluate(const long double,const long double,const long double) const;
+			char sig() const { return '-';}
+		};
+		class add : public Op {
 	public:
 		add() : Op(6){}
 		long double evaluate(const long double,const long double,const long double) const;
@@ -208,6 +208,7 @@ namespace String {
 		void set_expression(const string);
 		void add_parm(const string,long double);
 	};
+}
 }
 
 #endif

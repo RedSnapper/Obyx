@@ -34,6 +34,9 @@
 #include "commons/filing/filing.h"
 #include "commons/vdb/vdb.h"
 
+#include "commons/string/bitwise.h"
+
+
 #include "itemstore.h"
 #include "filer.h"
 #include "document.h"
@@ -52,7 +55,7 @@ void finalise();
 void shutdown();
 
 int main(int argc, char *argv[]) {
- 	string v_number = "1.101014"; //Do NOT put the v here!
+ 	string v_number = "1.101018"; //Do NOT put the v here!
 #ifdef FAST
 	string version  = "Obyx v"+v_number+"F Supported";
 #else
@@ -131,7 +134,9 @@ void startup(std::string& version,std::string& v_number) {
 		Fast::startup();
 		Vdb::ServiceFactory::startup();
 #endif
-	String::Evaluate::startup();
+	String::Infix::Evaluate::startup();
+	String::Bit::GMP::startup();
+	String::Bit::Evaluate::startup();
 	String::Regex::startup();
 	Httphead::startup();
 	Logger::startup(version);								//Logger
@@ -179,7 +184,9 @@ void shutdown() {
 	Document::shutdown();		
 	Httphead::shutdown();
 	String::Regex::shutdown();
-	String::Evaluate::shutdown();
+	String::Infix::Evaluate::shutdown();
+	String::Bit::Evaluate::shutdown();
+	String::Bit::GMP::shutdown();
 	String::Digest::shutdown();
 	String::Deflate::shutdown();
 #ifdef FAST
