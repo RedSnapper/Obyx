@@ -114,7 +114,6 @@ void Instruction::do_function() {
 			DataItem* rslt = NULL;
 			string parm_key;
 			XML::transcode(pname.c_str(),parm_key);
-
 			if ( ! inputs[i]->results.final() ) {
 				inputs[i]->evaluate();
 				if ( ! inputs[i]->results.final() ) {
@@ -203,9 +202,13 @@ bool Instruction::evaluate_this() {
 		}
 	}
 	if (inputsfinal) {
-		String::Evaluate* expr_eval = NULL;		//use this only if op = arithmetic.
+		String::Bit::Evaluate* expr_bit_eval = NULL;		//use this only if op = arithmetic.
+		String::Infix::Evaluate* expr_eval = NULL;		//use this only if op = arithmetic.
 		if (operation == arithmetic) {
-			expr_eval = new String::Evaluate();
+			expr_eval = new String::Infix::Evaluate();
+		}
+		if (operation == bitwise) {
+			expr_bit_eval = new String::Bit::Evaluate();
 		}
 		switch (operation) {
 			case function: {
@@ -269,9 +272,11 @@ bool Instruction::evaluate_this() {
 								case function:
 									break; //operations handled outside of this switch.
 								case bitwise: {
+									string fv; if (first_value != NULL) { fv = *first_value; }
+									expr_bit_eval->set_expression(fv);
 								} break;
 								case arithmetic: {
-									string fv; if (srcval != NULL) { fv = *first_value; }
+									string fv; if (first_value != NULL) { fv = *first_value; }
 									expr_eval->set_expression(fv);
 								} break;
 								case query_command:		// call_sql(first_value); break;
@@ -362,14 +367,21 @@ bool Instruction::evaluate_this() {
 								case function: 
 									break; //operations handled outside of this switch.
 								case bitwise: {
+									u_str pname=inputs[i]->parm_name;
+									if ( ! pname.empty()) {
+										string fv; if (srcval != NULL) { fv = *srcval; }
+										string parm_key;
+										XML::transcode(pname.c_str(),parm_key);
+										expr_bit_eval->add_parm(parm_key,fv);
+									}
 								} break;
 								case arithmetic: {
-									string fv; if (srcval != NULL) { fv = *srcval; }
-									double dble = String::real(fv);
 									u_str pname=inputs[i]->parm_name;
 									if ( ! pname.empty()) {
 										string parm_key;
 										XML::transcode(pname.c_str(),parm_key);
+										string fv; if (srcval != NULL) { fv = *srcval; }
+										double dble = String::real(fv);
 										expr_eval->add_parm(parm_key,dble);
 									}
 								} break;
@@ -576,7 +588,16 @@ bool Instruction::evaluate_this() {
 					case move: 
 					case kind:
 						break;
-					case bitwise: {
+					case bitwise: { //expr_bit_eval (result is in hexdigits)
+						std::string errs;
+						std::string expr_result = expr_bit_eval->process(errs);
+						if (!errs.empty()) {
+							*Logger::log << Log::error << Log::LI << errs << Log::LO;
+							trace();
+							*Logger::log << Log::blockend;
+						}
+						results.append(expr_result,di_text);
+						delete expr_bit_eval;
 					} break;
 					case arithmetic: {
 						std::string expr_result, errs;
