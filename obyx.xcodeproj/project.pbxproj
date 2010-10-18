@@ -136,6 +136,8 @@
 		B5F0C04C0A4C3B0A00CC363D /* IInfInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5F0C0440A4C3B0A00CC363D /* IInfInfo.cpp */; };
 		B5F0C04D0A4C3B0A00CC363D /* IInfNetworkGraphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5F0C0460A4C3B0A00CC363D /* IInfNetworkGraphics.cpp */; };
 		B5F0C04E0A4C3B0A00CC363D /* IInfReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5F0C0480A4C3B0A00CC363D /* IInfReader.cpp */; };
+		B5F79CB31268876B008CBD64 /* bitwise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5F79CB21268876B008CBD64 /* bitwise.cpp */; };
+		B5F79CB41268876B008CBD64 /* bitwise.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5F79CB21268876B008CBD64 /* bitwise.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -297,6 +299,8 @@
 		B5F0C0440A4C3B0A00CC363D /* IInfInfo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IInfInfo.cpp; sourceTree = "<group>"; };
 		B5F0C0460A4C3B0A00CC363D /* IInfNetworkGraphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IInfNetworkGraphics.cpp; sourceTree = "<group>"; };
 		B5F0C0480A4C3B0A00CC363D /* IInfReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IInfReader.cpp; sourceTree = "<group>"; };
+		B5F79CB11268876B008CBD64 /* bitwise.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bitwise.h; sourceTree = "<group>"; };
+		B5F79CB21268876B008CBD64 /* bitwise.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bitwise.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -408,6 +412,8 @@
 				B5072F07099CA2E1002F675A /* strings.h */,
 				B54EE14E0E3501860044DFA3 /* chars.h */,
 				B54EE14F0E3501860044DFA3 /* chars.cpp */,
+				B5F79CB11268876B008CBD64 /* bitwise.h */,
+				B5F79CB21268876B008CBD64 /* bitwise.cpp */,
 				B56A57001265F924001C4299 /* infix.h */,
 				B56A57011265F924001C4299 /* infix.cpp */,
 				B58852A00CC39E1B009D0279 /* regex.h */,
@@ -877,6 +883,7 @@
 				B541F23E11941ECB0099F07C /* fast.cpp in Sources */,
 				B53B010311F524D600C1D7E3 /* crypto.cpp in Sources */,
 				B56A57031265F924001C4299 /* infix.cpp in Sources */,
+				B5F79CB31268876B008CBD64 /* bitwise.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -944,6 +951,7 @@
 				B50E23B311D4C6AD00D62C41 /* dataitem.cpp in Sources */,
 				B53B010411F524D600C1D7E3 /* crypto.cpp in Sources */,
 				B56A57021265F924001C4299 /* infix.cpp in Sources */,
+				B5F79CB41268876B008CBD64 /* bitwise.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1047,6 +1055,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				OTHER_CFLAGS = (
+					"-DALLOW_GMP",
 					"-DALLOW_MYSQL",
 					"-DALLOW_POSTGRESQL",
 					"-fshort-wchar",
