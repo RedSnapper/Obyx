@@ -24,22 +24,7 @@
 #include <dlfcn.h>
 #include <string.h>
 
-#ifdef NO_GMP
-
 #include <gmp.h>
-
-#else
-typedef unsigned long int mp_limb_t;
-typedef struct {
-	int _mp_alloc;		
-	int _mp_size;		
-	mp_limb_t *_mp_d;
-} __mpz_struct;
-typedef __mpz_struct mpz_t[1];
-
-#endif
-
-
 #include "commons/environment/environment.h"
 #include "commons/logger/logger.h"
 #include "commons/string/bitwise.h"
