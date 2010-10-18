@@ -208,6 +208,7 @@ FcgidInitialEnv OBYX_LIBPCRESO=/usr/local/lib/libpcre.dylib
 FcgidInitialEnv OBYX_LIBMYSQLCRSO=/usr/local/mysql/lib/libmysqlclient_r.dylib
 FcgidInitialEnv OBYX_LIBPQSO=/usr/local/pgsql/lib/libpq.dylib
 FcgidInitialEnv OBYX_LIBZIPSO=libz.dylib
+FcgidInitialEnv OBYX_LIBGMPSO=/usr/local/lib/libgmp.dylib
 #**********************************************
 
 ###############################################################
@@ -231,6 +232,7 @@ FcgidInitialEnv OBYX_LIBPCRESO=/usr/local/lib/libpcre.dylib
 FcgidInitialEnv OBYX_LIBMYSQLCRSO=/usr/local/mysql/lib/libmysqlclient_r.dylib
 FcgidInitialEnv OBYX_LIBPQSO=/usr/local/pgsql/lib/libpq.dylib
 FcgidInitialEnv OBYX_LIBZIPSO=libz.dylib
+FcgidInitialEnv OBYX_LIBGMPSO=/usr/local/lib/libgmp.dylib
 FcgidWrapper /Library/WebServer/CGI-Executables/obyx.fcgi .fbyx
 ###############################################################
 
@@ -257,6 +259,7 @@ FcgidWrapper /Library/WebServer/CGI-Executables/obyx.fcgi .fbyx
 #Mac OS X uses dylib suffix
 	SetEnv OBYX_LIBCURLSO         /usr/local/lib/libcurl.dylib
 	SetEnv OBYX_LIBPCRESO         /usr/local/lib/libpcre.dylib
+	SetEnv OBYX_LIBGMPSO		  /usr/local/lib/libgmp.dylib
 
 #MySQL Library location	(if using MySQL)
 	SetEnv OBYX_LIBMYSQLCRSO      /usr/local/mysql/lib/libmysqlclient_r.dylib
