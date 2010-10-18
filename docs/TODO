@@ -24,7 +24,6 @@ Following is the list of Obyx-related issues.
 Future Directions for later versions
 ------------------------------------------------------------------------------------
 Merging iko and flowfunctions. #http://mantis.redsnapper.net/view.php?id=22
-Consider expression operation (mathematic expression handler). (kp/jb)
 Consider an interaction mechanism (eg space) (ao/jpw)
 Consider multithread / parallel - especially for handling many requests. (kp/jb/ao)
 Consider listen/wait  (ao/jpw/kp)
@@ -35,14 +34,12 @@ Consider authoring the config file as xml
 
 Outstanding Issues
 ------------------------------------------------------------------------------------
-#Tidy up internal namespace 'qxml'
 #Need to add in multithread / parallel - especially for handling many requests.
-#Need to think about eval stuff (what about it?).
 #Need to consider adding xpath support to the non-store spaces.
 #Need to think about port as iko
 #OSIMessage some header types may still need to be composed correctly!
 #Need to further reduce the amount of transcoding that happening internally - (work has started)
-#Possibly dlopen xercesc and xqilla
+#Possibly dlopen xercesc and xqilla (cannot be done)
 
 Resolved Issues
 ------------------------------------------------------------------------------------
