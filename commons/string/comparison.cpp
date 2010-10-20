@@ -29,6 +29,26 @@ using namespace std;
 
 namespace String {
 	
+	//see if a string is all low ascii.
+	bool islatin(const string& s) {
+		bool retval=true;
+		const char m = 0x80;
+		if (!s.empty()) {
+			string::const_iterator n=s.end();
+			for (string::const_iterator i=s.begin(); i != n; i++) {
+//				if ( *i & 0x80 != 0) {
+				const char& ch(*i);
+				char z = ch & m;
+				if (z != 0) {
+					retval = false;
+					break;
+				}
+//				}
+			}
+		}
+		return retval;		
+	}
+	
 	bool caseinsensitivecmp(const string& s, const string& s2) {	
 		string::const_iterator p=s.begin();
 		string::const_iterator p2=s2.begin();

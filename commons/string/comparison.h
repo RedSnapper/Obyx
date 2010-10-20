@@ -28,6 +28,7 @@ using namespace std;
 
 namespace String {
 
+	bool islatin(const string&);
 	bool caseinsensitivecmp(const string&, const string&);
 
 }

@@ -109,7 +109,7 @@ namespace String {
 	}
 	
 	//---------------------------------------------------------------------------
-	bool base64encode(string& s) {
+	bool base64encode(string& s,bool withlf) {
 		const char x[65]="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 		unsigned char i[3];
 		unsigned int line_time = 0;
@@ -135,11 +135,13 @@ namespace String {
 			s.push_back( x[ ( (i[0] & 0x03) << 4) | ( (i[1] & 0xf0) >> 4) ] );
 			s.push_back( chars > 1 ? x[ ( (i[1] & 0x0f) << 2) | ( (i[2] & 0xc0) >> 6) ] : '=' );
 			s.push_back( chars > 2 ? x[ i[2] & 0x3f ] : '=' );
-			line_time += 4; 
-			if ( line_time >= 72) {
-				line_time = 0; 
-				s.push_back('\r'); 
-				s.push_back('\n'); 
+			if (withlf) {
+				line_time += 4; 
+				if ( line_time >= 72) {
+					line_time = 0; 
+					s.push_back('\r'); 
+					s.push_back('\n'); 
+				}
 			}
 		}
 		return true;

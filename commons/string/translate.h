@@ -47,7 +47,7 @@ namespace String {
 	bool qpdecode(string&,const string = "\r\n");
 
 	bool base64decode(string&);
-	bool base64encode(string&);
+	bool base64encode(string&,bool = true);
 	
 	bool mailencode(string&); //incomplete - but shell safe ( ! ` ' $ { } are stripped from localname.)
 	
