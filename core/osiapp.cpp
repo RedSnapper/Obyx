@@ -146,7 +146,7 @@ bool OsiAPP::request(const xercesc::DOMNode* n,DataItem*& the_result) {
 					while ( n != NULL && n->getNodeType() != DOMNode::ELEMENT_NODE)  {
 						n = n->getNextSibling();
 					}
-					decompile_message(n,heads,body);		//this is a message...
+					decompile_message(n,heads,body,false,true);		//this is a mail message (no content-length, needs latincheck.)
 					string mfil = env->ScratchDir();
 					mfil.append(env->ScratchName());
 					string resf = mfil;
@@ -296,7 +296,7 @@ void OsiAPP::compile_http_request(string& head, string& body, string& the_result
 
 //Take an xml osi message and turn it into an RFC standard message.
 //n must point to root message element. (only partially works with non-crlf messages)
-void OsiAPP::decompile_message(const xercesc::DOMNode* n,vector<std::string>& heads, string& body,bool addlength) {
+void OsiAPP::decompile_message(const xercesc::DOMNode* n,vector<std::string>& heads, string& body,bool addlength,bool inlatin) {
 	std::string head,encoded_s,angled_s;
 	if ( n != NULL && n->getNodeType() == DOMNode::ELEMENT_NODE) {
 		std::string elname;
@@ -315,7 +315,7 @@ void OsiAPP::decompile_message(const xercesc::DOMNode* n,vector<std::string>& he
 					std::string name;
 					XML::Manager::attribute(n,"name",name); //mandatory
 					head.append(name); head.append(": ");
-					std::string header_value;
+					std::string headv,header_value;
 					if ( XML::Manager::attribute(n,"value",header_value)) { //optional
 						if( XML::Manager::attribute(n,"urlencoded",encoded_s)) { //subhead value
 							if ( encoded_s.compare("true") == 0 ) String::urldecode(header_value);
@@ -324,7 +324,7 @@ void OsiAPP::decompile_message(const xercesc::DOMNode* n,vector<std::string>& he
 							if ( angled_s.compare("true") == 0 ) header_value = '<' + header_value + '>';
 						}
 						if (name.compare("Received") != 0) {
-							head.append(header_value); //now finished with the main part of the line.
+							headv.append(header_value); //now finished with the main part of the line.
 						}
 					}
 					
@@ -334,8 +334,11 @@ void OsiAPP::decompile_message(const xercesc::DOMNode* n,vector<std::string>& he
 					if ( ch != NULL ) {
 						if ( ! header_value.empty() ) {
 							if (name.compare("Received") != 0) {
-								head.push_back(';');
-								head.push_back(' ');
+								headv.push_back(';');
+								headv.push_back(' ');
+							} else {
+//								headv.append(crlf);
+//								headv.push_back('\t');
 							}
 						} 
 						string subhead="";
@@ -346,7 +349,7 @@ void OsiAPP::decompile_message(const xercesc::DOMNode* n,vector<std::string>& he
 								bool url_encoded=false;
 								bool usequotes=false;
 								if (XML::Manager::attribute(ch,"name",shname)) { 
-									head.append(shname);
+									headv.append(shname);
 									if (shname.compare("name") == 0) {
 										usequotes = true;
 									}
@@ -369,30 +372,32 @@ void OsiAPP::decompile_message(const xercesc::DOMNode* n,vector<std::string>& he
 									if (subhead.compare("address") == 0) {
 										XML::Manager::attribute(ch,"note",shnote);
 										if (!shnote.empty()) {
-											head.append(shnote);
-											head.push_back(' ');
+											headv.append(shnote);
+											headv.push_back(' ');
 										}
-										head.push_back('<');
-										head.append(shvalue);
-										head.push_back('>');
+										headv.push_back('<');
+										headv.append(shvalue);
+										headv.push_back('>');
 									} else {
-										if( XML::Manager::attribute(n,"angled",angled_s)) { //subhead value
+										if( XML::Manager::attribute(ch,"angled",angled_s)) { //subhead value
 											if ( angled_s.compare("true") == 0 ) shvalue = '<' + shvalue + '>';
 										}
 										if (name.compare("Received") == 0) {
-											head.push_back(' ');head.append(shvalue);	
+											headv.push_back(' ');  headv.append(shvalue);	
 										} else {
 											if (name.compare("Content-Disposition") == 0 || name.compare("content-disposition") == 0 || shvalue.find(';') != string::npos) {
 												name="Content-Disposition";
-												head.append("=\"");head.append(shvalue);head.push_back('"');
+												headv.append("=\"");
+												headv.append(shvalue);
+												headv.push_back('"');
 											} else {
 												if (usequotes) {
-													head.append("=\"");
-													head.append(shvalue);
-													head.push_back('"');
+													headv.append("=\"");
+													headv.append(shvalue);
+													headv.push_back('"');
 												} else {
-													head.append("=");
-													head.append(shvalue);
+													headv.append("=");
+													headv.append(shvalue);
 												}
 											}
 										}
@@ -402,9 +407,12 @@ void OsiAPP::decompile_message(const xercesc::DOMNode* n,vector<std::string>& he
 								while (ch != NULL && ch->getNodeType() != DOMNode::ELEMENT_NODE) ch=ch->getNextSibling();
 								if (ch != NULL) {
 									if (name.compare("Received") != 0) {
-										head.push_back(';');
+										headv.push_back(';');
+										headv.push_back(' ');
+									} else {
+										headv.append(crlf);
+										headv.push_back('\t');
 									}
-									head.push_back(' ');
 									XML::transcode(ch->getLocalName(),subhead);
 								} else {
 									subhead.clear();
@@ -415,15 +423,27 @@ void OsiAPP::decompile_message(const xercesc::DOMNode* n,vector<std::string>& he
 								for ( DOMNode* hv=n->getFirstChild(); hv != NULL; hv=hv->getNextSibling()) {
 									if (hv->getNodeType() == DOMNode::ELEMENT_NODE) {
 										string sh; XML::Manager::parser()->writenode(hv,sh);
-										head.append(sh);
+										headv.append(sh);
 									}
 								}
 							}
 						}
 					}
 					if (name.compare("Received") == 0) {
-						head.append("; ");
-						head.append(header_value); //now finished with the main part of the line.
+						headv.append("; ");
+						headv.append(header_value); //now finished with the main part of the line.
+					}
+					if (!inlatin) {
+						head.append(headv);
+					} else {
+						if (String::islatin(headv)) {
+							head.append(headv);
+						} else {
+							String::base64encode(headv,false);
+							head.append("=?utf-8?B?");
+							head.append(headv);
+							head.append("?=");
+						}
 					}
 					heads.push_back(head); head.clear();
 					do { n = n->getNextSibling(); } while ( n != NULL && n->getNodeType() != DOMNode::ELEMENT_NODE);						
@@ -433,11 +453,13 @@ void OsiAPP::decompile_message(const xercesc::DOMNode* n,vector<std::string>& he
 				} 
 				//Now handle the (single) body element.
 				if ( n != NULL && n->getNodeType() == DOMNode::ELEMENT_NODE && elname.compare("body") == 0 ) { //this is a body..
-					std::string mechanism,type,subtype,encoded;
+					std::string mechanism,type,subtype,encoded,charset,bformat;
 					XML::Manager::attribute(n,"mechanism",mechanism); //optional
 					XML::Manager::attribute(n,"type",type);           //optional
 					XML::Manager::attribute(n,"subtype",subtype);     //optional
 					XML::Manager::attribute(n,"urlencoded",encoded);  //optional, NOT with multiparts..
+					XML::Manager::attribute(n,"charset",charset);  //optional, NOT with multiparts..
+					XML::Manager::attribute(n,"format",bformat);  //optional, NOT with multiparts..
 					if (!mechanism.empty()) {
 						head.append("Content-Transfer-Encoding: ");
 						head.append(mechanism); 
@@ -447,6 +469,14 @@ void OsiAPP::decompile_message(const xercesc::DOMNode* n,vector<std::string>& he
 					if ( ! type.empty() ) {
 						head.append("Content-Type: ");
 						head.append(type); head.push_back('/'); head.append(subtype); 
+						if (!charset.empty()) {
+							head.append("; charset=");
+							head.append(charset);
+						}
+						if (!bformat.empty()) {
+							head.append("; format=");
+							head.append(bformat);
+						}
 						if (type.compare("multipart") == 0) { // need to compose a set of messages..
 							vector<std::string> messages;
 							string loc_boundary(boundary);

@@ -60,7 +60,7 @@ private:
 
 public:
 	static const std::string last_osi_response() { return last_response; }	//	
-	void decompile_message(const xercesc::DOMNode*,vector<string>&,string&, bool = true);
+	void decompile_message(const xercesc::DOMNode*,vector<string>&,string&, bool = true, bool = false);
 	void compile_http_request(string&, string&, string&); 
 	bool request(const xercesc::DOMNode*,DataItem*&);
 };
