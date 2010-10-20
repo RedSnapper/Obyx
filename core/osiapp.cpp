@@ -296,6 +296,7 @@ void OsiAPP::compile_http_request(string& head, string& body, string& the_result
 
 //Take an xml osi message and turn it into an RFC standard message.
 //n must point to root message element. (only partially works with non-crlf messages)
+//inlatin is to indicate whether or not we need to be concerned with http://tools.ietf.org/html/rfc2047
 void OsiAPP::decompile_message(const xercesc::DOMNode* n,vector<std::string>& heads, string& body,bool addlength,bool inlatin) {
 	std::string head,encoded_s,angled_s;
 	if ( n != NULL && n->getNodeType() == DOMNode::ELEMENT_NODE) {
@@ -372,7 +373,18 @@ void OsiAPP::decompile_message(const xercesc::DOMNode* n,vector<std::string>& he
 									if (subhead.compare("address") == 0) {
 										XML::Manager::attribute(ch,"note",shnote);
 										if (!shnote.empty()) {
-											headv.append(shnote);
+											if (!inlatin) {
+												headv.append(shnote);
+											} else {
+												if (String::islatin(shnote)) {
+													headv.append(shnote);
+												} else {
+													String::base64encode(shnote,false);
+													headv.append("=?utf-8?B?");
+													headv.append(shnote);
+													headv.append("?=");
+												}
+											}											
 											headv.push_back(' ');
 										}
 										headv.push_back('<');
