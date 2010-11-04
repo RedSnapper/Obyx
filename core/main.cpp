@@ -55,7 +55,7 @@ void finalise();
 void shutdown();
 
 int main(int argc, char *argv[]) {
- 	string v_number = "1.101020"; //Do NOT put the v here!
+ 	string v_number = "1.101104"; //Do NOT put the v here!
 #ifdef FAST
 	string version  = "Obyx v"+v_number+"F Supported";
 #else
@@ -135,8 +135,10 @@ void startup(std::string& version,std::string& v_number) {
 		Vdb::ServiceFactory::startup();
 #endif
 	String::Infix::Evaluate::startup();
+#ifndef DISALLOW_GMP
 	String::Bit::GMP::startup();
 	String::Bit::Evaluate::startup();
+#endif
 	String::Regex::startup();
 	Httphead::startup();
 	Logger::startup(version);								//Logger
@@ -185,8 +187,10 @@ void shutdown() {
 	Httphead::shutdown();
 	String::Regex::shutdown();
 	String::Infix::Evaluate::shutdown();
+#ifndef DISALLOW_GMP
 	String::Bit::Evaluate::shutdown();
 	String::Bit::GMP::shutdown();
+#endif
 	String::Digest::shutdown();
 	String::Deflate::shutdown();
 #ifdef FAST
