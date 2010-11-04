@@ -24,6 +24,8 @@
 #include <dlfcn.h>
 #include <string.h>
 
+#ifndef DISALLOW_GMP
+
 #include <gmp.h>
 #include "commons/environment/environment.h"
 #include "commons/logger/logger.h"
@@ -498,3 +500,5 @@ namespace String {
 	}
 	
 }
+
+#endif
