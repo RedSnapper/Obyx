@@ -376,6 +376,10 @@ void IKO::process_encoding(DataItem*& basis) {
 		switch ( encoder ) {
 			case e_message: {
 				if ( process == encode) {
+//					ostringstream msgres;
+//					OsiMessage msg;
+//					msg.compile(encoded,msgres,true);
+//					basis = DataItem::factory(msgres.str(),di_text); //always xml..
 					*Logger::log << Log::error << Log::LI << "Error. message encoding is not yet explicitly implemented." << Log::LO;
 					trace();
 					*Logger::log << Log::blockend;
