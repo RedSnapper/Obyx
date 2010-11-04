@@ -35,6 +35,11 @@
 using namespace std;
 using namespace __gnu_cxx; //hashmap namespace.
 
+#ifndef ULLONG_MAX
+#define	ULLONG_MAX	0xffffffffffffffffULL	/* max unsigned long long */
+#endif
+
+
 namespace Vdb {
 	class Query;
 	class Connection;
