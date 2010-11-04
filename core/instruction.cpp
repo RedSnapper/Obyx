@@ -202,13 +202,21 @@ bool Instruction::evaluate_this() {
 		}
 	}
 	if (inputsfinal) {
+#ifndef DISALLOW_GMP		
 		String::Bit::Evaluate* expr_bit_eval = NULL;		//use this only if op = arithmetic.
+#endif
 		String::Infix::Evaluate* expr_eval = NULL;		//use this only if op = arithmetic.
 		if (operation == arithmetic) {
 			expr_eval = new String::Infix::Evaluate();
 		}
 		if (operation == bitwise) {
+#ifndef DISALLOW_GMP		
 			expr_bit_eval = new String::Bit::Evaluate();
+#else
+			*Logger::log << Log::error << Log::LI << "Error. Operation 'bitwise' requires the gmp library from http://gmplib.org." << Log::LO;
+			trace();
+			*Logger::log << Log::blockend;
+#endif
 		}
 		switch (operation) {
 			case function: {
@@ -272,8 +280,10 @@ bool Instruction::evaluate_this() {
 								case function:
 									break; //operations handled outside of this switch.
 								case bitwise: {
+#ifndef DISALLOW_GMP		
 									string fv; if (first_value != NULL) { fv = *first_value; }
 									expr_bit_eval->set_expression(fv);
+#endif
 								} break;
 								case arithmetic: {
 									string fv; if (first_value != NULL) { fv = *first_value; }
@@ -367,6 +377,7 @@ bool Instruction::evaluate_this() {
 								case function: 
 									break; //operations handled outside of this switch.
 								case bitwise: {
+#ifndef DISALLOW_GMP											
 									u_str pname=inputs[i]->parm_name;
 									if ( ! pname.empty()) {
 										string fv; if (srcval != NULL) { fv = *srcval; }
@@ -374,6 +385,7 @@ bool Instruction::evaluate_this() {
 										XML::transcode(pname.c_str(),parm_key);
 										expr_bit_eval->add_parm(parm_key,fv);
 									}
+#endif
 								} break;
 								case arithmetic: {
 									u_str pname=inputs[i]->parm_name;
@@ -589,6 +601,7 @@ bool Instruction::evaluate_this() {
 					case kind:
 						break;
 					case bitwise: { //expr_bit_eval (result is in hexdigits)
+#ifndef DISALLOW_GMP						
 						std::string errs;
 						std::string expr_result = expr_bit_eval->process(errs);
 						if (!errs.empty()) {
@@ -598,6 +611,7 @@ bool Instruction::evaluate_this() {
 						}
 						results.append(expr_result,di_text);
 						delete expr_bit_eval;
+#endif
 					} break;
 					case arithmetic: {
 						std::string expr_result, errs;
