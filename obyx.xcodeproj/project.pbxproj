@@ -421,8 +421,8 @@
 				B53B010211F524D600C1D7E3 /* crypto.h */,
 				B53B010111F524D600C1D7E3 /* crypto.cpp */,
 				B509B983098E4D180001B5AD /* comparison.h */,
-				B509B985098E4D180001B5AD /* convert.h */,
 				B509B982098E4D180001B5AD /* comparison.cpp */,
+				B509B985098E4D180001B5AD /* convert.h */,
 				B509B984098E4D180001B5AD /* convert.cpp */,
 				B509B98A098E4D180001B5AD /* fandr.h */,
 				B509B989098E4D180001B5AD /* fandr.cpp */,
@@ -1055,7 +1055,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				OTHER_CFLAGS = (
-					"-DALLOW_GMP",
+					"-DDISALLOW_GMP",
 					"-DALLOW_MYSQL",
 					"-DALLOW_POSTGRESQL",
 					"-fshort-wchar",
