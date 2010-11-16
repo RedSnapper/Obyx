@@ -45,6 +45,8 @@ private:
 	} header_type;	//what kind of dataItem
 	
 	typedef std::map<std::string, header_type > header_type_map; 
+	const static std::string crlf;			// "\r\n";
+	const static std::string crlft;			// "\r\n\t";
 	
 	string nl;
 	size_t nlsize;
@@ -58,6 +60,7 @@ private:
 	string body_charset;
 	string body_boundary;
 	
+	static unsigned int counter;			// 0...; for boundaries.
 	static header_type_map	header_types;
 	struct comment {
 		string v;	//raw value
@@ -122,7 +125,8 @@ public:
 	static void startup();
 	static void shutdown();
 	void compile(string&, ostringstream&, bool = true);
-	
+	static void decompile(const xercesc::DOMNode*,vector<string>&,string&, bool = true, bool = false);
+	static void decompile(const xercesc::DOMNode*,ostream&, bool = true, bool = false);
 };
 
 #endif

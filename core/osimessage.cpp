@@ -22,6 +22,7 @@
 
 #include <string>
 #include <sstream>
+#include "commons/logger/logger.h"
 #include "commons/environment/environment.h"
 #include "commons/string/strings.h"
 #include "commons/xml/xml.h"
@@ -29,8 +30,12 @@
 
 using namespace std;
 
+const std::string OsiMessage::crlf = "\x0D\x0A";
+const std::string OsiMessage::crlft		= "\x0D\x0A\x09";
 const std::string OsiMessage::boundary	= "Message_Boundary_";
 OsiMessage::header_type_map OsiMessage::header_types;
+unsigned int OsiMessage::counter = 1;
+
 
 void OsiMessage::identify_nl(string& msg) {
 	/*
@@ -38,15 +43,15 @@ void OsiMessage::identify_nl(string& msg) {
 	 Correct newline is crlf = "\r\n" = "\x0D\x0A";
 	 LS:    Line Separator, U+2028 = E280A8 
 	 */
-	string crlf = "\x0D\x0A";
-	size_t base = msg.find_first_of(crlf);	//either cr or lf
+	string t_crlf(crlf);
+	size_t base = msg.find_first_of(t_crlf);	//either cr or lf
 	if (base != string::npos) {
 		//CR:    Carriage Return, U+000D
 		//CR+LF: CR (U+000D) followed by LF (U+000A) (and badly formed LFCR)
 		//LF:    Line Feed, U+000A
 		if ((msg[base] == '\x0D') && (msg[base+1] == '\x0A')) {
 			nlsize = 2;
-			nl = crlf;
+			nl = t_crlf;
 		} else {
 			if ((msg[base] == '\x0A') && (msg[base+1] == '\x0D')) {	//topsy turvy - BAD code!
 				nlsize = 2;
@@ -62,7 +67,7 @@ void OsiMessage::identify_nl(string& msg) {
 			nl = "\xE2\x80\xA8";
 		} else {
 			nlsize = 2;
-			nl = crlf;
+			nl = t_crlf;
 		}
 	}
 }
@@ -748,6 +753,312 @@ void OsiMessage::compile(string& msg_str, ostringstream& res, bool do_namespace)
 		res << "</m:body>";
 	}
 	res << "</m:message>";
+}
+//wrapper for a full message decompile.
+void OsiMessage::decompile(const xercesc::DOMNode* n,ostream& result,bool addlength,bool inlatin) {
+	vector<string> heads; string body;
+	decompile(n,heads,body,addlength,inlatin);
+	for (unsigned int i=0; i < heads.size(); i++) {
+		String::fandr(heads[i],crlf,crlft);		//crlf in heads need a tab after them to indicate that they are not heads.
+		result << heads[i] << crlf;
+	}
+//	String::fandr(body,"\x0A",crlf);		//crlf in heads need a tab after them to indicate that they are not heads.
+	result << crlf << body; 
+}
+//Take an xml osi message and turn it into an RFC standard message.
+//n must point to root message element. (only partially works with non-crlf messages)
+//inlatin is to indicate whether or not we need to be concerned with http://tools.ietf.org/html/rfc2047
+void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads, string& body,bool addlength,bool inlatin) {
+	std::string head,encoded_s,angled_s;
+	if ( n != NULL) {
+		if ( n->getNodeType() == DOMNode::ELEMENT_NODE) {
+			std::string elname;
+			XML::transcode(n->getLocalName(),elname);
+			if (elname.compare("message") == 0) {
+				n=n->getFirstChild();		  //first element of message == header OR body OR NULL OR Whitespace.
+				while ( n != NULL && n->getNodeType() != DOMNode::ELEMENT_NODE)  { //Skip whitespace.
+					n = n->getNextSibling();
+				}
+				//Now this is either header or body or NULL.
+				if ( n != NULL ) {
+					XML::transcode(n->getLocalName(),elname);
+					//Handle the (multiple) header elements.
+					//Header is a single line: name: value; subvalue="foo"; subvue="bar";
+					while (n != NULL && n->getNodeType() == DOMNode::ELEMENT_NODE && elname.compare("header") == 0) {	//basically - headers
+						std::string name;
+						XML::Manager::attribute(n,"name",name); //mandatory
+						head.append(name); head.append(": ");
+						std::string headv,header_value;
+						if ( XML::Manager::attribute(n,"value",header_value)) { //optional
+							if( XML::Manager::attribute(n,"urlencoded",encoded_s)) { //subhead value
+								if ( encoded_s.compare("true") == 0 ) String::urldecode(header_value);
+							}
+							if( XML::Manager::attribute(n,"angled",angled_s)) { //subhead value
+								if ( angled_s.compare("true") == 0 ) header_value = '<' + header_value + '>';
+							}
+							if (name.compare("Received") != 0) {
+								headv.append(header_value); //now finished with the main part of the line.
+							}
+						}
+						
+						//Header may have sub-heads...
+						DOMNode* ch=n->getFirstChild();
+						while (ch != NULL && ch->getNodeType() != DOMNode::ELEMENT_NODE) ch=ch->getNextSibling();
+						if ( ch != NULL ) {
+							if ( ! header_value.empty() ) {
+								if (name.compare("Received") != 0) {
+									headv.push_back(';');
+									headv.push_back(' ');
+								}
+							} 
+							string subhead="";
+							XML::transcode(ch->getLocalName(),subhead);
+							if (subhead.compare("subhead") == 0 || subhead.compare("address") == 0) {
+								while (ch != NULL && (subhead.compare("subhead") == 0 || subhead.compare("address") == 0)) {
+									std::string shvalue,shnote,shname;
+									bool url_encoded=false;
+									bool usequotes=false;
+									if (XML::Manager::attribute(ch,"name",shname)) { 
+										headv.append(shname);
+										if (shname.compare("name") == 0) {
+											usequotes = true;
+										}
+									}
+									if( XML::Manager::attribute(ch,"urlencoded",encoded_s)) { //subhead value
+										if ( encoded_s.compare("true") == 0 ) url_encoded=true;
+									}
+									if(! XML::Manager::attribute(ch,"value",shvalue)) { //subhead value
+										DOMNode* shvo=ch->getFirstChild();
+										while ( shvo != NULL ) {
+											if (shvo->getNodeType() == DOMNode::ELEMENT_NODE) {
+												string sh; XML::Manager::parser()->writenode(shvo,sh);
+												shvalue.append(sh);
+											}
+											shvo=shvo->getNextSibling();
+										}
+									}
+									if (! shvalue.empty() || ! shnote.empty() ) {
+										if (url_encoded) String::urldecode(shvalue);
+										if (subhead.compare("address") == 0) {
+											XML::Manager::attribute(ch,"note",shnote);
+											if (!shnote.empty()) {
+												if (!inlatin) {
+													headv.append(shnote);
+												} else {
+													if (String::islatin(shnote)) {
+														headv.append(shnote);
+													} else {
+														String::base64encode(shnote,false);
+														headv.append("=?utf-8?B?");
+														headv.append(shnote);
+														headv.append("?=");
+													}
+												}											
+												headv.push_back(' ');
+											}
+											headv.push_back('<');
+											headv.append(shvalue);
+											headv.push_back('>');
+										} else {
+											if( XML::Manager::attribute(ch,"angled",angled_s)) { //subhead value
+												if ( angled_s.compare("true") == 0 ) shvalue = '<' + shvalue + '>';
+											}
+											if (name.compare("Received") == 0) {
+												headv.push_back(' ');  headv.append(shvalue);	
+											} else {
+												if (name.compare("Content-Disposition") == 0 || name.compare("content-disposition") == 0 || shvalue.find(';') != string::npos) {
+													name="Content-Disposition";
+													headv.append("=\"");
+													headv.append(shvalue);
+													headv.push_back('"');
+												} else {
+													if (usequotes) {
+														headv.append("=\"");
+														headv.append(shvalue);
+														headv.push_back('"');
+													} else {
+														headv.append("=");
+														headv.append(shvalue);
+													}
+												}
+											}
+										}
+									}
+									ch=ch->getNextSibling();
+									while (ch != NULL && ch->getNodeType() != DOMNode::ELEMENT_NODE) ch=ch->getNextSibling();
+									if (ch != NULL) {
+										if (name.compare("Received") != 0) {
+											headv.push_back(';');
+											headv.push_back(' ');
+										} else {
+											headv.append(crlf); //tab will be dealt with higher up.
+										}
+										XML::transcode(ch->getLocalName(),subhead);
+									} else {
+										subhead.clear();
+									}
+								}
+							} else {
+								if (subhead.compare("comment") != 0) {
+									for ( DOMNode* hv=n->getFirstChild(); hv != NULL; hv=hv->getNextSibling()) {
+										if (hv->getNodeType() == DOMNode::ELEMENT_NODE) {
+											string sh; XML::Manager::parser()->writenode(hv,sh);
+											headv.append(sh);
+										}
+									}
+								}
+							}
+						}
+						if (name.compare("Received") == 0) {
+							headv.append("; ");
+							headv.append(header_value); //now finished with the main part of the line.
+						}
+						if (!inlatin) {
+							head.append(headv);
+						} else {
+							if (String::islatin(headv)) {
+								head.append(headv);
+							} else {
+								String::base64encode(headv,false);
+								head.append("=?utf-8?B?");
+								head.append(headv);
+								head.append("?=");
+							}
+						}
+						heads.push_back(head); head.clear();
+						do { n = n->getNextSibling(); } while ( n != NULL && n->getNodeType() != DOMNode::ELEMENT_NODE);						
+						if (n != NULL) {
+							XML::transcode(n->getLocalName(),elname);
+						}
+					} 
+					//Now handle the (single) body element.
+					if ( n != NULL && n->getNodeType() == DOMNode::ELEMENT_NODE && elname.compare("body") == 0 ) { //this is a body..
+						std::string mechanism,type,subtype,encoded,charset,bformat;
+						XML::Manager::attribute(n,"mechanism",mechanism); //optional
+						XML::Manager::attribute(n,"type",type);           //optional
+						XML::Manager::attribute(n,"subtype",subtype);     //optional
+						XML::Manager::attribute(n,"urlencoded",encoded);  //optional, NOT with multiparts..
+						XML::Manager::attribute(n,"charset",charset);  //optional, NOT with multiparts..
+						XML::Manager::attribute(n,"format",bformat);  //optional, NOT with multiparts..
+						if (!mechanism.empty()) {
+							head.append("Content-Transfer-Encoding: ");
+							head.append(mechanism); 
+							heads.push_back(head); head.clear();
+						}
+						// Content-Type: type=multipart/mixed; boundary=boundary-002
+						if ( ! type.empty() ) {
+							head.append("Content-Type: ");
+							head.append(type); head.push_back('/'); head.append(subtype); 
+							if (!charset.empty()) {
+								head.append("; charset=");
+								head.append(charset);
+							}
+							if (!bformat.empty()) {
+								head.append("; format=");
+								head.append(bformat);
+							}
+							if (type.compare("multipart") == 0) { // need to compose a set of messages..
+								vector<std::string> messages;
+								string loc_boundary(boundary);
+								loc_boundary.append(String::tofixedstring(6,counter++));
+								DOMNode* ch=n->getFirstChild();		  //first element of message == header OR body OR NULL
+								while ( ch != NULL && ch->getNodeType() != DOMNode::ELEMENT_NODE)  {
+									ch = ch->getNextSibling();
+								}			
+								while (ch!=NULL) {
+									string msgname;
+									XML::transcode(ch->getLocalName(),msgname); //textnodes must be discarded..
+									if (msgname.compare("message") == 0) {
+										vector<string> tmphds;
+										string tmpmsg,tmpbody;
+										decompile(ch,tmphds,tmpbody,false);
+										for (unsigned int i=0; i < tmphds.size(); i++) {
+											tmpmsg.append(tmphds[i]);
+											tmpmsg.append(crlf);
+										} 
+										tmpmsg.append(crlf); 
+										tmpmsg.append(tmpbody);
+										bool boundary_clash = (tmpmsg.find(loc_boundary) != string::npos);
+										while (boundary_clash) {
+											loc_boundary=boundary;
+											loc_boundary.append(String::tofixedstring(6,counter++));
+											for (size_t x=0; x < messages.size(); x++) {
+												boundary_clash = messages[x].find(loc_boundary) != string::npos;
+												if (boundary_clash) break;
+											}
+											if (!boundary_clash) { 
+												boundary_clash = (tmpmsg.find(loc_boundary) != string::npos);
+											}
+										}
+										messages.push_back(tmpmsg);
+									}
+									ch = ch->getNextSibling();
+									while ( ch != NULL && ch->getNodeType() != DOMNode::ELEMENT_NODE)  {
+										ch = ch->getNextSibling();
+									}
+								}
+								//we now have a vector of messages and we have a non-clashing boundary...
+								//quotes on the boundary subhead appear to be very poorly supported.
+								//						head.append("; boundary=\"");
+								//						head.append(loc_boundary);
+								//						head.push_back('"');
+								head.append("; boundary=");
+								head.append(loc_boundary);
+								heads.push_back(head); head.clear();
+								
+								for (unsigned int x=0; x < messages.size(); x++) {
+									body.append("--");
+									body.append(loc_boundary);
+									body.append(crlf);
+									body.append(messages[x]);
+									body.append(crlf);
+								}
+								body.append("--");
+								body.append(loc_boundary);
+								body.append("--");
+							} else {
+								heads.push_back(head); head.clear();
+								DOMNode* ch=n->getFirstChild();
+								while (ch != NULL) {
+									string sh; XML::Manager::parser()->writenode(ch,sh);
+									body.append(sh);
+									ch=ch->getNextSibling();
+								}
+								if (encoded.compare("true") == 0 ) String::urldecode(body);
+								if (addlength) {
+									head.append("Content-Length: ");
+									head.append(String::tostring((long long unsigned int)body.size())); 
+									heads.push_back(head); head.clear();
+								}
+							}
+						} else {
+							DOMNode* ch=n->getFirstChild();
+							while (ch != NULL) {
+								string sh; XML::Manager::parser()->writenode(ch,sh);
+								body.append(sh);
+								ch=ch->getNextSibling();
+							}
+							if (encoded.compare("true") == 0 ) String::urldecode(body);
+							if (addlength) {
+								head.append("Content-Length: ");
+								head.append(String::tostring((long long unsigned int)body.size())); 
+								heads.push_back(head); head.clear();
+							}
+						}
+					}
+				} 
+				else {
+					*Logger::log << Log::error << Log::LI << "Error. OSI application, message was empty. Nothing was constructed." << Log::LO << Log::blockend;
+				}
+			} else {
+				*Logger::log << Log::error << Log::LI << "Error. OSI application, message was expected, not '" << elname << "'." << Log::LO << Log::blockend;
+			}
+		} else {
+			*Logger::log << Log::error << Log::LI << "Error. OSI application, element node 'message' was missing." << Log::LO << Log::blockend;
+		}
+	} else {
+		*Logger::log << Log::error << Log::LI << "Error. OSI Message encode failed: Node was NULL." << Log::LO << Log::blockend;
+	}
 }
 void OsiMessage::init() {
 }

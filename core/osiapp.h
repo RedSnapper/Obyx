@@ -46,11 +46,11 @@ private:
 	};
 	
 	const static std::string crlf;			// "\r\n";
+	const static std::string crlft;			// "\r\n\t";
 	const static std::string crlfcrlf;		// "\r\n\r\n";
 	const static std::string boundary;	    // "Message_Boundary_";
 	static std::string last_response;		//
 	
-	static unsigned int counter;			// 0...;
 	static void identify_nl(string&,string&,size_t&);
 	static void split_msg(string&,msg&);
 	static void do_headers(msg&);
@@ -60,7 +60,6 @@ private:
 
 public:
 	static const std::string last_osi_response() { return last_response; }	//	
-	void decompile_message(const xercesc::DOMNode*,vector<string>&,string&, bool = true, bool = false);
 	void compile_http_request(string&, string&, string&); 
 	bool request(const xercesc::DOMNode*,DataItem*&);
 };

@@ -136,7 +136,7 @@ IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : ObyxElement
 				trace();
 				*Logger::log << Log::blockend;
 			} else {
-				if  (encoder == e_qp || encoder == e_message ) {
+				if  (encoder == e_qp ) {
 					encoder = e_none;
 					string err_msg; transcode(str_encoder.c_str(),err_msg);
 					*Logger::log << Log::syntax << Log::LI << "Syntax Error. process='encode' is not supported for encoder='" << err_msg << "'." << Log::LO;	
@@ -369,20 +369,23 @@ void IKO::doerrspace(const string& input_name) const {
 }
 void IKO::process_encoding(DataItem*& basis) {
 	if (basis != NULL && encoder != e_none) {
-		string errs;
-		string encoded = *basis;		//xml cannot survive an encoding.
-		delete basis;					//now it is no longer.
-		basis = NULL;					//default for non-implemented encodings.
+		string errs,encoded;
+		if (!(encoder == e_message && process == encode)) {
+			encoded = *basis;		//xml cannot survive an encoding.
+			delete basis;					//now it is no longer.
+			basis = NULL;					//default for non-implemented encodings.
+		}
 		switch ( encoder ) {
 			case e_message: {
-				if ( process == encode) {
-//					ostringstream msgres;
-//					OsiMessage msg;
-//					msg.compile(encoded,msgres,true);
-//					basis = DataItem::factory(msgres.str(),di_text); //always xml..
-					*Logger::log << Log::error << Log::LI << "Error. message encoding is not yet explicitly implemented." << Log::LO;
-					trace();
-					*Logger::log << Log::blockend;
+				if ( process == encode) { //This uses a node rather than a string.
+					ostringstream msgres;
+					xercesc::DOMDocument* doc = *basis;
+					if (doc != NULL) {
+						xercesc::DOMNode* node = doc->getDocumentElement();
+						OsiMessage::decompile(node,msgres,false,true);
+						delete basis; basis = NULL;	doc=NULL;
+						basis = DataItem::factory(msgres.str(),di_text); //always xml..
+					}
 				} else {
 					ostringstream msgres;
 					OsiMessage msg;

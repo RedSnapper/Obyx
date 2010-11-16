@@ -215,6 +215,7 @@ namespace String {
 			fandr(s,"&","&amp;");	//otherwise the amp will do a long double decode.
 			fandr(s,"<","&lt;");
 			fandr(s,">","&gt;"); 
+			fandr(s,"\"","&quot;"); 
 		}
 	}
 	//• --------------------------------------------------------------------------

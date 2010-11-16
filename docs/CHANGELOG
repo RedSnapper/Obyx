@@ -17,6 +17,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.101116
+	Enh.		added message decoder.
+	BUG.		crlf being allowed through on message headers..
+	BUG.		xml encode not encoding quot 
 v1.101020
 	Enh.		Added 'proper' UTF-8 support for OSI mta messages.
 
