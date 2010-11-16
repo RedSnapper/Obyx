@@ -63,7 +63,6 @@ namespace String {
 			} else {
 				qplines[i]=CRLF;
 			}
-			
 			size_t x = qplines[i].find('=');
 			while (x != string::npos) {
 				string code,err;
