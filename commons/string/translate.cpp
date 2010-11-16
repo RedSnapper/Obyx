@@ -20,6 +20,7 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+
 // see RFC 1738 for URL spec.
 #include <string>
 #include <sstream>
@@ -32,28 +33,91 @@ using namespace std;
 
 namespace String {
 
-// http://www.ietf.org/rfc/rfc1521.txt
-	bool qpdecode(string& s,const string nl) {
-		string soft = "=" + nl;
-		fandr(s,soft);
-		string err;
-		size_t y = s.size() - nl.size(); //always 2 chars after the =
-		size_t x = s.find('=');
-		while (x != string::npos && x < y ) {
-		    string code;
-			code.push_back(s[x+1]);
-			code.push_back(s[x+2]);
-			if (fromhex(code,err)) {
-				s.replace(x,3,code);
-			} else {
-				return false;
-			}
-			x = s.find(x+1,'=');
+	// http://www.ietf.org/rfc/rfc1521.txt (actually made redundant by)
+	// http://tools.ietf.org/html/rfc2045
+	bool qpdecode(string& quoted_printable,const string CRLF) {
+		bool retval = false;
+		vector<string> qplines;
+		string::size_type pos = quoted_printable.find(CRLF);
+		while (pos != string::npos) {
+			qplines.push_back(quoted_printable.substr(0, pos));
+			quoted_printable.erase(0,pos+2);
+			pos = quoted_printable.find(CRLF);
 		}
-		return true;
-	}	
-
-	//rfc2045 -- here we include a CRLF after every 72 characters.
+		if (!quoted_printable.empty()) {
+			qplines.push_back(quoted_printable);
+			quoted_printable.clear();
+		}
+		char const* lwsp = " \t";
+		for (size_t i=0; i < qplines.size(); i++) {
+			size_t terminating = qplines[i].find_last_not_of(lwsp);
+			qplines[i].erase(terminating+1);
+			
+			//manage hard/soft line-breaks.
+			if (!qplines[i].empty()) {
+				if (*(qplines[i].end()-1) != '=') {
+					qplines[i].append(CRLF);
+				} else {
+					qplines[i].resize(qplines[i].size() - 1);
+				}
+			} else {
+				qplines[i]=CRLF;
+			}
+			
+			size_t x = qplines[i].find('=');
+			while (x != string::npos) {
+				string code,err;
+				code.push_back(qplines[i][x+1]);
+				code.push_back(qplines[i][x+2]);
+				if (fromhex(code,err)) {
+					qplines[i].replace(x,3,code);
+				} else {
+					retval = false;
+				}
+				x = qplines[i].find('=',x+1);
+			}
+			quoted_printable.append(qplines[i]);
+		} 
+		qplines.clear();
+		return retval;
+	}
+/*	
+	quoted-printable := qp-line *(CRLF qp-line)
+	
+	qp-line := *(qp-segment transport-padding CRLF)
+	qp-part transport-padding
+	
+	qp-part := qp-section
+	; Maximum length of 76 characters
+	
+	qp-segment := qp-section *(SPACE / TAB) "="
+	; Maximum length of 76 characters
+	
+	qp-section := [*(ptext / SPACE / TAB) ptext]
+	
+	ptext := hex-octet / safe-char
+	
+	safe-char := <any octet with decimal value of 33 through
+	60 inclusive, and 62 through 126>
+	; Characters not listed as "mail-safe" in
+	; RFC 2049 are also not recommended.
+	
+	hex-octet := "=" 2(DIGIT / "A" / "B" / "C" / "D" / "E" / "F")
+	; Octet must be used for characters > 127, =,
+		; SPACEs or TABs at the ends of lines, and is
+		; recommended for any character not listed in
+			; RFC 2049 as "mail-safe".
+	
+	transport-padding := *LWSP-char
+	; Composers MUST NOT generate
+	; non-zero length transport
+	; padding, but receivers MUST
+	; be able to handle padding
+	; added by message transports.
+	
+*/	
+	
+//rfc2045 -- here we include a CRLF after every 72 characters.
 //"All line breaks or other characters not found in Table 1 must be ignored by decoding software"
 //---------------------------------------------------------------------------
 	bool base64decode(string& s) {

@@ -166,17 +166,24 @@ void OsiMessage::do_mailbox(string& str,vector< address >& addresses) {
 	// mailbox= ([string] <addr-spec>) / (addr-spec) /  "," (and again)
 	while (!str.empty()) {
 		size_t bp = str.find_first_of("<,");	//as soon as we see a , we have gone into another one.
-		if (str[bp] != ',') {				//hit <addr-spec> 
+		if (bp != string::npos && str[bp] == ',') {
+			str.erase(0,bp +1);
+		} else {
 			address c;
-			size_t bx = str.find('>',bp+1);
-			c.n = str.substr(0,bp);     //note. 
-			c.v = str.substr(bp+1,(bx-bp)-1); //-1 cos we want to skip the brackets 
-			if (bx != string::npos) {
-				str.erase(0,bx+1); 
-				String::trim(str);
-			} else {
+			if (bp == string::npos) {
+				c.v = str;
 				str.clear();
-			}
+			} else {
+				size_t bx = str.find('>',bp+1);
+				c.n = str.substr(0,bp);     //note. 
+				c.v = str.substr(bp+1,(bx-bp)-1); //-1 cos we want to skip the brackets 
+				if (bx != string::npos) {
+					str.erase(0,bx+1); 
+					String::trim(str);
+				} else {
+					str.clear();
+				}
+			} 
 			String::trim(c.v);
 			c.a = do_angled(c.v);
 			c.u = do_encoding(c.v);
@@ -197,8 +204,6 @@ void OsiMessage::do_mailbox(string& str,vector< address >& addresses) {
 			}
 			c.x = hx.str();
 			addresses.push_back(c);
-		} else { //found next address
-			str.erase(0,bp +1);
 		}
 	}
 }
@@ -460,7 +465,7 @@ void OsiMessage::analyse_cookie(header& h,char fn) {	//'q/s' (req/response)
 		}
 	}
 }
-	
+
 
 void OsiMessage::construct_header_value(header& h) {
 	switch (h.t) {
@@ -762,7 +767,7 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,ostream& result,bool addlen
 		String::fandr(heads[i],crlf,crlft);		//crlf in heads need a tab after them to indicate that they are not heads.
 		result << heads[i] << crlf;
 	}
-//	String::fandr(body,"\x0A",crlf);		//crlf in heads need a tab after them to indicate that they are not heads.
+	//	String::fandr(body,"\x0A",crlf);		//crlf in heads need a tab after them to indicate that they are not heads.
 	result << crlf << body; 
 }
 //Take an xml osi message and turn it into an RFC standard message.
@@ -839,63 +844,91 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 									}
 									if (! shvalue.empty() || ! shnote.empty() ) {
 										if (url_encoded) String::urldecode(shvalue);
-										if (subhead.compare("address") == 0) {
-											XML::Manager::attribute(ch,"note",shnote);
-											if (!shnote.empty()) {
-												if (!inlatin) {
-													headv.append(shnote);
-												} else {
-													if (String::islatin(shnote)) {
+										if( XML::Manager::attribute(ch,"angled",angled_s)) { //subhead value
+											if ( angled_s.compare("true") == 0 ) shvalue = '<' + shvalue + '>';
+										}
+										
+										header_type t;
+										header_type_map::const_iterator i = header_types.find(name);
+										if( i != header_types.end() ) {
+											t = i->second; 
+										} else {
+											t = unstructured;
+										}
+										string shstring;
+										if (usequotes) {
+											shstring.push_back('"');
+											shstring.append(shvalue);
+											shstring.push_back('"');
+										} else {
+											shstring = shvalue;
+										}
+										
+										switch(t) {
+											case mailbox: {
+												//if (subhead.compare("address") != 0) {
+												//post error?
+												//}
+												XML::Manager::attribute(ch,"note",shnote);
+												if (!shnote.empty()) {
+													if (!inlatin) {
 														headv.append(shnote);
 													} else {
-														String::base64encode(shnote,false);
-														headv.append("=?utf-8?B?");
-														headv.append(shnote);
-														headv.append("?=");
-													}
-												}											
-												headv.push_back(' ');
-											}
-											headv.push_back('<');
-											headv.append(shvalue);
-											headv.push_back('>');
-										} else {
-											if( XML::Manager::attribute(ch,"angled",angled_s)) { //subhead value
-												if ( angled_s.compare("true") == 0 ) shvalue = '<' + shvalue + '>';
-											}
-											if (name.compare("Received") == 0) {
-												headv.push_back(' ');  headv.append(shvalue);	
-											} else {
-												if (name.compare("Content-Disposition") == 0 || name.compare("content-disposition") == 0 || shvalue.find(';') != string::npos) {
-													name="Content-Disposition";
-													headv.append("=\"");
+														if (String::islatin(shnote)) {
+															headv.append(shnote);
+														} else {
+															String::base64encode(shnote,false);
+															headv.append("=?utf-8?B?");
+															headv.append(shnote);
+															headv.append("?=");
+														}
+													}											
+													headv.push_back(' ');
+													headv.push_back('<');
 													headv.append(shvalue);
-													headv.push_back('"');
+													headv.push_back('>');
 												} else {
-													if (usequotes) {
-														headv.append("=\"");
-														headv.append(shvalue);
-														headv.push_back('"');
-													} else {
-														headv.append("=");
-														headv.append(shvalue);
-													}
+													headv.append(shvalue);
 												}
+											} break;
+											case cdisp: {
+												name="Content-Disposition";
+												headv.append("=\"");
+												headv.append(shvalue);
+												headv.push_back('"');
+											} break;
+											case list: {
+												headv.append(shstring);
+											} break;
+											case trace: {
+												headv.push_back(' '); 
+												headv.append(shstring);	
+											} break;
+											default: {
+												headv.push_back('=');
+												headv.append(shstring);
+											} break;
+										}
+										//move to the next sibling
+										ch=ch->getNextSibling();
+										while (ch != NULL && ch->getNodeType() != DOMNode::ELEMENT_NODE) ch=ch->getNextSibling();
+										//now we can tail the subhead if there is something there..
+										if (ch != NULL) {
+											XML::transcode(ch->getLocalName(),subhead);
+											switch(t) {
+												case list: {
+													headv.append(",");
+												} break;
+												case trace: { //Received is done further up.
+													headv.append(crlf); //tab will be dealt with higher up.
+												} break;
+												default: {
+													headv.append("; ");
+												} break;
 											}
-										}
-									}
-									ch=ch->getNextSibling();
-									while (ch != NULL && ch->getNodeType() != DOMNode::ELEMENT_NODE) ch=ch->getNextSibling();
-									if (ch != NULL) {
-										if (name.compare("Received") != 0) {
-											headv.push_back(';');
-											headv.push_back(' ');
 										} else {
-											headv.append(crlf); //tab will be dealt with higher up.
+											subhead.clear();
 										}
-										XML::transcode(ch->getLocalName(),subhead);
-									} else {
-										subhead.clear();
 									}
 								}
 							} else {
@@ -1157,6 +1190,8 @@ void OsiMessage::startup() { //(default is  unstructured)
 	header_types.insert(header_type_map::value_type("Cookie",reqcookie));			//Special: request cookie 
 	header_types.insert(header_type_map::value_type("content-disposition",cdisp));	//homogenise c-d.
 	header_types.insert(header_type_map::value_type("Content-Disposition",cdisp));	//
+	header_types.insert(header_type_map::value_type("content-Disposition",cdisp));	//
+	header_types.insert(header_type_map::value_type("Content-disposition",cdisp));	//
 	
 }
 void OsiMessage::shutdown() {
