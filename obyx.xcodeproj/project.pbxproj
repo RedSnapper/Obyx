@@ -1055,7 +1055,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				OTHER_CFLAGS = (
-					"-DDISALLOW_GMP",
 					"-DALLOW_MYSQL",
 					"-DALLOW_POSTGRESQL",
 					"-fshort-wchar",
