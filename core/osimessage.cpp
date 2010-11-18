@@ -844,7 +844,7 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 					}
 					const DOMNode* ch=n;	//Now do all the subheads..
 					for (next_ch(ch); ch!=NULL; next_el(ch)) {
-						string subhead("");
+						string subhead(""),shcomment("");
 						XML::transcode(ch->getLocalName(),subhead);
 						if (subhead.compare("subhead") == 0 || subhead.compare("address") == 0) {
 							std::string shvalue,shnote,shname;
@@ -860,18 +860,23 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 								if ( encoded_s.compare("true") == 0 ) url_encoded=true;
 							}
 							if(! XML::Manager::attribute(ch,"value",shvalue)) { //subhead value
-								const DOMNode* shvo=ch;
+								const DOMNode* shvo=ch; string shchel("");
 								for (next_ch(shvo); shvo!=NULL;next_el(shvo)) {
-									string sh; XML::Manager::parser()->writenode(shvo,sh);
-									shvalue.append(sh);
+								XML::transcode(shvo->getLocalName(),shchel);
+									if (shchel.compare("comment") == 0) {
+										shcomment.push_back('(');
+										encode_comment(shvo,shcomment);
+										shcomment.push_back(')');
+									} else {
+										encode_nodes(shvo,shvalue);
+									}
 								}
 							}
-							if (! shvalue.empty() || ! shnote.empty() ) {
+							if (! shvalue.empty() || ! shnote.empty()) {
 								if (url_encoded) String::urldecode(shvalue);
 								if( XML::Manager::attribute(ch,"angled",angled_s)) { //subhead value
 									if ( angled_s.compare("true") == 0 ) shvalue = '<' + shvalue + '>';
 								}
-								
 								string shstring;
 								if (usequotes) {
 									shstring.push_back('"');
@@ -922,7 +927,7 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 										headv.append(shstring);
 									} break;
 								}
-							}
+							} 
 							const DOMNode* nx=ch; next_el(nx);
 							if (nx != NULL) {
 								switch(htype) {
@@ -946,7 +951,8 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 								encode_nodes(ch,comment);
 							}
 						}
-					} 
+						headv.append(shcomment);
+					}
 					if (!header_value.empty()) {
 						switch (htype) {
 							case trace: {
