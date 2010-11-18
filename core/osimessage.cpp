@@ -819,116 +819,114 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 							string subhead="";
 							XML::transcode(ch->getLocalName(),subhead);
 							if (subhead.compare("subhead") == 0 || subhead.compare("address") == 0) {
-								while (ch != NULL && (subhead.compare("subhead") == 0 || subhead.compare("address") == 0)) {
-									std::string shvalue,shnote,shname;
-									bool url_encoded=false;
-									bool usequotes=false;
-									if (XML::Manager::attribute(ch,"name",shname)) { 
-										headv.append(shname);
-										if (shname.compare("name") == 0) {
-											usequotes = true;
-										}
+								std::string shvalue,shnote,shname;
+								bool url_encoded=false;
+								bool usequotes=false;
+								if (XML::Manager::attribute(ch,"name",shname)) { 
+									headv.append(shname);
+									if (shname.compare("name") == 0) {
+										usequotes = true;
 									}
-									if( XML::Manager::attribute(ch,"urlencoded",encoded_s)) { //subhead value
-										if ( encoded_s.compare("true") == 0 ) url_encoded=true;
+								}
+								if( XML::Manager::attribute(ch,"urlencoded",encoded_s)) { //subhead value
+									if ( encoded_s.compare("true") == 0 ) url_encoded=true;
+								}
+								if(! XML::Manager::attribute(ch,"value",shvalue)) { //subhead value
+									DOMNode* shvo=ch->getFirstChild();
+									while ( shvo != NULL ) {
+										if (shvo->getNodeType() == DOMNode::ELEMENT_NODE) {
+											string sh; XML::Manager::parser()->writenode(shvo,sh);
+											shvalue.append(sh);
+										}
+										shvo=shvo->getNextSibling();
 									}
-									if(! XML::Manager::attribute(ch,"value",shvalue)) { //subhead value
-										DOMNode* shvo=ch->getFirstChild();
-										while ( shvo != NULL ) {
-											if (shvo->getNodeType() == DOMNode::ELEMENT_NODE) {
-												string sh; XML::Manager::parser()->writenode(shvo,sh);
-												shvalue.append(sh);
-											}
-											shvo=shvo->getNextSibling();
-										}
+								}
+								if (! shvalue.empty() || ! shnote.empty() ) {
+									if (url_encoded) String::urldecode(shvalue);
+									if( XML::Manager::attribute(ch,"angled",angled_s)) { //subhead value
+										if ( angled_s.compare("true") == 0 ) shvalue = '<' + shvalue + '>';
 									}
-									if (! shvalue.empty() || ! shnote.empty() ) {
-										if (url_encoded) String::urldecode(shvalue);
-										if( XML::Manager::attribute(ch,"angled",angled_s)) { //subhead value
-											if ( angled_s.compare("true") == 0 ) shvalue = '<' + shvalue + '>';
-										}
-										
-										header_type t;
-										header_type_map::const_iterator i = header_types.find(name);
-										if( i != header_types.end() ) {
-											t = i->second; 
-										} else {
-											t = unstructured;
-										}
-										string shstring;
-										if (usequotes) {
-											shstring.push_back('"');
-											shstring.append(shvalue);
-											shstring.push_back('"');
-										} else {
-											shstring = shvalue;
-										}
-										
-										switch(t) {
-											case mailbox: {
-												//if (subhead.compare("address") != 0) {
-												//post error?
-												//}
-												XML::Manager::attribute(ch,"note",shnote);
-												if (!shnote.empty()) {
-													if (!inlatin) {
+									
+									header_type t;
+									header_type_map::const_iterator i = header_types.find(name);
+									if( i != header_types.end() ) {
+										t = i->second; 
+									} else {
+										t = unstructured;
+									}
+									string shstring;
+									if (usequotes) {
+										shstring.push_back('"');
+										shstring.append(shvalue);
+										shstring.push_back('"');
+									} else {
+										shstring = shvalue;
+									}
+									
+									switch(t) {
+										case mailbox: {
+											//if (subhead.compare("address") != 0) {
+											//post error?
+											//}
+											XML::Manager::attribute(ch,"note",shnote);
+											if (!shnote.empty()) {
+												if (!inlatin) {
+													headv.append(shnote);
+												} else {
+													if (String::islatin(shnote)) {
 														headv.append(shnote);
 													} else {
-														if (String::islatin(shnote)) {
-															headv.append(shnote);
-														} else {
-															String::base64encode(shnote,false);
-															headv.append("=?utf-8?B?");
-															headv.append(shnote);
-															headv.append("?=");
-														}
-													}											
-													headv.push_back(' ');
-													headv.push_back('<');
-													headv.append(shvalue);
-													headv.push_back('>');
-												} else {
-													headv.append(shvalue);
-												}
-											} break;
-											case cdisp: {
-												name="Content-Disposition";
-												headv.append("=\"");
+														String::base64encode(shnote,false);
+														headv.append("=?utf-8?B?");
+														headv.append(shnote);
+														headv.append("?=");
+													}
+												}											
+												headv.push_back(' ');
+												headv.push_back('<');
 												headv.append(shvalue);
-												headv.push_back('"');
-											} break;
+												headv.push_back('>');
+											} else {
+												headv.append(shvalue);
+											}
+										} break;
+										case cdisp: {
+											name="Content-Disposition";
+											headv.append("=\"");
+											headv.append(shvalue);
+											headv.push_back('"');
+										} break;
+										case list: {
+											headv.append(shstring);
+										} break;
+										case trace: {
+											headv.push_back(' '); 
+											headv.append(shstring);	
+										} break;
+										default: {
+											headv.push_back('=');
+											headv.append(shstring);
+										} break;
+									}
+									//move to the next sibling
+									ch=ch->getNextSibling();
+									while (ch != NULL && ch->getNodeType() != DOMNode::ELEMENT_NODE) ch=ch->getNextSibling();
+									//now we can tail the subhead if there is something there..
+									if (ch != NULL) {
+										XML::transcode(ch->getLocalName(),subhead);
+										switch(t) {
 											case list: {
-												headv.append(shstring);
+												headv.append(",");
 											} break;
-											case trace: {
-												headv.push_back(' '); 
-												headv.append(shstring);	
+											case trace: { //Received is done further up.
+												headv.append(crlf); //tab will be dealt with higher up.
 											} break;
 											default: {
-												headv.push_back('=');
-												headv.append(shstring);
+												headv.append("; ");
 											} break;
 										}
-										//move to the next sibling
-										ch=ch->getNextSibling();
-										while (ch != NULL && ch->getNodeType() != DOMNode::ELEMENT_NODE) ch=ch->getNextSibling();
-										//now we can tail the subhead if there is something there..
-										if (ch != NULL) {
-											XML::transcode(ch->getLocalName(),subhead);
-											switch(t) {
-												case list: {
-													headv.append(",");
-												} break;
-												case trace: { //Received is done further up.
-													headv.append(crlf); //tab will be dealt with higher up.
-												} break;
-												default: {
-													headv.append("; ");
-												} break;
-											}
-										} else {
-											subhead.clear();
-										}
+									} else {
+										subhead.clear();
 									}
 								}
 							} else {
