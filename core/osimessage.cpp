@@ -860,16 +860,18 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 								if ( encoded_s.compare("true") == 0 ) url_encoded=true;
 							}
 							if(! XML::Manager::attribute(ch,"value",shvalue)) { //subhead value
-								const DOMNode* shvo=ch; string shchel("");
+								const DOMNode* shvo=ch;
 								for (next_ch(shvo); shvo!=NULL;next_el(shvo)) {
-								XML::transcode(shvo->getLocalName(),shchel);
-									if (shchel.compare("comment") == 0) {
-										shcomment.push_back('(');
-										encode_comment(shvo,shcomment);
-										shcomment.push_back(')');
-									} else {
-										encode_nodes(shvo,shvalue);
-									}
+									encode_nodes(shvo,shvalue);
+								}
+							}
+							const DOMNode* shvo=ch; string shcom("");
+							for (next_ch(shvo); shvo!=NULL;next_el(shvo)) {
+								XML::transcode(shvo->getLocalName(),shcom);
+								if (shcom.compare("comment") == 0) {
+									shcomment.push_back('(');
+									encode_comment(shvo,shcomment);
+									shcomment.push_back(')');
 								}
 							}
 							if (! shvalue.empty() || ! shnote.empty()) {
@@ -928,6 +930,7 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 									} break;
 								}
 							} 
+							headv.append(shcomment);
 							const DOMNode* nx=ch; next_el(nx);
 							if (nx != NULL) {
 								switch(htype) {
@@ -951,7 +954,6 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 								encode_nodes(ch,comment);
 							}
 						}
-						headv.append(shcomment);
 					}
 					if (!header_value.empty()) {
 						switch (htype) {
@@ -989,102 +991,97 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 					heads.push_back(head); 
 					head.clear();
 					headv.clear();
-				} else {
-					if ( elname.compare("body") == 0 ) { //Now handle the (single) body element.
-						std::string mechanism,type,subtype,encoded,charset,bformat;
-						XML::Manager::attribute(n,"mechanism",mechanism); //optional
-						XML::Manager::attribute(n,"type",type);           //optional
-						XML::Manager::attribute(n,"subtype",subtype);     //optional
-						XML::Manager::attribute(n,"urlencoded",encoded);  //optional, NOT with multiparts..
-						XML::Manager::attribute(n,"charset",charset);  //optional, NOT with multiparts..
-						XML::Manager::attribute(n,"format",bformat);  //optional, NOT with multiparts..
-						if (!mechanism.empty()) {
-							head.append("Content-Transfer-Encoding: ");
-							head.append(mechanism); 
-							heads.push_back(head); head.clear();
+				} else { //must be body, if we are validating.
+					std::string mechanism,type,subtype,encoded,charset,bformat;
+					XML::Manager::attribute(n,"mechanism",mechanism); //optional
+					XML::Manager::attribute(n,"type",type);           //optional
+					XML::Manager::attribute(n,"subtype",subtype);     //optional
+					XML::Manager::attribute(n,"urlencoded",encoded);  //optional, NOT with multiparts..
+					XML::Manager::attribute(n,"charset",charset);  //optional, NOT with multiparts..
+					XML::Manager::attribute(n,"format",bformat);  //optional, NOT with multiparts..
+					if (!mechanism.empty()) {
+						head.append("Content-Transfer-Encoding: ");
+						head.append(mechanism); 
+						heads.push_back(head); head.clear();
+					}
+					// Content-Type: type=multipart/mixed; boundary=boundary-002
+					if ( ! type.empty() ) {
+						head.append("Content-Type: ");
+						head.append(type); head.push_back('/'); head.append(subtype); 
+						if (!charset.empty()) {
+							head.append("; charset=");
+							head.append(charset);
 						}
-						// Content-Type: type=multipart/mixed; boundary=boundary-002
-						if ( ! type.empty() ) {
-							head.append("Content-Type: ");
-							head.append(type); head.push_back('/'); head.append(subtype); 
-							if (!charset.empty()) {
-								head.append("; charset=");
-								head.append(charset);
-							}
-							if (!bformat.empty()) {
-								head.append("; format=");
-								head.append(bformat);
-							}
-							if (type.compare("multipart") == 0) { // need to compose a set of messages..
-								vector<std::string> messages;
-								string loc_boundary(boundary);
-								loc_boundary.append(String::tofixedstring(6,counter++));
-								const DOMNode* ch=n;	//Now do all the subheads..
-								for (next_ch(ch); ch!=NULL;next_el(ch)) {
-									vector<string> tmphds;
-									string tmpmsg,tmpbody;
-									decompile(ch,tmphds,tmpbody,false);
-									for (unsigned int i=0; i < tmphds.size(); i++) {
-										tmpmsg.append(tmphds[i]);
-										tmpmsg.append(crlf);
-									} 
-									tmpmsg.append(crlf); 
-									tmpmsg.append(tmpbody);
-									bool boundary_clash = (tmpmsg.find(loc_boundary) != string::npos);
-									while (boundary_clash) {
-										loc_boundary=boundary;
-										loc_boundary.append(String::tofixedstring(6,counter++));
-										for (size_t x=0; x < messages.size(); x++) {
-											boundary_clash = messages[x].find(loc_boundary) != string::npos;
-											if (boundary_clash) break;
-										}
-										if (!boundary_clash) { 
-											boundary_clash = (tmpmsg.find(loc_boundary) != string::npos);
-										}
+						if (!bformat.empty()) {
+							head.append("; format=");
+							head.append(bformat);
+						}
+						if (type.compare("multipart") == 0) { // need to compose a set of messages..
+							vector<std::string> messages;
+							string loc_boundary(boundary);
+							loc_boundary.append(String::tofixedstring(6,counter++));
+							const DOMNode* ch=n;	//Now do all the subheads..
+							for (next_ch(ch); ch!=NULL;next_el(ch)) {
+								vector<string> tmphds;
+								string tmpmsg,tmpbody;
+								decompile(ch,tmphds,tmpbody,false);
+								for (unsigned int i=0; i < tmphds.size(); i++) {
+									tmpmsg.append(tmphds[i]);
+									tmpmsg.append(crlf);
+								} 
+								tmpmsg.append(crlf); 
+								tmpmsg.append(tmpbody);
+								bool boundary_clash = (tmpmsg.find(loc_boundary) != string::npos);
+								while (boundary_clash) {
+									loc_boundary=boundary;
+									loc_boundary.append(String::tofixedstring(6,counter++));
+									for (size_t x=0; x < messages.size(); x++) {
+										boundary_clash = messages[x].find(loc_boundary) != string::npos;
+										if (boundary_clash) break;
 									}
-									messages.push_back(tmpmsg);
+									if (!boundary_clash) { 
+										boundary_clash = (tmpmsg.find(loc_boundary) != string::npos);
+									}
 								}
-								//we now have a vector of messages and we have a non-clashing boundary...
-								//quotes on the boundary subhead appear to be very poorly supported.
-								//						head.append("; boundary=\"");
-								//						head.append(loc_boundary);
-								//						head.push_back('"');
-								head.append("; boundary=");
-								head.append(loc_boundary);
-								heads.push_back(head); head.clear();
-								for (unsigned int x=0; x < messages.size(); x++) {
-									body.append("--");
-									body.append(loc_boundary);
-									body.append(crlf);
-									body.append(messages[x]);
-									body.append(crlf);
-								}
+								messages.push_back(tmpmsg);
+							}
+							//we now have a vector of messages and we have a non-clashing boundary...
+							//quotes on the boundary subhead appear to be very poorly supported.
+							//						head.append("; boundary=\"");
+							//						head.append(loc_boundary);
+							//						head.push_back('"');
+							head.append("; boundary=");
+							head.append(loc_boundary);
+							heads.push_back(head); head.clear();
+							for (unsigned int x=0; x < messages.size(); x++) {
 								body.append("--");
 								body.append(loc_boundary);
-								body.append("--");
-							} else {
-								heads.push_back(head); head.clear();
-								const DOMNode* ch=n->getFirstChild();	//.
-								encode_nodes(ch,body);
-								if (encoded.compare("true") == 0 ) String::urldecode(body);
-								if (addlength) {
-									head.append("Content-Length: ");
-									head.append(String::tostring((long long unsigned int)body.size())); 
-									heads.push_back(head); head.clear();
-								}
+								body.append(crlf);
+								body.append(messages[x]);
+								body.append(crlf);
 							}
+							body.append("--");
+							body.append(loc_boundary);
+							body.append("--");
 						} else {
-							const DOMNode* ch=n;	//.
-							for (next_ch(ch); ch!=NULL;next_el(ch)) {
-								string sh; XML::Manager::parser()->writenode(ch,sh);
-								body.append(sh);
-							}
+							heads.push_back(head); head.clear();
+							const DOMNode* ch=n->getFirstChild();	//.
+							encode_nodes(ch,body);
 							if (encoded.compare("true") == 0 ) String::urldecode(body);
 							if (addlength) {
 								head.append("Content-Length: ");
 								head.append(String::tostring((long long unsigned int)body.size())); 
 								heads.push_back(head); head.clear();
 							}
+						}
+					} else {
+						const DOMNode* ch=n->getFirstChild();	//.
+						encode_nodes(ch,body);
+						if (encoded.compare("true") == 0 ) String::urldecode(body);
+						if (addlength) {
+							head.append("Content-Length: ");
+							head.append(String::tostring((long long unsigned int)body.size())); 
+							heads.push_back(head); head.clear();
 						}
 					}
 				}
