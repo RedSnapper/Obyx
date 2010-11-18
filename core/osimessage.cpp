@@ -30,13 +30,11 @@
 
 using namespace std;
 
-const std::string OsiMessage::crlf = "\x0D\x0A";
+const std::string OsiMessage::crlf		= "\x0D\x0A";
 const std::string OsiMessage::crlft		= "\x0D\x0A\x09";
 const std::string OsiMessage::boundary	= "Message_Boundary_";
 OsiMessage::header_type_map OsiMessage::header_types;
 unsigned int OsiMessage::counter = 1;
-
-
 void OsiMessage::identify_nl(string& msg) {
 	/*
 	 Given a message, identify the newline(chars) and the newline size
@@ -123,7 +121,6 @@ bool OsiMessage::do_encoding(string& v) {
 	}
 	return retval;
 }
-
 void OsiMessage::do_comments(string& str,vector< comment >& comments) {
 	size_t bp = str.find_first_of("(;");	//as soon as we see a ; we have gone into subheads.
 	while (bp != string::npos) {
@@ -382,11 +379,10 @@ void OsiMessage::do_header_subheads(header& h) {
 		h.subheads.push_back(s);
 	}
 }
-
-//  Cookie: CUSTOMER=WILE_E_COYOTE; PART_NUMBER=ROCKET_LAUNCHER_0001; SHIPPING=FEDEX
-// http://www.ietf.org/rfc/rfc2965.txt
-// http://wp.netscape.com/newsref/std/cookie_spec.html
 void OsiMessage::analyse_cookie(header& h,char fn) {	//'q/s' (req/response)
+	//  Cookie: CUSTOMER=WILE_E_COYOTE; PART_NUMBER=ROCKET_LAUNCHER_0001; SHIPPING=FEDEX
+	// http://www.ietf.org/rfc/rfc2965.txt
+	// http://wp.netscape.com/newsref/std/cookie_spec.html
 	string ckname,ckattr,ckvar;        
 	size_t start=0;
 	size_t find = string::npos;
@@ -465,8 +461,6 @@ void OsiMessage::analyse_cookie(header& h,char fn) {	//'q/s' (req/response)
 		}
 	}
 }
-
-
 void OsiMessage::construct_header_value(header& h) {
 	switch (h.t) {
 		case contenttype: {
@@ -759,21 +753,20 @@ void OsiMessage::compile(string& msg_str, ostringstream& res, bool do_namespace)
 	}
 	res << "</m:message>";
 }
-//wrapper for a full message decompile.
 void OsiMessage::decompile(const xercesc::DOMNode* n,ostream& result,bool addlength,bool inlatin) {
+	//wrapper for a full message decompile.
 	vector<string> heads; string body;
 	decompile(n,heads,body,addlength,inlatin);
 	for (unsigned int i=0; i < heads.size(); i++) {
 		String::fandr(heads[i],crlf,crlft);		//crlf in heads need a tab after them to indicate that they are not heads.
 		result << heads[i] << crlf;
 	}
-	//	String::fandr(body,"\x0A",crlf);		//crlf in heads need a tab after them to indicate that they are not heads.
 	result << crlf << body; 
 }
-//Take an xml osi message and turn it into an RFC standard message.
-//n must point to root message element. (only partially works with non-crlf messages)
-//inlatin is to indicate whether or not we need to be concerned with http://tools.ietf.org/html/rfc2047
 void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads, string& body,bool addlength,bool inlatin) {
+	//Take an xml osi message and turn it into an RFC standard message.
+	//n must point to root message element. (only partially works with non-crlf messages)
+	//inlatin is to indicate whether or not we need to be concerned with http://tools.ietf.org/html/rfc2047
 	std::string head,encoded_s,angled_s;
 	if ( n != NULL) {
 		if ( n->getNodeType() == DOMNode::ELEMENT_NODE) {
@@ -865,9 +858,6 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 									
 									switch(t) {
 										case mailbox: {
-											//if (subhead.compare("address") != 0) {
-											//post error?
-											//}
 											XML::Manager::attribute(ch,"note",shnote);
 											if (!shnote.empty()) {
 												if (!inlatin) {
