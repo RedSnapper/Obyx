@@ -43,8 +43,7 @@
 		void display(vector<File *> *list);
 		bool makeDirs(vector<Path *> *list, bool stop_on_err = false);
 		bool removeDirs(vector<Path *> *list, bool stop_on_err = false);
-		bool listFiles(vector<Path *> *dirlist, vector<File *> *filelist);
-		const string generateTempName(const string &newfilename = "TEMP");
+		bool listFiles(vector<Path>&, vector<File>&);
 
 	}	// namespace FileUtils
 

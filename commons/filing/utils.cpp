@@ -80,20 +80,12 @@ namespace FileUtils {
 			return true;
 		}
 
-
 		// Create a list of files from a list of directories
-		bool listFiles(vector<Path *> *dirlist, vector<File *> *filelist) {
-			for(vector<Path *>::iterator it = dirlist->begin(); it != dirlist->end(); it++)
-				((Path *)*it)->listFiles(filelist, ".*");
+		bool listFiles(vector<Path>& dirlist, vector<File>& filelist) {
+			for(vector<Path>::iterator it = dirlist.begin(); it != dirlist.end(); it++) {
+				it->listFiles(filelist, ".*");
+			}
 			return true;
 		}
 
-		const string generateTempName(const string &newfilename) {
-			ostringstream result;
-			Date now;
-                        string loctime; 
-                        now.getLocalDateStr("%Y%m%d_%H%M%S",loctime);
-			result << newfilename << "_" << loctime; 
-			return result.str();
-		}
-	}	// namespace FileUtils
+}	// namespace FileUtils

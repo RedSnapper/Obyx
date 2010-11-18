@@ -295,7 +295,7 @@ bool IKO::currentenv(const string& req,const usage_tests exist_test, const IKO* 
 }
 void IKO::setfilepath(const string& input_name,string& file_path) const {
 	file_path = input_name;
-	if (file_path[0] == '/') { //we don't want to use file root, but site root.
+	if (!file_path.empty() && file_path[0] == '/') { //we don't want to use file root, but site root.
 		file_path = Environment::service()->getpathforroot()  + file_path;
 	} else {
 		string opath = owner->filepath;
@@ -647,7 +647,11 @@ bool IKO::foundinspace(const string& input_name,const inp_space the_space,const 
 			log(Log::error,"Error. find key over parm space not yet supported. use an existence test.");
 		} break;					
 		case file: {
-			log(Log::error,"Error. find key over file space not yet supported. use an existence test.");
+			vector<FileUtils::File> list;
+			string file_path; setfilepath("",file_path);
+			FileUtils::Path basis(file_path); 
+			basis.listFiles(list,true,input_name);
+			exists = ! list.empty();
 		} break;
 		case url: {
 			log(Log::error,"Error. find key over url space not supported. use an existence test.");
@@ -1046,7 +1050,15 @@ void IKO::keysinspace(const string& input_name,const inp_space the_space,vector<
 			if (!errstring.empty()) { log(Log::error,"Error. Store error: " + errstring); } 
 		} break;
 		case fnparm: { log(Log::error,"Error. finding key over parm space not yet supported."); } break;					
-		case file: { log(Log::error,"Error. finding key over file space not yet supported.");} break;
+		case file: { 
+			vector<FileUtils::File> list;
+			string file_path; setfilepath("",file_path);
+			FileUtils::Path basis(file_path); 
+			basis.listFiles(list,true,input_name);
+			for (size_t i=0; i < list.size(); i++) {
+				keylist.push_back(list[i].getPath());
+			}
+		} break;
 		case url: { log(Log::error,"Error. finding keys over url space not supported."); } break;
 		case cookie: { env->cookiekeys(input_name,keylist); } break;
 		case sysparm: { env->parmkeys(input_name,keylist); } break;

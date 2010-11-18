@@ -101,10 +101,8 @@
 		// Creates a new Path using the specified path
 		//-------------------------------------------------------------------------
 		Path::Path(const string newpath) : Device(),path(),directory_separator("/") {
-//			*Logger::log << Log::debug << Log::LI << "newpath" << Log::LO << Log::blockend;
 			setPath(newpath);
 		}
-
 
 		//-------------------------------------------------------------------------
 		// Creates a new Path from the specified device & path
@@ -126,8 +124,8 @@
 		//-------------------------------------------------------------------------
 		void Path::clear() {
 			Device::clear();
-			for(vector<string *>::iterator it = path.begin(); it != path.end(); it++)
-				delete *it;
+//			for(vector<string>::iterator it = path.begin(); it != path.end(); it++)
+//				delete *it;
 			path.clear();
 		}
 
@@ -138,13 +136,13 @@
 		Path &Path::operator=(const Path &newpath) {
 			clear();
 			device = newpath.device;
-			for(vector<string *>::const_iterator it = newpath.path.begin(); it != newpath.path.end(); it++)
-				path.push_back(new string(**it));
+			for(vector<string>::const_iterator it = newpath.path.begin(); it != newpath.path.end(); it++) {
+				path.push_back(*it);
+			}
 			directory_separator = newpath.directory_separator;
 			root_separator = newpath.root_separator;
 			return *this;
 		}
-
 
 		//-------------------------------------------------------------------------
 		// Sets the directory separator
@@ -167,11 +165,10 @@
 		//-------------------------------------------------------------------------
 		// Sets the path to the specified path
 		//-------------------------------------------------------------------------
-		void Path::setPath(const string newpath)
-		{
+		void Path::setPath(const string newpath) {
 			// Clear old path first
-			for(vector<string *>::iterator it = path.begin(); it != path.end(); it++)
-				delete *it;
+//			for(vector<string *>::iterator it = path.begin(); it != path.end(); it++)
+//				delete *it;
 			path.clear();
 			cd(newpath);
 		}
@@ -225,15 +222,11 @@
 		//-------------------------------------------------------------------------
 		// Gets a specified path part returning an empty string on error
 		//-------------------------------------------------------------------------
-		const string Path::getPath(size_t index) const
-		{
-			try
-			{
-				return *(this->path.at(index));
-			}
-			catch (...)
-			{
-				return string();
+		const string Path::getPath(size_t index) const {
+			if (index >= path.size()) {
+				return "";
+			} else {
+				return path.at(index);
 			}
 		}
 
@@ -241,8 +234,7 @@
 		//-------------------------------------------------------------------------
 		// Gets the number of path elements
 		//-------------------------------------------------------------------------
-		const size_t Path::getPathCount() const
-		{
+		const size_t Path::getPathCount() const {
 			return path.size();
 		}
 
@@ -250,10 +242,8 @@
 		//-------------------------------------------------------------------------
 		// Gets the last path element
 		//-------------------------------------------------------------------------
-		const string Path::getEndPath() const
-		{
-			string result(*path.back());
-			return result;
+		const string Path::getEndPath() const {
+			return path.back();
 		}
 
 
@@ -261,9 +251,7 @@
 		// Change directory to the specified path
 		//-------------------------------------------------------------------------
 		void Path::cd(const string newpath) {
-			if (!newpath.empty())
-			{
-				// cd to root
+			if (!newpath.empty()) {
 				if (newpath == root_separator) {
 					clear();
 					if (device.empty())
@@ -274,17 +262,14 @@
 					addPath(newpath);
 				}
 				// Back a directory
-				else if (newpath == "..")
-				{
-					if (!path.empty())
-					{
-						delete (string *)(this->path.back());
-						this->path.pop_back();
+				else if (newpath == "..") {
+					if (!path.empty()) {
+						path.pop_back();
 					}
 				}
-				// A normal directory
-				else if (newpath != ".")
-					this->path.push_back(new string(newpath));
+				else if (newpath.compare(".") != 0) {
+					path.push_back(newpath);
+				}
 			}
 		}
 
@@ -303,12 +288,9 @@
 		//-------------------------------------------------------------------------
 		// Determine whether the current directory exists
 		//-------------------------------------------------------------------------
-		bool Path::exists() const
-		{
+		bool Path::exists() const {
 			int result;
 			string temppath = output(true);
-//			string temppath(output().substr(0, output().length() - 1));	//should get rid of / termination!
-			// stat does not like '/' terminated paths
 			if (!temppath.empty())
 				temppath = temppath.erase(temppath.length() - 1, 1);
 		#ifdef WIN32
@@ -392,33 +374,34 @@
 		#endif
 			{
 				bool result2 = true;
-				vector<Path *> *dirlist = new vector<Path *>;
-				vector<File *> *filelist = new vector<File *>;
+				vector<Path> dirlist;
+				vector<File> filelist;
 				// Build a list of directories to scan
-				dirlist->push_back(new Path(*this));		
+				dirlist.push_back(Path(*this));		
 				listDirs(dirlist, true);
 				// Build a list of files
-				for(vector<Path *>::iterator it = dirlist->begin(); it != dirlist->end(); it++)
-					((Path *)*it)->listFiles(filelist);
+				for(vector<Path>::iterator it = dirlist.begin(); it != dirlist.end(); it++) {
+					it->listFiles(filelist);
+				}
 				// Removes all the files
-				for(vector<File *>::iterator it2 = filelist->begin(); it2 != filelist->end(); it2++)
-				{
-					bool res = ((File *)*it2)->removeFile();
-					if (!res && stop_on_error)
+				for(vector<File>::iterator it2 = filelist.begin(); it2 != filelist.end(); it2++) {
+					bool res = it2->removeFile();
+					if (!res && stop_on_error) {
 						return false;
+					}
 					result2 &= res;
 				}
 				// Remove all the directories in reverse order
-				for(vector<Path *>::reverse_iterator it3 = dirlist->rbegin(); it3 != dirlist->rend(); it3++)
-				{
-					bool res = ((Path *)*it3)->removeDir();
-					if (!res && stop_on_error)
+				for(vector<Path>::reverse_iterator it3 = dirlist.rbegin(); it3 != dirlist.rend(); it3++) {
+					bool res = it3->removeDir();
+					if (!res && stop_on_error) {
 						return false;
+					}
 					result2 &= res;
 				}
 				return result2;
 			}
-			return false;;
+			return false;
 		}
 
 
@@ -483,123 +466,58 @@
 		// Creates a list of directories from the current path.
 		// recursive = true, will recursively scan the directory tree
 		//-------------------------------------------------------------------------
-		void Path::listDirs(vector<Path *> *list, bool recursive) const
-		{
-		#ifdef WIN32
-			struct _finddata_t c_file;
-			long hFile;
-			if (exists())
-			{
-				_chdir(output().c_str());
-				if( (hFile = _findfirst("*.*", &c_file )) != -1L )
-				do
-				{
-					string tfilename = c_file.name;
-					// We ignore system directories
-					if (tfilename != "." && tfilename != "..")
-					{
-						Path *path1 = new Path(*this);
-						path1->cd(c_file.name);
-						if (path1->exists())
-						{
-							list->push_back(path1);
-							if (recursive)
-								path1->listDirs(list, recursive);
-						}
-						else 
-							delete path1;
-					}
-				} while( _findnext( hFile, &c_file ) == 0 );
-				_findclose( hFile );
-			}
-		#else
+		void Path::listDirs(vector<Path>& list, bool recursive) const {
 			struct dirent *dent;
 			DIR *dir = opendir(output().c_str());
-			while ((dent = readdir(dir)) != NULL)
-			{
+			while ((dent = readdir(dir)) != NULL) {
 				string tfilename = dent->d_name;
 				// We ignore system directories
-				if (tfilename != "." && tfilename != "..")
-				{
-					Path *path1 = new Path(*this);
-					path1->cd(dent->d_name);
-					if (path1->exists())
-					{
-						list->push_back(path1);
-						if (recursive)
-							path1->listDirs(list, recursive);
-					}
-					else 
-						delete path1;
+				if (tfilename != "." && tfilename != "..") {
+					Path path1(*this);
+					path1.cd(dent->d_name);
+					if (path1.exists()) {
+						list.push_back(path1);
+						if (recursive) {
+							path1.listDirs(list, recursive);
+						}
+					} 
 				}
 			}
 			closedir(dir);
-		#endif
 		}
 
 
 		//-------------------------------------------------------------------------
 		// Creates a list of files that match the RegExp from the current directory 
 		//-------------------------------------------------------------------------
-		void Path::listFilesA(vector<File *> *list, const string regexp) const
-		{
-		#ifdef WIN32
-			struct _finddata_t c_file;
-			long hFile;
-			if (exists())
-			{
-				chdir(output().c_str());
-				if( (hFile = _findfirst("*.*", &c_file )) != -1L )
-				do
-				{
-					File *file1 = new File(*this, c_file.name);
-					if (match(file1->output(), regexp))
-					{
-						if (file1->exists())
-						{
-							list->push_back(file1);
-							continue;
-						}
-					}
-					delete file1;
-				} while( _findnext( hFile, &c_file ) == 0 );
-				_findclose( hFile );
-			}
-		#else
+		void Path::listFilesA(vector<File>& list, const string regexp) const {
 			struct dirent *dent;
 			DIR *dir = opendir(output().c_str());
-			while ((dent = readdir(dir)) != NULL)
-			{
-				File *file1 = new File(*this, dent->d_name);
-				if (match(file1->output(), regexp))
-				{
-					if (file1->exists())
-					{
-						list->push_back(file1);
+			while ((dent = readdir(dir)) != NULL) {
+				File file1(*this,dent->d_name);
+				if (match(file1.output(), regexp)) {
+					if (file1.exists()) {
+						list.push_back(file1);
 						continue;
 					}
 				}
-				delete file1;
 			}
 			closedir(dir);
-		#endif
-
 		}
-
 
 		//-------------------------------------------------------------------------
 		// Creates a list of files that match the RegExp
 		// recursive = true, will recursively scan the directory tree for files.
 		//-------------------------------------------------------------------------
-		void Path::listFiles(vector<File *> *list, bool recursive, const string regexp) const
-		{
-			vector<Path *> *dirlist = new vector<Path *>;
-			// Create s list of directories to scan
-			dirlist->push_back(new Path(*this));	
-			if (recursive)
+		void Path::listFiles(vector<File>& list, bool recursive, const string regexp) const {
+			vector<Path> dirlist; // Create a list of directories to scan
+			dirlist.push_back(Path(*this));	
+			if (recursive) {
 				listDirs(dirlist, true);
-			for(vector<Path *>::iterator it = dirlist->begin(); it != dirlist->end(); it++)
-					((Path *)*it)->listFilesA(list, regexp);
+			}
+			for(vector<Path>::iterator it = dirlist.begin(); it != dirlist.end(); it++) {
+				it->listFilesA(list, regexp);
+			}
 		}
 
 
@@ -631,205 +549,25 @@
 		// Gets the size of a directory
 		// recursive = true, Scan the entire directory tree
 		//-------------------------------------------------------------------------
-		off_t Path::getSize(bool recursive) const
-		{
-			if (!recursive)
+		off_t Path::getSize(bool recursive) const {
+			if (!recursive) {
 				return getSizeA();
+			}
 			off_t size = 0;
-			vector<Path *> *dirlist = new vector<Path *>;
-			vector<File *> *filelist = new vector<File *>;
+			vector<Path> dirlist;  //= new vector<Path *>;
+			vector<File> filelist; // = new vector<File *>;
 			// Create a list of directories to scan
-			dirlist->push_back(new Path(*this));	
+			dirlist.push_back(Path(*this));	
 			listDirs(dirlist, true);
 			// Add the size of each directory
-			for(vector<Path *>::iterator it = dirlist->begin(); it != dirlist->end(); it++)
-			{
-				size += ((Path *)*it)->getSizeA();
-				((Path *)*it)->listFilesA(filelist, ".*");
+			for(vector<Path>::iterator it = dirlist.begin(); it != dirlist.end(); it++) {
+				size += it->getSizeA();
+				it->listFilesA(filelist,".*");
 			}
-			// Add the size of each file
-			for(vector<File *>::iterator it2 = filelist->begin(); it2 != filelist->end(); it2++) 
-				size += ((File *)*it2)->getSize();
+			for(vector<File>::iterator it2 = filelist.begin(); it2 != filelist.end(); it2++) {
+				size += it2->getSize();
+			}
 			return size;
 		}
-
-
-		//-------------------------------------------------------------------------
-		// Copies an entire directory tree to a specified path
-		// overwrite = true, Overwrites existing files
-		// stop_on_error = true, stops as soon as an error occurs
-		//-------------------------------------------------------------------------
-		bool Path::copyTo(const Path &newpath, bool overwrite, bool stop_on_error) const
-		{
-			if (!exists())
-				return false;
-			vector<Path *> *dirlist = new vector<Path *>;
-			vector<File *> *filelist = new vector<File *>;
-			bool dest_exists = false;
-			// if dest exists, we copy ourselves into the directory
-			if (newpath.exists())
-				dest_exists = true;
-
-			// Make a list of directories
-			dirlist->push_back(new Path(*this));
-			listDirs(dirlist, true);
-			// Make a list of Files
-			for(vector<Path *>::iterator it = dirlist->begin(); it != dirlist->end(); it++)
-				((Path *)*it)->listFiles(filelist);
-			// Make the directories themselves
-			for(vector<Path *>::iterator it2 = dirlist->begin(); it2 != dirlist->end(); it2++)
-			{
-				Path tnewpath(newpath);
-				if(dest_exists)
-					tnewpath.cd(getEndPath());
-				Path tpathdest((Path)**it2);
-				tpathdest.makeRelativeTo(*this);
-				tpathdest.makeAbsoluteFrom(tnewpath);
-				if (!tpathdest.makeDir() && stop_on_error)
-					return false;
-			}
-			for(vector<File *>::iterator it3 = filelist->begin(); it3 != filelist->end(); it3++)
-			{
-				File tnewfile(newpath);
-				if (dest_exists)
-					tnewfile.cd(getEndPath());
-				File tfiledest((File)**it3);
-				tfiledest.makeRelativeTo(*this);
-				tfiledest.makeAbsoluteFrom(tnewfile);
-				if (!((File *)*it3)->copyTo(tfiledest, overwrite) && stop_on_error)
-					return false;
-			}
-			return true;
-		}
-
-		//-------------------------------------------------------------------------
-		// mERGES an entire directory tree to a specified path
-		// overwrite = true, Overwrites existing files
-		// stop_on_error = true, stops as soon as an error occurs
-		//-------------------------------------------------------------------------	
-		bool Path::mergeTo(const Path &newpath, bool overwrite, bool stop_on_error) const
-		{
-			if (!exists())
-				return false;
-			vector<Path *> *dirlist = new vector<Path *>;
-			vector<File *> *filelist = new vector<File *>;
-			// if dest exists, we copy ourselves into the directory
-			if (!newpath.exists())
-				return copyTo(newpath);
-			// Make a list of directories
-			dirlist->push_back(new Path(*this));
-			listDirs(dirlist, true);
-			// Make a list of Files
-			for(vector<Path *>::iterator it = dirlist->begin(); it != dirlist->end(); it++)
-				((Path *)*it)->listFiles(filelist);
-			// Make the directories themselves
-			for(vector<Path *>::iterator it2 = dirlist->begin(); it2 != dirlist->end(); it2++)
-			{
-				Path tnewpath(newpath);
-				Path tpathdest((Path)**it2);
-				tpathdest.makeRelativeTo(*this);
-				tpathdest.makeAbsoluteFrom(tnewpath);
-				if (!tpathdest.makeDir() && stop_on_error)
-					return false;
-			}
-			for(vector<File *>::iterator it3 = filelist->begin(); it3 != filelist->end(); it3++)
-			{
-				File tnewfile(newpath);
-				File tfiledest((File)**it3);
-				tfiledest.makeRelativeTo(*this);
-				tfiledest.makeAbsoluteFrom(tnewfile);
-				if (!((File *)*it3)->copyTo(tfiledest, overwrite) && stop_on_error)
-					return false;
-			}
-			return true;
-		}
-
-
-		//-------------------------------------------------------------------------
-		// Makes the path relative to a specified path.
-		//-------------------------------------------------------------------------
-		bool Path::makeRelativeTo(const Path &newpath)
-		{
-			if (device == newpath.device)
-			{
-				// relative path must be a subset of the current path
-				if (path.size() < newpath.path.size())
-					return false;
-				size_t count;
-				// Find out when the paths diverge
-				for(count = 0; count < newpath.getPathCount(); count ++)
-				{
-					if (getPath(count) != newpath.getPath(count))
-						return false;
-				}
-				// Removes the relative path elements
-				for(vector<string *>::iterator it = path.begin(); it != path.begin() + count; it++)
-					delete ((string *)*it);
-				path.erase(path.begin(), path.begin() + count);
-				device = "";
-				return true;
-			}
-			return false;
-		}
-
-		//-------------------------------------------------------------------------
-		// Makes the current path absolute using a specified path
-		//-------------------------------------------------------------------------
-		bool Path::makeAbsoluteFrom(const Path &newpath)
-		{
-			string oldpath = getPath();
-			clear();
-			device = newpath.device;
-			cd(newpath.getPath() + oldpath);
-			return true;
-		}
-
-
-		//-------------------------------------------------------------------------
-		// Make all the specified paths relative to the current path
-		//-------------------------------------------------------------------------
-		bool Path::makeRelative(vector<Path *> *list)
-		{
-			for(vector<Path *>::iterator it = list->begin(); it != list->end(); it++)
-			{
-				if (!((Path *)*it)->makeRelativeTo(*this))
-					return false;
-			}
-			return true;
-		}
-
-
-		//-------------------------------------------------------------------------
-		// Make all the specified paths absolute to the current path
-		//-------------------------------------------------------------------------
-		bool Path::makeAbsolute(vector<Path *> *list)
-		{
-			for(vector<Path *>::iterator it = list->begin(); it != list->end(); it++)
-			{
-				if (!((Path *)*it)->makeAbsoluteFrom(*this))
-					return false;
-			}
-			return true;
-		}
-			
-		bool Path::makeTempDir(const string name)
-		{
-			string tail = generateTempName(name);
-			cd(tail);
-			int i = 0;
-			while(!makeDir() && i < 10000)
-			{
-				cd("..");
-				ostringstream newtail;
-				newtail << tail << "_" << i;
-					cd(newtail.str());
-				i++;
-			}
-			if (i >= 10000)
-				return false;
-			return true;
-		}
-
-
 	}	// namespace FileUtils
 

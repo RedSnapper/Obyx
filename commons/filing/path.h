@@ -42,11 +42,11 @@
 		class Path : public Device {
 		protected:
 			static std::stack<string> wdstack;
-			vector<string *>   path;
+			vector<std::string>   path;
 			string	directory_separator;
 
 		protected:
-			void listFilesA(vector<File *> *list, const string regexp) const;
+			void listFilesA(vector<File>& list, const string regexp) const;
 			off_t getSizeA() const;
 
 		public:
@@ -73,19 +73,8 @@
 			bool removeDir(bool recursive = false, bool stop_on_error = false) const;
 			bool moveTo(const Path &newpath) const ;
 			off_t getSize(bool recursive = false) const;
-			bool copyTo(const Path &newpath, bool overwrite = false, bool stop_on_error = false) const;
-			bool mergeTo(const Path &newpath, bool overwrite = true, bool stop_on_error = false) const;
-
-			void listDirs(vector<Path *> *list, bool recursive = false) const;
-			void listFiles(vector<File *> *list, bool recursive = false, const string regexp = ".*") const;
-
-			bool makeRelativeTo(const Path &newpath);
-			bool makeAbsoluteFrom(const Path &newpath);
-
-			bool makeRelative(vector<Path *> *list);
-			bool makeAbsolute(vector<Path *> *list);
-			bool makeTempDir(const string name = "TEMP");
-			
+			void listDirs(vector<Path>& list, bool recursive = false) const;
+			void listFiles(vector<File>& list, bool recursive = false, const string regexp = ".*") const;
 			static std::string wd();
 			static void cwd(std::string);
 			static void push_wd(std::string);
