@@ -1052,11 +1052,17 @@ void IKO::keysinspace(const string& input_name,const inp_space the_space,vector<
 		case fnparm: { log(Log::error,"Error. finding key over parm space not yet supported."); } break;					
 		case file: { 
 			vector<FileUtils::File> list;
+			string root(env->getpathforroot());
 			string file_path; setfilepath("",file_path);
 			FileUtils::Path basis(file_path); 
 			basis.listFiles(list,true,input_name);
 			for (size_t i=0; i < list.size(); i++) {
-				keylist.push_back(list[i].output(false));
+				string kyresult(list[i].output(false));
+				if ( kyresult.find(root) == 0 ) {
+					kyresult.erase(0,root.length());
+					if (kyresult.empty() ) kyresult = "/";
+				}
+				keylist.push_back(kyresult);
 			}
 		} break;
 		case url: { log(Log::error,"Error. finding keys over url space not supported."); } break;
