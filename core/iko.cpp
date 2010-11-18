@@ -1056,7 +1056,7 @@ void IKO::keysinspace(const string& input_name,const inp_space the_space,vector<
 			FileUtils::Path basis(file_path); 
 			basis.listFiles(list,true,input_name);
 			for (size_t i=0; i < list.size(); i++) {
-				keylist.push_back(list[i].getPath());
+				keylist.push_back(list[i].output(false));
 			}
 		} break;
 		case url: { log(Log::error,"Error. finding keys over url space not supported."); } break;

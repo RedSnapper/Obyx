@@ -18,6 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 ------------------------------------------------------------------------------------
 CHANGELOG file
 v1.101117
+	Enh.		Added file space support for each/found 
 	BUG.		Strange (as in, i don't know what it was doing there) infinite loop in osimessage.
 v1.101116
 	Enh.		added message decoder.
