@@ -1058,11 +1058,8 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 								body.append("--");
 							} else {
 								heads.push_back(head); head.clear();
-								const DOMNode* ch=n;	//.
-								for (next_ch(ch); ch!=NULL;next_el(ch)) {
-									string sh; XML::Manager::parser()->writenode(ch,sh);
-									body.append(sh);
-								}
+								const DOMNode* ch=n->getFirstChild();	//.
+								encode_nodes(ch,body);
 								if (encoded.compare("true") == 0 ) String::urldecode(body);
 								if (addlength) {
 									head.append("Content-Length: ");
