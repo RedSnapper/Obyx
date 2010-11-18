@@ -30,7 +30,6 @@
 class OsiMessage {	
 	
 private:
-	
 	typedef enum {
 		//RFC 2822 Internet Message Format
 		trace,unstructured,date_time,mailbox,msg_id,
@@ -101,7 +100,11 @@ private:
 	vector< header > headers;
 	
 	const static std::string boundary;	    // "Message_Boundary_";
-	
+	static void until_xml(const xercesc::DOMNode*&);
+	static void next_xml(const xercesc::DOMNode*&);
+	static void until_el(const xercesc::DOMNode*&);
+	static void next_el(const xercesc::DOMNode*&);
+	static void next_ch(const xercesc::DOMNode*&);
 	void identify_nl(string&);
 	void split_msg(string&);
 	void do_headers();
@@ -125,6 +128,8 @@ public:
 	static void startup();
 	static void shutdown();
 	void compile(string&, ostringstream&, bool = true);
+	static void encode_nodes(const xercesc::DOMNode*&,std::string&);
+	static void encode_comment(const xercesc::DOMNode*&,std::string&);
 	static void decompile(const xercesc::DOMNode*,vector<string>&,string&, bool = true, bool = false);
 	static void decompile(const xercesc::DOMNode*,ostream&, bool = true, bool = false);
 };

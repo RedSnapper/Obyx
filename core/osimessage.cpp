@@ -753,6 +753,56 @@ void OsiMessage::compile(string& msg_str, ostringstream& res, bool do_namespace)
 	}
 	res << "</m:message>";
 }
+
+void OsiMessage::until_xml(const xercesc::DOMNode*& n) {
+	while ( n != NULL && n->getNodeType() != DOMNode::ELEMENT_NODE && n->getNodeType() != DOMNode::TEXT_NODE )  { //Skip whitespace.
+		n = n->getNextSibling();
+	}
+}
+void OsiMessage::next_xml(const xercesc::DOMNode*& n) {
+	n = n->getNextSibling();
+	until_xml(n);
+}
+void OsiMessage::until_el(const xercesc::DOMNode*& n) {
+	while ( n != NULL && n->getNodeType() != DOMNode::ELEMENT_NODE)  { //Skip whitespace.
+		n = n->getNextSibling();
+	}
+}
+void OsiMessage::next_el(const xercesc::DOMNode*& n) {
+	n = n->getNextSibling();
+	until_el(n);
+}
+void OsiMessage::next_ch(const xercesc::DOMNode*& n) {
+	n=n->getFirstChild();	//first element of message == header OR body OR NULL OR Whitespace.
+	until_el(n);
+}
+void OsiMessage::encode_nodes(const xercesc::DOMNode*& n,std::string& result) {
+	const DOMNode* cn=n;
+	for (until_xml(cn); cn!=NULL;next_xml(cn)) {
+		string sh; XML::Manager::parser()->writenode(cn,sh);
+		string st(sh); String::trim(st);
+		if (!st.empty()) {
+			result.append(sh);
+		}
+	}
+}
+void OsiMessage::encode_comment(const xercesc::DOMNode*& n,std::string& result) {
+	std::string comment,sh,encoded_s,angled_s;
+	if(! XML::Manager::attribute(n,"value",comment)) { //comment value
+		const DOMNode* cn=n;
+		for (next_ch(cn); cn!=NULL;next_el(cn)) {
+			XML::Manager::parser()->writenode(cn,sh);
+			comment.append(sh);
+		}
+	}
+	if( XML::Manager::attribute(n,"urlencoded",encoded_s)) { //subhead value
+		if ( encoded_s.compare("true") == 0 ) String::urldecode(comment);
+	}
+	if( XML::Manager::attribute(n,"angled",angled_s)) { //subhead value
+		if ( angled_s.compare("true") == 0 ) comment = '<' + comment + '>';
+	}
+	result.append(comment);
+}
 void OsiMessage::decompile(const xercesc::DOMNode* n,ostream& result,bool addlength,bool inlatin) {
 	//wrapper for a full message decompile.
 	vector<string> heads; string body;
@@ -765,195 +815,176 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,ostream& result,bool addlen
 }
 void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads, string& body,bool addlength,bool inlatin) {
 	//Take an xml osi message and turn it into an RFC standard message.
-	//n must point to root message element. (only partially works with non-crlf messages)
+	//n must point to root message element.
 	//inlatin is to indicate whether or not we need to be concerned with http://tools.ietf.org/html/rfc2047
 	std::string head,encoded_s,angled_s;
+	until_el(n);
 	if ( n != NULL) {
-		if ( n->getNodeType() == DOMNode::ELEMENT_NODE) {
-			std::string elname;
-			XML::transcode(n->getLocalName(),elname);
-			if (elname.compare("message") == 0) {
-				n=n->getFirstChild();		  //first element of message == header OR body OR NULL OR Whitespace.
-				while ( n != NULL && n->getNodeType() != DOMNode::ELEMENT_NODE)  { //Skip whitespace.
-					n = n->getNextSibling();
-				}
-				//Now this is either header or body or NULL.
-				if ( n != NULL ) {
-					XML::transcode(n->getLocalName(),elname);
+		std::string elname;
+		XML::transcode(n->getLocalName(),elname);
+		if (elname.compare("message") == 0) {
+			for (next_ch(n); n!=NULL;next_el(n)) { //for each child of n...
+				XML::transcode(n->getLocalName(),elname);
+				if (elname.compare("header") == 0) {	//basically - headers
 					//Handle the (multiple) header elements.
 					//Header is a single line: name: value; subvalue="foo"; subvue="bar";
-					while (n != NULL && n->getNodeType() == DOMNode::ELEMENT_NODE && elname.compare("header") == 0) {	//basically - headers
-						std::string name;
-						XML::Manager::attribute(n,"name",name); //mandatory
-						head.append(name); head.append(": ");
-						std::string headv,header_value;
-						if ( XML::Manager::attribute(n,"value",header_value)) { //optional
-							if( XML::Manager::attribute(n,"urlencoded",encoded_s)) { //subhead value
-								if ( encoded_s.compare("true") == 0 ) String::urldecode(header_value);
-							}
-							if( XML::Manager::attribute(n,"angled",angled_s)) { //subhead value
-								if ( angled_s.compare("true") == 0 ) header_value = '<' + header_value + '>';
-							}
-							if (name.compare("Received") != 0) {
-								headv.append(header_value); //now finished with the main part of the line.
-							}
+					header_type htype(unstructured);
+					std::string name,headv,comment,header_value;
+					XML::Manager::attribute(n,"name",name); //mandatory.
+					head.append(name); head.append(": ");	//okay so now we have the start of a new header
+					header_type_map::const_iterator i = header_types.find(name);
+					if( i != header_types.end() ) {	htype = i->second; } else { htype = unstructured; }
+					if ( XML::Manager::attribute(n,"value",header_value)) { //optional
+						if( XML::Manager::attribute(n,"urlencoded",encoded_s)) { //subhead value
+							if ( encoded_s.compare("true") == 0 ) String::urldecode(header_value);
 						}
-						
-						//Header may have sub-heads...
-						DOMNode* ch=n->getFirstChild();
-						while (ch != NULL && ch->getNodeType() != DOMNode::ELEMENT_NODE) ch=ch->getNextSibling();
-						if ( ch != NULL ) {
-							if ( ! header_value.empty() ) {
-								if (name.compare("Received") != 0) {
-									headv.push_back(';');
-									headv.push_back(' ');
+						if( XML::Manager::attribute(n,"angled",angled_s)) { //subhead value
+							if ( angled_s.compare("true") == 0 ) header_value = '<' + header_value + '>';
+						}
+					}
+					const DOMNode* ch=n;	//Now do all the subheads..
+					for (next_ch(ch); ch!=NULL; next_el(ch)) {
+						string subhead("");
+						XML::transcode(ch->getLocalName(),subhead);
+						if (subhead.compare("subhead") == 0 || subhead.compare("address") == 0) {
+							std::string shvalue,shnote,shname;
+							bool url_encoded=false;
+							bool usequotes=false;
+							if (XML::Manager::attribute(ch,"name",shname)) { 
+								headv.append(shname);
+								if (shname.compare("name") == 0) {
+									usequotes = true;
 								}
-							} 
-							string subhead="";
-							XML::transcode(ch->getLocalName(),subhead);
-							if (subhead.compare("subhead") == 0 || subhead.compare("address") == 0) {
-								std::string shvalue,shnote,shname;
-								bool url_encoded=false;
-								bool usequotes=false;
-								if (XML::Manager::attribute(ch,"name",shname)) { 
-									headv.append(shname);
-									if (shname.compare("name") == 0) {
-										usequotes = true;
-									}
+							}
+							if( XML::Manager::attribute(ch,"urlencoded",encoded_s)) { //subhead value
+								if ( encoded_s.compare("true") == 0 ) url_encoded=true;
+							}
+							if(! XML::Manager::attribute(ch,"value",shvalue)) { //subhead value
+								const DOMNode* shvo=ch;
+								for (next_ch(shvo); shvo!=NULL;next_el(shvo)) {
+									string sh; XML::Manager::parser()->writenode(shvo,sh);
+									shvalue.append(sh);
 								}
-								if( XML::Manager::attribute(ch,"urlencoded",encoded_s)) { //subhead value
-									if ( encoded_s.compare("true") == 0 ) url_encoded=true;
+							}
+							if (! shvalue.empty() || ! shnote.empty() ) {
+								if (url_encoded) String::urldecode(shvalue);
+								if( XML::Manager::attribute(ch,"angled",angled_s)) { //subhead value
+									if ( angled_s.compare("true") == 0 ) shvalue = '<' + shvalue + '>';
 								}
-								if(! XML::Manager::attribute(ch,"value",shvalue)) { //subhead value
-									DOMNode* shvo=ch->getFirstChild();
-									while ( shvo != NULL ) {
-										if (shvo->getNodeType() == DOMNode::ELEMENT_NODE) {
-											string sh; XML::Manager::parser()->writenode(shvo,sh);
-											shvalue.append(sh);
-										}
-										shvo=shvo->getNextSibling();
-									}
+								
+								string shstring;
+								if (usequotes) {
+									shstring.push_back('"');
+									shstring.append(shvalue);
+									shstring.push_back('"');
+								} else {
+									shstring = shvalue;
 								}
-								if (! shvalue.empty() || ! shnote.empty() ) {
-									if (url_encoded) String::urldecode(shvalue);
-									if( XML::Manager::attribute(ch,"angled",angled_s)) { //subhead value
-										if ( angled_s.compare("true") == 0 ) shvalue = '<' + shvalue + '>';
-									}
-									
-									header_type t;
-									header_type_map::const_iterator i = header_types.find(name);
-									if( i != header_types.end() ) {
-										t = i->second; 
-									} else {
-										t = unstructured;
-									}
-									string shstring;
-									if (usequotes) {
-										shstring.push_back('"');
-										shstring.append(shvalue);
-										shstring.push_back('"');
-									} else {
-										shstring = shvalue;
-									}
-									
-									switch(t) {
-										case mailbox: {
-											XML::Manager::attribute(ch,"note",shnote);
-											if (!shnote.empty()) {
-												if (!inlatin) {
+								switch(htype) {
+									case mailbox: {
+										XML::Manager::attribute(ch,"note",shnote);
+										if (!shnote.empty()) {
+											if (!inlatin) {
+												headv.append(shnote);
+											} else {
+												if (String::islatin(shnote)) {
 													headv.append(shnote);
 												} else {
-													if (String::islatin(shnote)) {
-														headv.append(shnote);
-													} else {
-														String::base64encode(shnote,false);
-														headv.append("=?utf-8?B?");
-														headv.append(shnote);
-														headv.append("?=");
-													}
-												}											
-												headv.push_back(' ');
-												headv.push_back('<');
-												headv.append(shvalue);
-												headv.push_back('>');
-											} else {
-												headv.append(shvalue);
-											}
-										} break;
-										case cdisp: {
-											name="Content-Disposition";
-											headv.append("=\"");
+													String::base64encode(shnote,false);
+													headv.append("=?utf-8?B?");
+													headv.append(shnote);
+													headv.append("?=");
+												}
+											}											
+											headv.push_back(' ');
+											headv.push_back('<');
 											headv.append(shvalue);
-											headv.push_back('"');
-										} break;
-										case list: {
-											headv.append(shstring);
-										} break;
-										case trace: {
-											headv.push_back(' '); 
-											headv.append(shstring);	
-										} break;
-										default: {
-											headv.push_back('=');
-											headv.append(shstring);
-										} break;
-									}
-									//move to the next sibling
-									ch=ch->getNextSibling();
-									while (ch != NULL && ch->getNodeType() != DOMNode::ELEMENT_NODE) ch=ch->getNextSibling();
-									//now we can tail the subhead if there is something there..
-									if (ch != NULL) {
-										XML::transcode(ch->getLocalName(),subhead);
-										switch(t) {
-											case list: {
-												headv.append(",");
-											} break;
-											case trace: { //Received is done further up.
-												headv.append(crlf); //tab will be dealt with higher up.
-											} break;
-											default: {
-												headv.append("; ");
-											} break;
+											headv.push_back('>');
+										} else {
+											headv.append(shvalue);
 										}
-									} else {
-										subhead.clear();
-									}
-								}
-							} else {
-								if (subhead.compare("comment") != 0) {
-									for ( DOMNode* hv=n->getFirstChild(); hv != NULL; hv=hv->getNextSibling()) {
-										if (hv->getNodeType() == DOMNode::ELEMENT_NODE) {
-											string sh; XML::Manager::parser()->writenode(hv,sh);
-											headv.append(sh);
-										}
-									}
+									} break;
+									case cdisp: {
+										name="Content-Disposition";
+										headv.append("=\"");
+										headv.append(shvalue);
+										headv.push_back('"');
+									} break;
+									case list: {
+										headv.append(shstring);
+									} break;
+									case trace: {
+										headv.push_back(' '); 
+										headv.append(shstring);	
+									} break;
+									default: {
+										headv.push_back('=');
+										headv.append(shstring);
+									} break;
 								}
 							}
-						}
-						if (name.compare("Received") == 0) {
-							headv.append("; ");
-							headv.append(header_value); //now finished with the main part of the line.
-						}
-						if (!inlatin) {
-							head.append(headv);
+							const DOMNode* nx=ch; next_el(nx);
+							if (nx != NULL) {
+								switch(htype) {
+									case list: {
+										headv.append(",");
+									} break;
+									case trace: { //Received is done further up.
+										headv.append(crlf); //tab will be dealt with higher up.
+									} break;
+									default: {
+										headv.append("; ");
+									} break;
+								}
+							}
 						} else {
-							if (String::islatin(headv)) {
-								head.append(headv);
+							if (subhead.compare("comment") == 0) {
+								comment.push_back('(');
+								encode_comment(ch,comment);
+								comment.push_back(')');
 							} else {
-								String::base64encode(headv,false);
-								head.append("=?utf-8?B?");
-								head.append(headv);
-								head.append("?=");
+								encode_nodes(ch,comment);
 							}
-						}
-						heads.push_back(head); head.clear();
-						do { n = n->getNextSibling(); } while ( n != NULL && n->getNodeType() != DOMNode::ELEMENT_NODE);						
-						if (n != NULL) {
-							XML::transcode(n->getLocalName(),elname);
 						}
 					} 
-					//Now handle the (single) body element.
-					if ( n != NULL && n->getNodeType() == DOMNode::ELEMENT_NODE && elname.compare("body") == 0 ) { //this is a body..
+					if (!header_value.empty()) {
+						switch (htype) {
+							case trace: {
+								if (!headv.empty()) {
+									headv.append("; ");
+								}
+								headv.append(header_value); //now finished with the main part of the line.
+							} break;
+							case reqcookie: {
+								headv = header_value + headv;
+							} break;
+							default: {
+								if (!headv.empty()) {
+									headv = header_value + "; " + headv;
+								} else {
+									headv = header_value;
+								}
+							} break;
+						}
+					}
+					headv.append(comment);
+					if (!inlatin) {
+						head.append(headv);
+					} else {
+						if (String::islatin(headv)) {
+							head.append(headv);
+						} else {
+							String::base64encode(headv,false);
+							head.append("=?utf-8?B?");
+							head.append(headv);
+							head.append("?=");
+						}
+					}
+					heads.push_back(head); 
+					head.clear();
+					headv.clear();
+				} else {
+					if ( elname.compare("body") == 0 ) { //Now handle the (single) body element.
 						std::string mechanism,type,subtype,encoded,charset,bformat;
 						XML::Manager::attribute(n,"mechanism",mechanism); //optional
 						XML::Manager::attribute(n,"type",type);           //optional
@@ -982,41 +1013,30 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 								vector<std::string> messages;
 								string loc_boundary(boundary);
 								loc_boundary.append(String::tofixedstring(6,counter++));
-								DOMNode* ch=n->getFirstChild();		  //first element of message == header OR body OR NULL
-								while ( ch != NULL && ch->getNodeType() != DOMNode::ELEMENT_NODE)  {
-									ch = ch->getNextSibling();
-								}			
-								while (ch!=NULL) {
-									string msgname;
-									XML::transcode(ch->getLocalName(),msgname); //textnodes must be discarded..
-									if (msgname.compare("message") == 0) {
-										vector<string> tmphds;
-										string tmpmsg,tmpbody;
-										decompile(ch,tmphds,tmpbody,false);
-										for (unsigned int i=0; i < tmphds.size(); i++) {
-											tmpmsg.append(tmphds[i]);
-											tmpmsg.append(crlf);
-										} 
-										tmpmsg.append(crlf); 
-										tmpmsg.append(tmpbody);
-										bool boundary_clash = (tmpmsg.find(loc_boundary) != string::npos);
-										while (boundary_clash) {
-											loc_boundary=boundary;
-											loc_boundary.append(String::tofixedstring(6,counter++));
-											for (size_t x=0; x < messages.size(); x++) {
-												boundary_clash = messages[x].find(loc_boundary) != string::npos;
-												if (boundary_clash) break;
-											}
-											if (!boundary_clash) { 
-												boundary_clash = (tmpmsg.find(loc_boundary) != string::npos);
-											}
+								const DOMNode* ch=n;	//Now do all the subheads..
+								for (next_ch(ch); ch!=NULL;next_el(ch)) {
+									vector<string> tmphds;
+									string tmpmsg,tmpbody;
+									decompile(ch,tmphds,tmpbody,false);
+									for (unsigned int i=0; i < tmphds.size(); i++) {
+										tmpmsg.append(tmphds[i]);
+										tmpmsg.append(crlf);
+									} 
+									tmpmsg.append(crlf); 
+									tmpmsg.append(tmpbody);
+									bool boundary_clash = (tmpmsg.find(loc_boundary) != string::npos);
+									while (boundary_clash) {
+										loc_boundary=boundary;
+										loc_boundary.append(String::tofixedstring(6,counter++));
+										for (size_t x=0; x < messages.size(); x++) {
+											boundary_clash = messages[x].find(loc_boundary) != string::npos;
+											if (boundary_clash) break;
 										}
-										messages.push_back(tmpmsg);
+										if (!boundary_clash) { 
+											boundary_clash = (tmpmsg.find(loc_boundary) != string::npos);
+										}
 									}
-									ch = ch->getNextSibling();
-									while ( ch != NULL && ch->getNodeType() != DOMNode::ELEMENT_NODE)  {
-										ch = ch->getNextSibling();
-									}
+									messages.push_back(tmpmsg);
 								}
 								//we now have a vector of messages and we have a non-clashing boundary...
 								//quotes on the boundary subhead appear to be very poorly supported.
@@ -1026,7 +1046,6 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 								head.append("; boundary=");
 								head.append(loc_boundary);
 								heads.push_back(head); head.clear();
-								
 								for (unsigned int x=0; x < messages.size(); x++) {
 									body.append("--");
 									body.append(loc_boundary);
@@ -1039,11 +1058,10 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 								body.append("--");
 							} else {
 								heads.push_back(head); head.clear();
-								DOMNode* ch=n->getFirstChild();
-								while (ch != NULL) {
+								const DOMNode* ch=n;	//.
+								for (next_ch(ch); ch!=NULL;next_el(ch)) {
 									string sh; XML::Manager::parser()->writenode(ch,sh);
 									body.append(sh);
-									ch=ch->getNextSibling();
 								}
 								if (encoded.compare("true") == 0 ) String::urldecode(body);
 								if (addlength) {
@@ -1053,11 +1071,10 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 								}
 							}
 						} else {
-							DOMNode* ch=n->getFirstChild();
-							while (ch != NULL) {
+							const DOMNode* ch=n;	//.
+							for (next_ch(ch); ch!=NULL;next_el(ch)) {
 								string sh; XML::Manager::parser()->writenode(ch,sh);
 								body.append(sh);
-								ch=ch->getNextSibling();
 							}
 							if (encoded.compare("true") == 0 ) String::urldecode(body);
 							if (addlength) {
@@ -1067,20 +1084,14 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 							}
 						}
 					}
-				} 
-				else {
-					*Logger::log << Log::error << Log::LI << "Error. OSI application, message was empty. Nothing was constructed." << Log::LO << Log::blockend;
 				}
-			} else {
-				*Logger::log << Log::error << Log::LI << "Error. OSI application, message was expected, not '" << elname << "'." << Log::LO << Log::blockend;
 			}
 		} else {
-			*Logger::log << Log::error << Log::LI << "Error. OSI application, element node 'message' was missing." << Log::LO << Log::blockend;
+			*Logger::log << Log::error << Log::LI << "Error. OSI application, message was expected, not '" << elname << "'." << Log::LO << Log::blockend;
 		}
-	} else {
-		*Logger::log << Log::error << Log::LI << "Error. OSI Message encode failed: Node was NULL." << Log::LO << Log::blockend;
 	}
 }
+
 void OsiMessage::init() {
 }
 void OsiMessage::finalise() {
