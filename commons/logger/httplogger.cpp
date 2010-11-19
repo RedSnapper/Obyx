@@ -29,14 +29,17 @@
 bool HTTPLogger::minititle = true;
 
 void HTTPLogger::dofatal() {
-	Httphead* http = Httphead::service();	
-	http->setcode(200);	
-	http->setmime("text/html; charset=utf-8");
-	http->setdisposition("");
-	http->doheader(); 
-	string top_str;
-	top(top_str);
-	*fo << top_str;
+	if (!topped) {
+		topped=true;
+		Httphead* http = Httphead::service();	
+		http->setcode(200);	
+		http->setmime("text/html; charset=utf-8");
+		http->setdisposition("");
+		http->doheader(); 
+		string top_str;
+		top(top_str);
+		*fo << top_str;
+	}
 }
 
 void HTTPLogger::strip(string& basis) { 
@@ -56,10 +59,9 @@ void HTTPLogger::strip(string& basis) {
 	String::fandr(basis,"</html>","<!--/html--></div>");
 }
 
+//top-tail are used to compose external log-reports as well.
 void HTTPLogger::ltop(string& container) {		//top log document
 	container.clear();
-	if (!topped) {
-		topped="true";
 		std::string logjs="<script type=\"text/javascript\" charset=\"utf-8\" >"
 		"/* <![CDATA[ */\n"
 		"	function sh(n) {\n"
@@ -112,17 +114,14 @@ void HTTPLogger::ltop(string& container) {		//top log document
 		container.append("</head><body><div class=\"headline\">");
 		container.append(title);	
 		container.append("</div><div>");
-	}
 }
 
+//top-tail are used to compose external log-reports as well.
 void HTTPLogger::ltail(string& container) {		//tail log document
 	container.clear();
-	if (!tailed) {
-		tailed=true;
-		container = "</div><div class=\"headline\">";
-		container.append(title);
-		container.append("</div></body></html>\n"); 
-	}
+	container = "</div><div class=\"headline\">";
+	container.append(title);
+	container.append("</div></body></html>\n"); 
 }
 
 void HTTPLogger::open() {	//This should always be called ..
@@ -135,7 +134,8 @@ void HTTPLogger::open() {	//This should always be called ..
 }
 
 void HTTPLogger::close() { 
-	if (debugflag || hadfatal) {
+	if (topped && !tailed) {
+		tailed=true;
 		string tail_str;
 		tail(tail_str);
 		*o << tail_str;
