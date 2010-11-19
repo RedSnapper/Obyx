@@ -17,6 +17,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.101119
+	BUG.		logger incorrectly setting top/tail flag for caught errors
+	BUG.		multiple OSI encoder issues now resolved.
 v1.101117
 	Enh.		Added file space support for each/found 
 	BUG.		Strange (as in, i don't know what it was doing there) infinite loop in osimessage.
