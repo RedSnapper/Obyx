@@ -334,6 +334,13 @@ namespace String {
 				GMP::mpz_mul_2exp(result.value,a.value,wsiz - bits);	//r  = a << wsiz - bits
 				GMP::mpz_ior(result.value,result.value,t1);				//r  = r | t1
 				GMP::mpz_and(result.value,result.value,mask);			//r  = r & mask
+
+				//r = (x & ~m) | r;
+				GMP::mpz_com(t1,mask);					//t1 = ~mask.
+				GMP::mpz_and(t1,t1,a.value);		//(x & ~m)
+				GMP::mpz_ior(result.value,result.value,t1);		//
+				
+				
 				GMP::mpz_clear(mask);  GMP::mpz_clear(t1); 
 			}
 		}
@@ -350,6 +357,13 @@ namespace String {
 				GMP::mpz_fdiv_q_2exp(result.value,a.value,wsiz - bits);
 				GMP::mpz_ior(result.value,result.value,t1);
 				GMP::mpz_and(result.value,result.value,mask);
+				
+				//r = (x & ~m) | r;
+				GMP::mpz_com(t1,mask);					//t1 = ~mask.
+				GMP::mpz_and(t1,t1,a.value);		//(x & ~m)
+				GMP::mpz_ior(result.value,result.value,t1);		//
+
+				
 				GMP::mpz_clear(mask); 
 				GMP::mpz_clear(t1); 
 			}
