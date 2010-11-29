@@ -72,7 +72,7 @@ Function(n,instruction,par),operation(move),precision(0),bitpadding(0),base_conv
 		std::string str_prec;
 		Manager::attribute(n,"precision",str_prec);
 		if ( ! str_prec.empty() ) {
-			if (str_prec[0] == 'B' || str_prec[0] == 'b') { //2,8,16 (B is for base)
+			if (str_prec[0] == 'B' || str_prec[0] == 'b') { //2,8,10,16 (B is for base)
 				base_convert = true;
 				str_prec.erase(0,1);
 				size_t bcpt = str_prec.find('.');
@@ -602,8 +602,12 @@ bool Instruction::evaluate_this() {
 						break;
 					case bitwise: { //expr_bit_eval (result is in hexdigits)
 #ifndef DISALLOW_GMP						
-						std::string errs;
-						std::string expr_result = expr_bit_eval->process(errs);
+						std::string errs,expr_result;
+						if (base_convert) {
+							expr_result = expr_bit_eval->process(errs,precision);
+						} else {
+							expr_result = expr_bit_eval->process(errs,16);
+						}
 						if (!errs.empty()) {
 							*Logger::log << Log::error << Log::LI << errs << Log::LO;
 							trace();
