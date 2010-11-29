@@ -274,7 +274,7 @@ namespace String {
 		unsigned long long s = (long long) p % b;	//number of shifts to make is mod q.
 		unsigned long long m = (unsigned long long)(pow(2,q) - 1);			//mask
 		unsigned long long r = (x << s | (x >> (b - s)));
-		r = m > 0 ? r & m :r;
+		r = (x & ~m) | (m > 0 ? r & m :r);
 		return (long double) r;
 	}
 	long double rorfn::evaluate(const long double o,const long double p,const long double q) const {
@@ -283,7 +283,7 @@ namespace String {
 		unsigned long long s = (long long) p % b;	//number of shifts to make is mod q.
 		unsigned long long m = (unsigned long long)(pow(2,q) - 1);			//mask
 		unsigned long long r = (x >> s | (x << (b - s)));
-		r = m > 0 ? r & m :r;
+		r = (x & ~m) | (m > 0 ? r & m :r);
 		return (long double) r;
 	}
 
