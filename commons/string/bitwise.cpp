@@ -85,9 +85,22 @@ namespace String {
 			Num* p = const_cast<Num*>(&x);
 			GMP::mpz_set(value,p->value); 
 		}
+/*		
 		string Num::str() { 
 			string result;
 			char* tmp = GMP::mpz_get_str(NULL,16,value);
+			if (tmp) { 
+				result = tmp;
+				free(tmp); tmp=NULL;
+			}
+			return result;
+		}
+*/ 
+		string Num::str(unsigned int base_i) { 
+			string result;
+			unsigned int base = 16;
+			if (base_i > 1 && base_i <= 36) base= base_i;
+			char* tmp = GMP::mpz_get_str(NULL,base,value);
 			if (tmp) { 
 				result = tmp;
 				free(tmp); tmp=NULL;
@@ -141,7 +154,7 @@ namespace String {
 			Num mval(value);	
 			parms.insert(parm_map_t::value_type(key,mval)); //copy constructor here *2, 1 destructor
 		}
-		string Evaluate::process(string& errs) {
+		string Evaluate::process(string& errs,unsigned int base) {
 			const string wss = "\n\r\t ";
 			valstack.clear();
 			opstack.clear();
@@ -218,7 +231,7 @@ namespace String {
 			while(!opstack.empty()) {
 				evalstack(); //discard result here. should be just 1 operation, normally..
 			}
-			return valstack.back().str();
+			return valstack.back().str(base);
 		}
 		size_t Evaluate::name(string::const_iterator& i,string& value) {
 			string::const_iterator b(i); //Start position as copy constructor.

@@ -47,7 +47,7 @@
 				Num(const Num &); 
 				Num(mpz_t &);
 				void operator=(const Num &);
-				string str();
+				string str(unsigned int base_i = 16); 
 			};
 			
 			class Op {
@@ -207,7 +207,7 @@
 				static void shutdown();
 				Evaluate() {}
 				~Evaluate() {}
-				string process(string&);
+				string process(string&,unsigned int = 16);
 				void set_expression(const string);
 				void add_parm(const string,const string);
 			};
