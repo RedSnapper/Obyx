@@ -291,8 +291,8 @@
 		bool Path::exists() const {
 			int result;
 			string temppath = output(true);
-			if (!temppath.empty())
-				temppath = temppath.erase(temppath.length() - 1, 1);
+//			if (!temppath.empty())
+//				temppath = temppath.erase(temppath.length() - 1, 1);
 		#ifdef WIN32
 			struct _stat buf;
 			result = _stat(temppath.c_str(), &buf);
@@ -474,9 +474,9 @@
 				// We ignore system directories
 				if (tfilename != "." && tfilename != "..") {
 					Path path1(*this);
-					path1.cd(dent->d_name);
+					path1.cd(tfilename);
 					if (path1.exists()) {
-						list.push_back(path1);
+ 						list.push_back(path1);
 						if (recursive) {
 							path1.listDirs(list, recursive);
 						}
