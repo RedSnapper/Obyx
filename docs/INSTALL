@@ -240,7 +240,7 @@ FcgidWrapper /Library/WebServer/CGI-Executables/obyx.fcgi .fbyx
 #eg using filename /foo.html will actually be pointing to /OBYX_ROOT_DIR/foo.html
 #the scripts directory, which is used by the 'shell' operation should be outside OBYX_ROOT_DIR.
 
- SetEnv OBYX_DEVELOPMENT       on
+ SetEnv OBYX_DEVELOPMENT       true
  SetEnv OBYX_ROOT_DIR          /WWW_ROOT/public
  SetEnv OBYX_SCRIPTS_DIR       /WWW_ROOT/scripts
  
