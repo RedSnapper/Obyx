@@ -771,19 +771,21 @@ void Instruction::do_random(long double& result,long double low_endpoint,long do
 		unsigned long long base = ULLONG_MAX;
 		long double dbase = base,calc = 0.0;
 		result = 0.0;
-		string rnd;
+		string rnd("");
 		int x = sizeof(unsigned long long);
-		String::Digest::random(rnd,x);
-		String::tohex(rnd);
-		string hx = "0x";
-		hx.append(rnd);
-		pair<unsigned long long,bool> num_pr = String::znatural(hx);
+		pair<unsigned long long,bool> num_pr(0,false);
+		while (!num_pr.second || rnd.empty()) {
+			String::Digest::random(rnd,x);
+			String::tohex(rnd);
+			string hx = "0x";
+			hx.append(rnd);
+			num_pr = String::znatural(hx);
+		}
 		calc = num_pr.first;
 		long double lowv = low_endpoint;          //C$14
 		long double high = high_endpoint;         //C$15
 		long double decp = pow(10,precision);	  //C$17
 		long double r = calc/dbase;               //0.84036
-//Seems to weigh slightly to the lower side. not sure why.	
 //		       = C$14+FLOOR(R*(C$17*(C$15-C$14)+1),1)/C$17
 //		       = lowv+floor(r*(decp*(high-lowv)+1.0))/decp
 		
