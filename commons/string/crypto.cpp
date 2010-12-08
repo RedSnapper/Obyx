@@ -131,10 +131,14 @@ namespace String {
 	}
 	
 	void Digest::random(string& result,unsigned short size) {
-		unsigned char *ibuff = new unsigned char[size];
-		RAND_pseudo_bytes(ibuff,size); //err = 1 on SUCCESS.
-		result = string((const char *)ibuff,0,size);
-		delete ibuff;
+		for (size_t i=0; i < size; i++) {
+			result.push_back((unsigned char)(rand() & 0xFF ));
+		}
+		//The following seems to weigh slightly to the lower side. not sure why.
+//		unsigned char *ibuff = new unsigned char[size];
+//		RAND_pseudo_bytes(ibuff,size); //err = 1 on SUCCESS.
+//		result = string((const char *)ibuff,0,size);
+//		delete ibuff;
 	}
 	
 //--------------------------------------------- DEFLATE ------------------------------------	
