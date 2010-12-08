@@ -18,6 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 ------------------------------------------------------------------------------------
 CHANGELOG file
 v1.101208
+	Enh.		Added support for rfc2617 syntax for Authorization header. 
 	BUG.		Odd bug in the implementation of the OpenSSH RNG. Should make no noticeable difference.
 v1.101130
 	BUG.		directory existence bug.
