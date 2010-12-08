@@ -82,8 +82,8 @@ void OsiMessage::split_msg(string& msg_str) {
 		}
 	}
 }
-void OsiMessage::split_header_value(string& v,string& s) { //splits value at the first ;
-	string::size_type pos = v.find(";"); 
+void OsiMessage::split_header_value(string& v,string& s,string delim) { //splits value at the first ;
+	string::size_type pos = v.find_first_of(delim); 
 	if (pos != string::npos) {
 		s = v.substr(pos + 1, string::npos);
 		v.erase(pos,string::npos);
@@ -327,11 +327,13 @@ void OsiMessage::do_address_subheads(header& h) {
 		h.subheads.push_back(s);
 	}
 }
-void OsiMessage::do_header_subheads(header& h) {
+void OsiMessage::do_header_subheads(header& h,char delim) {
 	while (!h.s.empty()) {
 		subhead s;
+		string delims("=");
+		delims.push_back(delim);
 		do_comments(h.s,s.comments);
-		size_t k = h.s.find_first_of("=;");
+		size_t k = h.s.find_first_of(delims);
 		if (h.s[k] == '=') {
 			s.n = h.s.substr(0,k);
 			if (k != string::npos) {
@@ -339,7 +341,7 @@ void OsiMessage::do_header_subheads(header& h) {
 			} else {
 				h.s.clear();
 			}
-			k = h.s.find(';');
+			k = h.s.find(delim);
 		}
 		s.v = h.s.substr(0,k);
 		if (k != string::npos) {
@@ -615,6 +617,29 @@ void OsiMessage::construct_header_value(header& h) {
 			}
 			h.x = hx.str();
 		} break;
+		case commadelim: {
+			do_comments(h.v,h.comments);  //will leave the value (if there is one) followed by a ;
+			String::ltrim(h.v);
+			split_header_value(h.v,h.s,"\t\r\n "); //subheads now in h.s
+			do_header_subheads(h,',');  //subheads are recognised by , only
+			String::trim(h.v);
+			ostringstream hx;
+			if (!h.n.empty()) {
+				hx << " name=\"" << h.n << "\"";
+			}
+			if (!h.v.empty()) {
+				h.a = do_angled(h.v);
+				h.u=do_encoding(h.v);
+				hx << " value=\"" << h.v << "\"";
+				if (h.a) {
+					hx << " angled=\"true\"";
+				}
+				if (h.u) {
+					hx << " urlencoded=\"true\"";
+				} 
+			}
+			h.x = hx.str();
+		} break;
 	}
 }
 void OsiMessage::do_header_array() {
@@ -683,6 +708,7 @@ string OsiMessage::xml_val(header& h) {
 	return x.str();
 }
 void OsiMessage::compile(string& msg_str, ostringstream& res, bool do_namespace) {
+	//compile turns an RFC message into an xml osi.
 	identify_nl(msg_str);
 	split_msg(msg_str);
 	do_headers();
@@ -804,6 +830,7 @@ void OsiMessage::encode_comment(const xercesc::DOMNode*& n,std::string& result) 
 	result.append(comment);
 }
 void OsiMessage::decompile(const xercesc::DOMNode* n,ostream& result,bool addlength,bool inlatin) {
+	//Decompile turns an xml osi into an RFC message.
 	//wrapper for a full message decompile.
 	vector<string> heads; string body;
 	decompile(n,heads,body,addlength,inlatin);
@@ -849,7 +876,12 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 						if (subhead.compare("subhead") == 0 || subhead.compare("address") == 0) {
 							std::string shvalue,shnote,shname;
 							bool url_encoded=false;
-							bool usequotes=false;
+							bool usequotes;
+							if (htype==commadelim) {
+								usequotes=true;
+							} else {
+								usequotes=false;
+							}							
 							if (XML::Manager::attribute(ch,"name",shname)) { 
 								headv.append(shname);
 								if (shname.compare("name") == 0) {
@@ -924,6 +956,7 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 										headv.push_back(' '); 
 										headv.append(shstring);	
 									} break;
+									case commadelim:
 									default: {
 										headv.push_back('=');
 										headv.append(shstring);
@@ -939,6 +972,9 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 									} break;
 									case trace: { //Received is done further up.
 										headv.append(crlf); //tab will be dealt with higher up.
+									} break;
+									case commadelim: {
+										headv.append(", ");
 									} break;
 									default: {
 										headv.append("; ");
@@ -965,6 +1001,13 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 							} break;
 							case reqcookie: {
 								headv = header_value + headv;
+							} break;
+							case commadelim: {
+								if (!headv.empty()) {
+									headv = header_value + " " + headv;
+								} else {
+									headv = header_value;
+								}
 							} break;
 							default: {
 								if (!headv.empty()) {
@@ -1136,7 +1179,6 @@ void OsiMessage::startup() { //(default is  unstructured)
 	header_types.insert(header_type_map::value_type("Upgrade",unstructured));			//; Section 14.42
 	header_types.insert(header_type_map::value_type("Via",unstructured));				//; Section 14.45
 	header_types.insert(header_type_map::value_type("Warning",unstructured));			//; Section 14.46
-	header_types.insert(header_type_map::value_type("Authorization",unstructured));		//; Section 14.8
 	header_types.insert(header_type_map::value_type("Expect",unstructured));			//; Section 14.20
 	header_types.insert(header_type_map::value_type("From",unstructured));				//; Section 14.22
 	header_types.insert(header_type_map::value_type("Host",unstructured));				//; Section 14.23
@@ -1151,6 +1193,8 @@ void OsiMessage::startup() { //(default is  unstructured)
 	header_types.insert(header_type_map::value_type("Referer",unstructured));			//; Section 14.36
 	header_types.insert(header_type_map::value_type("TE",unstructured));				//; Section 14.39
 	header_types.insert(header_type_map::value_type("User-Agent",unstructured));		//; Section 14.43
+	//Identifying specific requirements for Auth header RFC 2617 (comma delim)
+	header_types.insert(header_type_map::value_type("Authorization",commadelim));		//; Section 14.8
 	
 	header_types.insert(header_type_map::value_type("Accept-Ranges",unstructured));		//; Section 14.5
 	header_types.insert(header_type_map::value_type("Age",unstructured));				//; Section 14.6

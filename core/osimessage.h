@@ -40,7 +40,9 @@ private:
 		//RFC 2369
 		list,
 		//Specials
-		rescookie,reqcookie,cdisp
+		rescookie,reqcookie,cdisp,
+		//RFC 2617
+		commadelim
 	} header_type;	//what kind of dataItem
 	
 	typedef std::map<std::string, header_type > header_type_map; 
@@ -115,9 +117,9 @@ private:
 	bool do_angled(string&);
 	void do_mailbox(string&,vector< address >&);
 	void do_comments(string&,vector< comment >&);
-	void split_header_value(string&,string&);
+	void split_header_value(string&,string&,string=";");
 	void analyse_cookie(header&,char);
-	void do_header_subheads(header&);
+	void do_header_subheads(header&,char=';');
 	void do_address_subheads(header&);
 	void do_trace_subheads(header&);
 	void do_list_subheads(header&);
