@@ -92,6 +92,14 @@ namespace String {
 					md[9] = EVP_get_digestbyname("dss1");
 					md[10] = EVP_get_digestbyname("mdc2");
 					md[11] = EVP_get_digestbyname("ripemd160");
+					
+
+					unsigned char *ibuff = new unsigned char[16];
+					RAND_pseudo_bytes(ibuff,16); //err = 1 on SUCCESS.
+					unsigned int seed = *(unsigned int *)ibuff;
+					srand((unsigned)time(0)+seed); 
+					delete ibuff;
+
 				} 
 			}
 		}
