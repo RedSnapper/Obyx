@@ -48,6 +48,7 @@ namespace DateUtils {
 		const time_t getUTC() const;
 		void getNowDateStr(const string &format, string &cont);
 		void getNow(string& cont);
+		static void getTS(string&);
 		static void getUTCTimeOfDay(string&);
 		static void getCookieDateStr(string &cont);
 		static void getCookieExpiredDateStr(string &cont);

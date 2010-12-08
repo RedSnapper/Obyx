@@ -224,6 +224,10 @@ bool IKO::currentenv(const string& req,const usage_tests exist_test, const IKO* 
 						container = DataItem::factory(namepair.first,di_text);
 					}
 				} break;
+				case c_ts: {
+					DateUtils::Date::getTS(result);
+					container = DataItem::factory(result,di_text);
+				} break;
 				case c_time: {
 					if (exist_test == ut_significant) {
 						container = DataItem::factory(req,di_text);
@@ -1086,6 +1090,7 @@ void IKO::startup() {
 	current_types.insert(current_type_map::value_type("OSI_RESPONSE",c_osi_response));
 	current_types.insert(current_type_map::value_type("TIMING",c_timing));
 	current_types.insert(current_type_map::value_type("TIME",c_time));
+	current_types.insert(current_type_map::value_type("TS",c_ts));
 	current_types.insert(current_type_map::value_type("VERSION",c_version));
 	current_types.insert(current_type_map::value_type("VERSION_NUMBER",c_vnumber));
 	current_types.insert(current_type_map::value_type("RESPONSE",c_response));

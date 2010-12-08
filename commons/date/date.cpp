@@ -146,6 +146,12 @@ namespace DateUtils {
 		local = localtime(&tt);
 		getDateStr(local,cont);
 	} 
+	void Date::getTS(string& result) {
+		time_t tt = time(&tt);
+		ostringstream ost;
+		ost << tt;
+		result=ost.str();
+	}
 	void Date::getNowDateStr(const string &format, string &cont) {
 		tt = time(&tt);
 		local = localtime(&tt);
