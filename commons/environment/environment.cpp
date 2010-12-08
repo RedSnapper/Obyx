@@ -78,7 +78,6 @@ Environment::~Environment() {
 }
 #pragma mark STATIC CONTROL
 void Environment::startup(string& v,string& vn) {					//everything that doesn't change across multiple runs
-	srand((unsigned)time(0)); 
 	init_cgi_rfc_map();
 	setbenvmap();
 	setbenv("OBYX_VERSION",v);			//Let coders know what version we are in!
