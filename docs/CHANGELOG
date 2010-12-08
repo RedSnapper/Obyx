@@ -17,6 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.101208
+	BUG.		Odd bug in the implementation of the OpenSSH RNG. Should make no noticeable difference.
 v1.101130
 	BUG.		directory existence bug.
 v1.101129
