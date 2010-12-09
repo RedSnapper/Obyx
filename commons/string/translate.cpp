@@ -454,13 +454,14 @@ namespace String {
 	}
 
 	//---------------------------------------------------------------------------
+	//url encoding is in uppercase.
 	string hexencode(const unsigned char& c) {
 		std::string result("%");
 		unsigned char v[2]= { c/16, c%16 };
 		if (v[0] <= 9) result+= (v[0] + '0');
-		else result+= (v[0] - 10 + 'a');
+		else result+= (v[0] - 10 + 'A');
 		if (v[1] <= 9) result+= (v[1] + '0');
-		else result+= (v[1] - 10 + 'a');
+		else result+= (v[1] - 10 + 'A');
 		return result;
 	}
 	//---------------------------------------------------------------------------
