@@ -85,17 +85,7 @@ namespace String {
 			Num* p = const_cast<Num*>(&x);
 			GMP::mpz_set(value,p->value); 
 		}
-/*		
-		string Num::str() { 
-			string result;
-			char* tmp = GMP::mpz_get_str(NULL,16,value);
-			if (tmp) { 
-				result = tmp;
-				free(tmp); tmp=NULL;
-			}
-			return result;
-		}
-*/ 
+
 		string Num::str(unsigned int base_i) { 
 			string result;
 			unsigned int base = 16;
@@ -104,6 +94,9 @@ namespace String {
 			if (tmp) { 
 				result = tmp;
 				free(tmp); tmp=NULL;
+			}
+			if (base == 16 && result.size() % 2 == 1) {
+				result.insert(0,"0");
 			}
 			return result;
 		}
