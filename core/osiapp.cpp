@@ -102,11 +102,14 @@ bool OsiAPP::request(const xercesc::DOMNode* n,DataItem*& the_result) {
 						String::fandr(heads[i],crlf,crlft);		//crlf in heads need a tab after them to indicate that they are not heads.
 						my_req.addHeader(heads[i]);
 					}
+/*					
+ //Content-Length is being added elsewhere somehow.
 					if (!body.empty()) {
 						string cl="Content-Length: ";
 						cl.append(String::tostring((unsigned long long)body.size()));
 						my_req.addHeader(cl);
 					}
+ */
 					last_response.clear();
 					string response_head,response_body;	//what was returned by remote server...
 					if (! my_req.doRequest(response_head,response_body,req_errors) ) {
