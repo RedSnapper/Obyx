@@ -595,11 +595,26 @@ namespace String {
 					case '%':
 					case '<':
 					case '>':  // until here: unsafe
+					case '{':
+					case '}':
+					case '|':
+					case '\\':
+					case '^':
+					case '~':
+					case '[':
+					case ']': //yet more unsafe.
+					case '!':
+					case ',':
+					case '*':
+					case '$':
+					case '(':
+					case ')': //twitts.
+					case ' ': //space may be hex encoded.
 						result+= hexencode(c);
 						break;
-					case ' ':  // SP
-						result+= '+';
-						break;
+						//					case ' ':  // SP
+						//						result+= '+';
+						//						break;
 					default:  // no need to encode
 						result+= c;
 						break;
