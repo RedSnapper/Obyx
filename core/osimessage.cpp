@@ -974,7 +974,8 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 										headv.append(crlf); //tab will be dealt with higher up.
 									} break;
 									case commadelim: {
-										headv.append(", ");
+										headv.append(",");
+										headv.append(crlf);  //tab will be dealt with higher up.
 									} break;
 									default: {
 										headv.append("; ");
