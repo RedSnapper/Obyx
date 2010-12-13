@@ -570,7 +570,15 @@ namespace String {
 		}
 		s = result;
 	}
-
+	
+//---------------------------------------------------------------------------
+//	5.1.  Parameter Encoding
+//	All parameter names and values are escaped using the [RFC3986] percent-encoding (%xx) mechanism. 
+//	Characters not in the unreserved character set ([RFC3986] section 2.3) MUST be encoded.
+//  Characters in the unreserved character set MUST NOT be encoded.
+//	Hexadecimal characters in encodings MUST be upper case. 
+//	Text names and values MUST be encoded as UTF-8 octets before percent-encoding them per [RFC3629].
+//	unreserved = ALPHA, DIGIT, '-', '.', '_', '~'
 //---------------------------------------------------------------------------
 // as defined in RFCs 1738 2396
 		void urlencode(std::string& s) {
@@ -578,6 +586,18 @@ namespace String {
 			unsigned char c;
 			for (unsigned int p= 0; p < s.size(); ++p) {
 				c= s[p];
+				if (
+					((c >= 'a') && (c <= 'z')) ||
+					((c >= '0') && (c <= '9')) ||
+					((c >= 'A') && (c <= 'Z')) ||
+					( c == '-' || c == '.' || c == '_' || c == '~' )
+					) {  //reserved.
+					result.push_back(c);
+				} else { //unreserved.
+					result.append(hexencode(c));
+				}
+
+/*				
 				if ((c <= 31) || (c >= 127))  // CTL, >127
 					result+= hexencode(c);
 				else switch (c) {
@@ -619,6 +639,7 @@ namespace String {
 						result+= c;
 						break;
 				}
+ */
 			}
 		s = result;
 	}
