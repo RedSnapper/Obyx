@@ -57,7 +57,7 @@ namespace obyx {
 	typedef enum {it_each,it_repeat,it_sql,it_while,it_while_not} it_type;
 	typedef std::map<u_str, it_type > it_type_map; 
 	
-	typedef enum { move,append,substring,position,length,left,right,reverse,upper,lower,kind,add,subtract,multiply,divide,random,maximum,minimum,remainder,quotient,shell_command,query_command,function,arithmetic,bitwise} op_type;	//transform
+	typedef enum { move,append,substring,position,length,left,right,reverse,upper,lower,kind,add,subtract,multiply,divide,random,maximum,minimum,remainder,quotient,shell_command,sort,query_command,function,arithmetic,bitwise} op_type;	//transform
 	typedef std::map<u_str, op_type > op_type_map; 
 	
 	typedef enum { equivalent_to,exists,is_empty,found,greater_than,less_than,significant,cmp_true} cmp_type;	//

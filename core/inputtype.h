@@ -45,6 +45,7 @@ protected:
 	
 	bool	  eval;				//referring to eval attribute.
 	bool	  release;		    //release attribute - do we release the store/object ?
+	bool	  ascending;		//referring to sort-order in sort-inputs
 	inp_space  type;			//the TYPE of input - ie store, immediate, etc. derived from "type" attribute
 	u_str    parm_name;			//name as used in the called function parm value
 	

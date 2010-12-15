@@ -20,6 +20,7 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <algorithm>
 #include "commons/string/strings.h"
 #include "commons/logger/logger.h"
 #include "commons/xml/xml.h"
@@ -75,6 +76,16 @@ void XMLObject::take(DOMDocument*& container) {
 void XMLObject::take(DOMNode*& container) {
 	container = x_doc;
 	x_doc = NULL;
+}
+inline bool XMLObject::a_compare(pair<string,XMLObject*> a,pair<string,XMLObject*> b) {
+	if ((a.first[0] >= '0' && a.first[0] <= '9') || a.first[0] == '+' || a.first[0] == '-' ) {
+		return (String::real(a.first) <  String::real(b.first));
+	} else {
+		return ( a.first.compare(b.first) < 0);
+	}
+}
+inline bool XMLObject::d_compare(pair<string,XMLObject*> a,pair<string,XMLObject*> b) {
+	return a_compare(b,a);
 }
 /* ====================  VIRTUAL methods. =========== */
 XMLObject::operator XMLObject*() { return this; }	
@@ -421,6 +432,77 @@ bool XMLObject::xp(const DataItem* ins,const std::string& path,DOMLSParser::Acti
 			retval=false;
 		}
 	}
+	return retval;
+}
+bool XMLObject::sort(const std::string& path,const std::string& sortpath,bool ascending,bool node_expected,std::string& error_str) {
+	bool retval = true;
+	if (!path.empty() ) { //currently, this is a redundant check.
+		if (path.rfind("-gap()",path.length()-6) == string::npos) { //  eg //BOOK[0]/child-gap() will always return empty.
+			std::string xp_path(path);
+			DOMXPathResult* result = NULL;
+			bool want_value = false;
+			if (xp_path.rfind("/value()",xp_path.length()-8) != string::npos) { //eg comment()/value()
+				xp_path.resize(xp_path.length()-8);
+				want_value = true;
+			}
+			retval = xp_result(xp_path,result,error_str);
+			if (retval && result != NULL) { //otherwise return empty.	
+				vector< pair<string,XMLObject*> > results_for_sorting;
+				XMLSize_t sslena = result->getSnapshotLength();
+				//if sslena < 1 then life is easy for a sort... but here let's assume not first.
+				for ( XMLSize_t ai = 0; ai < sslena; ai++) {
+					if (result->snapshotItem(ai)) { //should always return true - but best to do this, eh?
+						XMLObject* item = NULL;
+						if ( result->isNode() ) {
+							item = new XMLObject(result->getNodeValue());
+							DataItem* sortitem = NULL;
+							item->xp(sortpath,sortitem,true,error_str);
+							string sstr("");
+							if (sortitem != NULL) {
+								sstr = *sortitem; delete sortitem;
+							} else {
+								if (!error_str.empty()) {
+									error_str.append(*item);
+								}
+							}
+							results_for_sorting.push_back( pair<string,XMLObject*>(sstr,item) );
+						} else {
+							error_str = "While expecting node results for a search, the xpath returned text.";												
+							retval=false;
+						}
+					}
+				}
+				if (ascending) {
+					std::stable_sort(results_for_sorting.begin(),results_for_sorting.end(), a_compare );
+				} else {
+					std::stable_sort(results_for_sorting.begin(),results_for_sorting.end(), d_compare );
+				}
+				for ( XMLSize_t ai = 0; ai < sslena; ai++) {
+					if (result->snapshotItem(ai)) { //should always return true - but best to do this, eh?
+						DOMNode* pt = result->getNodeValue();
+						DOMNode* vv = results_for_sorting[ai].second->x_doc;
+						XML::Manager::parser()->insertContext(x_doc,pt,vv,DOMLSParser::ACTION_REPLACE);
+						delete results_for_sorting[ai].second;
+					}
+				}
+				delete result; result = NULL;
+				if (sslena == 0 && node_expected) {
+					error_str = "While attempting a get, the xpath " + path + " returned no nodes.";												
+					retval=false;
+				}
+			} else {
+				if (node_expected) {
+					error_str = "While attempting a get, the xpath " + path + " returned an empty result.";												
+					retval=false;
+				}
+			}
+		} else {
+			if (node_expected) {
+				error_str = "While attempting a sort, the xpath " + path + " included an insertion point.";												
+				retval=false;
+			}
+		}
+	} 
 	return retval;
 }
 bool XMLObject::setns(const u_str& code, const u_str& signature) {

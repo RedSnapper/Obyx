@@ -42,6 +42,8 @@
 #include "output.h"
 #include "instruction.h"
 #include "document.h"
+#include "xmlobject.h"
+
 
 using namespace Log;
 using namespace XML;
@@ -277,8 +279,9 @@ bool Instruction::evaluate_this() {
 							switch ( operation ) {
 								case move:
 								case kind:
+								case obyx::sort:
 								case function:
-									break; //operations handled outside of this switch.
+									break; //operations handled outside of this switch, or DataItem is native.
 								case bitwise: {
 #ifndef DISALLOW_GMP		
 									string fv; if (first_value != NULL) { fv = *first_value; }
@@ -396,12 +399,30 @@ bool Instruction::evaluate_this() {
 										double dble = String::real(fv);
 										expr_eval->add_parm(parm_key,dble);
 									}
-								} break;
-									
+								} break;								
 								case query_command: 
 								case shell_command:	{	// call_system(first_value); break;
 									if (srcval != NULL) {
 										accumulator.append(*srcval);
+									}
+								} break;
+								case obyx::sort: {
+									if (srcval != NULL) {
+										if (i == 1) { //base
+											accumulator = *srcval;
+										} else {	//xpath
+											string sortstr = *srcval;
+											XMLObject* xdoc = *first_value;
+											if (xdoc != NULL) {
+												string error_str;
+												xdoc->sort(accumulator,sortstr,inputs[i]->ascending,true,error_str);
+												if (!error_str.empty()) {
+													*Logger::log <<  Log::error  << Log::LI << "Error. " << error_str << Log::LO;
+													trace();
+													*Logger::log << Log::blockend;
+												}
+											}
+										}
 									}
 								} break;
 								case obyx::append: {
@@ -513,7 +534,6 @@ bool Instruction::evaluate_this() {
 										do_random(daccumulator,lowbound,daccumulator);
 									}
 								} break;
-									
 								case obyx::add: {
 									string rstring;
 									if (srcval != NULL) {
@@ -736,6 +756,9 @@ bool Instruction::evaluate_this() {
 						}
 						results.append(num,di_text);
 					} break;
+					case obyx::sort: {
+						results.setresult(first_value,false);
+					} break;
 				}
 			} break;
 		}
@@ -932,6 +955,7 @@ void Instruction::startup() {
 	op_types.insert(op_type_map::value_type(UCS2(L"reverse"), obyx::reverse));
 	op_types.insert(op_type_map::value_type(UCS2(L"right"), obyx::right));
 	op_types.insert(op_type_map::value_type(UCS2(L"shell"), shell_command));
+	op_types.insert(op_type_map::value_type(UCS2(L"sort"), obyx::sort));
 	op_types.insert(op_type_map::value_type(UCS2(L"substring"), substring));
 	op_types.insert(op_type_map::value_type(UCS2(L"subtract"), subtract));
 	op_types.insert(op_type_map::value_type(UCS2(L"upper"), obyx::upper));	
@@ -940,3 +964,4 @@ void Instruction::shutdown() {
 	op_types.clear();
 }	
 
+//bool XMLObject::sort(const std::string& path,const std::string& sortpath,DataItem*& container,bool node_expected,std::string& error_str) {

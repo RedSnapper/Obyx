@@ -41,6 +41,8 @@ private:
 	XMLObject() {}
 	void setxp(const std::string&,const std::string&,xercesc::DOMLSParser::ActionType);
 	bool xp_result(const string&,DOMXPathResult*&,std::string&) const;
+	static inline bool a_compare(pair<string,XMLObject*>,pair<string,XMLObject*>);
+	static inline bool d_compare(pair<string,XMLObject*>,pair<string,XMLObject*>);
 	
 protected:
 	friend class DataItem;
@@ -64,6 +66,7 @@ public:
 	XMLObject(const DataItem&);	
 	bool xp(const std::string&,DataItem*&,bool,std::string&) const; //get a result from xpath into a dataitem
 	bool xp(const DataItem*,const std::string&,DOMLSParser::ActionType,bool,std::string&); //set a value by xpath
+	bool sort(const std::string&,const std::string&,bool,bool,std::string&); //Sorts in place!
 	operator xercesc::DOMNode*&();
 	
 	void copy(XMLObject*&) const;

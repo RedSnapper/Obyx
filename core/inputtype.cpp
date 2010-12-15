@@ -48,7 +48,7 @@ using namespace obyx;
 
 IKO::inp_space_map  InputType::inp_spaces;
 InputType::InputType(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : 
-IKO(n,par,el),eval(false),release(false),type(immediate),parm_name() {
+IKO(n,par,el),eval(false),release(false),ascending(true),type(immediate),parm_name() {
 	u_str str_type,eval_str,release_str;
 	if ( Manager::attribute(n,UCS2(L"type"),str_type)  ) {
 		*Logger::log << Log::syntax << Log::LI << "Syntax Error. " << name() << ": attribute 'type' should be 'space'" << Log::LO;
@@ -184,8 +184,20 @@ IKO(n,par,el),eval(false),release(false),type(immediate),parm_name() {
 		switch (wotzit) { //don't push back the definputs here..
 			case input: {
 				Instruction * ix = dynamic_cast<Instruction *>(i);
-				if (ix != NULL && (ix->op() == function || ix->op() == arithmetic || ix->op() == bitwise )) {
-					Manager::attribute(n,UCS2(L"name"),parm_name);
+				if (ix != NULL) {
+					switch (ix->op()) {
+						case function:
+						case arithmetic:
+						case bitwise: {
+							Manager::attribute(n,UCS2(L"name"),parm_name);
+						} break;
+						case obyx::sort: {
+							u_str order_s;
+							Manager::attribute(n,UCS2(L"order"),order_s);
+							ascending = (order_s[0] == 'a');
+						} break;
+						default: break;
+					}
 				}
 			}
 			case control:
@@ -197,7 +209,7 @@ IKO(n,par,el),eval(false),release(false),type(immediate),parm_name() {
 	}
 }
 InputType::InputType(ObyxElement* par,const InputType* orig) : IKO(par,orig),
-eval(orig->eval),release(orig->release),type(orig->type),parm_name(orig->parm_name) {
+eval(orig->eval),release(orig->release),ascending(orig->ascending),type(orig->type),parm_name(orig->parm_name) {
 }
 void InputType::evalfind(vector<string>& keylist) {
 	if (type != error && type != none) {
