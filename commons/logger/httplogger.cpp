@@ -29,13 +29,15 @@
 bool HTTPLogger::minititle = true;
 
 void HTTPLogger::dofatal() {
-	if (!topped) {
-		topped=true;
-		Httphead* http = Httphead::service();	
+	Httphead* http = Httphead::service();
+	if (! http->done() ) {
 		http->setcode(200);	
 		http->setmime("text/html; charset=utf-8");
 		http->setdisposition("");
 		http->doheader(); 
+	}
+	if (!topped) {
+		topped=true;
 		string top_str;
 		top(top_str);
 		*fo << top_str;
@@ -128,13 +130,14 @@ void HTTPLogger::open() {	//This should always be called ..
 	if ((debugflag || hadfatal) && !topped ) {
 		string top_str;
 		top(top_str);
-		topped=true;
 		if (debugflag) {
-			Httphead::init(o);
-			Httphead* http = Httphead::service();
-			http->doheader();
+			Httphead::init(fo);
+			*o << top_str;
+			*o << "<ol class=\"subhead\"><li>Debug is On</li></ol>";
+		} else {
+			*o << top_str;
 		}
-		*o << top_str;
+		topped=true;
 	}
 }
 
