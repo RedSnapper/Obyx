@@ -1,7 +1,7 @@
 std::string Parser::obyxxsd=""
 "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:o=\"http://www.obyx.org\""
 "	targetNamespace=\"http://www.obyx.org\" elementFormDefault=\"qualified\""
-"	attributeFormDefault=\"unqualified\" version=\"v1.101007\" >"
+"	attributeFormDefault=\"unqualified\" version=\"v1.101215\" >"
 "	<xs:annotation><xs:documentation>"
 "		obyx.xsd is authored and maintained by Ben Griffin of Red Snapper Ltd."
 "		obyx.xsd is a part of Obyx - see http://www.obyx.org ."
