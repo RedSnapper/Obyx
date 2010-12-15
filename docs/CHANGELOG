@@ -17,6 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.101215
+	Enh.		Added instruction operation 'sort' with input attribute 'order'
 v1.101208
 	Enh.		Added support for CURRENT_TS (number of seconds since beginning of Epoch) 
 	Enh.		Added support for rfc2617 syntax for Authorization header. 
