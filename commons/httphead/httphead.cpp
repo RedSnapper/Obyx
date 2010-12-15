@@ -100,7 +100,7 @@ Httphead::response_format Httphead::xml_fmt = {
 	"</m:body>"		//body_o	
 };
 
-unsigned int Httphead::instances = 0;
+//unsigned int Httphead::instances = 0;
 Httphead* Httphead::singleton = NULL;
 
 
@@ -192,7 +192,7 @@ void Httphead::setcode(unsigned int code) {
 }
 
 void Httphead::startup() { //note sure how this is used anymore.
-	instances = 0;
+//	instances = 0;
 	http_msgs.insert(http_msg_map::value_type("Date", httpdate));
 	http_msgs.insert(http_msg_map::value_type("Server", server));
 	http_msgs.insert(http_msg_map::value_type("Set-Cookie", cookie));
@@ -216,20 +216,17 @@ void Httphead::startup() { //note sure how this is used anymore.
 }
 
 void Httphead::shutdown() {
-	instances = 0;
 	http_msgs.clear();
 }
 
 //so this now sends out the header AFTER the xml.
 void Httphead::init(ostream* output) {
-	instances++;
 	if (singleton == NULL) {
 		singleton = new Httphead(output);	// instantiate singleton
 	} 
 }	
 void Httphead::finalise() {
-	instances--;
-	if (instances == 0) {
+	if (singleton != NULL) {
 		delete singleton;
 		singleton = NULL;
 	} 

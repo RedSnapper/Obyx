@@ -438,9 +438,6 @@ void Environment::do_request_cookies() {
 	size_t start=0;
 	size_t find = string::npos;
 	bool finished = false;
-	if ( Logger::debugging() ) {
-		*Logger::log << Log::subhead << Log::LI << "Cookie Processing Initiated" << Log::LO;
-	}
 	if (getenv("HTTP_COOKIE",cook))  {
 		while( !finished ) {
 			ckname.clear();
@@ -506,14 +503,7 @@ void Environment::do_request_cookies() {
 				ckvar.clear();
 			}
 		}
-	} else {
-		if ( Logger::debugging() ) { 
-			*Logger::log << info << Log::LI << "Cookie Processing skipped: no HTTP_COOKIE environmental" << Log::LO << blockend;
-		}
-	}
-	if ( Logger::debugging() ) {
-		*Logger::log << Log::LI << "Cookie Processing finished" << Log::LO << Log::blockend;
-	}
+	} 
 }
 #pragma mark PARAMETER (UTILITY)
 void Environment::dopostparms() {

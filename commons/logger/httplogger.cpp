@@ -43,7 +43,6 @@ void HTTPLogger::dofatal() {
 }
 
 void HTTPLogger::strip(string& basis) { 
-	
 	if ( ! basis.empty() && String::Regex::available() ) {
 		String::Regex::replace("<!DOCTYPE([^>]+)>","<!--[DOCTYPE \\1]-->",basis);
 		String::Regex::replace("<\\?xml([^>]+)\\?>","<!--[xml \\1]-->",basis);
@@ -129,6 +128,12 @@ void HTTPLogger::open() {	//This should always be called ..
 	if ((debugflag || hadfatal) && !topped ) {
 		string top_str;
 		top(top_str);
+		topped=true;
+		if (debugflag) {
+			Httphead::init(o);
+			Httphead* http = Httphead::service();
+			http->doheader();
+		}
 		*o << top_str;
 	}
 }

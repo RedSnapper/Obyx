@@ -130,7 +130,7 @@ protected:
 	} response_format; 
 	
 private:
-	static unsigned int instances;				//used to deal with multiple startup/shutdowns..
+//	static unsigned int instances;				//used to deal with multiple startup/shutdowns..
 	static Httphead* singleton;
 	//Standard http head sigs
 	static response_format http_fmt;
