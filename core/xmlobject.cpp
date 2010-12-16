@@ -77,9 +77,15 @@ void XMLObject::take(DOMNode*& container) {
 	container = x_doc;
 	x_doc = NULL;
 }
-inline bool XMLObject::a_compare(pair<string,XMLObject*> a,pair<string,XMLObject*> b) {
+bool XMLObject::a_compare(pair<string,XMLObject*> a,pair<string,XMLObject*> b) {
 	if ((a.first[0] >= '0' && a.first[0] <= '9') || a.first[0] == '+' || a.first[0] == '-' ) {
-		return (String::real(a.first) <  String::real(b.first));
+		double da = String::real(a.first);
+		double db = String::real(b.first);
+		if (da != NAN && db != NAN) {
+			return da < db;
+		} else {
+			return ( a.first.compare(b.first) < 0);
+		}
 	} else {
 		return ( a.first.compare(b.first) < 0);
 	}

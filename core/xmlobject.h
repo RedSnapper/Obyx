@@ -41,7 +41,7 @@ private:
 	XMLObject() {}
 	void setxp(const std::string&,const std::string&,xercesc::DOMLSParser::ActionType);
 	bool xp_result(const string&,DOMXPathResult*&,std::string&) const;
-	static inline bool a_compare(pair<string,XMLObject*>,pair<string,XMLObject*>);
+	static bool a_compare(pair<string,XMLObject*>,pair<string,XMLObject*>);
 	static inline bool d_compare(pair<string,XMLObject*>,pair<string,XMLObject*>);
 	
 protected:
