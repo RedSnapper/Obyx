@@ -74,6 +74,7 @@ void CLILogger::bracket(bracketing bkt) {
 				case debug: { 
 					*o << "D:";
 				} break;
+				case thrown:
 				case info: { 
 					*o << "+:";
 				} break;
@@ -143,6 +144,9 @@ void CLILogger::wrap(bool io) {
 	if ( io ) {
 		switch ( type_stack.top() ) {
 //			case raw: break;
+			case thrown:  { 
+				*o <<			"+----------------------------------  THROWN -------------------------------------+\n";
+			} break;
 			case timing:  { 
 				*o <<			"+----------------------------------  TIMING -------------------------------------+\n";
 			} break;
@@ -186,6 +190,9 @@ void CLILogger::wrap(bool io) {
 	} else { 
 		switch ( type_stack.top() ) {
 //			case raw: break;
+			case thrown:  { 
+				*o <<			"+------------------------------- FIN THROWN -------------------------------------+\n";
+			} break;
 			case timing:  { 
 				*o <<			"+------------------------------- FIN TIMING -------------------------------------+\n";
 			} break;

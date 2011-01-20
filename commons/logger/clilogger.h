@@ -42,7 +42,7 @@ protected:
 	virtual void close();
 	virtual void strip(string&) {}		//strip container - do nothing for cli
 	virtual void bracket(bracketing);
-	virtual void ltop(string&) {}		//top log document
+	virtual void ltop(string&,bool) {}		//top log document
 	virtual void ltail(string&){}		//tail log document
 	virtual void dofatal() {}
 

@@ -39,7 +39,7 @@ void HTTPLogger::dofatal() {
 	if (!topped) {
 		topped=true;
 		string top_str;
-		top(top_str);
+		top(top_str,true);
 		*fo << top_str;
 	}
 }
@@ -61,8 +61,13 @@ void HTTPLogger::strip(string& basis) {
 }
 
 //top-tail are used to compose external log-reports as well.
-void HTTPLogger::ltop(string& container) {		//top log document
+void HTTPLogger::ltop(string& container,bool do_bits) {		//top log document
 	container.clear();
+	container.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n");
+	container.append("<html xmlns=\"http://www.w3.org/1999/xhtml\" ><head><title>");
+	container.append(title);
+	container.append("</title><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />");
+	if (do_bits) {
 		std::string logjs="<script type=\"text/javascript\" charset=\"utf-8\" >"
 		"/* <![CDATA[ */\n"
 		"	function sh(n) {\n"
@@ -81,7 +86,6 @@ void HTTPLogger::ltop(string& container) {		//top log document
 		"	}\n"
 		"/* ]]>*/\n"
 		"</script>\n";
-		
 		std::string logstyle="<style type=\"text/css\">\n"
 		"/* <![CDATA[ */\n"
 		"ol,li,div {font-family: Gill Sans, Arial; font-size: 1em; display: block; padding:0; margin:0; padding-left:0.25em; }\n"
@@ -105,16 +109,12 @@ void HTTPLogger::ltop(string& container) {		//top log document
 		"li.xpath, li.filepath, li.breakpoint {display:none; font-weight:normal; color:#1F1F1F; background-color: #DDDDDD;}\n"
 		"/* ]]>*/\n"
 		"</style>";	
-		
-		container.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n");
-		container.append("<html xmlns=\"http://www.w3.org/1999/xhtml\" ><head><title>");
-		container.append(title);
-		container.append("</title><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />");
 		container.append(logjs);
 		container.append(logstyle);
-		container.append("</head><body><div class=\"headline\">");
-		container.append(title);	
-		container.append("</div><div>");
+	}
+	container.append("</head><body><div class=\"headline\">");
+	container.append(title);	
+	container.append("</div><div>");
 }
 
 //top-tail are used to compose external log-reports as well.
@@ -129,7 +129,7 @@ void HTTPLogger::open() {	//This should always be called ..
 	minititle = true;
 	if ((debugflag || hadfatal) && !topped ) {
 		string top_str;
-		top(top_str);
+		top(top_str,true);
 		if (debugflag) {
 			Httphead::init(fo);
 			*o << top_str;
@@ -272,6 +272,7 @@ void HTTPLogger::wrap(bool io) {
 				*o << "<ol class=\"subhead\" >";
 				minititle = true;
 			} break;
+			case thrown:
 			case debug: 
 			case info:  { 
 				*o << "<ol class=\"info\" >";

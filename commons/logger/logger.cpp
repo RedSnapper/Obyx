@@ -188,8 +188,8 @@ void Logger::finalise() {
 	log = NULL;
 }
 
-void Logger::top(string& container) {
-	log->ltop(container);
+void Logger::top(string& container,bool do_gubbins) {
+	log->ltop(container,do_gubbins);
 }
 
 void Logger::tail(string& container) {
@@ -235,7 +235,7 @@ Logger& Logger::operator<< (const unsigned int val ) {
 Logger& Logger::operator << (const msgtype mtype) {
 	curr_type = mtype;
 	size_t ssize = estrm_stack.size();
-	if ( !hadfatal && ((mtype == fatal || mtype == warn || mtype == syntax) || (mtype == Log::error && ssize == 1)) ) {
+	if ( !hadfatal && ((mtype == fatal || mtype == Log::error || mtype == warn || mtype == syntax) || (mtype == thrown && ssize < 2)) ) {
 		hadfatal = true;
 		dofatal();
 		string messages = lstore->str();
@@ -304,6 +304,7 @@ Logger& Logger::operator<< (const bracketing bkt) {
 			if (log->syslogging) {
 				unsigned int bp = (unsigned int)ObyxElement::breakpoint(); 
 				switch ( type_stack.top() ) {
+					case thrown:
 					case debug : { 
 						syslog(LOG_DEBUG,"[%s]: %s ;%u (%s)",title.c_str(),path.c_str(),bp,log->syslogbuffer.str().c_str());
 					} break;
