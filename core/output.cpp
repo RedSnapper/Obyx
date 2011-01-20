@@ -301,7 +301,7 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 							string top_s,tail_s,tmptitle,errstring;
 							Logger::get_title(tmptitle);
 							Logger::set_title("Caught Error");
-							Logger::top(top_s);
+							Logger::top(top_s,false);
 							Logger::tail(tail_s);
 							err_report << top_s << error_stuff << tail_s;
 							string err_result = err_report.str();

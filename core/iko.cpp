@@ -343,7 +343,6 @@ bool IKO::httpready() const {
 	return httpgood;
 }
 void IKO::doerrspace(const string& input_name) const {
-	break_happened = true;
 	if (!input_name.empty()) {
 		std::string err_msg = input_name;
 		if (err_msg.compare(0,6,"fatal#") == 0) {
@@ -354,7 +353,7 @@ void IKO::doerrspace(const string& input_name) const {
 			if (err_msg.compare(0,6,"debug#") == 0) {
 				Environment* env = Environment::service();
 				err_msg.erase(0,6);
-				*Logger::log << Log::warn << Log::LI << "Debug '" << err_msg << "'" << Log::LO;
+				*Logger::log << Log::thrown << Log::LI << "Debug '" << err_msg << "'" << Log::LO;
 				trace();
 				*Logger::log << Log::LI ;
 				env->list();
@@ -363,12 +362,18 @@ void IKO::doerrspace(const string& input_name) const {
 				Iteration::list(this);		//available fields from here.
 				*Logger::log << Log::LO << Log::blockend;
 			} else {
-				//we don't want the trace for this.
-				*Logger::log << Log::warn << Log::LI << "Throw '" << err_msg << "'" << Log::LO << Log::blockend;
+				if (err_msg.compare(0,6,"trace#") == 0) {
+					err_msg.erase(0,6);
+					*Logger::log << Log::thrown << Log::LI << "Trace '" << err_msg << "'" << Log::LO;
+					trace();
+					*Logger::log << Log::blockend;
+				} else {//we don't want the trace for this.
+					*Logger::log << Log::thrown << Log::LI << "Throw '" << err_msg << "'" << Log::LO << Log::blockend;
+				}
 			}
 		}
 	} else {
-		*Logger::log << Log::warn << Log::LI << "Throw" << Log::LO << Log::blockend;
+		*Logger::log << Log::thrown << Log::LI << "Throw" << Log::LO << Log::blockend;
 	}
 }
 void IKO::process_encoding(DataItem*& basis) {

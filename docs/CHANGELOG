@@ -17,6 +17,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.110120
+	Enh.		Added meta thrown error directive: trace#, a fast way of identifying 'here'.
+	BUG.		Thrown errors causing 'break_happened' in all cases.
+	BUG.		Caught logs raising 'fatal_happened'.
 v1.101215
 	Enh.		Added instruction operation 'sort' with input attribute 'order'
 v1.101208
