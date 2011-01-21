@@ -233,7 +233,7 @@ namespace XML {
 			DOMDocumentType* newdt = NULL;
 			const DOMDocumentType* dt = basis->getDoctype();
 			if (dt != NULL) {
-				newdt = impl->createDocumentType(dt->getName(),dt->getPublicId(),dt->getSystemId());
+				newdt = impl->createDocumentType(root->getNodeName(),dt->getPublicId(),dt->getSystemId());
 			}
 			if (nsuri == NULL && newdt == NULL) { //it's anonymous.
 				doc = impl->createDocument(); 
