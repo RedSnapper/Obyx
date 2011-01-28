@@ -106,18 +106,18 @@ namespace Vdb {
 		return retval;
 	}
 
-	void Query::fieldkeys(const std::string& pattern,vector<string>& keylist) {
+	void Query::fieldkeys(const std::string& pattern,set<string>& keylist) {
 		if (isactive) {
 			if ( String::Regex::available() ) {
 				for(nameIndexMap::iterator imt = fieldnameidx.begin(); imt != fieldnameidx.end(); imt++) {
 					if (String::Regex::match(pattern,imt->first)) {
-						keylist.push_back(imt->first);
+						keylist.insert(imt->first);
 					}
 				}
 			} else {
 				nameIndexMap::iterator it = fieldnameidx.find(pattern);
 				if (it != fieldnameidx.end()) {
-					keylist.push_back(pattern);
+					keylist.insert(pattern);
 				}
 			}
 		}

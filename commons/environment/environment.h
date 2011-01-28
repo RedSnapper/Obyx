@@ -29,6 +29,7 @@
 #include <string>
 #include <ext/hash_map>
 #include <map>
+#include <set>
 
 #include "commons/string/strings.h"
 
@@ -173,9 +174,9 @@ public:
 	bool envfind(const string&);
 	bool parmfind(const string&);
 	bool cookiefind(const string&);
-	void envkeys(const string&,vector<string>&);
-	void parmkeys(const string&,vector<string>&);
-	void cookiekeys(const string&,vector<string>&);
+	void envkeys(const string&,set<string>&);
+	void parmkeys(const string&,set<string>&);
+	void cookiekeys(const string&,set<string>&);
 
 	bool getenvd(const string,string& , const string);
 	void uniq(string&); //attempts to supply a unique value.

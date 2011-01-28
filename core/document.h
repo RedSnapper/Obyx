@@ -94,6 +94,8 @@ public:
 	bool getparm(const u_str&,const DataItem*&) const;
 	bool getparm(const std::string&,const DataItem*&) const;
 	bool parmexists(const std::string&) const;
+	bool parmfind(const std::string&) const;
+	void parmkeys(const string&,set<string>&) const;
 	void list() const;
 	bool eval();
 	void evaluate(size_t,size_t) {}	

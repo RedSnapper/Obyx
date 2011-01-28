@@ -169,7 +169,7 @@ bool Iteration::fieldfind(const string& pattern) const { //regex..
 	}
 	return retval;
 }
-void Iteration::fieldkeys(const string& pattern,vector<string>& keylist) const { //regex..
+void Iteration::fieldkeys(const string& pattern,set<string>& keylist) const { //regex..
 	if (query != NULL) {
 		query->fieldkeys(pattern,keylist);
 	}
@@ -281,7 +281,7 @@ void Iteration::list(const ObyxElement* base) { //static.
 	*Logger::log << Log::blockend; //subhead
 }
 bool Iteration::operation_each() {
-	vector<string> spacekeys;
+	set<string> spacekeys;
 	if ( ! inputs.empty() ) { 
 		inputs[0]->evalfind(spacekeys);			//now we have the search string	
 		delete inputs[0]; inputs.clear();
@@ -293,8 +293,22 @@ bool Iteration::operation_each() {
 			if ( numreps == 0 ) {
 				delete base_template; //just let it be deleted.
 			} else {
-				std::sort(spacekeys.begin(),spacekeys.end()); 
+//				std::sort(spacekeys.begin(),spacekeys.end()); 
 				DefInpType* iter_input = NULL;
+				set<string>::const_iterator ski = spacekeys.begin();
+				for (currentrow = 1; currentrow <= numreps; currentrow++) {
+					currentkey = *(ski++);
+					if (currentrow != numreps) {
+						iter_input = new DefInpType(this,base_template);
+					} else {
+						iter_input = base_template;		
+						lastrow = true;
+					}
+					iter_input->evaluate();
+					definputs.push_back(iter_input);
+					iter_input = NULL;
+				}
+/*				
 				for (currentrow = 1; currentrow <= numreps; currentrow++) {
 					currentkey = spacekeys[currentrow - 1];
 					if (currentrow != numreps) {
@@ -307,6 +321,7 @@ bool Iteration::operation_each() {
 					definputs.push_back(iter_input);
 					iter_input = NULL;
 				}
+ */
 			}
 		}
 	} 

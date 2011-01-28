@@ -64,7 +64,7 @@ public:
 	static void list();										//list all current items to debugger.	
 	static bool exists(const string&,bool,std::string&);	//name#path
 	static bool find(const string&,bool,std::string&);	
-	static void storekeys(const std::string&,vector<string>&,std::string&);
+	static void storekeys(const std::string&,set<string>&,std::string&);
 	static void release(const DataItem*);
 	static bool set(const DataItem*, DataItem*&, kind_type, std::string& );	//name#path, document, intended kind...
 	static bool get(const string&,DataItem*&, bool, std::string&);			//name#path, container, release?, errstr

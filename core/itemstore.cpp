@@ -19,6 +19,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+#include <set>
 
 #include "commons/logger/logger.h"
 #include "commons/environment/environment.h"
@@ -174,20 +175,20 @@ bool ItemStore::find(const std::string& pattern,bool release,std::string& errors
 	}
 	return retval;
 }
-void ItemStore::storekeys(const std::string& pattern,vector<string>& keylist,std::string& errorstr) {
+void ItemStore::storekeys(const std::string& pattern,std::set<std::string>& keylist,std::string& errorstr) {
 	if (pattern.find("#") != string::npos) {
 		errorstr="to iterate over multiple xpaths, use xpath syntax count()";
 	} else {
 		if ( String::Regex::available() ) {
 			for(item_map_type::iterator imt = the_item_map->begin(); imt != the_item_map->end(); imt++) {
 				if (String::Regex::match(pattern,imt->first)) {
-					keylist.push_back(imt->first);
+					keylist.insert(imt->first);
 				}
 			}
 		} else {
 			item_map_type::iterator it = the_item_map->find(pattern);
 			if (it != the_item_map->end()) {
-				keylist.push_back(pattern);
+				keylist.insert(pattern);
 			}
 		}
 	}

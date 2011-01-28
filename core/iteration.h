@@ -73,7 +73,7 @@ public:
 	bool field(const string&,string&,string&) const;
 	bool fieldfind(const string&) const;
 	unsigned long long forcedbreak() const;
-	void fieldkeys(const string&,vector<string>&) const;
+	void fieldkeys(const string&,set<string>&) const;
 	bool fieldexists(const string&,string&) const;
 	const unsigned long long row() const {return currentrow;}
 	const it_type op() const {return operation;}

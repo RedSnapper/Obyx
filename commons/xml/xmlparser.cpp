@@ -117,10 +117,11 @@ namespace XML {
 			}
 			delete mbft;
 			if ( ! result.empty() ) {
-				Environment* env = Environment::service();
-				if (env->envexists("OBYX_PRETTY_PRINT")) {
-					result.erase(0,result.find_first_not_of("\n\r\t "));
-				} 
+//PRETTY_PRINT was deprecated 26 Jan 2011				
+//				Environment* env = Environment::service();
+//				if (env->envexists("OBYX_PRETTY_PRINT")) {
+//					result.erase(0,result.find_first_not_of("\n\r\t "));
+//				} 
 				if ( String::Regex::available()) {
 					// NEED TO FIX single quote attributes as well as double quote ones.
 					const string textarea_find="<textarea((?:\\s+(?:\\w+:)?\\w+=\"[^\"]+\")+)/>";
@@ -147,11 +148,12 @@ namespace XML {
 		DOMConfiguration* dc = writer->getDomConfig();
 		dc->setParameter(XMLUni::fgDOMErrorHandler,errorHandler);
 		dc->setParameter(XMLUni::fgDOMWRTDiscardDefaultContent,true);
-		if (Environment::getbenv("OBYX_PRETTY_PRINT",dummy)) {
-			dc->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint,true);
-		} else {
+//PRETTY_PRINT was deprecated 26 Jan 2011				
+//		if (Environment::getbenv("OBYX_PRETTY_PRINT",dummy)) {
+//			dc->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint,true);
+//		} else {
 			dc->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint,false);
-		}
+//		}
 		dc->setParameter(XMLUni::fgDOMXMLDeclaration,false);
 //		dc->setParameter(XMLUni::fgDOMWRTWhitespaceInElementContent,true); //always true, false not supported.
 		dc->setParameter(XMLUni::fgDOMWRTBOM,false);
@@ -174,6 +176,8 @@ namespace XML {
 		dc->setParameter(XMLUni::fgXercesLoadExternalDTD, false);
 		dc->setParameter(XMLUni::fgXercesIgnoreCachedDTD, false);
 		dc->setParameter(XMLUni::fgXercesIdentityConstraintChecking,true);
+//If we are using an xml config file, we need to choose if this is on or off by default. 
+//I think that false is probably the correct move here.
 		string dummy;
 		if (Environment::getbenv("OBYX_VALIDATE_ALWAYS",dummy)) {
 			if (dc->canSetParameter(XMLUni::fgDOMValidate, true)) {

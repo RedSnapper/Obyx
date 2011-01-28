@@ -653,8 +653,8 @@ bool IKO::foundinspace(const string& input_name,const inp_space the_space,const 
 			} 
 		} break;
 		case fnparm: {
-			log(Log::error,"Error. find key over parm space not yet supported. use an existence test.");
-		} break;					
+			exists = owner->parmfind(input_name);
+		} break;
 		case file: {
 			vector<FileUtils::File> list;
 			string file_path; setfilepath("",file_path);
@@ -1032,11 +1032,14 @@ bool IKO::sigfromspace(const string& input_name,const inp_space the_space,const 
 	} 
 	return exists;
 }
-void IKO::keysinspace(const string& input_name,const inp_space the_space,vector<string>& keylist) {
+void IKO::keysinspace(const string& input_name,const inp_space the_space,set<string>& keylist) {
 	Environment* env = Environment::service();
 	string errstring;			
 	switch ( the_space ) { //now do all the named input_spaces!
-		case immediate: {  keylist.push_back(input_name);} break;
+		case immediate: {  
+//			keylist.push_back(input_name);
+			keylist.insert(input_name);		
+		} break;
 		case field: {
 			const ObyxElement* cur = this;
 			const ObyxElement* par = p;
@@ -1058,7 +1061,9 @@ void IKO::keysinspace(const string& input_name,const inp_space the_space,vector<
 			ItemStore::storekeys(input_name,keylist,errstring);
 			if (!errstring.empty()) { log(Log::error,"Error. Store error: " + errstring); } 
 		} break;
-		case fnparm: { log(Log::error,"Error. finding key over parm space not yet supported."); } break;					
+		case fnparm: { 
+			owner->parmkeys(input_name,keylist);		
+		} break;					
 		case file: { 
 			vector<FileUtils::File> list;
 			string root(env->getpathforroot());
@@ -1071,7 +1076,7 @@ void IKO::keysinspace(const string& input_name,const inp_space the_space,vector<
 					kyresult.erase(0,root.length());
 					if (kyresult.empty() ) kyresult = "/";
 				}
-				keylist.push_back(kyresult);
+				keylist.insert(kyresult);
 			}
 		} break;
 		case url: { log(Log::error,"Error. finding keys over url space not supported."); } break;

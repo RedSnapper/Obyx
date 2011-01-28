@@ -66,7 +66,7 @@ protected:
 	u_str     name_v;			//name value - used for tracing etc.
 	//            input    release eval name/ref  container 
 	void evaltype(inp_space, bool, bool, kind_type, DataItem*&,DataItem*&); 
-	void keysinspace(const string&,const inp_space,vector<string>&);	//gather them keys.
+	void keysinspace(const string&,const inp_space,set<string>&);	//gather them keys.
 	
 public:
 	static void init(); 

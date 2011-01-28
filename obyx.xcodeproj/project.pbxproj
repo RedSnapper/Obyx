@@ -737,7 +737,14 @@
 			};
 			buildConfigurationList = B59B3B1E08E2B9FB0065257B /* Build configuration list for PBXProject "obyx" */;
 			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
 			mainGroup = 08FB7794FE84155DC02AAC07 /* RSRebuild */;
 			projectDirPath = "";
 			projectRoot = "";

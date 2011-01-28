@@ -52,7 +52,7 @@ protected:
 public:
 	inp_space gettype()	const {return type;}
 	virtual void evaluate(size_t=0,size_t=0); 
-	void evalfind(vector<string>&); 
+	void evalfind(set<string>&); 
 	InputType(ObyxElement*,const InputType*);
 	InputType(xercesc::DOMNode* const&,ObyxElement* = NULL, elemtype = input);
 	virtual ~InputType() {}

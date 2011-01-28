@@ -1197,47 +1197,47 @@ bool Environment::cookiefind(const string& pattern) { //request cookies...
 	}
 	return retval;
 }
-void Environment::envkeys(const string& pattern,vector<string>& keylist) {
+void Environment::envkeys(const string& pattern,set<string>& keylist) {
 	if ( String::Regex::available() ) {
 		for(var_map_type::iterator imt = ienv_map.begin(); imt != ienv_map.end(); imt++) {
 			if (String::Regex::match(pattern,imt->first)) {
-				keylist.push_back(imt->first);
+				keylist.insert(imt->first);
 			}
 		}
 		for(var_map_type::iterator imt = benv_map.begin(); imt != benv_map.end(); imt++) {
 			if (String::Regex::match(pattern,imt->first)) {
-				keylist.push_back(imt->first);
+				keylist.insert(imt->first);
 			}
 		}
 	} else {
 		if (envexists(pattern)) {
-			keylist.push_back(pattern);
+			keylist.insert(pattern);
 		}
 	}
 }
-void Environment::parmkeys(const string& pattern,vector<string>& keylist) {
+void Environment::parmkeys(const string& pattern,set<string>& keylist) {
 	if ( String::Regex::available() ) {
 		for(var_map_type::iterator imt = parm_map.begin(); imt != parm_map.end(); imt++) {
 			if (String::Regex::match(pattern,imt->first)) {
-				keylist.push_back(imt->first);
+				keylist.insert(imt->first);
 			}
 		}
 	} else {
 		if (parmexists(pattern)) {
-			keylist.push_back(pattern);
+			keylist.insert(pattern);
 		}
 	}
 }
-void Environment::cookiekeys(const string& pattern,vector<string>& keylist) {
+void Environment::cookiekeys(const string& pattern,set<string>& keylist) {
 	if ( String::Regex::available() ) {
 		for(var_map_type::iterator imt = cke_map.begin(); imt != cke_map.end(); imt++) {
 			if (String::Regex::match(pattern,imt->first)) {
-				keylist.push_back(imt->first);
+				keylist.insert(imt->first);
 			}
 		}
 	} else {
 		if (cookieexists(pattern)) {
-			keylist.push_back(pattern);
+			keylist.insert(pattern);
 		}
 	}
 }
