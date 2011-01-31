@@ -102,7 +102,10 @@ bool Document::getparm(const std::string& parmkey,const DataItem*& container) co
 		}
 	} 
 	if (!retval && p != NULL) {
-		retval = p->owner->getparm(parmkey,container); //now get the stuff above me.
+		Environment* env = Environment::service();
+		if (!env->envexists("OBYX_LEGACY_NO_PARM_INHERITANCE")) {
+			retval = p->owner->getparm(parmkey,container); //now get the stuff above me.
+		}
 	}
 	return retval; //if we are outside of a function there is no parm.
 }
@@ -113,7 +116,10 @@ bool Document::parmexists(const std::string& parmkey) const {
 		existent = (it != parm_map->end());
 	} 
 	if (!existent && p != NULL) {
-		existent = p->owner->parmexists(parmkey); //now get the stuff above me.
+		Environment* env = Environment::service();
+		if (!env->envexists("OBYX_LEGACY_NO_PARM_INHERITANCE")) {
+			existent = p->owner->parmexists(parmkey); //now get the stuff above me.
+		}
 	}
 	return existent; //if we are outside of a function there is no parm.
 }
@@ -127,7 +133,10 @@ bool Document::parmfind(const string& pattern) const {
 		retval = parmexists(pattern);
 	}
 	if (!retval && p != NULL) {
-		retval = p->owner->parmfind(pattern); //now get the stuff above me.
+		Environment* env = Environment::service();
+		if (!env->envexists("OBYX_LEGACY_NO_PARM_INHERITANCE")) {
+			retval = p->owner->parmfind(pattern); //now get the stuff above me.
+		}
 	}
 	return retval;
 }
@@ -144,7 +153,10 @@ void Document::parmkeys(const string& pattern,set<string>& keylist) const {
 		}
 	}
 	if (p != NULL) {
-		p->owner->parmkeys(pattern,keylist); //now get the stuff above me.
+		Environment* env = Environment::service();
+		if (!env->envexists("OBYX_LEGACY_NO_PARM_INHERITANCE")) {
+			p->owner->parmkeys(pattern,keylist); //now get the stuff above me.
+		}
 	}
 }
 void Document::list() const {
