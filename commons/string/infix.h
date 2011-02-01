@@ -52,163 +52,163 @@ namespace String {
 			char sig() const { return '-';}
 		};
 		class add : public Op {
-	public:
-		add() : Op(6){}
-		long double evaluate(const long double,const long double,const long double) const;
-		char sig() const { return '+';}
-	};
-	class multiply : public Op {
-	public:
-		multiply() : Op(5){}
-		long double evaluate(const long double,const long double,const long double) const;
-		char sig() const { return '*';}
-	};
-	class divide : public Op {
-	public:
-		divide() : Op(5){}
-		long double evaluate(const long double,const long double,const long double) const;
-		char sig() const { return '/';}
-	};
-	class uminus : public Op {
-	public:
-		uminus() : Op(3,right,1){}
-		long double evaluate(const long double,const long double,const long double) const;
-		char sig() const { return '_';}
-	};
-	class modulo : public Op {
-	public:
-		modulo() : Op(5){}
-		long double evaluate(const long double,const long double,const long double) const;
-		char sig() const { return '%';}
-	};
-	class quotient : public Op {
-	public:
-		quotient() : Op(5){}
-		long double evaluate(const long double,const long double,const long double) const;
-		char sig() const { return '\\';}
-	};
-	class lb : public Op {
-	public: 
-		lb() : Op(1000,none,0) {}
-		char sig() const { return '(';}
-	};
-	class rb : public Op {
-	public: 
-		rb() : Op(1000,none,0) {}
-		char sig() const { return ')';}
-	};
-	class delim : public Op {
-	public: 
-		delim() : Op(999,none,0) {}
-		char sig() const { return ',';}
-	};
-	class powfn : public Op {
-	public:
-		powfn() : Op(2){}
-		long double evaluate(const long double,const long double,const long double) const;
-		char sig() const { return 'f';}
-	};
-	class maxfn : public Op {
-	public:
-		maxfn() : Op(2){}
-		long double evaluate(const long double,const long double,const long double) const;
-		char sig() const { return 'f';}
-	};
-	class minfn : public Op {
-	public:
-		minfn() : Op(2){}
-		long double evaluate(const long double,const long double,const long double) const;
-		char sig() const { return 'f';}
-	};
-	class bandfn : public Op {
-	public:
-		bandfn() : Op(2){} //as a function = 2; as characters (10)
-		long double evaluate(const long double,const long double,const long double) const;
-		char sig() const { return 'f';}
-	};
-	class bxorfn : public Op {
-	public:
-		bxorfn() : Op(2){} //as a function = 2; as characters (11)
-		long double evaluate(const long double,const long double,const long double) const;
-		char sig() const { return 'f';}
-	};
-	class bnotfn : public Op {
-	public:
-		bnotfn() : Op(2,left,1) {} //as a function = 2; as characters (11)
-		long double evaluate(const long double,const long double,const long double) const;
-		char sig() const { return 'f';}
-	};
-	class borfn : public Op {
-	public:
-		borfn() : Op(2){} //as a function = 2; as characters (12)
-		long double evaluate(const long double,const long double,const long double) const;
-		char sig() const { return 'f';}
-	};
-	class roundfn : public Op {
-	public:
-		roundfn() : Op(2,left,1){} //as a function = 2
-		long double evaluate(const long double,const long double,const long double) const;
-		char sig() const { return 'f';}
-	};
-	class floorfn : public Op {
-	public:
-		floorfn() : Op(2,left,1){} //as a function = 2
-		long double evaluate(const long double,const long double,const long double) const;
-		char sig() const { return 'f';}
-	};
-	class ceilfn : public Op {
-	public:
-		ceilfn() : Op(2,left,1){} //as a function = 2
-		long double evaluate(const long double,const long double,const long double) const;
-		char sig() const { return 'f';}
-	};
-	class absfn : public Op {
-	public:
-		absfn() : Op(2,left,1){} //as a function = 2
-		long double evaluate(const long double,const long double,const long double) const;
-		char sig() const { return 'f';}
-	};
-	class rolfn : public Op { //number,shifts,wordsize(in bits)
-	public:
-		rolfn() : Op(2,left,3){} //as a function = 2
-		long double evaluate(const long double,const long double,const long double) const;
-		char sig() const { return 'f';}
-	};
-	class rorfn : public Op { //number,shifts,wordsize(in bits)
-	public:
-		rorfn() : Op(2,left,3){} //as a function = 2
-		long double evaluate(const long double,const long double,const long double) const;
-		char sig() const { return 'f';}
-	};
-	
-	class Evaluate {
-	private:
-		typedef map<string, Op*> lut_t;
-		typedef hash_map<const string,long double, hash<const string&> > parm_map_t;
-		static lut_t lut;
-
-		string expr;
-		vector<const  Op*>  opstack;
-		vector<long double>	valstack;
-		parm_map_t parms;
+		public:
+			add() : Op(6){}
+			long double evaluate(const long double,const long double,const long double) const;
+			char sig() const { return '+';}
+		};
+		class multiply : public Op {
+		public:
+			multiply() : Op(5){}
+			long double evaluate(const long double,const long double,const long double) const;
+			char sig() const { return '*';}
+		};
+		class divide : public Op {
+		public:
+			divide() : Op(5){}
+			long double evaluate(const long double,const long double,const long double) const;
+			char sig() const { return '/';}
+		};
+		class uminus : public Op {
+		public:
+			uminus() : Op(3,right,1){}
+			long double evaluate(const long double,const long double,const long double) const;
+			char sig() const { return '_';}
+		};
+		class modulo : public Op {
+		public:
+			modulo() : Op(5){}
+			long double evaluate(const long double,const long double,const long double) const;
+			char sig() const { return '%';}
+		};
+		class quotient : public Op {
+		public:
+			quotient() : Op(5){}
+			long double evaluate(const long double,const long double,const long double) const;
+			char sig() const { return '\\';}
+		};
+		class lb : public Op {
+		public: 
+			lb() : Op(1000,none,0) {}
+			char sig() const { return '(';}
+		};
+		class rb : public Op {
+		public: 
+			rb() : Op(1000,none,0) {}
+			char sig() const { return ')';}
+		};
+		class delim : public Op {
+		public: 
+			delim() : Op(999,none,0) {}
+			char sig() const { return ',';}
+		};
+		class powfn : public Op {
+		public:
+			powfn() : Op(2){}
+			long double evaluate(const long double,const long double,const long double) const;
+			char sig() const { return 'f';}
+		};
+		class maxfn : public Op {
+		public:
+			maxfn() : Op(2){}
+			long double evaluate(const long double,const long double,const long double) const;
+			char sig() const { return 'f';}
+		};
+		class minfn : public Op {
+		public:
+			minfn() : Op(2){}
+			long double evaluate(const long double,const long double,const long double) const;
+			char sig() const { return 'f';}
+		};
+		class bandfn : public Op {
+		public:
+			bandfn() : Op(2){} //as a function = 2; as characters (10)
+			long double evaluate(const long double,const long double,const long double) const;
+			char sig() const { return 'f';}
+		};
+		class bxorfn : public Op {
+		public:
+			bxorfn() : Op(2){} //as a function = 2; as characters (11)
+			long double evaluate(const long double,const long double,const long double) const;
+			char sig() const { return 'f';}
+		};
+		class bnotfn : public Op {
+		public:
+			bnotfn() : Op(2,left,1) {} //as a function = 2; as characters (11)
+			long double evaluate(const long double,const long double,const long double) const;
+			char sig() const { return 'f';}
+		};
+		class borfn : public Op {
+		public:
+			borfn() : Op(2){} //as a function = 2; as characters (12)
+			long double evaluate(const long double,const long double,const long double) const;
+			char sig() const { return 'f';}
+		};
+		class roundfn : public Op {
+		public:
+			roundfn() : Op(2,left,1){} //as a function = 2
+			long double evaluate(const long double,const long double,const long double) const;
+			char sig() const { return 'f';}
+		};
+		class floorfn : public Op {
+		public:
+			floorfn() : Op(2,left,1){} //as a function = 2
+			long double evaluate(const long double,const long double,const long double) const;
+			char sig() const { return 'f';}
+		};
+		class ceilfn : public Op {
+		public:
+			ceilfn() : Op(2,left,1){} //as a function = 2
+			long double evaluate(const long double,const long double,const long double) const;
+			char sig() const { return 'f';}
+		};
+		class absfn : public Op {
+		public:
+			absfn() : Op(2,left,1){} //as a function = 2
+			long double evaluate(const long double,const long double,const long double) const;
+			char sig() const { return 'f';}
+		};
+		class rolfn : public Op { //number,shifts,wordsize(in bits)
+		public:
+			rolfn() : Op(2,left,3){} //as a function = 2
+			long double evaluate(const long double,const long double,const long double) const;
+			char sig() const { return 'f';}
+		};
+		class rorfn : public Op { //number,shifts,wordsize(in bits)
+		public:
+			rorfn() : Op(2,left,3){} //as a function = 2
+			long double evaluate(const long double,const long double,const long double) const;
+			char sig() const { return 'f';}
+		};
 		
-		bool get(string::const_iterator&,long double&);
-		size_t name(string::const_iterator&,string&);
-		long double getvalue(const string&);
-		char evalstack();
-		const  Op* get(string::const_iterator&,size_t&);
-		const  Op* get(const string);
-		
-	public:
-		static void startup();
-		static void shutdown();
-		 Evaluate() {}
-		~Evaluate() {}
-		long double process(string&);
-		void set_expression(const string);
-		void add_parm(const string,long double);
-	};
-}
+		class Evaluate {
+		private:
+			typedef map<string, Op*> lut_t;
+			typedef hash_map<const string,long double, hash<const string&> > parm_map_t;
+			static lut_t lut;
+			
+			string expr;
+			vector<const  Op*>  opstack;
+			vector<long double>	valstack;
+			parm_map_t parms;
+			
+			bool get(string::const_iterator&,long double&);
+			size_t name(string::const_iterator&,string&);
+			long double getvalue(const string&);
+			char evalstack();
+			const  Op* get(string::const_iterator&,size_t&);
+			const  Op* get(const string);
+			
+		public:
+			static void startup();
+			static void shutdown();
+			Evaluate() {}
+			~Evaluate() {}
+			long double process(string&);
+			void set_expression(const string);
+			void add_parm(const string,long double);
+		};
+	}
 }
 
 #endif
