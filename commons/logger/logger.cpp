@@ -235,7 +235,7 @@ Logger& Logger::operator<< (const unsigned int val ) {
 Logger& Logger::operator << (const msgtype mtype) {
 	curr_type = mtype;
 	size_t ssize = estrm_stack.size();
-	if ( !hadfatal && ((mtype == fatal || mtype == Log::error || mtype == warn || mtype == syntax) || (mtype == thrown && ssize < 2)) ) {
+	if ( !hadfatal && ((mtype == fatal || mtype == Log::error || mtype == warn || mtype == syntax || mtype == thrown) && (ssize < 2) ) {
 		hadfatal = true;
 		dofatal();
 		string messages = lstore->str();
