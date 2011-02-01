@@ -17,6 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.110201
+	BUG.		Thrown errors causing 'break_happened' in all cases.
 v1.110128
 	Enh.		parms to calling functions are available, similar to fields in sql operations.
 v1.110126
