@@ -32,7 +32,7 @@ using namespace obyx;
 namespace Filer {
 	bool getfile(string,string&,string&);
 	void output(string&,kind_type = di_object);
-	void defaultHTTPHeader(bool);
+void defaultHTTPHeader(bool);
 	void outputRedirect();
 }
 

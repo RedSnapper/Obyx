@@ -259,7 +259,7 @@ bool ItemStore::set(const DataItem* namepath_di, DataItem*& item,kind_type kind,
 					pair<item_map_type::iterator, bool> ins = the_item_map->insert(item_map_type::value_type(name, item));
 					item = NULL; //this was already a document!
 					retval = true;
-				} else {
+	 			} else {
 					item_map_type::iterator it = the_item_map->find(name);
 					if (it != the_item_map->end()) {
 						DataItem* basis = it->second; //we will use the path on the basis.
