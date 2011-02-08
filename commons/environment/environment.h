@@ -40,7 +40,6 @@ using namespace __gnu_cxx; //hashmap namespace.
 #define	ULLONG_MAX	0xffffffffffffffffULL	/* max unsigned long long */
 #endif
 
-
 namespace Vdb {
 	class Query;
 	class Connection;
@@ -60,6 +59,7 @@ private:
 	
 	static var_map_type cgi_rfc_map;			//CGI_NAME rfc Header map (ro)
 	static var_map_type benv_map;				//Base     System environment (ro)
+	static double runtime_version;
 	var_map_type ienv_map;				//Instance System environment (ro)
 	
 	int gArgc;
@@ -130,8 +130,9 @@ public:
 	static void startup(string&,string&);		//everything that doesn't change across multiple runs
 	static void shutdown();
 	static void init(int,char **,char **);
-
 	static void finalise();
+	static double version() { return runtime_version; }
+
 	static Environment* service(); 
 	static bool getbenv(string const,string&);
 	static bool benvexists(const string&);

@@ -46,6 +46,7 @@ namespace XML {
 		
 		static bool attribute(const DOMNode*,const std::string,std::string&);
 		static bool attribute(const DOMNode*,const u_str,u_str&);
+		static bool attribute(const DOMNode*,const u_str);
 		static XML::Parser* parser() { return xparser; }
 		static void resetDocPool() { xparser->parser->resetDocumentPool(); }
 		static bool hadErrors();

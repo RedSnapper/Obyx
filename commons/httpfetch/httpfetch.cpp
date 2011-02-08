@@ -177,21 +177,15 @@ namespace Fetch {
 	
 	// http://curl.haxx.se/libcurl/c/curl_easy_setopt.html
 	
-	HTTPFetch::HTTPFetch(string& u,string& m,string& v,string& b,string& errstr) : headers(NULL),cookies(),body(b),handle(NULL),errorBuf(new char[CURL_ERROR_SIZE]),had_error(false) {
+	HTTPFetch::HTTPFetch(const string& u,const string& m,const string& v,string& b,int redirects, int timeout, string& errstr) : headers(NULL),cookies(),body(b),handle(NULL),errorBuf(new char[CURL_ERROR_SIZE]),had_error(false) {
 		errorBuf[0] = '\0'; 
 		handle = curl_easy_init();
 		assert(handle != NULL);
 		//		processErrorCode(curl_easy_setopt(handle, CURLOPT_VERBOSE, true));
 		string redirect_val,timeout_val;
 		unsigned long maxRedirects = 10,timeout_seconds=30;
-		if (ItemStore::get("REDIRECT_BREAK_COUNT",redirect_val)) {
-			pair<long long,bool> enval = String::integer(redirect_val);
-			maxRedirects = (unsigned long)enval.first;
-		} 
-		if (ItemStore::get("URL_TIMEOUT_SECS",timeout_val)) {
-			pair<long long,bool> toval = String::integer(timeout_val);
-			timeout_seconds = (unsigned long)toval.first;
-		} 
+		if (redirects >= 0) { maxRedirects = redirects; }
+		if (timeout >= 0) { timeout_seconds = timeout; }
 		if (maxRedirects == 0) {
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_FOLLOWLOCATION,0), errstr);
 		} else {
@@ -257,7 +251,7 @@ namespace Fetch {
 	}
 	
 	//used by OSI Request directly.
-	bool HTTPFetch::doRequest(string& headerString,string& bodyString,string& errstr) {
+	bool HTTPFetch::doRequest(string& headerString,string& bodyString,int redirects,int timeout,string& errstr) {
 		string redirect_val,timeout_val;
 		unsigned long maxRedirects = 0,timeout_seconds=30;
 		if ( Logger::debugging() ) {
@@ -268,15 +262,8 @@ namespace Fetch {
 				*Logger::log << Log::LO;
 			}
 		}
-		
-		if (ItemStore::get("REDIRECT_BREAK_COUNT",redirect_val)) {
-			pair<long long,bool> enval = String::integer(redirect_val);
-			maxRedirects = (unsigned long)enval.first;
-		} 
-		if (ItemStore::get("URL_TIMEOUT_SECS",timeout_val)) {
-			pair<long long,bool> toval = String::integer(timeout_val);
-			timeout_seconds = (unsigned long)toval.first;
-		} 
+		if (redirects >= 0) { maxRedirects = redirects; }
+		if (timeout >= 0) { timeout_seconds = timeout; }		
 		if (maxRedirects == 0) {
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_FOLLOWLOCATION,0), errstr);
 		} else {
@@ -356,14 +343,14 @@ namespace Fetch {
 		return ! had_error;
 	}
 	
-	bool HTTPFetch::fetchHeader(std::string& my_page, HTTPFetchHeader& header, Redirects& redirects, std::string& errstr) {
+	bool HTTPFetch::fetchHeader(std::string& my_page, HTTPFetchHeader& header, Redirects& redirects, int max_redirects, std::string& errstr) {
 		HTTPFetchHead fetcher(this, my_page, header, redirects, errstr);
-		return fetcher();
+		return fetcher(max_redirects);
 	}
-	
-	bool HTTPFetch::fetchPage(std::string my_page, HTTPFetchHeader& header, Redirects& redirects, std::string& body_i, std::string& errmsg_i) {
+/*	
+	bool HTTPFetch::fetchPage(std::string my_page, HTTPFetchHeader& header, Redirects& redirects, std::string& body_i, int max_redirects,int timeout_secs, std::string& errmsg_i) {
 		HTTPFetchPage fetcher(this, my_page, header, redirects, body_i, errmsg_i);
-		return fetcher();
+		return fetcher(max_redirects);
 	}
-	
+*/	
 } //namespace Fetch

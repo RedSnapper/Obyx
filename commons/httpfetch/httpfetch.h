@@ -73,19 +73,19 @@ namespace Fetch {
 		
 		
 		void processErrorCode(CURLcode, std::string&);
-		bool fetchHeader(std::string&, HTTPFetchHeader&, Redirects&,std::string&);
+		bool fetchHeader(std::string&, HTTPFetchHeader&, Redirects&, int,std::string&);
 		void setBody(std::string&);
-		bool retrievePage(const std::string&, HTTPFetchHeader&, std::string&, std::string&);
+		bool retrievePage(const std::string&, HTTPFetchHeader&, std::string&,std::string&);
 		bool retrieveHeader(const std::string&, HTTPFetchHeader&, std::string&); 
 		static void dlerr(std::string&);
 		
 	public:
 		HTTPFetch(string&);
-		HTTPFetch(string&,string&,string&,string&,string&);
+		HTTPFetch(const string&,const string&,const string&,string&,int,int,string&);
 		~HTTPFetch();
-		bool fetchPage(std::string, HTTPFetchHeader&, Redirects&, std::string&, std::string&);
+//		bool fetchPage(std::string, HTTPFetchHeader&, Redirects&, std::string&,int,int, std::string&);
 		void addHeader(std::string&);
-		bool doRequest(string&,string&,string&);
+		bool doRequest(string&,string&,int, int, string&);
 		static bool startup();
 		static bool available();
 		static bool shutdown();

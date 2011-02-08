@@ -45,7 +45,7 @@ protected:
 		HTTPFetchHeader& header;
 		Redirects& redirects;
 public:
-		bool operator()();
+		bool operator()(int);
 		
 		HTTPFetcher(std::string&, HTTPFetchHeader&, std::string&, std::vector<std::string>&);
 		virtual ~HTTPFetcher() {}

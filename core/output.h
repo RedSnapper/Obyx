@@ -35,16 +35,23 @@ using namespace obyx;
 class Function;
 
 class Output : public IKO {
-private:
+public:
+	typedef enum { branch, global, ancestor } scope_type;	//what sort of scope (output)
 	typedef enum { value, path, expires, domain } part_type;	// parts of a cookie.
-	typedef std::map<u_str, part_type > part_type_map; 
 	typedef enum { location, privacy, cache, pragma, custom, connection, server, p3p, range, content_length, code, content_type, h_expires, date, content_disposition, nocache, remove_http, remove_nocache, remove_date, http_object} http_line_type;	//
+private:
+	typedef std::map<u_str, part_type > part_type_map; 
+	typedef std::map<u_str, scope_type > scope_type_map; 
 	typedef std::map<u_str, http_line_type > http_line_type_map; 
+	typedef std::map<u_str, output_type > output_type_map; 
+
+	static scope_type_map scope_types;
 	static output_type_map output_types;
 	static http_line_type_map httplinetypes;
 	static part_type_map part_types;
 	friend class Function;
 	output_type		type;			//derived from type attribute
+	scope_type		scope;
 	part_type		part;
 	bool errowner;				//so we can delete the stream just once.
 	ostringstream* errs;		//error holder - used for type=error

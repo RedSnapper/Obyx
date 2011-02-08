@@ -47,8 +47,8 @@ const std::string OsiAPP::crlft		= "\r\n\t";
 const std::string OsiAPP::boundary	= "Message_Boundary_";
 std::string OsiAPP::last_response	= "";	//
 
-
-bool OsiAPP::request(const xercesc::DOMNode* n,DataItem*& the_result) {
+//int max_redirects = 33, timeout_secs = 30
+bool OsiAPP::request(const xercesc::DOMNode* n,int max_redirects,int timeout_secs,DataItem*& the_result) {
 	
 	Environment* env = Environment::service();
 	std::string elname = "";
@@ -85,6 +85,7 @@ bool OsiAPP::request(const xercesc::DOMNode* n,DataItem*& the_result) {
 					if (msg != NULL) {
 						OsiMessage::decompile(msg,heads,body);		//this is a message...
 					}
+//					int max_redirects = 33, timeout_secs = 30;
 					//---------------- COMMENT  when NOT debugging
 					/*					
 					 string logb = Environment::ScratchDir();
@@ -97,7 +98,7 @@ bool OsiAPP::request(const xercesc::DOMNode* n,DataItem*& the_result) {
 					 logFile.close(); 
 					 */
 					//---------------- COMMENT  when NOT debugging
-					HTTPFetch my_req(req_url,req_method,req_version,body,req_errors);
+					HTTPFetch my_req(req_url,req_method,req_version,body,max_redirects,timeout_secs,req_errors);
 					for (unsigned int i=0; i < heads.size(); i++) {
 						String::fandr(heads[i],crlf,crlft);		//crlf in heads need a tab after them to indicate that they are not heads.
 						my_req.addHeader(heads[i]);
@@ -112,7 +113,7 @@ bool OsiAPP::request(const xercesc::DOMNode* n,DataItem*& the_result) {
  */
 					last_response.clear();
 					string response_head,response_body;	//what was returned by remote server...
-					if (! my_req.doRequest(response_head,response_body,req_errors) ) {
+					if (! my_req.doRequest(response_head,response_body, max_redirects, timeout_secs, req_errors) ) {
 						compile_http_response(response_head,response_body,last_response);
 						*Logger::log << Log::error << Log::LI << Log::II << req_url << Log::IO << Log::II << req_errors << Log::IO << Log::LO << Log::blockend;
 						request_result=false;

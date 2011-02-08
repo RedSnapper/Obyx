@@ -17,14 +17,23 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+
+v1.110208       <----- From this version on, files expect old comparison 'scope' to be called 'logic' 
+					   Also stores belong to the document they are declared in, with the scope attribute being used.
+					   Before this point, stores are all global.
+	Enh.		Stores now have branch scope by default.
+	Enh.		Added scope attribute to store-spaced outputs, which has the value branch|ancestor|global
+	Enh.		Added version attribute to root elements. This provides an atomic
+				control over source code. The earliest version supported is 1.110126
 v1.110201
 	BUG.		Thrown errors causing 'break_happened' in all cases.
 v1.110128
 	Enh.		parms to calling functions are available, similar to fields in sql operations.
-v1.110126
+
+v1.110126		<----- From this version on, files should expect parms to be inheritable.
 	CHG.		PRETTY_PRINT is deprecated in readiness for XML config files.				
 
-v1.110120
+v1.110120        
 	Enh.		Added meta thrown error directive: trace#, a fast way of identifying 'here'.
 	BUG.		Thrown errors causing 'break_happened' in all cases.
 	BUG.		Caught logs raising 'fatal_happened'.

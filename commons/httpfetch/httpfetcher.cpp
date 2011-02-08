@@ -34,18 +34,16 @@ namespace Fetch {
 	
 	HTTPFetcher::HTTPFetcher(std::string& page_i, HTTPFetchHeader& header_i, std::string& err_i, std::vector<std::string>& redirects_i): page(page_i), header(header_i),errstr(err_i),redirects(redirects_i) {}
 	
-	bool HTTPFetcher::operator()() {
+	bool HTTPFetcher::operator()(int max_redirects) {
 		bool found = false;
 		while(!found && retrieve(errstr) ) {
 			if(header.statusCode < 300 || header.statusCode >= 400) {
 				found = true; // no redirect
 			} else {	// redirect
-				string redirect_val;
 				unsigned long maxRedirects = 10;
-				if (ItemStore::get("REDIRECT_BREAK_COUNT",redirect_val)) {
-					pair<long long,bool> enval = String::integer(redirect_val);
-					maxRedirects = (unsigned long)enval.first;
-				} 
+				if (max_redirects >= 0) {
+					maxRedirects = max_redirects;
+				}
 				if( redirects.size() >= maxRedirects ) {
 					*Logger::log << Log::warn << Log::LI << "Stopped redirecting after maximum number ("
 					<< (double)maxRedirects << ") of redirects" << Log::LO << Log::blockend;

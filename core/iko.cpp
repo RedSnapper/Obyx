@@ -358,7 +358,7 @@ void IKO::doerrspace(const string& input_name) const {
 				*Logger::log << Log::LI ;
 				env->list();
 				owner->list();
-				ItemStore::list();
+				owner->liststore();
 				Iteration::list(this);		//available fields from here.
 				*Logger::log << Log::LO << Log::blockend;
 			} else {
@@ -647,7 +647,7 @@ bool IKO::foundinspace(const string& input_name,const inp_space the_space,const 
 			log(Log::error,"Error. find key over grammar space not yet supported. use an existence test.");
 		} break;
 		case store: {
-			exists = ItemStore::find(input_name,release,errstring);
+			exists = owner->storefind(input_name,release,errstring);
 			if (!errstring.empty()) {
 				log(Log::error,"Error. Store error: " + errstring);
 			} 
@@ -734,7 +734,7 @@ bool IKO::existsinspace(const string& input_name,const inp_space the_space,const
 			exists = ItemStore::grammarexists(input_name,release);
 		} break;
 		case store: {
-			exists = ItemStore::exists(input_name,release,errstring);
+			exists = owner->storeexists(input_name,release,errstring);
 			if (!errstring.empty()) {
 				log(Log::error,"Error. Store error: " + errstring);
 			} 
@@ -755,11 +755,25 @@ bool IKO::existsinspace(const string& input_name,const inp_space the_space,const
 		} break;
 		case url: {
 			if (httpready()) {
-				string errstr;
-				HTTPFetch pr(errstr);
-				HTTPFetchHeader header;
-				std::vector<std::string> redirects;
-				exists = pr.fetchPage(input_name, header, redirects, discarded_result, errstr);
+				string redirect_str,timeout_str;
+				int max_redirects,timeout_secs;
+				if (owner->getstore("REDIRECT_BREAK_COUNT",redirect_str)) {
+					pair<long long,bool> enval = String::integer(redirect_str);
+					max_redirects = (int)enval.first;
+				} 
+				if (owner->getstore("URL_TIMEOUT_SECS",timeout_str)) {
+					pair<long long,bool> toval = String::integer(timeout_str);
+					timeout_secs = (int)toval.first;
+				} 
+				string req_url=input_name,req_errors,body,response_head,response_body;
+				HTTPFetch my_req(req_url,"GET","HTTP/1.0",body,max_redirects,timeout_secs,req_errors);
+				if (!req_errors.empty()) {
+					*Logger::log << Log::error << Log::LI << Log::II << req_url << Log::IO << Log::II << req_errors << Log::IO << Log::LO << Log::blockend;
+				}
+				exists  = my_req.doRequest(response_head,response_body, max_redirects, timeout_secs, req_errors);
+				if (!req_errors.empty()) {
+					*Logger::log << Log::error << Log::LI << Log::II << req_url << Log::IO << Log::II << req_errors << Log::IO << Log::LO << Log::blockend;
+				}
 			}
 		} break;
 		case cookie: {
@@ -836,7 +850,7 @@ bool IKO::valuefromspace(const string& input_name,const inp_space the_space,cons
 		} break;
 		case store: {
 			string errstring;
-			exists = ItemStore::get(input_name,container,release,errstring);
+			exists = owner->getstore(input_name,container,release,errstring);
 			if (!exists || !errstring.empty()) {
 				if (errstring.empty()) { errstring = "does not exist.";}
 				log(Log::error,"Error. Store error: " + input_name + " " + errstring);
@@ -877,15 +891,35 @@ bool IKO::valuefromspace(const string& input_name,const inp_space the_space,cons
 		} break;
 		case url: {
 			if (httpready()) {
-				string errstr;
+				string redirect_val,timeout_val,errstr;
+				int max_redirects = -1,timeout_secs = -1;
+				if (owner->getstore("REDIRECT_BREAK_COUNT",redirect_val)) {
+					pair<long long,bool> enval = String::integer(redirect_val);
+					max_redirects = (int)enval.first;
+				} 
+				if (owner->getstore("URL_TIMEOUT_SECS",timeout_val)) {
+					pair<long long,bool> toval = String::integer(timeout_val);
+					timeout_secs = (int)toval.first;
+				} 
+				string req_url=input_name,req_errors,body,response_head;
+				HTTPFetch my_req(req_url,"GET","HTTP/1.0",body,max_redirects,timeout_secs,req_errors);
+				if (!req_errors.empty()) {
+					*Logger::log << Log::error << Log::LI << Log::II << req_url << Log::IO << Log::II << req_errors << Log::IO << Log::LO << Log::blockend;
+				}
+				exists  = my_req.doRequest(response_head,fresult,max_redirects,timeout_secs,req_errors);
+				if (!req_errors.empty()) {
+					*Logger::log << Log::error << Log::LI << Log::II << req_url << Log::IO << Log::II << req_errors << Log::IO << Log::LO << Log::blockend;
+				}
+/*				
 				HTTPFetch pr(errstr);
 				HTTPFetchHeader header;
 				std::vector<std::string> redirects;
-				exists = pr.fetchPage(input_name, header, redirects, fresult, errstr);
+				exists = pr.fetchPage(input_name, header, redirects, fresult,max_redirects,timeout_seconds, errstr);
 				if ( !exists ) {
 					if (errstr.empty()) errstr = " failed.";
 					log(Log::error,"Error. Url " + input_name + errstr);
 				}
+ */
 			}
 		} break;
 		case cookie: {
@@ -968,7 +1002,7 @@ bool IKO::sigfromspace(const string& input_name,const inp_space the_space,const 
 			if (exists) {fresult = input_name;}
 		} break;
 		case store: {
-			exists = ItemStore::get(input_name,container,release,errstring);
+			exists = owner->getstore(input_name,container,release,errstring);
 			if (!errstring.empty()) {
 				log(Log::error,"Error. Store error: " + errstring);
 			} 
@@ -1000,11 +1034,31 @@ bool IKO::sigfromspace(const string& input_name,const inp_space the_space,const 
 		} break;
 		case url: {
 			if (httpready()) {
-				string errstr;
+				string redirect_val,timeout_val,errstr;
+				int max_redirects = -1,timeout_secs = -1;
+				if (owner->getstore("REDIRECT_BREAK_COUNT",redirect_val)) {
+					pair<long long,bool> enval = String::integer(redirect_val);
+					max_redirects = (int)enval.first;
+				} 
+				if (owner->getstore("URL_TIMEOUT_SECS",timeout_val)) {
+					pair<long long,bool> toval = String::integer(timeout_val);
+					timeout_secs = (int)toval.first;
+				}
+				string req_url=input_name,req_errors,body,response_head;
+				HTTPFetch my_req(req_url,"GET","HTTP/1.0",body,max_redirects,timeout_secs,req_errors);
+				if (!req_errors.empty()) {
+					*Logger::log << Log::error << Log::LI << Log::II << req_url << Log::IO << Log::II << req_errors << Log::IO << Log::LO << Log::blockend;
+				}
+				exists  = my_req.doRequest(response_head,fresult,max_redirects,timeout_secs,req_errors);
+				if (!req_errors.empty()) {
+					*Logger::log << Log::error << Log::LI << Log::II << req_url << Log::IO << Log::II << req_errors << Log::IO << Log::LO << Log::blockend;
+				}
+/*				
 				HTTPFetch pr(errstr);
 				HTTPFetchHeader header;
 				std::vector<std::string> redirects;
-				exists = pr.fetchPage(input_name, header, redirects, fresult, errstr);
+				exists = pr.fetchPage(input_name, header, redirects, fresult, max_redirects,timeout_seconds,errstr);
+*/
 			}
 		} break;
 		case cookie: {
@@ -1058,7 +1112,7 @@ void IKO::keysinspace(const string& input_name,const inp_space the_space,set<str
 		case xmlnamespace: { log(Log::error,"Error. finding key over namespace space not yet supported."); } break;
 		case xmlgrammar: { log(Log::error,"Error. finding key over grammar space not yet supported."); } break;
 		case store: {
-			ItemStore::storekeys(input_name,keylist,errstring);
+			owner->storekeys(input_name,keylist,errstring);
 			if (!errstring.empty()) { log(Log::error,"Error. Store error: " + errstring); } 
 		} break;
 		case fnparm: { 

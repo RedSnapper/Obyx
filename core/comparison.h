@@ -34,7 +34,7 @@ private:
 	
 	cmp_type  operation;			   // instruction operation
 	bool invert;					   // are we using the complement operation?
-	scope_t scope;					   // any/all
+	logic_t logic;					   // any/all
 	
 	bool eval_found;					//did we find a comparator to evaluate?
 	bool cmp_evaluated;					//have we evaluated the comparators

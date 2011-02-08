@@ -34,18 +34,29 @@
 using namespace obyx;
 using namespace std;
 
-item_map_type*				ItemStore::the_item_map = NULL;					
-item_map_stack_type*		ItemStore::the_item_map_stack = NULL;	//stack of itemmap controlled by isolated attr.	
-item_map_stack_map_type		ItemStore::the_item_map_stack_map;	
+iter_stack_type*	ItemStore::the_iteration_stack = NULL; //stack of iterations
 
-void ItemStore::startup() {}
-void ItemStore::shutdown() {}
-void ItemStore::init() {
-	//	the_item_map_stack = new item_map_stack_type();
-	//	the_item_map = new item_map_type();
-	//	the_item_map_stack->push(the_item_map);
+ItemStore::ItemStore() : owner(),the_item_map(NULL),the_item_map_stack(NULL),the_item_map_stack_map() {
 }
-void ItemStore::finalise() {
+
+void ItemStore::setowner(const std::string p) {
+	owner=p;
+}
+
+ItemStore::ItemStore(const ItemStore* orig) : the_item_map(NULL),the_item_map_stack(NULL),the_item_map_stack_map() {
+	if (orig->the_item_map != NULL) {
+		the_item_map = new item_map_type();
+		item_map_type::iterator it = orig->the_item_map->begin();
+		while ( it != orig->the_item_map->end()) {
+			pair<item_map_type::iterator, bool> ins = the_item_map->insert(*it);
+			it++;
+		}
+	} else {
+		the_item_map = NULL;
+	}
+}
+
+ItemStore::~ItemStore() {
 	item_map_stack_map_type::iterator it = the_item_map_stack_map.begin();
 	while ( it != the_item_map_stack_map.end()) {
 		item_map_stack_type* sstack = (*it).second;
@@ -58,6 +69,12 @@ void ItemStore::finalise() {
 	}
 	the_item_map_stack_map.clear();
 }
+
+void ItemStore::startup() {}
+void ItemStore::shutdown() {}
+void ItemStore::init() {}
+void ItemStore::finalise() {}
+
 #pragma mark GRAMMAR FUNCTIONS
 bool ItemStore::setgrammar(const DataItem* sig, DataItem*& document) {
 	bool retval=false;
@@ -132,14 +149,20 @@ bool ItemStore::nsexists(const string& c,bool release) {
 	return exist_result;
 }
 #pragma mark STORE FUNCTIONS
-bool ItemStore::exists(const std::string& obj_id,bool release,std::string& errorstr) {
+bool ItemStore::exists(const std::string& namepath,bool release,std::string& errorstr) {
 	bool retval=false;
-	if (obj_id.find("#") != string::npos) {
+	if (namepath.find("#") != string::npos) {
 		DataItem* xp = NULL;
-		retval = get(obj_id, xp, release, errorstr);
+		pair<string,string> np;
+		string name,path;
+		bool node_expected = false;
+		String::split('#',namepath,np);		 // eg foobar#/BOOK[0]      -- foobar       /BOOK[0]
+		name=np.first; path=np.second;
+		if (*name.rbegin() == '!') { node_expected = true; name.resize(name.size()-1); }  //remove the final character
+		retval = get(name, path, node_expected, xp, release, errorstr);
 		delete xp; 
 	} else {
-		item_map_type::iterator it = the_item_map->find(obj_id);
+		item_map_type::iterator it = the_item_map->find(namepath);
 		if (it != the_item_map->end()) {
 			retval = true;
 			if (release) {
@@ -175,7 +198,7 @@ bool ItemStore::find(const std::string& pattern,bool release,std::string& errors
 	}
 	return retval;
 }
-void ItemStore::storekeys(const std::string& pattern,std::set<std::string>& keylist,std::string& errorstr) {
+void ItemStore::keys(const std::string& pattern,std::set<std::string>& keylist,std::string& errorstr) {
 	if (pattern.find("#") != string::npos) {
 		errorstr="to iterate over multiple xpaths, use xpath syntax count()";
 	} else {
@@ -193,21 +216,20 @@ void ItemStore::storekeys(const std::string& pattern,std::set<std::string>& keyl
 		}
 	}
 }
-
-void ItemStore::release(const DataItem* obj_id) {
-	string obj_name; if (obj_id != NULL) { obj_name = *obj_id; }
+bool ItemStore::release(const std::string& obj_name) {
+	bool retval = false;
 	item_map_type::iterator it = the_item_map->find(obj_name);
 	if (it != the_item_map->end()) {
 		it->second = NULL;
 		the_item_map->erase(it);
-	} else {
-		*Logger::log << Log::error << Log::LI << "Error. The object '" << obj_name << "' could not be released." << Log::LO << Log::blockend;
-	}
+		retval = true;
+	} 
+	return retval;
 }
 void ItemStore::list() {
 	if ( ! the_item_map->empty() ) {
 		item_map_type::iterator it = the_item_map->begin();
-		*Logger::log << Log::subhead << Log::LI << "Current store items" << Log::LO;
+		*Logger::log << Log::subhead << Log::LI << "Stores (" << owner << ")" << Log::LO;
 		*Logger::log << Log::LI << Log::even;
 		while (it != the_item_map->end() ) {
 			if ( ! it->first.empty() ) {
@@ -227,243 +249,218 @@ void ItemStore::list() {
 		*Logger::log << Log::blockend; //subhead
 	}
 }
-bool ItemStore::set(const DataItem* namepath_di, DataItem*& item,kind_type kind,std::string& errorstr) {
+bool ItemStore::set(string& name,string& path,bool node_expected, DataItem*& item,kind_type kind,std::string& errorstr) {
 	//we need to test that the kind being asked for is the same kind as item.
 	//if not, we must attempt to cast it.  If we fail, we post an error, but KEEP the item set
 	//as it is.
 	bool retval = false;
-	if (namepath_di != NULL)  { 
-		bool node_expected = false;
-		pair<string,string> np;
-		string namepath,name,path; 
-		namepath = *namepath_di; 
-		String::split('#',namepath,np);		 // eg foobar#/BOOK[0]      -- foobar       /BOOK[0]
-		name=np.first;
-		path=np.second;
-		if (!path.empty() && path[0] == '#') { path.erase(0,1); }
-		if (*name.rbegin() == '!') { node_expected = true; name.resize(name.size()-1); }  //remove the final character
-		if (!retval) {	
-			if ( String::nametest(name)) {
-				if ( (kind != di_auto) && (item != NULL) && (kind != item->kind())) {
-					//need to upcast/downcast
-					DataItem* nitem = DataItem::factory(item,kind);
-					delete item; item=nitem;
+	if (!path.empty() && path[0] == '#') { path.erase(0,1); }
+	if (!retval) {	
+		if ( String::nametest(name)) {
+			if ( (kind != di_auto) && (item != NULL) && (kind != item->kind())) {
+				//need to upcast/downcast
+				DataItem* nitem = DataItem::factory(item,kind);
+				delete item; item=nitem;
+			}
+			if (path.empty()) {
+				item_map_type::iterator it = the_item_map->find(name);
+				if (it != the_item_map->end()) {
+					DataItem*& basis = it->second;
+					delete basis;
+					the_item_map->erase(it); //and if there is any item then insert it.
 				}
-				if (path.empty()) {
-					item_map_type::iterator it = the_item_map->find(name);
-					if (it != the_item_map->end()) {
-						DataItem*& basis = it->second;
-						delete basis;
-						the_item_map->erase(it); //and if there is any item then insert it.
-					}
-					pair<item_map_type::iterator, bool> ins = the_item_map->insert(item_map_type::value_type(name, item));
-					item = NULL; //this was already a document!
-					retval = true;
-	 			} else {
-					item_map_type::iterator it = the_item_map->find(name);
-					if (it != the_item_map->end()) {
-						DataItem* basis = it->second; //we will use the path on the basis.
-						if (basis != NULL && basis->kind() != di_text) {
-							XMLObject* xbase = (XMLObject *)basis;
-							if (! xbase->empty() ) {
-								insertion_type i_type=DOMLSParser::ACTION_REPLACE;				
-								size_t pathlen = path.size();
-								if (path.rfind("-gap()",pathlen-6) != string::npos) {
-									string::size_type pspoint = path.rfind("/preceding",pathlen-16);
-									if ( pspoint != string::npos) { //we want to insert before
-										i_type = DOMLSParser::ACTION_INSERT_BEFORE; path.resize(pspoint);
+				pair<item_map_type::iterator, bool> ins = the_item_map->insert(item_map_type::value_type(name, item));
+				item = NULL; //this was already a document!
+				retval = true;
+			} else {
+				item_map_type::iterator it = the_item_map->find(name);
+				if (it != the_item_map->end()) {
+					DataItem* basis = it->second; //we will use the path on the basis.
+					if (basis != NULL && basis->kind() != di_text) {
+						XMLObject* xbase = (XMLObject *)basis;
+						if (! xbase->empty() ) {
+							insertion_type i_type=DOMLSParser::ACTION_REPLACE;				
+							size_t pathlen = path.size();
+							if (path.rfind("-gap()",pathlen-6) != string::npos) {
+								string::size_type pspoint = path.rfind("/preceding",pathlen-16);
+								if ( pspoint != string::npos) { //we want to insert before
+									i_type = DOMLSParser::ACTION_INSERT_BEFORE; path.resize(pspoint);
+								} else {
+									string::size_type fspoint = path.rfind("/following",pathlen-16);
+									if ( fspoint != string::npos) { //we want to insert after
+										i_type = DOMLSParser::ACTION_INSERT_AFTER; path.resize(fspoint);
 									} else {
-										string::size_type fspoint = path.rfind("/following",pathlen-16);
-										if ( fspoint != string::npos) { //we want to insert after
-											i_type = DOMLSParser::ACTION_INSERT_AFTER; path.resize(fspoint);
-										} else {
-											string::size_type dpoint = path.rfind("/child",pathlen-12);
-											if ( dpoint != string::npos) { //we want to insert below!
-												i_type = DOMLSParser::ACTION_APPEND_AS_CHILDREN; path.resize(dpoint);
-											}
+										string::size_type dpoint = path.rfind("/child",pathlen-12);
+										if ( dpoint != string::npos) { //we want to insert below!
+											i_type = DOMLSParser::ACTION_APPEND_AS_CHILDREN; path.resize(dpoint);
 										}
 									}
-								} else {
-									string::size_type dpoint = path.rfind("/value()",pathlen-8);
-									if ( dpoint != string::npos) { //we want to insert below!
-										i_type = DOMLSParser::ACTION_REPLACE_CHILDREN; path.resize(dpoint);
-									}
 								}
-								try {
-									xbase->xp(item,path,i_type,node_expected,errorstr);
-								} 
-								//------------------------------								
-								catch (XQException &e) {
-									XML::transcode(e.getError(),errorstr);
-								}
-								catch (XQillaException &e) {
-									XML::transcode(e.getString(),errorstr);
-								}					
-								catch (DOMXPathException &e) { 
-									XML::transcode(e.getMessage(),errorstr);
-								}
-								catch (DOMException &e) {
-									XML::transcode(e.getMessage(),errorstr);
-								}
-								catch (...) {
-									errorstr = "unknown xpath error";
-								}
-								//-----------------------------								
 							} else {
-								the_item_map->erase(it);
-								errorstr = "There was no store " + name + " for the path " + path;
-								retval= true; //bad name/path				
+								string::size_type dpoint = path.rfind("/value()",pathlen-8);
+								if ( dpoint != string::npos) { //we want to insert below!
+									i_type = DOMLSParser::ACTION_REPLACE_CHILDREN; path.resize(dpoint);
+								}
 							}
+							try {
+								xbase->xp(item,path,i_type,node_expected,errorstr);
+							} 
+							//------------------------------								
+							catch (XQException &e) {
+								XML::transcode(e.getError(),errorstr);
+							}
+							catch (XQillaException &e) {
+								XML::transcode(e.getString(),errorstr);
+							}					
+							catch (DOMXPathException &e) { 
+								XML::transcode(e.getMessage(),errorstr);
+							}
+							catch (DOMException &e) {
+								XML::transcode(e.getMessage(),errorstr);
+							}
+							catch (...) {
+								errorstr = "unknown xpath error";
+							}
+							//-----------------------------								
 						} else {
-							if (basis == NULL) {
+							the_item_map->erase(it);
+							errorstr = "There was no store " + name + " for the path " + path;
+							retval= true; //bad name/path				
+						}
+					} else {
+						if (basis == NULL) {
+							errorstr = "The item is empty. Maybe a parse or previous xpath failed?";
+						} else {
+							string bvalue = *basis;
+							errorstr = "Item '" + name + "' is of kind 'text'. so xpath '" + path + "' cannot be used.";
+							if (bvalue.empty()) {
 								errorstr = "The item is empty. Maybe a parse or previous xpath failed?";
 							} else {
-								string bvalue = *basis;
-								errorstr = "Item '" + name + "' is of kind 'text'. so xpath '" + path + "' cannot be used.";
-								if (bvalue.empty()) {
-									errorstr = "The item is empty. Maybe a parse or previous xpath failed?";
-								} else {
-									errorstr = "It's value is '"+ bvalue + "'";
-								}
+								errorstr = "It's value is '"+ bvalue + "'";
 							}
-							retval= true; // cannot honour xpath		
 						}
-					} else { //paths need an object.
-						errorstr = "There was no object " + name + " for the path " + path;
-						retval= true; //bad name/path				
+						retval= true; // cannot honour xpath		
 					}
+				} else { //paths need an object.
+					errorstr = "There was no object " + name + " for the path " + path;
+					retval= true; //bad name/path				
 				}
-			} else {
-				errorstr = "Store names must be legal. Maybe you missed a # in '" + namepath + "'";
-				retval= true; //bad name		
 			}
+		} else {
+			errorstr = "Store names must be legal. Maybe you missed a # in '" + name + "'";
+			retval= true; //bad name		
 		}
-	} else {
-		errorstr = "Store space is named. The name is missing.";
-		retval= true; //no name				
 	}
 	return retval;
-}
-bool ItemStore::get(const string& namepath_di, DataItem*& item, bool release,std::string& errorstr) {
+} 
+bool ItemStore::get(string& name,string& path,bool node_expected, DataItem*& item, bool release,std::string& errorstr) {
 	// bool here represents existence.
 	bool retval = false;
-	if (!namepath_di.empty())  { 
-		bool node_expected = false;
-		pair<string,string> np;
-		string namepath,name,path; 
-		namepath = namepath_di;
-		String::split('#',namepath,np);		 // eg foobar#/BOOK[0]      -- foobar       /BOOK[0]
-		name=np.first; path=np.second;
-		if (*name.rbegin() == '!') { node_expected = true; name.resize(name.size()-1); }  //remove the final character
-		if ( String::nametest(name)) {
-			retval = true; 
-			item_map_type::iterator it = the_item_map->find(name);
-			if (it != the_item_map->end()) {
-				DataItem*& basis = it->second;
-				if (release) { 
-					if (! path.empty() && basis != NULL ) {
-						if (path.rfind("-gap()",path.length()-6) != string::npos) { //eg h:div/child-gap()
-							item = NULL;
-						} else {
-							kind_type basis_kind = basis->kind();
-							if (basis_kind == di_object) {
-								XMLObject* xml_document = (XMLObject*)basis;
-								if (xml_document != NULL) {
-									retval = xml_document->xp(path,item,node_expected,errorstr); //will make a copy.
-									if (retval) {
-										DataItem* mt = NULL;
-										xml_document->xp(mt,path,DOMLSParser::ACTION_REPLACE,node_expected,errorstr);
-									}
-								} else {
-									if (node_expected) {
-										errorstr = "Released item '" + name + "' was empty, so the xpath '" + path + "' was unused";
-									}
+	if ( String::nametest(name)) {
+		retval = true; 
+		item_map_type::iterator it = the_item_map->find(name);
+		if (it != the_item_map->end()) {
+			DataItem*& basis = it->second;
+			if (release) { 
+				if (! path.empty() && basis != NULL ) {
+					if (path.rfind("-gap()",path.length()-6) != string::npos) { //eg h:div/child-gap()
+						item = NULL;
+					} else {
+						kind_type basis_kind = basis->kind();
+						if (basis_kind == di_object) {
+							XMLObject* xml_document = (XMLObject*)basis;
+							if (xml_document != NULL) {
+								retval = xml_document->xp(path,item,node_expected,errorstr); //will make a copy.
+								if (retval) {
+									DataItem* mt = NULL;
+									xml_document->xp(mt,path,DOMLSParser::ACTION_REPLACE,node_expected,errorstr);
 								}
 							} else {
 								if (node_expected) {
-									errorstr = "Released item '" + name + "' was of kind 'text', so the xpath '" + path + "' was unused.";
+									errorstr = "Released item '" + name + "' was empty, so the xpath '" + path + "' was unused";
 								}
 							}
-						}
-					} else {
-						item = basis; 
-						basis = NULL;
-						the_item_map->erase(it);
-					}
-					
-				} else { //not release!
-					if (! path.empty() && basis != NULL ) {
-						if (path.rfind("-gap()",path.length()-6) != string::npos) { //eg h:div/child-gap()
-							item = NULL;
 						} else {
-							kind_type basis_kind = basis->kind();
-							switch(basis_kind) {
-								case di_object: {
-									XMLObject* xml_document = (XMLObject*)basis;
-									if (!xml_document->empty()) {
-										retval = xml_document->xp(path,item,node_expected,errorstr); //will make a copy.
-									} else {
-										if (node_expected) {
-											errorstr = "Item " + name + " exists but is empty.";
-										}
-									}
-								} break;
-								case di_text: {
-									if (path.compare("text()") == 0) {
-										item = basis; 
-									} else {
-										if (node_expected) {
-											errorstr = "Item '" + name + "' is of kind 'text'. so xpath '" + path + "' was unused.";
-											string bvalue = *basis;	
-											if (bvalue.empty()) {
-												errorstr = "The item is empty. Maybe a previous xpath failed?";
-											} else {
-												errorstr =  "It's value is '" + bvalue + "'";
-											}
-										}
-									}
-								} break;
-								case di_fragment: {
-									if (path.compare("text()") == 0) {
-										item = basis; 
-									} else {
-										if (node_expected) {
-											errorstr = "Item '" + name + "' is of kind 'fragment'. so xpath '" + path + "' was unused.";
-											string bvalue = *basis;	
-											if (bvalue.empty()) {
-												errorstr = " The item is empty. Maybe a previous xpath failed?";
-											} else {
-												errorstr +=  "It's value is '" + bvalue + "'";
-											}
-										}
-									}
-								} break;
-								case di_null: 
-								case di_auto: {
-									if (node_expected) {
-										errorstr = "Item " + name + " is null.";
-									}
-								} break;
+							if (node_expected) {
+								errorstr = "Released item '" + name + "' was of kind 'text', so the xpath '" + path + "' was unused.";
 							}
 						}
+					}
+				} else {
+					item = basis; 
+					basis = NULL;
+					the_item_map->erase(it);
+				}
+				
+			} else { //not release!
+				if (! path.empty() && basis != NULL ) {
+					if (path.rfind("-gap()",path.length()-6) != string::npos) { //eg h:div/child-gap()
+						item = NULL;
 					} else {
-						if (basis != NULL) {
-							basis->copy(item);
+						kind_type basis_kind = basis->kind();
+						switch(basis_kind) {
+							case di_object: {
+								XMLObject* xml_document = (XMLObject*)basis;
+								if (!xml_document->empty()) {
+									retval = xml_document->xp(path,item,node_expected,errorstr); //will make a copy.
+								} else {
+									if (node_expected) {
+										errorstr = "Item " + name + " exists but is empty.";
+									}
+								}
+							} break;
+							case di_text: {
+								if (path.compare("text()") == 0) {
+									item = basis; 
+								} else {
+									if (node_expected) {
+										errorstr = "Item '" + name + "' is of kind 'text'. so xpath '" + path + "' was unused.";
+										string bvalue = *basis;	
+										if (bvalue.empty()) {
+											errorstr = "The item is empty. Maybe a previous xpath failed?";
+										} else {
+											errorstr =  "It's value is '" + bvalue + "'";
+										}
+									}
+								}
+							} break;
+							case di_fragment: {
+								if (path.compare("text()") == 0) {
+									item = basis; 
+								} else {
+									if (node_expected) {
+										errorstr = "Item '" + name + "' is of kind 'fragment'. so xpath '" + path + "' was unused.";
+										string bvalue = *basis;	
+										if (bvalue.empty()) {
+											errorstr = " The item is empty. Maybe a previous xpath failed?";
+										} else {
+											errorstr +=  "It's value is '" + bvalue + "'";
+										}
+									}
+								}
+							} break;
+							case di_null: 
+							case di_auto: {
+								if (node_expected) {
+									errorstr = "Item " + name + " is null.";
+								}
+							} break;
 						}
 					}
+				} else {
+					if (basis != NULL) {
+						basis->copy(item);
+					}
 				}
-			} else {
-				retval = false; 
-				//				retval returning false indicates lack of existence. Store handler above should deal with the msgs.
-				//				errorstr << Log::error << Log::LI <<  "Store '" << name << "' does not exist." << Log::LO << Log::blockend;
 			}
 		} else {
-			errorstr = "Store names must be legal. Maybe you missed a # in '" + namepath + "'" ;
-			retval= true; //bad name		
+			retval = false; 
+			//				retval returning false indicates lack of existence. Store handler above should deal with the msgs.
+			//				errorstr << Log::error << Log::LI <<  "Store '" << name << "' does not exist." << Log::LO << Log::blockend;
 		}
 	} else {
-		errorstr = "stores must have a name.";
-		retval= true; //no name				
+		errorstr = "Store names must be legal. Maybe you missed a # in '" + name + "'" ;
+		retval= true; //bad name		
 	}
 	return retval;
 }

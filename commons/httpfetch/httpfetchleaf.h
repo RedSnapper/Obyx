@@ -28,7 +28,7 @@
 
 namespace Fetch {
 	class HTTPFetch;
-
+/*
 	class HTTPFetchPage : public HTTPFetcher {
 private:
 		HTTPFetch* pr;
@@ -39,7 +39,7 @@ public:
 			: HTTPFetcher(p_page, p_header, p_errstr, p_redirects), pr(p_pr), body(p_body)
 		{}
 	};
-	
+*/	
 	class HTTPFetchHead : public HTTPFetcher {
 private:
 		HTTPFetch* pr;

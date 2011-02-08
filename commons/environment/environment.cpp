@@ -57,6 +57,7 @@ typedef hash_map<const string,string, hash<const string&> > var_map_type;
 var_map_type Environment::benv_map;
 var_map_type Environment::cgi_rfc_map;
 Environment* Environment::instance;
+double Environment::runtime_version = 999999.99999;
 
 Environment::Environment()  : gDevelop(false),gSQLport(0),gRootDir(""),gScriptsDir(""),gScratchDir("/tmp/"),basetime(0),parmprefix("")  {
 	gArgc=0;
@@ -80,6 +81,7 @@ Environment::~Environment() {
 void Environment::startup(string& v,string& vn) {					//everything that doesn't change across multiple runs
 	init_cgi_rfc_map();
 	setbenvmap();
+	runtime_version = String::real(vn);
 	setbenv("OBYX_VERSION",v);			//Let coders know what version we are in!
 	setbenv("OBYX_VERSION_NUMBER",vn);	//Let coders know what version number we are in!
 }

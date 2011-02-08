@@ -39,8 +39,7 @@
 namespace obyx {
 	
 	typedef enum { encode,decode } process_t;	//what sort of process
-	
-	typedef enum { any,all } scope_t;	//what sort of scope (comparison)
+	typedef enum { any,all } logic_t;	//what sort of scope (comparison)
 	
 	typedef enum { e_sql,e_url,e_xml,e_name,e_digits,e_none,e_base64,e_hex,e_message,e_qp,e_md5,e_sha1,e_sha512,e_deflate } enc_type;	//
 	typedef std::map<u_str, enc_type > enc_type_map; 
@@ -94,7 +93,7 @@ protected:
 	static unsigned long long int break_point;
 	static Vdb::Service*		dbs;		//this is managed by the factory.
 	static Vdb::Connection*		dbc;		//this is generated at startup.
-	const Document* owner;					//so we can find stuff out about the document.
+	Document* owner;						//so we can find stuff out about the document, and access it's store.
 	ObyxElement* p;							//not const, as we append to it's results!
 	xercesc::DOMNode* node;					//should be a const (but we manipulate it in breakpoint)
 	void do_breakpoint();

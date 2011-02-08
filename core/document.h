@@ -36,6 +36,8 @@
 
 #include "obyxelement.h"
 #include "dataitem.h"
+#include "itemstore.h"
+#include "output.h"
 
 using namespace __gnu_cxx; //hashmap namespace.
 
@@ -53,13 +55,16 @@ private:
 	
 	static XML::Manager* xmlmanager;
 	static std::string curr_http_req;
+	static Document* root; //This is the opening document.
 	
 	xercesc::DOMDocument* xdoc; //NOT copied - because we dont want to have to delete each case, and it's owned by parser.
 	xercesc::DOMNode*	root_node;
 	std::string filepath;
-	float version;				//version of obyx that this document is written for.
+	double doc_version;				//version of obyx that this document is written for.
 	u_str ownprefix;			//used for really special cases.
 	type_parm_map*					parm_map;
+	ItemStore store;
+	//	ItemStore::ItemStore(const ItemStore* orig)
 	
 	static std::stack<u_str>		prefix_stack;
 	static std::stack<std::string>  filepath_stack;
@@ -92,15 +97,28 @@ public:
 	const std::string own_filepath() const { return filepath; }
 	virtual const std::string name() const;
 	const xercesc::DOMDocument* doc() const;
+
+	bool setstore(const DataItem*, DataItem*&, kind_type, Output::scope_type, std::string& );
+	bool storeexists(const string&,bool,std::string&);	//name#path
+	bool storefind(const string&,bool,std::string&);	
+	void storekeys(const std::string&,set<string>&,std::string&);
+	bool getstore(const string&,DataItem*&, bool, std::string&);			//name#path, container, release?, errstr
+	bool getstore(const string&, string&);					//name container (used for quick internal hacks)
+	void releasestore(const DataItem*);
+	void liststore();
+	
 	bool getparm(const u_str&,const DataItem*&) const;
 	bool getparm(const std::string&,const DataItem*&) const;
 	bool parmexists(const std::string&) const;
 	bool parmfind(const std::string&) const;
 	void parmkeys(const string&,set<string>&) const;
+	
 	void list() const;
 	bool eval();
 	void evaluate(size_t,size_t) {}	
  	void process(xercesc::DOMNode*&,ObyxElement* = NULL);
+	double version() const { return doc_version; }
+	string version_str() const { return String::tostring(doc_version,8); }
 	static void startup();
 	static void init();
 	static void finalise();

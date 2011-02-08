@@ -74,7 +74,7 @@ currentrow(orig->currentrow),numreps(orig->numreps),currentkey(orig->currentkey)
 unsigned long long Iteration::forcedbreak() const {
 	unsigned long long forced_break = ULLONG_MAX;
 	string tmp_var;
-	if ( ItemStore::get("ITERATION_BREAK_COUNT",tmp_var) ) {
+	if ( owner->getstore("ITERATION_BREAK_COUNT",tmp_var) ) {
 		pair<unsigned long long,bool> forced_break_setting = String::znatural(tmp_var);
 		if ( forced_break_setting.second ) { 
 			forced_break = forced_break_setting.first;
@@ -340,7 +340,7 @@ bool Iteration::operation_repeat() {
 		}
 	}
 	numreps = 1;
-	if ( ItemStore::get("ITERATION_BREAK_COUNT",tmp_var) ) {
+	if ( owner->getstore("ITERATION_BREAK_COUNT",tmp_var) ) {
 		pair<unsigned long long,bool> forced_break_setting = String::znatural(tmp_var);
 		if ( forced_break_setting.second ) { 
 			forced_break = forced_break_setting.first;
@@ -403,7 +403,7 @@ bool Iteration::operation_sql() {
 						unsigned long long forced_break = ULLONG_MAX;
 						long long queryrows = query->getnumrows();
 						numreps = queryrows < 1 ? 0 :  queryrows;
-						if ( ItemStore::get("ITERATION_BREAK_COUNT",tmp_var) ) {
+						if ( owner->getstore("ITERATION_BREAK_COUNT",tmp_var) ) {
 							pair<unsigned long long,bool> forced_break_setting = String::znatural(tmp_var);
 							if ( forced_break_setting.second ) { 
 								forced_break = forced_break_setting.first;
@@ -459,7 +459,7 @@ bool Iteration::operation_while(bool existence) {
 	unsigned long long forced_break = 100;
 	numreps = 0;
 	string tmp_var;
-	if ( ItemStore::get("ITERATION_BREAK_COUNT",tmp_var) ) {
+	if ( owner->getstore("ITERATION_BREAK_COUNT",tmp_var) ) {
 		pair<unsigned long long,bool> forced_break_setting = String::znatural(tmp_var);
 		if ( forced_break_setting.second ) { 
 			forced_break = forced_break_setting.first;

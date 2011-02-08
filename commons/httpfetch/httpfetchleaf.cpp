@@ -27,12 +27,12 @@
 #include <string>
 
 namespace Fetch {
-
+/*
 	bool HTTPFetchPage::retrieve(std::string& errstr) {
 		body.clear();
 		return pr->retrievePage(page, header, body, errstr);
 	}
-
+*/
 	bool HTTPFetchHead::retrieve(std::string& errstr) {
 		return pr->retrieveHeader(page, header, errstr);
 	}

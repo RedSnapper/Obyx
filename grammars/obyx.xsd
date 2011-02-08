@@ -1,6 +1,6 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:o="http://www.obyx.org"
 	targetNamespace="http://www.obyx.org" elementFormDefault="qualified"
-	attributeFormDefault="unqualified" version="v1.101215" >
+	attributeFormDefault="unqualified" version="v1.110208" >
 	<xs:annotation><xs:documentation>
 		obyx.xsd is authored and maintained by Ben Griffin of Red Snapper Ltd.
 		obyx.xsd is a part of Obyx - see http://www.obyx.org .
@@ -112,14 +112,13 @@
 							</xs:restriction>
 						</xs:simpleType>
 					</xs:attribute>
-					<xs:attribute name="scope" use="optional" default="all">
-						<xs:simpleType>
-							<xs:restriction base="xs:NCName">
-								<xs:enumeration value="any"/>
-								<xs:enumeration value="all"/>
-							</xs:restriction>
-						</xs:simpleType>
+					<xs:attribute name="scope" use="optional" type="o:logic_type" >
+						<xs:annotation><xs:documentation>
+							scope is the legacy name of 'logic', pre. 1.110208
+							We have to lose the default in order to test for it's existence.
+						</xs:documentation></xs:annotation>
 					</xs:attribute>
+					<xs:attribute name="logic" use="optional" default="all" type="o:logic_type" />
 					<xs:attribute name="invert" use="optional" type="xs:boolean" default="false"/>					
 				</xs:extension>
 			</xs:complexContent>
@@ -153,6 +152,7 @@
 			<xs:element name="output" type="o:outputtype" minOccurs="0" maxOccurs="unbounded" />
 		</xs:sequence>
 		<xs:attribute name="note" use="optional" type="xs:string"/>
+		<xs:attribute name="version" use="optional" type="xs:float"/>
 	</xs:complexType>
 	<xs:complexType name="commenttype" mixed="true" >
 		<xs:sequence>
@@ -218,6 +218,12 @@
 		<xs:attributeGroup ref="o:ikoAttrs"/>
 		<xs:attributeGroup ref="o:outAttrs"/>
 	</xs:complexType>
+	<xs:simpleType name="logic_type">
+		<xs:restriction base="xs:NCName">
+			<xs:enumeration value="any"/>
+			<xs:enumeration value="all"/>
+		</xs:restriction>
+	</xs:simpleType>
 	<xs:simpleType name="iko_space_attr" >
 		<xs:restriction base="xs:NCName">
 			<xs:enumeration value="namespace"/>
@@ -325,6 +331,15 @@
 					<xs:enumeration value="expires"/>
 					<xs:enumeration value="path"/>
 					<xs:enumeration value="domain"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>		
+		<xs:attribute name="scope" use="optional" default="branch">
+			<xs:simpleType>
+				<xs:restriction base="xs:NCName">
+					<xs:enumeration value="branch"/>
+					<xs:enumeration value="global"/>
+					<xs:enumeration value="ancestor"/>
 				</xs:restriction>
 			</xs:simpleType>
 		</xs:attribute>		

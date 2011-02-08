@@ -42,13 +42,14 @@
 using namespace Log;
 using namespace obyx;
 
-output_type_map Output::output_types;
-Output::part_type_map Output::part_types;
-Output::http_line_type_map Output::httplinetypes;
+Output::output_type_map		Output::output_types;
+Output::scope_type_map		Output::scope_types;
+Output::part_type_map		Output::part_types;
+Output::http_line_type_map	Output::httplinetypes;
 
-Output::Output(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el): IKO(n,par,el),type(out_immediate),part(value),errowner(true),errs(NULL) {
+Output::Output(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el): IKO(n,par,el),type(out_immediate),part(value),scope(branch),errowner(true),errs(NULL) {
 	errs = new ostringstream();
-	u_str str_esc,str_encoder,str_process,str_type,str_value,str_part;
+	u_str str_esc,str_encoder,str_process,str_type,str_value,str_part,str_scope;
 	
 	if ( XML::Manager::attribute(n,UCS2(L"type"),str_type)  ) {
 		*Logger::log << Log::syntax << Log::LI << "Syntax Error. Output: attribute 'type' should be 'space'" << Log::LO;
@@ -62,12 +63,32 @@ Output::Output(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el): IKO(n,
 		} else {
 			string err_type; transcode(str_type.c_str(),err_type);
 			*Logger::log << Log::syntax << Log::LI << "Syntax Error. Output: space '" << err_type << "'  not recognised needs to be one of:";
-			*Logger::log << "immediate,discard,cookie,store." << Log::LO;
+			*Logger::log << "immediate,none,cookie,store,file,error,http,namespace,grammar." << Log::LO;
 			trace();
 			*Logger::log  << Log::blockend;
 		}
 	}
-	
+
+	if ( XML::Manager::attribute(n,UCS2(L"scope"),str_scope)  ) {
+		if (type == out_store || type == out_error) {
+			scope_type_map::const_iterator k = scope_types.find(str_scope);
+			if( k != scope_types.end() ) {
+				scope = k->second; 
+			} else {
+				string err_msg; transcode(str_scope.c_str(),err_msg);
+				*Logger::log << Log::syntax << Log::LI << "Syntax Error. Output: scope '" << err_msg << "'  not recognised needs to be one of:";
+				*Logger::log << "global,branch,ancestor" << Log::LO;
+				trace();
+				*Logger::log  << Log::blockend;
+			}
+		} else {
+			string err_msg; transcode(str_scope.c_str(),err_msg);
+			*Logger::log << Log::syntax << Log::LI << "Syntax Error. Output: scope '" << err_msg << "'  not recognised needs to be one of:";
+			*Logger::log << "expires,value,domain,value." << Log::LO;
+			trace();
+			*Logger::log  << Log::blockend;
+		}
+	}
 	if ( XML::Manager::attribute(n,UCS2(L"part"),str_part)  ) {
 		if (type == out_cookie) {
 			part_type_map::const_iterator k = part_types.find(str_part);
@@ -75,8 +96,7 @@ Output::Output(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el): IKO(n,
 				part = k->second; 
 			} else {
 				string err_msg; transcode(str_part.c_str(),err_msg);
-				*Logger::log << Log::syntax << Log::LI << "Syntax Error. Output: part '" << err_msg << "'  not recognised needs to be one of:";
-				*Logger::log << "expires,value,domain,value." << Log::LO;
+				*Logger::log << Log::syntax << Log::LI << "Syntax Error. Output: scope '" << err_msg << "'  can only belong to store spaces." << Log::LO;
 				trace();
 				*Logger::log  << Log::blockend;
 			}
@@ -102,7 +122,7 @@ Output::Output(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el): IKO(n,
 		*Logger::log << Log::blockend;
 	}
 }
-Output::Output(ObyxElement* par,const Output* orig) : IKO(par,orig),type(orig->type),part(orig->part),errowner(false),errs(orig->errs) { 
+Output::Output(ObyxElement* par,const Output* orig) : IKO(par,orig),type(orig->type),scope(orig->scope),part(orig->part),errowner(false),errs(orig->errs) { 
 }
 Output::~Output() {
 	if (errowner) { //this is why actual body has to be the last iteration.
@@ -278,7 +298,7 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 					} break;
 					case out_store: {             //0123456789
 						string errstring;
-						if ( ItemStore::set(name_part,value_comp,kind,errstring) ) { //returns true if all of it is used.
+						if ( owner->setstore(name_part,value_comp,kind,scope,errstring) ) { //returns true if all of it is used.
 							value_comp = NULL; //taken by object. 
 						}
 						if (!errstring.empty()) {
@@ -308,7 +328,7 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 							String::normalise(err_result);
 							Logger::set_title(tmptitle);
 							DataItem* err_doc = new XMLObject(err_result);
-							ItemStore::set(name_part, err_doc, di_object,errstring);
+							owner->setstore(name_part,err_doc,di_object,scope,errstring);
 							if (!errstring.empty()) {
 								string err_msg; transcode(name_v.c_str(),err_msg);
 								*Logger::log << Log::error << Log::LI << "Error while outputting an error space to store with " << err_msg << Log::LO;	
@@ -456,10 +476,15 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 	do_breakpoint();
 }
 void Output::startup() {
+	scope_types.insert(scope_type_map::value_type(UCS2(L"branch"), branch));
+	scope_types.insert(scope_type_map::value_type(UCS2(L"global"), global));
+	scope_types.insert(scope_type_map::value_type(UCS2(L"ancestor"), ancestor));
+
 	part_types.insert(part_type_map::value_type(UCS2(L"value"), value));
 	part_types.insert(part_type_map::value_type(UCS2(L"path"), path));
 	part_types.insert(part_type_map::value_type(UCS2(L"domain"), domain));
 	part_types.insert(part_type_map::value_type(UCS2(L"expires"), expires));
+	
 	output_types.insert(output_type_map::value_type(UCS2(L"store"), out_store));
 	output_types.insert(output_type_map::value_type(UCS2(L"immediate"), out_immediate));
 	output_types.insert(output_type_map::value_type(UCS2(L"file"), out_file));
@@ -469,6 +494,7 @@ void Output::startup() {
 	output_types.insert(output_type_map::value_type(UCS2(L"error"), out_error));
 	output_types.insert(output_type_map::value_type(UCS2(L"namespace"), out_xmlnamespace));
 	output_types.insert(output_type_map::value_type(UCS2(L"grammar"), out_xmlgrammar));
+	
 	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"Code"), code));
 	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"Date"), date));
 	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"Server"), server));

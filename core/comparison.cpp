@@ -30,6 +30,7 @@
 #include "commons/environment/environment.h"
 #include "commons/vdb/vdb.h"
 
+#include "document.h"
 #include "dataitem.h"
 #include "pairqueue.h"
 #include "iteration.h"
@@ -46,13 +47,13 @@ using namespace obyx;
 cmp_type_map Comparison::cmp_types;
 
 Comparison::Comparison(ObyxElement* par,const Comparison* orig) : Function(par,orig),
-operation(orig->operation),invert(orig->invert),scope(orig->scope),
+operation(orig->operation),invert(orig->invert),logic(orig->logic),
 eval_found(orig->eval_found),cmp_evaluated(orig->cmp_evaluated),
 def_evaluated(orig->def_evaluated),operation_result(orig->operation_result) {}
 Comparison::Comparison(xercesc::DOMNode* const& n,ObyxElement* par) :
-Function(n,comparison,par),operation(equivalent_to),invert(false),scope(obyx::all),eval_found(false),
+Function(n,comparison,par),operation(equivalent_to),invert(false),logic(obyx::all),eval_found(false),
 cmp_evaluated(false),def_evaluated(false),operation_result('X') {
-	u_str op_string,invert_str,scope_str; 
+	u_str op_string,invert_str,logic_str; 
 	if ( Manager::attribute(n,UCS2(L"operation"),op_string) ) {
 		cmp_type_map::const_iterator i = cmp_types.find(op_string);
 		if( i != cmp_types.end() ) {
@@ -79,13 +80,24 @@ cmp_evaluated(false),def_evaluated(false),operation_result('X') {
 			}
 		}
 	}
-	if ( Manager::attribute(n,UCS2(L"scope"),scope_str) ) {
-		if (scope_str.compare(UCS2(L"any")) == 0) {
-			scope = obyx::any;
+	bool logic_found = false;
+	if (owner->version() < 1.110208) { // 'scope' changed to 'logic'.
+		logic_found		= Manager::attribute(n,UCS2(L"scope"),logic_str);
+	} else {
+		logic_found		= Manager::attribute(n,UCS2(L"logic"),logic_str);
+		if (Manager::attribute(n,UCS2(L"scope"))) {
+			*Logger::log << Log::syntax << Log::LI << "Syntax Error. 'scope' is not legal for the version (" << owner->version_str() <<  ") of this document.  For versions 1.110208 or above use 'logic'." << Log::LO; 
+			trace();
+			*Logger::log << Log::blockend;
+		}
+	}
+	if ( logic_found ) {
+		if (logic_str.compare(UCS2(L"any")) == 0) {
+			logic = obyx::any;
 		} else {
-			if (scope_str.compare(UCS2(L"all")) != 0) {
-				string err_msg; transcode(scope_str.c_str(),err_msg);
-				*Logger::log << Log::syntax << Log::LI << "Syntax Error. " <<  err_msg << " is not a legal scope. It should be one of: any,all" << Log::LO; 
+			if (logic_str.compare(UCS2(L"all")) != 0) {
+				string err_msg; transcode(logic_str.c_str(),err_msg);
+				*Logger::log << Log::syntax << Log::LI << "Syntax Error. " << err_msg << " is not a legal logic attribute. It should be one of: any,all" << Log::LO; 
 				trace();
 				*Logger::log << Log::blockend;
 			}
@@ -105,7 +117,7 @@ bool Comparison::evaluate_this() {
 	}
 	if (cmp_evaluated && operation_result=='X') {	//all the comparators are evaluated but the operation is not
 		DataItem* acc = NULL;
-		bool compare_bool = (scope == obyx::all ? true : false);	//if invert, then bool must be false.
+		bool compare_bool = (logic == obyx::all ? true : false);	//if invert, then bool must be false.
 		for ( unsigned int i = 0; i < inputs.size(); i++ ) {
 			if ( inputs[i]->wotzit == comparate ) {
 				if (firstval) {
@@ -151,7 +163,7 @@ bool Comparison::evaluate_this() {
 				} else {
 					DataItem* inpval= NULL;
 					inputs[i]->results.takeresult(inpval);
-					if ( compare_bool || scope==obyx::any ) {
+					if ( compare_bool || logic==obyx::any ) {
 						bool compare_test = false;
 						switch(operation) {
 							case found: //same as exists. it's iko that does the work here.   
@@ -212,7 +224,7 @@ bool Comparison::evaluate_this() {
 								}
 							} break;
 						}
-						if (scope == obyx::all) {
+						if (logic == obyx::all) {
 							compare_bool = compare_bool && compare_test; 
 						} else {
 							compare_bool = compare_bool || compare_test; 

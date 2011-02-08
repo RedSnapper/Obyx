@@ -115,6 +115,21 @@ namespace XML {
 		return result;
 	}
 	
+	bool Manager::attribute(const DOMNode* n,const u_str attrname) {
+		bool result=false;
+		if (n != NULL && !attrname.empty() && n->getNodeType() == DOMNode::ELEMENT_NODE ) {
+			DOMElement* enod = (DOMElement*)n;
+			DOMAttr* enoda = enod->getAttributeNode(attrname.c_str());
+			if (enoda != NULL) {
+				const XMLCh* x_attrval = enoda->getNodeValue();
+				if (x_attrval != NULL && x_attrval[0] != 0 ) {
+					result = true; //only true if result is not empty.
+				}
+			}
+		}
+		return result;
+	}
+	
 	Manager::Manager() {
 		try {
 //			XMLPlatformUtils::Initialize(); 

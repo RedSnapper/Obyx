@@ -45,6 +45,7 @@ using namespace XML;
 
 XML::Manager* Document::xmlmanager = NULL;
 
+Document*					Document::root = NULL; //This is the opening document.
 std::stack<u_str>			Document::prefix_stack;
 std::stack<std::string>		Document::filepath_stack;
 size_t						Document::prefix_length=0;		//Document wide specified	
@@ -72,25 +73,188 @@ void Document::shutdown() {
 }
 const std::string Document::currentname() {
 	Environment* env = Environment::service();
-	string root = env->getpathforroot();
+	string rootpath = env->getpathforroot();
 	string fp = filepath_stack.top();
-	if ( fp.find(root) == 0 ) {
-		fp.erase(0,root.length());
+	if ( fp.find(rootpath) == 0 ) {
+		fp.erase(0,rootpath.length());
 	}
 	return fp;
 }
 const std::string Document::name() const { 
 	Environment* env = Environment::service();
-	string root = env->getpathforroot();
+	string rootpath = env->getpathforroot();
 	string fp = filepath;
-	if ( fp.find(root) == 0 ) {
-		fp.erase(0,root.length());
+	if ( fp.find(rootpath) == 0 ) {
+		fp.erase(0,rootpath.length());
 	}
 	return fp;
 }
 const xercesc::DOMDocument* Document::doc() const {
 	return xdoc;
+}				
+bool Document::setstore(const DataItem* namepath_di, DataItem*& item,kind_type kind,Output::scope_type scope,std::string& errorstr) {
+	bool retval = true;
+	if (namepath_di != NULL) {
+		pair<string,string> np;
+		string namepath,name,path;
+		bool node_expected = false;
+		namepath = *namepath_di; 
+		String::split('#',namepath,np);		 // eg foobar#/BOOK[0]      -- foobar       /BOOK[0]
+		name=np.first; path=np.second;
+		if (*name.rbegin() == '!') { node_expected = true; name.resize(name.size()-1); }  //remove the final character
+		if (doc_version < 1.110208 || scope == Output::global ) {
+			retval = root->store.set(name,path,node_expected,item,kind,errorstr);
+		} else {
+			if (scope == Output::ancestor) {
+				bool found = false;
+				Document* doc = this;
+				do {
+					if (doc->p != NULL) {
+						doc = doc->p->owner;
+					} else {
+						doc = NULL;
+					}
+					if (doc != NULL) {
+						found = doc->store.exists(name,false,errorstr);
+					}
+				} while (doc != NULL && !found);
+				if (found && doc!=NULL) {
+					retval = doc->store.set(name,path,node_expected,item,kind,errorstr);
+				} else {
+					retval = false;
+					errorstr.append("Ancestor was not found for output.");
+				}
+			} else { //branch is set to this store.
+				retval = store.set(name,path,node_expected,item,kind,errorstr);
+			}
+		}
+	}
+	return retval;
 }
+bool Document::storeexists(const std::string& obj_id,bool release,std::string& errorstr) {
+	bool retval = false;
+	if (doc_version < 1.110208) {
+		retval = root->store.exists(obj_id,release,errorstr);
+	} else {
+		Document* doc = this;
+		while (doc != NULL && !retval) {
+			retval = doc->store.exists(obj_id,release,errorstr);
+			if (!retval) {
+				if (doc->p != NULL) {
+					doc = doc->p->owner;
+				} else {
+					doc = NULL;
+				}
+			}
+		}
+	}
+	return retval;
+}
+bool Document::storefind(const std::string& pattern,bool release,std::string& errorstr) {
+	bool retval = false;
+	if (doc_version < 1.110208) {
+		retval = root->store.find(pattern,release,errorstr);
+	} else {
+		Document* doc = this;
+		while (doc != NULL && !retval) {
+			retval = doc->store.find(pattern,release,errorstr);
+			if (!retval) {
+				if (doc->p != NULL) {
+					doc = doc->p->owner;
+				} else {
+					doc = NULL;
+				}
+			}
+		}
+	}
+	return retval;
+}	
+void Document::storekeys(const std::string& pattern,std::set<std::string>& keylist,std::string& errorstr) {
+	if (doc_version < 1.110208) {
+		root->store.keys(pattern,keylist,errorstr);
+	} else {
+		Document* doc = this;
+		while (doc != NULL) {
+			doc->store.keys(pattern,keylist,errorstr);
+			if (doc->p != NULL) {
+				doc = doc->p->owner;
+			} else {
+				doc = NULL;
+			}
+		}
+	}
+}
+bool Document::getstore(const string& namepath, DataItem*& item, bool release,std::string& errorstr) {
+	bool retval = false;
+	pair<string,string> np;
+	string name,path;
+	bool node_expected = false;
+	String::split('#',namepath,np);		 // eg foobar#/BOOK[0]      -- foobar       /BOOK[0]
+	name=np.first; path=np.second;
+	if (*name.rbegin() == '!') { node_expected = true; name.resize(name.size()-1); }  //remove the final character
+	if (doc_version < 1.110208) {
+		retval = root->store.get(name,path,node_expected,item,release,errorstr);
+	} else {
+		bool found = false;
+		Document* doc = this;
+		while (doc != NULL && !found) {
+			found = doc->store.exists(name,false,errorstr);
+			if (!found) {
+				if (doc->p != NULL) {
+					doc = doc->p->owner;
+				} else {
+					doc = NULL;
+				}
+			}
+		}
+		if (found && doc!=NULL) {
+			retval = doc->store.get(name,path,node_expected,item,release,errorstr);
+		}
+	}
+	return retval;
+}
+bool Document::getstore(const string& name, string& container) {
+	bool retval = false;
+	if (doc_version < 1.110208) {
+		retval = root->store.get(name,container);
+	} else {
+		string errorstr;
+		bool found = false;
+		Document* doc = this;
+		while (doc != NULL && !found) {
+			found = doc->store.exists(name,false,errorstr);
+			if (!found) {
+				if (doc->p != NULL) {
+					doc = doc->p->owner;
+				} else {
+					doc = NULL;
+				}
+			}
+		}
+		if (found && doc!=NULL) {
+			retval = doc->store.get(name,container);;
+		}
+	}
+	return retval;
+}
+void Document::releasestore(const DataItem* obj_id) {
+	if (obj_id != NULL) {
+		string name = *obj_id; 		
+		if (doc_version < 1.110208) {
+			root->store.release(name);
+		} else {
+			store.release(name);
+		}
+	}
+}
+
+void Document::liststore() {
+	store.list();
+	if (p != NULL) {
+		p->owner->liststore(); //now get the stuff above me.
+	}
+}
+
 bool Document::getparm(const std::string& parmkey,const DataItem*& container) const {
 	bool retval = false;
 	if (parm_map != NULL) {
@@ -101,11 +265,8 @@ bool Document::getparm(const std::string& parmkey,const DataItem*& container) co
 			retval = true;
 		}
 	} 
-	if (!retval && p != NULL) {
-		Environment* env = Environment::service();
-		if (!env->envexists("OBYX_LEGACY_NO_PARM_INHERITANCE")) {
-			retval = p->owner->getparm(parmkey,container); //now get the stuff above me.
-		}
+	if (!retval && p != NULL && doc_version > 1.110120) {
+		retval = p->owner->getparm(parmkey,container); //now get the stuff above me.
 	}
 	return retval; //if we are outside of a function there is no parm.
 }
@@ -115,11 +276,8 @@ bool Document::parmexists(const std::string& parmkey) const {
 		type_parm_map::const_iterator it = parm_map->find(parmkey);
 		existent = (it != parm_map->end());
 	} 
-	if (!existent && p != NULL) {
-		Environment* env = Environment::service();
-		if (!env->envexists("OBYX_LEGACY_NO_PARM_INHERITANCE")) {
-			existent = p->owner->parmexists(parmkey); //now get the stuff above me.
-		}
+	if (!existent && p != NULL && doc_version > 1.110120) {
+		existent = p->owner->parmexists(parmkey); //now get the stuff above me.
 	}
 	return existent; //if we are outside of a function there is no parm.
 }
@@ -132,11 +290,8 @@ bool Document::parmfind(const string& pattern) const {
 	} else {
 		retval = parmexists(pattern);
 	}
-	if (!retval && p != NULL) {
-		Environment* env = Environment::service();
-		if (!env->envexists("OBYX_LEGACY_NO_PARM_INHERITANCE")) {
-			retval = p->owner->parmfind(pattern); //now get the stuff above me.
-		}
+	if (!retval && p != NULL && doc_version > 1.110120) {
+		retval = p->owner->parmfind(pattern); //now get the stuff above me.
 	}
 	return retval;
 }
@@ -152,11 +307,8 @@ void Document::parmkeys(const string& pattern,set<string>& keylist) const {
 			keylist.insert(pattern);
 		}
 	}
-	if (p != NULL) {
-		Environment* env = Environment::service();
-		if (!env->envexists("OBYX_LEGACY_NO_PARM_INHERITANCE")) {
-			p->owner->parmkeys(pattern,keylist); //now get the stuff above me.
-		}
+	if (p != NULL && doc_version > 1.110120) {
+		p->owner->parmkeys(pattern,keylist); //now get the stuff above me.
 	}
 }
 void Document::list() const {
@@ -181,11 +333,11 @@ void Document::list() const {
 	}
 }
 Document::Document(ObyxElement* par,const Document* orig) :
-ObyxElement(par,orig), xdoc(NULL),root_node(NULL),filepath(),version(HUGE_VALF),ownprefix(),parm_map(NULL),doc_par(NULL) { 
+ObyxElement(par,orig), xdoc(NULL),root_node(NULL),filepath(),doc_version(HUGE_VALF),ownprefix(),parm_map(NULL),store(orig->store),doc_par(NULL) { 
 	xdoc = XML::Manager::parser()->newDoc(orig->xdoc);
 	root_node = xdoc->getDocumentElement();
 	filepath  = orig->filepath;
-	version = orig->version;	
+	doc_version = orig->doc_version;	
 	ownprefix = orig->ownprefix;	
 	if (orig->parm_map != NULL) {
 		Document::type_parm_map* pm_instance = new Document::type_parm_map();
@@ -199,7 +351,7 @@ ObyxElement(par,orig), xdoc(NULL),root_node(NULL),filepath(),version(HUGE_VALF),
 	doc_par = orig->doc_par;
 }
 Document::Document(DataItem* inputfile,load_type use_loader, std::string fp, ObyxElement* par, bool evaluate_it) : 
-ObyxElement(par,xmldocument,other,NULL), xdoc(NULL),root_node(NULL),filepath(fp),ownprefix(),parm_map(NULL),doc_par(NULL) { 
+ObyxElement(par,xmldocument,other,NULL), xdoc(NULL),root_node(NULL),filepath(fp),ownprefix(),parm_map(NULL),store(),doc_par(NULL) { 
 	bool loaded=false;
 	ostringstream* docerrs = NULL;
 	if (use_loader == Main) { //otherwise this is handled by output type = error.
@@ -229,7 +381,9 @@ ObyxElement(par,xmldocument,other,NULL), xdoc(NULL),root_node(NULL),filepath(fp)
 				break;
 		}
 	}
-	if (use_loader == Main) { //otherwise this is handled by output type = error.	
+	store.setowner(name());
+	if (use_loader == Main) { //otherwise this is handled by output type = error.
+		root = this;
 		Logger::unset_stream();
 		string errs = docerrs->str(); // XMLChar::encode(errs);
 		delete docerrs; docerrs=0;
@@ -321,18 +475,28 @@ bool Document::eval() {
 			prefix(doc_prefix); //discard the test.
 			if ( (doc_ns.compare(UCS2(L"http://www.obyx.org")) == 0) ) {
 				retval = true;
+				std::string version_str;
+				XML::Manager::attribute(root_node,"version",version_str);
+				doc_version=String::real(version_str);
+				if (isnan(doc_version)) {
+					doc_version = Environment::version();
+				}
 				if (prefix_stack.empty() || (ownprefix.compare(doc_prefix) != 0) ) {
 					pushprefix(ownprefix);
 					process(root_node,this);
 					popprefix();
 				} else {
-					process(root_node,this);
+					store.prefixpushed(prefix_stack.top());
+ 					process(root_node,this);
+					store.prefixpopped(prefix_stack.top());
 				}
 			} else { //NOT obyx...
 				if ( doc_ns.compare(UCS2(L"http://www.obyx.org/osi-application-layer")) == 0 ) {
 					OsiAPP do_osi;
 					DataItem* osi_result = NULL;
-					if ( do_osi.request(root_node, osi_result)) {
+					int max_redirects = 33, timeout_secs = 30; //GRAB FROM STORE!!
+					
+					if ( do_osi.request(root_node,max_redirects,timeout_secs,osi_result)) {
 						results.setresult(osi_result);
 					} else {
 						*Logger::log << Log::error << Log::LI << "Error. eval of osi-application-layer object failed." << Log::LO;	
@@ -404,12 +568,12 @@ bool const Document::prefix(u_str& container) {
 void Document::pushprefix(const u_str the_prefix) {
 	prefix_stack.push(the_prefix); 
 	prefix_length=the_prefix.length();
-	ItemStore::prefixpushed(the_prefix);
+	store.prefixpushed(the_prefix);
 }
 void Document::popprefix() { 
 	prefix_stack.pop();
 	if (! prefix_stack.empty() ) {
-		ItemStore::prefixpopped(prefix_stack.top());
+		store.prefixpopped(prefix_stack.top());
 		prefix_length=prefix_stack.top().length();	
 	}
 }

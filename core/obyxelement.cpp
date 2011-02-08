@@ -219,7 +219,7 @@ void ObyxElement::do_breakpoint() {
 		env->listReqCookies();
 		env->listResCookies();
 		owner->list();
-		ItemStore::list();
+		owner->liststore();
 		Iteration::list(this);		
 		*Logger::log << Log::LO << Log::blockend;
 		while (! tmp_stack.empty()) {
