@@ -57,6 +57,7 @@ private:
 	xercesc::DOMDocument* xdoc; //NOT copied - because we dont want to have to delete each case, and it's owned by parser.
 	xercesc::DOMNode*	root_node;
 	std::string filepath;
+	float version;				//version of obyx that this document is written for.
 	u_str ownprefix;			//used for really special cases.
 	type_parm_map*					parm_map;
 	
