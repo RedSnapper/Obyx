@@ -181,10 +181,11 @@ void Document::list() const {
 	}
 }
 Document::Document(ObyxElement* par,const Document* orig) :
-ObyxElement(par,orig), xdoc(NULL),root_node(NULL),filepath(),ownprefix(),parm_map(NULL),doc_par(NULL) { 
+ObyxElement(par,orig), xdoc(NULL),root_node(NULL),filepath(),version(HUGE_VALF),ownprefix(),parm_map(NULL),doc_par(NULL) { 
 	xdoc = XML::Manager::parser()->newDoc(orig->xdoc);
 	root_node = xdoc->getDocumentElement();
 	filepath  = orig->filepath;
+	version = orig->version;	
 	ownprefix = orig->ownprefix;	
 	if (orig->parm_map != NULL) {
 		Document::type_parm_map* pm_instance = new Document::type_parm_map();
