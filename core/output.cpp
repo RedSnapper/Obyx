@@ -81,13 +81,7 @@ Output::Output(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el): IKO(n,
 				trace();
 				*Logger::log  << Log::blockend;
 			}
-		} else {
-			string err_msg; transcode(str_scope.c_str(),err_msg);
-			*Logger::log << Log::syntax << Log::LI << "Syntax Error. Output: scope '" << err_msg << "'  not recognised needs to be one of:";
-			*Logger::log << "expires,value,domain,value." << Log::LO;
-			trace();
-			*Logger::log  << Log::blockend;
-		}
+		} 
 	}
 	if ( XML::Manager::attribute(n,UCS2(L"part"),str_part)  ) {
 		if (type == out_cookie) {
