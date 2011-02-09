@@ -86,9 +86,14 @@ cmp_evaluated(false),def_evaluated(false),operation_result('X') {
 	} else {
 		logic_found		= Manager::attribute(n,UCS2(L"logic"),logic_str);
 		if (Manager::attribute(n,UCS2(L"scope"))) {
+			Environment* env = Environment::service();
+			if (env->envexists("OBYX_ALLOW_LEGACY_COMPARISON_SCOPE")) {
+				logic_found		= Manager::attribute(n,UCS2(L"scope"),logic_str);
+			} else {
 			*Logger::log << Log::syntax << Log::LI << "Syntax Error. 'scope' is not legal for the version (" << owner->version_str() <<  ") of this document.  For versions 1.110208 or above use 'logic'." << Log::LO; 
 			trace();
 			*Logger::log << Log::blockend;
+			}
 		}
 	}
 	if ( logic_found ) {
