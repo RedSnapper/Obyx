@@ -897,16 +897,9 @@ bool IKO::valuefromspace(const string& input_name,const inp_space the_space,cons
 				} 
 				string req_url=input_name,req_errors,body,response_head;
 				HTTPFetch my_req(req_url,"GET","HTTP/1.0",body,max_redirects,timeout_secs,req_errors);
-				if (!req_errors.empty()) {
-					*Logger::log << Log::error << Log::LI << Log::II << req_url << Log::IO << Log::II << req_errors << Log::IO; 
-					trace();
-					*Logger::log << Log::blockend;
-				}
 				exists  = my_req.doRequest(response_head,fresult,max_redirects,timeout_secs,req_errors);
 				if (!req_errors.empty()) {
-					*Logger::log << Log::error << Log::LI << Log::II << req_url << Log::IO << Log::II << req_errors << Log::IO;
-					trace();
-					*Logger::log << Log::blockend;
+					log(Log::error,"Error. url '" + input_name + "' had error '" + req_errors + "'");
 				}
 			}
 		} break;
