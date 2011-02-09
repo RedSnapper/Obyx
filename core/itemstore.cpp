@@ -342,7 +342,7 @@ bool ItemStore::set(string& name,string& path,bool node_expected, DataItem*& ite
 						retval= true; // cannot honour xpath		
 					}
 				} else { //paths need an object.
-					errorstr = "There was no object " + name + " for the path " + path;
+					errorstr = "There was no existing store " + name + " for the path " + path;
 					retval= true; //bad name/path				
 				}
 			}

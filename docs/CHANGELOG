@@ -18,6 +18,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 ------------------------------------------------------------------------------------
 CHANGELOG file
 
+v1.110209
+	BUG.		branch store writing limited to this scope when xpath is not empty.
 v1.110208       <----- From this version on, files expect old comparison 'scope' to be called 'logic' 
 					   Also stores belong to the document they are declared in, with the scope attribute being used.
 					   Before this point, stores are all global.

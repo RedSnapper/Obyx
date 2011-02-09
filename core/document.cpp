@@ -124,8 +124,28 @@ bool Document::setstore(const DataItem* namepath_di, DataItem*& item,kind_type k
 					retval = false;
 					errorstr.append("Ancestor was not found for output.");
 				}
-			} else { //branch is set to this store.
-				retval = store.set(name,path,node_expected,item,kind,errorstr);
+			} else { //branch is set to this store, unless there's a path there.
+				if ( path.empty()) {
+					retval = store.set(name,path,node_expected,item,kind,errorstr);
+				} else {
+					bool found = false;
+					Document* doc = this;
+					while (doc != NULL && !found) {
+						found = doc->store.exists(name,false,errorstr);
+						if (!found) {
+							if (doc->p != NULL) {
+								doc = doc->p->owner;
+							} else {
+								doc = NULL;
+							}
+						}
+					}
+					if (found && doc!=NULL) {
+						retval = doc->store.set(name,path,node_expected,item,kind,errorstr);
+					} else {
+						errorstr = "There was no existing store " + name + " for the path " + path;
+					}
+				}
 			}
 		}
 	}
