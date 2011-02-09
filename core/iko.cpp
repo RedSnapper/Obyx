@@ -767,13 +767,7 @@ bool IKO::existsinspace(const string& input_name,const inp_space the_space,const
 				} 
 				string req_url=input_name,req_errors,body,response_head,response_body;
 				HTTPFetch my_req(req_url,"GET","HTTP/1.0",body,max_redirects,timeout_secs,req_errors);
-				if (!req_errors.empty()) {
-					*Logger::log << Log::error << Log::LI << Log::II << req_url << Log::IO << Log::II << req_errors << Log::IO << Log::LO << Log::blockend;
-				}
 				exists  = my_req.doRequest(response_head,response_body, max_redirects, timeout_secs, req_errors);
-				if (!req_errors.empty()) {
-					*Logger::log << Log::error << Log::LI << Log::II << req_url << Log::IO << Log::II << req_errors << Log::IO << Log::LO << Log::blockend;
-				}
 			}
 		} break;
 		case cookie: {
