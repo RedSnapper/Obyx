@@ -914,16 +914,6 @@ bool IKO::valuefromspace(const string& input_name,const inp_space the_space,cons
 					trace();
 					*Logger::log << Log::blockend;
 				}
-/*				
-				HTTPFetch pr(errstr);
-				HTTPFetchHeader header;
-				std::vector<std::string> redirects;
-				exists = pr.fetchPage(input_name, header, redirects, fresult,max_redirects,timeout_seconds, errstr);
-				if ( !exists ) {
-					if (errstr.empty()) errstr = " failed.";
-					log(Log::error,"Error. Url " + input_name + errstr);
-				}
- */
 			}
 		} break;
 		case cookie: {
