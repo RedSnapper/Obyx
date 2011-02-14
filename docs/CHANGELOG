@@ -18,6 +18,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 ------------------------------------------------------------------------------------
 CHANGELOG file
 
+v1.110214
+	Enh.		OBYX_DEFAULT_VERSION.
 v1.110209
 	BUG.		branch store writing limited to this scope when xpath is not empty.
 v1.110208       <----- From this version on, files expect old comparison 'scope' to be called 'logic' 
