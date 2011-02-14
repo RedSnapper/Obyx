@@ -48,6 +48,8 @@ namespace obyx {
 using namespace obyx;
 using namespace XML;
 
+namespace obyx {
+
 class ItemStore {
 private:
 	std::string					owner;
@@ -88,6 +90,8 @@ public:
 	static bool grammarfind(const DataItem*,bool);	
 	
 };
+	
+}
 
 #endif
 
