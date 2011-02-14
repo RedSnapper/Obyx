@@ -499,7 +499,12 @@ bool Document::eval() {
 				XML::Manager::attribute(root_node,"version",version_str);
 				doc_version=String::real(version_str);
 				if (isnan(doc_version)) {
-					doc_version = Environment::version();
+					if (Environment::service()->getenv("OBYX_DEFAULT_VERSION",version_str)) {
+						doc_version=String::real(version_str);
+					}
+					if (isnan(doc_version)) {
+						doc_version = Environment::version();
+					}
 				}
 				if (prefix_stack.empty() || (ownprefix.compare(doc_prefix) != 0) ) {
 					pushprefix(ownprefix);
