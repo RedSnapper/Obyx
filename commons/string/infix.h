@@ -45,6 +45,12 @@ namespace String {
 			virtual long double evaluate(const long double,const long double,const long double) const { return NAN; }
 			virtual ~Op() {}
 		};
+		class same : public Op {
+		public:
+			same() : Op(7){}
+			long double evaluate(const long double,const long double,const long double) const;
+			char sig() const { return '=';}
+		};
 		class subtract : public Op {
 		public:
 			subtract() : Op(6){}
@@ -177,6 +183,12 @@ namespace String {
 		class rorfn : public Op { //number,shifts,wordsize(in bits)
 		public:
 			rorfn() : Op(2,left,3){} //as a function = 2
+			long double evaluate(const long double,const long double,const long double) const;
+			char sig() const { return 'f';}
+		};
+		class iftrue : public Op { //  x != 0? y : z
+		public:
+			iftrue() : Op(2,left,3){} //as a function = 2
 			long double evaluate(const long double,const long double,const long double) const;
 			char sig() const { return 'f';}
 		};

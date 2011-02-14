@@ -20,6 +20,7 @@ namespace String {
 			lut.insert(lut_t::value_type("(",new lb()));
 			lut.insert(lut_t::value_type(")",new rb()));
 			lut.insert(lut_t::value_type(",",new delim()));
+			lut.insert(lut_t::value_type("=",new same()));
 			lut.insert(lut_t::value_type("-",new subtract()));
 			lut.insert(lut_t::value_type("+",new add()));
 			lut.insert(lut_t::value_type("*",new multiply()));
@@ -40,6 +41,7 @@ namespace String {
 			lut.insert(lut_t::value_type("abs",new absfn()));
 			lut.insert(lut_t::value_type("rol",new rolfn()));
 			lut.insert(lut_t::value_type("ror",new rorfn()));
+			lut.insert(lut_t::value_type("if",new iftrue()));
 		}
 		void Evaluate::shutdown() {
 			for (lut_t::iterator i = lut.begin(); i != lut.end(); i++) {
@@ -267,6 +269,13 @@ namespace String {
 		}
 		long double absfn::evaluate(const long double,const long double,const long double q) const {
 			return q < 0 ? -q : q;
+		}
+		// false = 0 here.
+		long double same::evaluate(const long double,const long double p,const long double q) const {
+			return p == q ? 1:0;
+		}
+		long double iftrue::evaluate(const long double o,const long double p,const long double q) const {
+			return (o != 0) ? p : q;
 		}
 		long double rolfn::evaluate(const long double o,const long double p,const long double q) const {
 			unsigned long long x = (unsigned long long)o;	 //number to change
