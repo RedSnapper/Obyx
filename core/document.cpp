@@ -103,7 +103,7 @@ bool Document::setstore(const DataItem* namepath_di, DataItem*& item,kind_type k
 		name=np.first; path=np.second;
 		if (*name.rbegin() == '!') { node_expected = true; name.resize(name.size()-1); }  //remove the final character
 		if (doc_version < 1.110208 || scope == Output::global ) {
-			retval = root->store.set(name,path,node_expected,item,kind,errorstr);
+			retval = root->store.sset(name,path,node_expected,item,kind,errorstr);
 		} else {
 			if (scope == Output::ancestor) {
 				bool found = false;
@@ -119,14 +119,14 @@ bool Document::setstore(const DataItem* namepath_di, DataItem*& item,kind_type k
 					}
 				} while (doc != NULL && !found);
 				if (found && doc!=NULL) {
-					retval = doc->store.set(name,path,node_expected,item,kind,errorstr);
+					retval = doc->store.sset(name,path,node_expected,item,kind,errorstr);
 				} else {
 					retval = false;
 					errorstr.append("Ancestor was not found for output.");
 				}
 			} else { //branch is set to this store, unless there's a path there.
 				if ( path.empty()) {
-					retval = store.set(name,path,node_expected,item,kind,errorstr);
+					retval = store.sset(name,path,node_expected,item,kind,errorstr);
 				} else {
 					bool found = false;
 					Document* doc = this;
@@ -141,7 +141,7 @@ bool Document::setstore(const DataItem* namepath_di, DataItem*& item,kind_type k
 						}
 					}
 					if (found && doc!=NULL) {
-						retval = doc->store.set(name,path,node_expected,item,kind,errorstr);
+						retval = doc->store.sset(name,path,node_expected,item,kind,errorstr);
 					} else {
 						errorstr = "There was no existing store " + name + " for the path " + path;
 					}
@@ -213,7 +213,7 @@ bool Document::getstore(const string& namepath, DataItem*& item, bool release,st
 	name=np.first; path=np.second;
 	if (*name.rbegin() == '!') { node_expected = true; name.resize(name.size()-1); }  //remove the final character
 	if (doc_version < 1.110208) {
-		retval = root->store.get(name,path,node_expected,item,release,errorstr);
+		retval = root->store.sget(name,path,node_expected,item,release,errorstr);
 	} else {
 		bool found = false;
 		Document* doc = this;
@@ -228,7 +228,7 @@ bool Document::getstore(const string& namepath, DataItem*& item, bool release,st
 			}
 		}
 		if (found && doc!=NULL) {
-			retval = doc->store.get(name,path,node_expected,item,release,errorstr);
+			retval = doc->store.sget(name,path,node_expected,item,release,errorstr);
 		}
 	}
 	return retval;
@@ -236,7 +236,7 @@ bool Document::getstore(const string& namepath, DataItem*& item, bool release,st
 bool Document::getstore(const string& name, string& container) {
 	bool retval = false;
 	if (doc_version < 1.110208) {
-		retval = root->store.get(name,container);
+		retval = root->store.sget(name,container);
 	} else {
 		string errorstr;
 		bool found = false;
@@ -252,7 +252,7 @@ bool Document::getstore(const string& name, string& container) {
 			}
 		}
 		if (found && doc!=NULL) {
-			retval = doc->store.get(name,container);;
+			retval = doc->store.sget(name,container);;
 		}
 	}
 	return retval;

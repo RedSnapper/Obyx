@@ -72,9 +72,9 @@ public:
 	bool find(const string&,bool,std::string&);	
 	void keys(const std::string&,set<string>&,std::string&);
 	bool release(const std::string&);
-	bool set(string&,string&,bool,DataItem*&, kind_type, std::string& );	//name,path,expected,document, intended kind...
-	bool get(string&,string&,bool,DataItem*&, bool, std::string&);			//name,path,expected,container, release?, errstr
-	bool get(const string&, string&);					//name container (used for quick internal hacks)
+	bool sset(string&,string&,bool,DataItem*&, kind_type, std::string& );	//name,path,expected,document, intended kind...
+	bool sget(string&,string&,bool,DataItem*&, bool, std::string&);			//name,path,expected,container, release?, errstr
+	bool sget(const string&, string&);					//name container (used for quick internal hacks)
 	void prefixpushed(const u_str&);
 	void prefixpopped(const u_str&);
 	void setowner(const std::string);

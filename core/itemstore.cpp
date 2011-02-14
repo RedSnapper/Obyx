@@ -159,7 +159,7 @@ bool ItemStore::exists(const std::string& namepath,bool release,std::string& err
 		String::split('#',namepath,np);		 // eg foobar#/BOOK[0]      -- foobar       /BOOK[0]
 		name=np.first; path=np.second;
 		if (*name.rbegin() == '!') { node_expected = true; name.resize(name.size()-1); }  //remove the final character
-		retval = get(name, path, node_expected, xp, release, errorstr);
+		retval = sget(name, path, node_expected, xp, release, errorstr);
 		delete xp; 
 	} else {
 		item_map_type::iterator it = the_item_map->find(namepath);
@@ -249,7 +249,7 @@ void ItemStore::list() {
 		*Logger::log << Log::blockend; //subhead
 	}
 }
-bool ItemStore::set(string& name,string& path,bool node_expected, DataItem*& item,kind_type kind,std::string& errorstr) {
+bool ItemStore::sset(string& name,string& path,bool node_expected, DataItem*& item,kind_type kind,std::string& errorstr) {
 	//we need to test that the kind being asked for is the same kind as item.
 	//if not, we must attempt to cast it.  If we fail, we post an error, but KEEP the item set
 	//as it is.
@@ -353,7 +353,7 @@ bool ItemStore::set(string& name,string& path,bool node_expected, DataItem*& ite
 	}
 	return retval;
 } 
-bool ItemStore::get(string& name,string& path,bool node_expected, DataItem*& item, bool release,std::string& errorstr) {
+bool ItemStore::sget(string& name,string& path,bool node_expected, DataItem*& item, bool release,std::string& errorstr) {
 	// bool here represents existence.
 	bool retval = false;
 	if ( String::nametest(name)) {
@@ -464,7 +464,7 @@ bool ItemStore::get(string& name,string& path,bool node_expected, DataItem*& ite
 	}
 	return retval;
 }
-bool ItemStore::get(const string& name, string& container) {	//name container (quick hack)
+bool ItemStore::sget(const string& name, string& container) {	//name container (quick hack)
 	//This is always used to get settings values, such as REDIRECT_BREAK_COUNT
 	bool retval = false;
 	if (the_item_map != NULL) { //this happens when eg. using an OSI as root document
