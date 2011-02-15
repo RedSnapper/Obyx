@@ -131,8 +131,8 @@ void startup(std::string& version,std::string& v_number) {
 	Environment::startup(version,v_number);				//unchanging environment stuff.
 	String::Deflate::startup(errs);						//need to start up for mysql etc.	
 #ifdef FAST
-		Fast::startup();
-		Vdb::ServiceFactory::startup();
+	Fast::startup();
+	Vdb::ServiceFactory::startup();
 #endif
 	String::Infix::Evaluate::startup();
 #ifndef DISALLOW_GMP
