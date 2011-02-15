@@ -71,6 +71,7 @@ private:
 	
 	void pushprefix(const u_str);
 	void popprefix();
+	void inner_list() const;
 	
 protected:
 	friend class ObyxElement;

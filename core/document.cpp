@@ -331,10 +331,10 @@ void Document::parmkeys(const string& pattern,set<string>& keylist) const {
 		p->owner->parmkeys(pattern,keylist); //now get the stuff above me.
 	}
 }
-void Document::list() const {
-	if (parm_map != NULL && ! parm_map->empty() ) {
+void Document::inner_list() const {
+ 	if (parm_map != NULL && ! parm_map->empty() ) {
+        *Logger::log << Log::LI << Log::II << name() << Log::IO << Log::LO;
 		type_parm_map::iterator it = parm_map->begin();
-		*Logger::log << Log::subhead << Log::LI << "List of fnparms" << Log::LO;
 		*Logger::log << Log::LI << Log::even;
 		while (it != parm_map->end() ) {
 			if ( ! it->first.empty() ) {
@@ -349,8 +349,17 @@ void Document::list() const {
 			}
 			it++;
 		}
-		*Logger::log << Log::blockend << Log::LO << Log::blockend ; //even .. subhead.
+		*Logger::log << Log::blockend << Log::LO;
 	}
+	if (p != NULL && doc_version > 1.110120) {
+		p->owner->inner_list(); //now get the stuff above me.
+	}
+}
+
+void Document::list() const {
+    *Logger::log << Log::subhead << Log::LI << Log::II << "fnparms" << Log::IO << Log::LO;
+    inner_list();
+    *Logger::log << Log::blockend ; //subhead.
 }
 Document::Document(ObyxElement* par,const Document* orig) :
 ObyxElement(par,orig), xdoc(NULL),root_node(NULL),filepath(),doc_version(HUGE_VALF),ownprefix(),parm_map(NULL),store(orig->store),doc_par(NULL) { 
