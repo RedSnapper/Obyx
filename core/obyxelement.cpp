@@ -260,15 +260,18 @@ const string ObyxElement::name() const {
 	}
 	return "[unknown]";
 }
+
 void ObyxElement::trace() const { //always called within a block
 	const ObyxElement* t_node = this;
 	Environment* env = Environment::service();
-	vector<pair<string,string> > fps;
+	vector<pair<string, pair<string, string> > > fps;
 	while (t_node != NULL) {
 		string filesys = env->getpathforroot(); //need to remove this from filepath.
 		string filepath;
 		string xpath;
+        string language_version;
 		if (t_node->owner != NULL) {
+            language_version = String::tostring(t_node->owner->version(),6);
 			filepath = t_node->owner->own_filepath(); //shouldn't include the filesystem part.
 			if (filepath.find(filesys) == 0) {
 				filepath.erase(0,filesys.size());
@@ -280,7 +283,7 @@ void ObyxElement::trace() const { //always called within a block
 			basic_string<XMLCh> xp = Manager::parser()->xpath(t_node->node);
 			transcode(xp,xpath);
 		}
-		fps.push_back(pair<string,string>(filepath,xpath));
+		fps.push_back(pair<string,pair<string, string> >(filepath,pair<string, string>(xpath,language_version)));
 		if (t_node->owner != NULL) {
 			t_node = t_node->owner->p;
 		} else {
@@ -290,8 +293,9 @@ void ObyxElement::trace() const { //always called within a block
 	*Logger::log << Log::LI << Log::even ;
 	while (fps.size() > 0) {
 		string fp= fps.back().first;
-		string xp= fps.back().second;
-		*Logger::log << Log::LI << Log::II << fp << Log::IO << Log::II << xp << Log::IO << Log::LO;
+		string xp= fps.back().second.first;
+        string lv= fps.back().second.second;
+		*Logger::log << Log::LI << Log::II << fp << Log::IO << Log::II << xp << Log::IO << Log::II << lv << Log::IO << Log::LO;
 		fps.pop_back();
 	}
 	*Logger::log << Log::blockend << Log::LO;
