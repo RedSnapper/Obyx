@@ -17,7 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
-
+v1.110216
+	BUG.		Fixed stack size for syslogs error reports
 v1.110214
 	Enh.		OBYX_DEFAULT_VERSION.
 v1.110209
