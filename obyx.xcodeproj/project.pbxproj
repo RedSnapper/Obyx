@@ -969,8 +969,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				OTHER_CFLAGS = (
-					"-DALLOW_MYSQL",
 					"-DFAST",
+					"-DALLOW_MYSQL",
 					"-DALLOW_POSTGRESQL",
 					"-fshort-wchar",
 				);
