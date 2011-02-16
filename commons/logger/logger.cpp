@@ -300,7 +300,8 @@ Logger& Logger::operator<< (const bracketing bkt) {
 	if (bkt == RI || bkt == RO) { 
 		inraw = bkt == RI ? true : false;
 	} else {
-		if (bkt == LO && log->top_line && !log->syslogbuffer.str().empty() && estrm_stack.size() < 3 ) {
+        size_t ssize = estrm_stack.size();
+		if (bkt == LO && log->top_line && !log->syslogbuffer.str().empty() && ssize < 2 ) {
 			if (log->syslogging) {
 				unsigned int bp = (unsigned int)ObyxElement::breakpoint(); 
 				switch ( type_stack.top() ) {
