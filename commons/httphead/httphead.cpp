@@ -159,9 +159,21 @@ void Httphead::setcode(unsigned int code) {
 			httpcode = code;
 			codemessage = "Reset Content";
 			break;
+		case 300:
+			httpcode = code;
+			codemessage = "Multiple Choices";
+			break;
+		case 301:
+			httpcode = code;
+			codemessage = "Moved Permanently";
+			break;
 		case 302:
 			httpcode = code;
 			codemessage = "Found";
+			break;
+		case 303:
+			httpcode = code;
+			codemessage = "See Other";
 			break;
 		case 500:
 			httpcode = code;
