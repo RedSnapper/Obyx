@@ -329,7 +329,6 @@ void Httphead::setdisposition(string newdisp) { dispvalue = newdisp; }
 void Httphead::setconnection(string newconn)	{ connectionvalue=newconn;}
 void Httphead::setcontent(string c)			{ content=c; content_length = c.length(); content_set = true;}	//Use to drive content for 5xx and 4xx
 void Httphead::setcontentlength(size_t l)     { content_length = l;}						//Use to drive content for 5xx and 4xx
-void Httphead::setcode(unsigned int);
 void Httphead::setdate(string dl)				{ datevalue = dl; }
 void Httphead::setexpires(string dl)			{ expiresline = dl; }
 void Httphead::setlocation(string loc)		{ locavalue = loc; }
@@ -342,8 +341,6 @@ void Httphead::setpragma(string pl)			{ pragmaline = pl; }
 void Httphead::setlength(unsigned int newlen)	{ content_length = newlen;}	
 void Httphead::setprivate(bool priv)			{ cacheprivacy = priv ? "private": "public"; }	//privacy=false is default.
 void Httphead::nocode(bool codeline_q) 		{ nocodeline = codeline_q;}					//nocode= false is default.
-void Httphead::nocache(bool); 			//{ nocaching = nocach;}						//nocache=true is default.
-void Httphead::noheader(bool);			//{ noheaders = codeline_q;}					//noheaders= false is default.
 void Httphead::nodates(bool dateline_q) 		{ nodate = dateline_q;}						//nodates= false is default.
 
 
