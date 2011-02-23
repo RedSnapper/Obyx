@@ -68,7 +68,7 @@ Output::Output(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el): IKO(n,
 			*Logger::log  << Log::blockend;
 		}
 	}
-
+	
 	if ( XML::Manager::attribute(n,UCS2(L"scope"),str_scope)  ) {
 		if (type == out_store || type == out_error) {
 			scope_type_map::const_iterator k = scope_types.find(str_scope);
@@ -221,8 +221,8 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 		default: {
 			DataItem* context_part = NULL; 
 			results.takeresult(context_part);
-			//       type    release eval					   name/ref    container 
-			evaltype(context, false, false, di_auto, context_part,name_part);
+			//       type    release eval	xpath	 name/ref    container 
+			evaltype(context, false, false, false, di_auto, context_part,name_part);
 			delete context_part;
 			context = immediate;
 		} break;
@@ -473,7 +473,7 @@ void Output::startup() {
 	scope_types.insert(scope_type_map::value_type(UCS2(L"branch"), branch));
 	scope_types.insert(scope_type_map::value_type(UCS2(L"global"), global));
 	scope_types.insert(scope_type_map::value_type(UCS2(L"ancestor"), ancestor));
-
+	
 	part_types.insert(part_type_map::value_type(UCS2(L"value"), value));
 	part_types.insert(part_type_map::value_type(UCS2(L"path"), path));
 	part_types.insert(part_type_map::value_type(UCS2(L"domain"), domain));

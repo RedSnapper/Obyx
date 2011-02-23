@@ -32,15 +32,14 @@ using namespace obyx;
 
 class IKO : public ObyxElement {
 public:
-	typedef enum {immediate,none,store,file,error,xmlnamespace,xmlgrammar,cookie,field,sysparm,sysenv,url,fnparm } inp_space;	//cookie_expiry,cookie_path,cookie_domain -- cannot be retrieved from server.. 
-
+	typedef enum {immediate,none,store,file,error,xmlnamespace,xmlgrammar,cookie,field,sysparm,sysenv,url,fnparm } inp_space;
 private:
 	friend class Function;
 	typedef enum { c_object, c_name, c_request, c_response, c_osi_response, c_ts, c_time, c_timing, c_version, c_vnumber, c_point, c_cookies } current_type;	//what kind of dataItem
 	typedef std::map< std::string, current_type > current_type_map; 
-	bool valuefromspace(const string&,const inp_space,const bool,const kind_type,DataItem*&);
+	bool valuefromspace(string&,const inp_space,const bool,const bool,const kind_type,DataItem*&);
+	bool existsinspace(string&,const inp_space,const bool,const bool);
 	bool sigfromspace(const string&,const inp_space,const bool,DataItem*&);
-	bool existsinspace(const string&,const inp_space,const bool);
 	bool foundinspace(const string&,const inp_space,const bool);
 	void log(const Log::msgtype,const std::string) const;
 	void doerrspace(const string&) const;
@@ -64,8 +63,10 @@ protected:
 	bool	  wsstrip;			//referring to wsstrip attribute.
 	bool	  exists;		    //a value exists - is inp_space or has a context != none
 	u_str     name_v;			//name value - used for tracing etc.
-	//            input    release eval name/ref  container 
-	void evaltype(inp_space, bool, bool, kind_type, DataItem*&,DataItem*&); 
+    std::string xpath;			//xpath used as am object modifier.
+	
+	//            input    release eval, is_context name/ref  container 
+	void evaltype(inp_space, bool, bool, bool, kind_type, DataItem*&,DataItem*&); 
 	void keysinspace(const string&,const inp_space,set<string>&);	//gather them keys.
 	
 public:

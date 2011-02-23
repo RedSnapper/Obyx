@@ -49,47 +49,49 @@ using namespace obyx;
 using namespace XML;
 
 namespace obyx {
-
-class ItemStore {
-private:
-	std::string					owner;
-	item_map_type*				the_item_map;
-	item_map_stack_type*		the_item_map_stack;
-	item_map_stack_map_type	the_item_map_stack_map;
-	static  iter_stack_type*	the_iteration_stack; //stack of iterations
 	
-public:
-	static void init();
-	static void finalise();
-	static void startup();
-	static void shutdown();
-	ItemStore();
-	~ItemStore();
-	ItemStore(const ItemStore*);
-
-	void list();									//list all current items to debugger.	
-	bool exists(const string&,bool,std::string&);	//name#path
-	bool find(const string&,bool,std::string&);	
-	void keys(const std::string&,set<string>&,std::string&);
-	bool release(const std::string&);
-	bool sset(string&,string&,bool,DataItem*&, kind_type, std::string& );	//name,path,expected,document, intended kind...
-	bool sget(string&,string&,bool,DataItem*&, bool, std::string&);			//name,path,expected,container, release?, errstr
-	bool sget(const string&, string&);					//name container (used for quick internal hacks)
-	void prefixpushed(const u_str&);
-	void prefixpopped(const u_str&);
-	void setowner(const std::string);
-//NS functions	
-	static bool nsfind(const DataItem*,bool);
-	static bool setns(const DataItem*, DataItem*&);				//namespace name, namespace identity. eg setns("o","http://www.obyx.org");
-	static bool getns(const string&, DataItem*&,bool);			//namespace name; returns namespace identity. eg getns("o") => "http://www.obyx.org";
-	static bool nsexists(const string&,bool);					//namespace existence
-//Grammar functions	
-	static bool setgrammar(const DataItem*, DataItem*&);		//set a grammar for a url
-	static bool getgrammar(const string&, DataItem*&, kind_type,bool);	//get a grammar for a url
-	static bool grammarexists(const string&,bool);			//grammar existence
-	static bool grammarfind(const DataItem*,bool);	
-	
-};
+	class ItemStore {
+	private:
+		std::string					owner;
+		item_map_type*				the_item_map;
+		item_map_stack_type*		the_item_map_stack;
+		item_map_stack_map_type	the_item_map_stack_map;
+		static  iter_stack_type*	the_iteration_stack; //stack of iterations
+		
+	public:
+		static void init();
+		static void finalise();
+		static void startup();
+		static void shutdown();
+		ItemStore();
+		~ItemStore();
+		ItemStore(const ItemStore*);
+		
+		void list();									//list all current items to debugger.	
+		bool exists(const string&,bool,std::string&);	//name#path
+		bool exists(string&,string&,bool,string&); // name, path.
+		
+		bool find(const string&,bool,std::string&);	
+		void keys(const std::string&,set<string>&,std::string&);
+		bool release(const std::string&);
+		bool sset(string&,string&,bool,DataItem*&, kind_type, std::string& );	//name,path,expected,document, intended kind...
+		bool sget(string&,string&,bool,DataItem*&, bool, std::string&);			//name,path,expected,container, release?, errstr
+		bool sget(const string&, string&);					//name container (used for quick internal hacks)
+		void prefixpushed(const u_str&);
+		void prefixpopped(const u_str&);
+		void setowner(const std::string);
+		//NS functions	
+		static bool nsfind(const DataItem*,bool);
+		static bool setns(const DataItem*, DataItem*&);				//namespace name, namespace identity. eg setns("o","http://www.obyx.org");
+		static bool getns(const string&, DataItem*&,bool);			//namespace name; returns namespace identity. eg getns("o") => "http://www.obyx.org";
+		static bool nsexists(const string&,bool);					//namespace existence
+		//Grammar functions	
+		static bool setgrammar(const DataItem*, DataItem*&);		//set a grammar for a url
+		static bool getgrammar(const string&, DataItem*&, kind_type,bool);	//get a grammar for a url
+		static bool grammarexists(const string&,bool);			//grammar existence
+		static bool grammarfind(const DataItem*,bool);	
+		
+	};
 	
 }
 

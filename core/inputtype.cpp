@@ -243,15 +243,15 @@ void InputType::evaluate(size_t /*item_num*/,size_t /*item_count*/) {
 			default: {
 				DataItem* context_part = NULL; 
 				results.takeresult(context_part);
-				//                   type   release eval           name/ref     container 
-				evaltype(context, false, false, di_text, context_part,name_part);
+				//          type  release eval  name/ref container 
+				evaltype(context, false, false, false, di_text, context_part,name_part);
 				delete context_part; 
 				context_part=NULL;
 				context = immediate;
 			} break;
 		}
 		DataItem* value_part = NULL;  //remember - for nearly everything other than immediate, the input value is a name.
-		evaltype(type, release, eval, kind, name_part, value_part); //
+		evaltype(type, release, eval, true, kind, name_part, value_part); //
 		if (encoder != e_none) {
 			process_encoding(value_part);
 		}
@@ -306,14 +306,14 @@ void DefInpType::evaluate_key() { //result = if key is evaluated.
 	if (wotzit == obyx::match && key != NULL) {
 		key->results.undefer();
 		key->evaluate(0,0);
-//There MAY have been a reason for this, but it is beyond me what. So it's been disabled.
+		//There MAY have been a reason for this, but it is beyond me what. So it's been disabled.
 		/*		
-		if (key->encoder != e_none) {
-			DataItem* pe = NULL;
-			results.takeresult(pe);
-			key->process_encoding(pe);
-			results.setresult(pe);
-		}
+		 if (key->encoder != e_none) {
+		 DataItem* pe = NULL;
+		 results.takeresult(pe);
+		 key->process_encoding(pe);
+		 results.setresult(pe);
+		 }
 		 */
 	}
 }

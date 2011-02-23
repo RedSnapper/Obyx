@@ -98,12 +98,15 @@ public:
 	const std::string own_filepath() const { return filepath; }
 	virtual const std::string name() const;
 	const xercesc::DOMDocument* doc() const;
-
-	bool setstore(const DataItem*, DataItem*&, kind_type, Output::scope_type, std::string& );
-	bool storeexists(const string&,bool,std::string&);	//name#path
+	
+	bool setstore(const DataItem*, DataItem*&, kind_type, Output::scope_type, std::string& );               //name#path
+	bool setstore(std::string&,std::string&, DataItem*&, kind_type, Output::scope_type, std::string& );     //name,path
+	bool storeexists(const string&,bool,std::string&);      //name#path
+	bool storeexists(string&,string&,bool,std::string&);	//name,path
 	bool storefind(const string&,bool,std::string&);	
 	void storekeys(const std::string&,set<string>&,std::string&);
 	bool getstore(const string&,DataItem*&, bool, std::string&);			//name#path, container, release?, errstr
+	bool getstore(string&,string&,DataItem*&, bool, std::string&);			//name,path, container, release?, errstr
 	bool getstore(const string&, string&);					//name container (used for quick internal hacks)
 	void releasestore(const DataItem*);
 	void liststore();

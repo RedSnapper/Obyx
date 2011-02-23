@@ -38,11 +38,9 @@ iter_stack_type*	ItemStore::the_iteration_stack = NULL; //stack of iterations
 
 ItemStore::ItemStore() : owner(),the_item_map(NULL),the_item_map_stack(NULL),the_item_map_stack_map() {
 }
-
 void ItemStore::setowner(const std::string p) {
 	owner=p;
 }
-
 ItemStore::ItemStore(const ItemStore* orig) : the_item_map(NULL),the_item_map_stack(NULL),the_item_map_stack_map() {
 	if (orig->the_item_map != NULL) {
 		the_item_map = new item_map_type();
@@ -55,7 +53,6 @@ ItemStore::ItemStore(const ItemStore* orig) : the_item_map(NULL),the_item_map_st
 		the_item_map = NULL;
 	}
 }
-
 ItemStore::~ItemStore() {
 	item_map_stack_map_type::iterator it = the_item_map_stack_map.begin();
 	while ( it != the_item_map_stack_map.end()) {
@@ -172,6 +169,14 @@ bool ItemStore::exists(const std::string& namepath,bool release,std::string& err
 	}
 	return retval;
 }
+bool ItemStore::exists(string& name,string& path,bool release,string& errorstr) { // name, path.
+	bool retval=false;
+	DataItem* xp = NULL;
+	retval = sget(name, path, false, xp, release, errorstr);
+	delete xp; 
+	return retval;
+}
+
 bool ItemStore::find(const std::string& pattern,bool release,std::string& errorstr) {
 	bool retval=false;
 	if (pattern.find("#") != string::npos) {

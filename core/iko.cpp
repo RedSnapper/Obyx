@@ -62,7 +62,7 @@ void IKO::log(const Log::msgtype mtype,const std::string msg) const {
 	trace();
 	*Logger::log << Log::blockend;
 }
-IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : ObyxElement(par,el,parm,n),kind(di_auto),encoder(e_none),context(immediate), process(obyx::encode),wsstrip(true),exists(false),name_v() {
+IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : ObyxElement(par,el,parm,n),kind(di_auto),encoder(e_none),context(immediate), process(obyx::encode),wsstrip(true),exists(false),name_v(),xpath() {
 	u_str str_context;
 	if ( XML::Manager::attribute(n,UCS2(L"context"),str_context) ) {
 		inp_space_map::const_iterator j = ctx_types.find(str_context);
@@ -77,12 +77,16 @@ IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : ObyxElement
 		}
 	}
 	if (context == immediate) exists=true;
-	u_str str_encoder,str_process,str_kind;
+	u_str str_encoder,str_process,str_kind,u_xpath;
 	XML::Manager::attribute(n,UCS2(L"kind"),str_kind);
 	XML::Manager::attribute(n,UCS2(L"encoder"),str_encoder);
 	XML::Manager::attribute(n,UCS2(L"process"),str_process);
+    
+ 	if (XML::Manager::attribute(n,UCS2(L"xpath"),u_xpath)) {
+        transcode(u_xpath.c_str(),xpath);
+    }
 	
-	if ( ! str_kind.empty() ) {
+    if ( ! str_kind.empty() ) {
 		kind_type_map::const_iterator j = kind_types.find(str_kind);
 		if( j != kind_types.end() ) {
 			kind = j->second; 
@@ -170,7 +174,7 @@ IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : ObyxElement
 	}
 }
 IKO::~IKO() {}
-IKO::IKO(ObyxElement* par,const IKO* orig) : ObyxElement(par,orig),kind(orig->kind),encoder(orig->encoder),context(orig->context), process(orig->process),wsstrip(orig->wsstrip),exists(orig->exists),name_v(orig->name_v) {
+IKO::IKO(ObyxElement* par,const IKO* orig) : ObyxElement(par,orig),kind(orig->kind),encoder(orig->encoder),context(orig->context), process(orig->process),wsstrip(orig->wsstrip),exists(orig->exists),name_v(orig->name_v),xpath(orig->xpath) {
 }
 bool IKO::currentenv(const string& req,const usage_tests exist_test, const IKO* iko,DataItem*& container) {
 	Environment* env = Environment::service();
@@ -511,7 +515,7 @@ void IKO::process_encoding(DataItem*& basis) {
 		}
 	}
 }
-void IKO::evaltype(inp_space the_space, bool release, bool eval,kind_type ikind,DataItem*& name_item, DataItem*& container) {
+void IKO::evaltype(inp_space the_space, bool release, bool eval,bool is_context,kind_type ikind,DataItem*& name_item, DataItem*& container) {
 	//evaltype() is used for evaluating BOTH inputs proper and also contexts for inputs and outputs.
 	//exists is evaluated. significant is tested by comparision and will be looking for a value.
 	exists = false; 
@@ -530,7 +534,7 @@ void IKO::evaltype(inp_space the_space, bool release, bool eval,kind_type ikind,
 			input_name = *name_item;
 		}
 		usage_tests exist_test = ut_value; //we need to identify the way in which this is to be evaluated.
-		if (the_space != context) { //if evaluating this IKO's context, then don't worry about exist_test. yet!
+		if (!is_context) { //if evaluating this IKO's context, then don't worry about exist_test. yet!
 			XML::transcode(input_name,name_v); //this is a bit dodgy.. - but maybe necessary.
 			Comparison* cmp = dynamic_cast<Comparison *>(p);
 			if ((cmp != NULL) && (wotzit == obyx::comparate)) {
@@ -556,12 +560,12 @@ void IKO::evaltype(inp_space the_space, bool release, bool eval,kind_type ikind,
 		}
 		switch (exist_test) {
 			case ut_value: {
-				exists = valuefromspace(input_name,the_space,release,ikind,container);
+				exists = valuefromspace(input_name,the_space,is_context,release,ikind,container);
 			} break;
 			case ut_existence: {
-				exists = existsinspace(input_name,the_space,release);
-			} break;
-			case ut_significant: {
+				exists = existsinspace(input_name,the_space,is_context,release);
+			} break;			
+            case ut_significant: {
 				exists = sigfromspace(input_name,the_space,release,container);
 			} break;
 			case ut_found: {
@@ -688,7 +692,7 @@ bool IKO::foundinspace(const string& input_name,const inp_space the_space,const 
 	}	
 	return exists;
 }
-bool IKO::existsinspace(const string& input_name,const inp_space the_space,const bool release) {
+bool IKO::existsinspace(string& input_name,const inp_space the_space,const bool is_context,const bool release) {
 	Environment* env = Environment::service();
 	exists = false;
 	string errstring;			
@@ -734,10 +738,15 @@ bool IKO::existsinspace(const string& input_name,const inp_space the_space,const
 			exists = ItemStore::grammarexists(input_name,release);
 		} break;
 		case store: {
-			exists = owner->storeexists(input_name,release,errstring);
-			if (!errstring.empty()) {
-				log(Log::error,"Error. Store error: " + errstring);
-			} 
+            if (is_context && !xpath.empty()) {
+                string name(input_name);
+                exists = owner->storeexists(name,xpath,release,errstring);
+            } else {
+                exists = owner->storeexists(input_name,release,errstring);
+            }
+            if (!errstring.empty()) {
+                log(Log::error,"Error. Store error: " + errstring);
+            } 
 		} break;
 		case fnparm: {
 			exists = owner->parmexists(input_name);
@@ -793,7 +802,7 @@ bool IKO::existsinspace(const string& input_name,const inp_space the_space,const
 	}	
 	return exists;
 }
-bool IKO::valuefromspace(const string& input_name,const inp_space the_space,const bool release,const kind_type ikind, DataItem*& container) {
+bool IKO::valuefromspace(string& input_name,const inp_space the_space,const bool is_context,const bool release,const kind_type ikind, DataItem*& container) {
 	Environment* env = Environment::service();
 	exists = false;
 	string fresult;	//used to hold result for most spaces.
@@ -844,7 +853,12 @@ bool IKO::valuefromspace(const string& input_name,const inp_space the_space,cons
 		} break;
 		case store: {
 			string errstring;
-			exists = owner->getstore(input_name,container,release,errstring);
+            if (is_context && !xpath.empty()) {
+                string name(input_name);
+                exists = owner->getstore(name,xpath,container,release,errstring);
+            } else {
+                exists = owner->getstore(input_name,container,release,errstring);
+            }
 			if (!exists || !errstring.empty()) {
 				if (errstring.empty()) { errstring = "does not exist.";}
 				log(Log::error,"Error. Store error: " + input_name + " " + errstring);
@@ -1034,12 +1048,12 @@ bool IKO::sigfromspace(const string& input_name,const inp_space the_space,const 
 				if (!req_errors.empty()) {
 					*Logger::log << Log::error << Log::LI << Log::II << req_url << Log::IO << Log::II << req_errors << Log::IO << Log::LO << Log::blockend;
 				}
-/*				
-				HTTPFetch pr(errstr);
-				HTTPFetchHeader header;
-				std::vector<std::string> redirects;
-				exists = pr.fetchPage(input_name, header, redirects, fresult, max_redirects,timeout_seconds,errstr);
-*/
+				/*				
+				 HTTPFetch pr(errstr);
+				 HTTPFetchHeader header;
+				 std::vector<std::string> redirects;
+				 exists = pr.fetchPage(input_name, header, redirects, fresult, max_redirects,timeout_seconds,errstr);
+				 */
 			}
 		} break;
 		case cookie: {
@@ -1072,7 +1086,7 @@ void IKO::keysinspace(const string& input_name,const inp_space the_space,set<str
 	string errstring;			
 	switch ( the_space ) { //now do all the named input_spaces!
 		case immediate: {  
-//			keylist.push_back(input_name);
+			//			keylist.push_back(input_name);
 			keylist.insert(input_name);		
 		} break;
 		case field: {
