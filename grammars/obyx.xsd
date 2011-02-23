@@ -1,6 +1,6 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:o="http://www.obyx.org"
 	targetNamespace="http://www.obyx.org" elementFormDefault="qualified"
-	attributeFormDefault="unqualified" version="v1.110208" >
+	attributeFormDefault="unqualified" version="v1.110223" >
 	<xs:annotation><xs:documentation>
 		obyx.xsd is authored and maintained by Ben Griffin of Red Snapper Ltd.
 		obyx.xsd is a part of Obyx - see http://www.obyx.org .
@@ -160,12 +160,12 @@
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType mixed="true" name="inputtype" >
-			<xs:sequence>
-				<xs:element name="comment" type="o:commenttype" minOccurs="0" maxOccurs="1" />
-				<xs:group ref="o:value" minOccurs="0" maxOccurs="unbounded" />
-			</xs:sequence>
-			<xs:attributeGroup ref="o:ikoAttrs"/>
-			<xs:attributeGroup ref="o:inpAttrs"/>
+        <xs:sequence>
+            <xs:element name="comment" type="o:commenttype" minOccurs="0" maxOccurs="1" />
+            <xs:group ref="o:value" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+        <xs:attributeGroup ref="o:ikoAttrs"/>
+        <xs:attributeGroup ref="o:inpAttrs"/>
 	</xs:complexType>
 	<xs:complexType mixed="true" name="matchtype">
 		<xs:sequence>
@@ -262,6 +262,7 @@
 	</xs:group>
 	<xs:attributeGroup name="ikoAttrs">
 		<xs:attribute name="value" use="optional" type="xs:string"/>
+		<xs:attribute name="xpath" use="optional" type="xs:string"/>
 		<xs:attribute name="wsstrip" use="optional" type="xs:boolean" default="true" />
 		<xs:attribute name="kind" default="auto" >
 			<xs:simpleType>
