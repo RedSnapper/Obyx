@@ -738,7 +738,7 @@ bool IKO::existsinspace(string& input_name,const inp_space the_space,const bool 
 			exists = ItemStore::grammarexists(input_name,release);
 		} break;
 		case store: {
-            if (is_context && !xpath.empty()) {
+            if (!is_context && !xpath.empty()) {
                 string name(input_name);
                 exists = owner->storeexists(name,xpath,release,errstring);
             } else {
@@ -853,7 +853,7 @@ bool IKO::valuefromspace(string& input_name,const inp_space the_space,const bool
 		} break;
 		case store: {
 			string errstring;
-            if (is_context && !xpath.empty()) {
+            if (!is_context && !xpath.empty()) {
                 string name(input_name);
                 exists = owner->getstore(name,xpath,container,release,errstring);
             } else {

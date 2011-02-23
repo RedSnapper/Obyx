@@ -243,15 +243,15 @@ void InputType::evaluate(size_t /*item_num*/,size_t /*item_count*/) {
 			default: {
 				DataItem* context_part = NULL; 
 				results.takeresult(context_part);
-				//          type  release eval  name/ref container 
-				evaltype(context, false, false, false, di_text, context_part,name_part);
+				//          type  release eval  context kind  name/ref container 
+				evaltype(context, false, false, true, di_text, context_part,name_part);
 				delete context_part; 
 				context_part=NULL;
 				context = immediate;
 			} break;
 		}
 		DataItem* value_part = NULL;  //remember - for nearly everything other than immediate, the input value is a name.
-		evaltype(type, release, eval, true, kind, name_part, value_part); //
+		evaltype(type, release, eval, false, kind, name_part, value_part); //
 		if (encoder != e_none) {
 			process_encoding(value_part);
 		}

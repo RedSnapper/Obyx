@@ -222,7 +222,7 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 			DataItem* context_part = NULL; 
 			results.takeresult(context_part);
 			//       type    release eval	is_context	 name/ref    container 
-			evaltype(context, false, false, false, di_auto, context_part,name_part);
+			evaltype(context, false, false, true, di_auto, context_part,name_part);
 			delete context_part;
 			context = immediate;
 		} break;
