@@ -221,7 +221,7 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 		default: {
 			DataItem* context_part = NULL; 
 			results.takeresult(context_part);
-			//       type    release eval	xpath	 name/ref    container 
+			//       type    release eval	is_context	 name/ref    container 
 			evaltype(context, false, false, false, di_auto, context_part,name_part);
 			delete context_part;
 			context = immediate;
@@ -292,8 +292,15 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 					} break;
 					case out_store: {             //0123456789
 						string errstring;
-						if ( owner->setstore(name_part,value_comp,kind,scope,errstring) ) { //returns true if all of it is used.
-							value_comp = NULL; //taken by object. 
+						if (!xpath.empty()) {
+							string name= *name_part;
+							if(owner->setstore(name,xpath,value_comp,kind,scope,errstring)) {
+								value_comp = NULL; //taken by object. 
+							}
+						} else {
+							if(owner->setstore(name_part,value_comp,kind,scope,errstring)) {
+								value_comp = NULL; //taken by object. 
+							}
 						}
 						if (!errstring.empty()) {
 							string err_msg; transcode(name_v.c_str(),err_msg);
