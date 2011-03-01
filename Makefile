@@ -19,14 +19,18 @@
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 ###############################################################################
-#Local.cfg needs certain settings in it. See docs/INSTALL for details
 #Also RPATH and CGIDIR must have values -e.g.
 #export RPATH=/WWW_ROOT 
 #export CGIDIR=bin
 #make ${RPATH}/${CGIDIR}/obyx.cgi 
-#Environment dependent Settings
+#Environment dependent settings (default is set for mysql)
+CC_INCLUDES = -I/usr/include/mysql
+LIBDIRS     = -L/lib -L/usr/lib
+CC_PATH     = /usr/bin/
+CC_WARNA    = -Wno-deprecated -Wswitch -Wunused-function -Wunused-label -Wunused-variable -Wunused-value
+CC_WARNB    = -Wunknown-pragmas -Wsign-compare -Wnon-virtual-dtor -Woverloaded-virtual -Wformat -Wmissing-braces -Wparentheses
+CC_FLAGS    = -x c++ -DALLOW_MYSQL -funsigned-char -fno-asm -Wno-trigraphs -g -O3 -fmessage-length=0 $(CC_WARNA) $(CC_WARNB)
 
-include ../local.cfg
 CGIHOME  = $(RPATH)/$(CGIDIR)
 CGIHOMEDEV  = $(RPATH)/$(CGIDIR)_dev
 ALL_LIBS = -ldl -lrt -lxerces-c -lxqilla -lstdc++
