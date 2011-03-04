@@ -18,14 +18,15 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+#The includes for xerc are not normally needed, unless xercesc is built there.
 ###############################################################################
 #Also RPATH and CGIDIR must have values -e.g.
 #export RPATH=/WWW_ROOT 
 #export CGIDIR=bin
 #make ${RPATH}/${CGIDIR}/obyx.cgi 
 #Environment dependent settings (default is set for mysql)
-CC_INCLUDES = -I/usr/include/mysql
-LIBDIRS     = -L/lib -L/usr/lib
+CC_INCLUDES = -I/usr/include/mysql -I/usr/local/xerc/include
+LIBDIRS     = -L/lib -L/usr/lib -L/usr/local/xerc/lib
 CC_PATH     = /usr/bin/
 CC_WARNA    = -Wno-deprecated -Wswitch -Wunused-function -Wunused-label -Wunused-variable -Wunused-value
 CC_WARNB    = -Wunknown-pragmas -Wsign-compare -Wnon-virtual-dtor -Woverloaded-virtual -Wformat -Wmissing-braces -Wparentheses
