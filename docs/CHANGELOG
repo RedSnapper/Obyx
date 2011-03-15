@@ -17,6 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.110315
+	BUG.		Error not thrown when space=none, or output space=immediate are value-holding.
 v1.110223
 	Enh.		xpath attribute is now available for iko. Currently this only effects stores.
 	BUG.		when space and context are the same, existence/significance tests are being run on context AND space.
