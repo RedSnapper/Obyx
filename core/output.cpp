@@ -229,6 +229,12 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 	}
 	switch ( type ) {
 		case out_immediate: {
+			if ( name_part != NULL && ! name_part->empty() ) {
+				*Logger::log << Log::syntax << Log::LI << "Syntax Error. Output space immediate cannot have a value!" << Log::LO; 
+				trace();
+				*Logger::log << Log::blockend;
+			}		
+			
 			if ( p->results.result() != NULL ) { // &&  p->results.final() surely this is tested already?
 				DataItem* pe = NULL;
 				if (out_num == out_count) {
@@ -252,6 +258,11 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 			}
 		} break;
 		case out_none: {
+			if ( name_part != NULL && ! name_part->empty() ) {
+				*Logger::log << Log::syntax << Log::LI << "Syntax Error. Output space none cannot have a value!" << Log::LO; 
+				trace();
+				*Logger::log << Log::blockend;
+			}		
 			results.takeresult(value_part); 
 			if (value_part != NULL) {
 				delete value_part;

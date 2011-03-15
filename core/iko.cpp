@@ -524,10 +524,18 @@ void IKO::evaltype(inp_space the_space, bool release, bool eval,bool is_context,
 		trace();
 		*Logger::log << Log::blockend;
 	}
-	if (the_space == immediate) {
-		exists = true; 
-		container = name_item;
-		name_item = NULL; 
+	if (the_space == immediate || the_space == none) {
+		if (the_space == immediate ) {
+			exists = true; 
+			container = name_item;
+			name_item = NULL; 
+		} else {
+			if (name_item != NULL && !name_item->empty()) {
+				*Logger::log << Log::syntax << Log::LI << "Syntax Error. Space none cannot have a value!" << Log::LO; 
+				trace();
+				*Logger::log << Log::blockend;
+			}
+		}
 	} else {
 		std::string input_name;
 		if (name_item != NULL && !name_item->empty()) {
