@@ -47,7 +47,7 @@ Output::scope_type_map		Output::scope_types;
 Output::part_type_map		Output::part_types;
 Output::http_line_type_map	Output::httplinetypes;
 
-Output::Output(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el): IKO(n,par,el),type(out_immediate),part(value),scope(branch),errowner(true),errs(NULL) {
+Output::Output(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el): IKO(n,par,el),type(out_immediate),part(value),scope(branch),haderror(false),errowner(true),errs(NULL) {
 	errs = new ostringstream();
 	u_str str_esc,str_encoder,str_process,str_type,str_value,str_part,str_scope;
 	
@@ -116,7 +116,7 @@ Output::Output(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el): IKO(n,
 		*Logger::log << Log::blockend;
 	}
 }
-Output::Output(ObyxElement* par,const Output* orig) : IKO(par,orig),type(orig->type),scope(orig->scope),part(orig->part),errowner(false),errs(orig->errs) { 
+Output::Output(ObyxElement* par,const Output* orig) : IKO(par,orig),type(orig->type),scope(orig->scope),part(orig->part),haderror(orig->haderror),errowner(false),errs(orig->errs) { 
 }
 Output::~Output() {
 	if (errowner) { //this is why actual body has to be the last iteration.
@@ -304,7 +304,7 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 					case out_store: {             //0123456789
 						string errstring;
 						if (!xpath.empty()) {
-							string name= *name_part;
+							u_str name= *name_part;
 							if(owner->setstore(name,xpath,value_comp,kind,scope,errstring)) {
 								value_comp = NULL; //taken by object. 
 							}
@@ -328,7 +328,8 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 					case out_error: { 
 						string error_stuff;
 						error_stuff = errs->str();
-						if (! error_stuff.empty() ) {
+						haderror = ! error_stuff.empty();
+						if (haderror) {
 							ostringstream err_report;
 							string top_s,tail_s,tmptitle,errstring;
 							Logger::get_title(tmptitle);

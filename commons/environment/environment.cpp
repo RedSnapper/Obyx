@@ -1098,6 +1098,7 @@ void Environment::getenvvars_base() {
 	if (getenvd("OBYX_SCRATCH_DIR",gScratchDir,"/tmp/")) { //defaults to /tmp/.
 		if ( gScratchDir[gScratchDir.size()-1] != '/') gScratchDir+='/';
 	}
+	
 	getenv("OBYX_PARM_PREFIX",parmprefix); //Used to prevent ambiguity - someone may need parmxxx
 }
 void Environment::getenvvars() {

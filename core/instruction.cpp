@@ -268,6 +268,7 @@ bool Instruction::evaluate_this() {
 				DataItem* srcval = NULL;
 				long long iaccumulator = 0;
 				std::string accumulator;
+				u_str uaccumulator;
 				unsigned long long naccumulator = 0;
 				long double daccumulator = 0;
 				for ( size_t i = 0; i < n; i++ ) {
@@ -409,13 +410,13 @@ bool Instruction::evaluate_this() {
 								case obyx::sort: {
 									if (srcval != NULL) {
 										if (i == 1) { //base
-											accumulator = *srcval;
+											uaccumulator = *srcval;
 										} else {	//xpath
-											string sortstr = *srcval;
+											u_str sortstr = *srcval;
 											XMLObject* xdoc = *first_value;
 											if (xdoc != NULL) {
 												string error_str;
-												xdoc->sort(accumulator,sortstr,inputs[i]->ascending,true,error_str);
+												xdoc->sort(uaccumulator,sortstr,inputs[i]->ascending,true,error_str);
 												if (!error_str.empty()) {
 													*Logger::log <<  Log::error  << Log::LI << "Error. " << error_str << Log::LO;
 													trace();

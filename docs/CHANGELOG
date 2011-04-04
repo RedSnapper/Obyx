@@ -17,6 +17,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.110404
+	BUG.		Mantis #69. With thrown errors, adjacent outputs are set.
+v1.110331
+	Tidy		Attempting to refactor IKO to allow objects within any space to handle xpaths.
 v1.110315
 	BUG.		Error not thrown when space=none, or output space=immediate are value-holding.
 v1.110223
@@ -25,7 +29,8 @@ v1.110223
 v1.110221
     BUG.		300,301,303 were missing http responses.
 v1.110216
-	BUG.		Fixed stack size for syslogs error reports
+	BUG.
+Fixed stack size for syslogs error reports
 v1.110214
 	Enh.		OBYX_DEFAULT_VERSION.
 v1.110209

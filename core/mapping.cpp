@@ -117,11 +117,7 @@ bool Mapping::evaluate_this() {
 		DataItem* the_domain = NULL;
 		definputs[0]->results.takeresult(the_domain);
 		if (repeated) {
-			string regbrk;
-			if (owner->getstore("REPEAT_BREAK_COUNT",regbrk)) {
-				pair<unsigned long long,bool> forced_break_setting = String::znatural(regbrk);
-				if ( forced_break_setting.second ) forced_break = forced_break_setting.first;
-			}
+			owner->metastore("REPEAT_BREAK_COUNT",forced_break);
 		}
 		bool t_deferred=false;
 		DefInpType *def_match = NULL;
@@ -332,8 +328,8 @@ void Mapping::addDefInpType(DefInpType* i) {
 		}
 	}
 }
-bool Mapping::field(const string& field_name,string& container) const {
-	pair<long long, bool> i_res = String::integer(field_name);
+bool Mapping::field(const u_str& field_name,string& container) const {
+	pair<long long, bool> i_res = XMLObject::znatural(field_name);
 	bool retval=i_res.second;
 	if (retval) {
 		retval = String::Regex::field(skey,sdom,(int)i_res.first,container);

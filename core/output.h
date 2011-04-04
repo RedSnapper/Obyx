@@ -53,6 +53,7 @@ private:
 	output_type		type;			//derived from type attribute
 	scope_type		scope;
 	part_type		part;
+	bool haderror;				//.
 	bool errowner;				//so we can delete the stream just once.
 	ostringstream* errs;		//error holder - used for type=error
 	void sethttp(const http_line_type,const string&);
@@ -60,6 +61,7 @@ private:
 public:
 	ostringstream*& geterrs()  { return errs; }
 	output_type gettype() const { return type; }
+	bool caughterr() {return haderror; }
 	void evaluate(size_t,size_t);
 	Output(xercesc::DOMNode* const&,ObyxElement* = NULL,elemtype = output);
 	Output(ObyxElement*,const Output*); //

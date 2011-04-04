@@ -168,32 +168,33 @@ void Function::evaluate(size_t,size_t) {
 					size_t os = outputs.size();
 					Output* erroutput = NULL;   //temporary storage until all the other outputs are done.
 					for (size_t s = 0; s < os; s++) {
-						Output* theoutput = outputs[s];
-						if (theoutput != NULL) { //evaluate what we can.
-							if (theoutput->gettype() == out_error) {
-								erroutput = theoutput;
-								outputs[s] = NULL;
-							} else {
-								theoutput->evaluate(s+1,os);
-								if ( theoutput->gettype() == out_immediate ) {
-									theoutput->results.takeresult(my_result);
-								}
-								delete theoutput;
-								outputs[s] = NULL;
-							}
-						} else {
-							out_evaluated = false;
+						if (outputs[s] != NULL && outputs[s]->gettype() == out_error) {
+							erroutput = outputs[s];
+							outputs[s] = NULL;
 						}
 					}
-					if ( out_evaluated ) {
-						if (erroutput != NULL) {
-							if (stream_is_set) {
-								Logger::unset_stream();
-								stream_is_set = false; //see if I can get rid of this.. need to semaphore, esp. when multiple evaluations are called for this.
-							} 
-							erroutput->evaluate(os,os);
-							delete erroutput;
+					if (erroutput != NULL) { //catch the error if it is there.
+						if (stream_is_set) {
+							Logger::unset_stream();
+							stream_is_set = false; //see if I can get rid of this.. need to semaphore, esp. when multiple evaluations are called for this.
+						} 
+						erroutput->evaluate(os,os);
+					}
+					for (size_t s = 0; s < os; s++) { //if there was an error, and nothing was caught, then do any output.
+						Output* theoutput = outputs[s];
+						if (theoutput != NULL && (erroutput == NULL || !erroutput->caughterr())) { //evaluate what we can.
+							theoutput->evaluate(s+1,os);
+							if ( theoutput->gettype() == out_immediate ) {
+								theoutput->results.takeresult(my_result);
+							}
 						}
+						delete theoutput;
+						outputs[s] = NULL;
+					}
+					if (erroutput != NULL) { //tidy off erroutput.
+						delete erroutput;
+					}
+					if ( out_evaluated ) {
 						outputs.clear();			  //all will be set to NULL...
 						results.setresult(my_result); //now encoded and what-have-you - or may be null.
 					} else {

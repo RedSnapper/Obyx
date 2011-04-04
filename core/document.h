@@ -39,7 +39,7 @@
 #include "itemstore.h"
 #include "output.h"
 
-using namespace __gnu_cxx; //hashmap namespace.
+//using namespace __gnu_cxx; //hashmap namespace.
 
 class InputType;
 class Document : public ObyxElement  {
@@ -72,6 +72,8 @@ private:
 	void pushprefix(const u_str);
 	void popprefix();
 	void inner_list() const;
+
+	bool getparm(const std::string&,const DataItem*&) const;
 	
 protected:
 	friend class ObyxElement;
@@ -99,23 +101,24 @@ public:
 	virtual const std::string name() const;
 	const xercesc::DOMDocument* doc() const;
 	
-	bool setstore(const DataItem*, DataItem*&, kind_type, Output::scope_type, std::string& );               //name#path
-	bool setstore(std::string&,std::string&, DataItem*&, kind_type, Output::scope_type, std::string& );     //name,path
-	bool storeexists(const string&,bool,std::string&);      //name#path
-	bool storeexists(string&,string&,bool,std::string&);	//name,path
-	bool storefind(const string&,bool,std::string&);	
-	void storekeys(const std::string&,set<string>&,std::string&);
-	bool getstore(const string&,DataItem*&, bool, std::string&);			//name#path, container, release?, errstr
-	bool getstore(string&,string&,DataItem*&, bool, std::string&);			//name,path, container, release?, errstr
-	bool getstore(const string&, string&);					//name container (used for quick internal hacks)
+	bool metastore(const string,unsigned long long&);
+	bool setstore(const DataItem*, DataItem*&, kind_type, Output::scope_type, std::string& );   //name#path
+	bool setstore(u_str&,u_str&, DataItem*&, kind_type, Output::scope_type, std::string& );     //name,path
+	bool storeexists(const u_str&,bool,string&);      			//name#path
+	bool storeexists(const u_str&,const u_str&,bool,std::string&);		//name,path
+	bool storefind(const string&,bool,string&);	
+	bool storefind(const u_str&,bool,string&);	
+	void storekeys(const u_str&,set<string>&,string&);
+	bool getstore(const u_str&,DataItem*&, bool, std::string&);			//name#path, container, release?, errstr
+	bool getstore(const u_str&,const u_str&,DataItem*&, bool, std::string&);	//name,path, container, release?, errstr
+//	bool getstore(const u_str&, u_str&);							//name container (used for quick internal hacks)
 	void releasestore(const DataItem*);
 	void liststore();
 	
 	bool getparm(const u_str&,const DataItem*&) const;
-	bool getparm(const std::string&,const DataItem*&) const;
-	bool parmexists(const std::string&) const;
-	bool parmfind(const std::string&) const;
-	void parmkeys(const string&,set<string>&) const;
+	bool parmexists(const u_str&) const;
+	bool parmfind(const u_str&) const;
+	void parmkeys(const u_str&,set<string>&) const;
 	
 	void list() const;
 	bool eval();

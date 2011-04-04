@@ -20,7 +20,7 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <algorithm>
+#include <list>
 #include "commons/string/strings.h"
 #include "commons/logger/logger.h"
 #include "commons/xml/xml.h"
@@ -150,7 +150,7 @@ void XMLObject::trim() {
 bool XMLObject::find(const DataItem* o,std::string& error_msg) const {
 	//find with an xpath.
 	bool retval = false;
-	string xpath;
+	u_str xpath;
 	if (o != NULL)  xpath = *o;
 	DOMXPathResult* pt = NULL;
 	retval = xp_result(xpath,pt,error_msg);
@@ -162,7 +162,7 @@ bool XMLObject::find(const DataItem* o,std::string& error_msg) const {
 }
 bool XMLObject::find(const char* o,std::string& error_msg) const {
 	bool retval = false;
-	string xpath;
+	u_str xpath;
 	if (o != NULL)  xpath = *o;
 	DOMXPathResult* pt = NULL;
 	retval = xp_result(xpath,pt,error_msg);
@@ -174,7 +174,7 @@ bool XMLObject::find(const char* o,std::string& error_msg) const {
 }
 /* -- more non-virtual methods -- */
 /* private */
-bool XMLObject::xp_result(const string& path,DOMXPathResult*& result,std::string& err_message) const {
+bool XMLObject::xp_result(const u_str& xpath,DOMXPathResult*& result,std::string& err_message) const {
 	bool retval = true;
 	AutoRelease<DOMXPathNSResolver> pnsr(x_doc->createNSResolver(NULL));	
 	if (pnsr != NULL) {
@@ -182,8 +182,6 @@ bool XMLObject::xp_result(const string& path,DOMXPathResult*& result,std::string
 			const u_str& nssig = s->first; const u_str& nsurl = s->second;
 			pnsr->addNamespaceBinding(nssig.c_str(),nsurl.c_str());
 		}
-		u_str xpath;
-		XML::transcode(path,xpath);		
 		try {
 			AutoRelease<DOMXPathExpression>parsedExpression(x_doc->createExpression(xpath.c_str(), pnsr));
 			result = parsedExpression->evaluate(x_doc->getDocumentElement(),DOMXPathResult::SNAPSHOT_RESULT_TYPE, NULL);
@@ -214,14 +212,14 @@ bool XMLObject::xp_result(const string& path,DOMXPathResult*& result,std::string
 //with get the value of this at xpath set by input 
 //although the results of an xpath may be multiple, here we must glob them together.
 //Container must be empty when we get here.
-bool XMLObject::xp(const std::string& path,DataItem*& container,bool node_expected,std::string& error_str) const {
+bool XMLObject::xp(const u_str& path,DataItem*& container,bool node_expected,std::string& error_str) const {
 	bool retval = true;
 	if (!path.empty() ) { //currently, this is a redundant check.
-		if (path.rfind("-gap()",path.length()-6) == string::npos) { //  eg //BOOK[0]/child-gap() will always return empty.
-			std::string xp_path(path);
+		if (path.rfind(UCS2(L"-gap()"),path.length()-6) == string::npos) { //  eg //BOOK[0]/child-gap() will always return empty.
+			u_str xp_path(path);
 			DOMXPathResult* result = NULL;
 			bool want_value = false;
-			if (xp_path.rfind("/value()",xp_path.length()-8) != string::npos) { //eg comment()/value()
+			if (xp_path.rfind(UCS2(L"/value()"),xp_path.length()-8) != string::npos) { //eg comment()/value()
 				xp_path.resize(xp_path.length()-8);
 				want_value = true;
 			}
@@ -267,18 +265,21 @@ bool XMLObject::xp(const std::string& path,DataItem*& container,bool node_expect
 				}
 				delete result; result = NULL;
 				if (sslena == 0 && node_expected) {
-					error_str = "While attempting a get, the xpath " + path + " returned no nodes.";												
+					std::string xpath; XML::transcode(path,xpath);
+					error_str = "While attempting a get, the xpath " + xpath + " returned no nodes.";												
 					retval=false;
 				}
 			} else {
 				if (node_expected) {
-					error_str = "While attempting a get, the xpath " + path + " returned an empty result.";												
+					std::string xpath; XML::transcode(path,xpath);
+					error_str = "While attempting a get, the xpath " + xpath + " returned an empty result.";												
 					retval=false;
 				}
 			}
 		} else {
 			if (node_expected) {
-				error_str = "While attempting a get, the xpath " + path + " included an insertion point.";												
+				std::string xpath; XML::transcode(path,xpath);
+				error_str = "While attempting a get, the xpath " + xpath + " included an insertion point.";												
 				retval=false;
 			}
 		}
@@ -287,7 +288,7 @@ bool XMLObject::xp(const std::string& path,DataItem*& container,bool node_expect
 	}
 	return retval;
 }
-bool XMLObject::xp(const DataItem* ins,const std::string& path,DOMLSParser::ActionType action,bool node_expected,std::string& error_str) {
+bool XMLObject::xp(const DataItem* ins,const u_str& path,DOMLSParser::ActionType action,bool node_expected,std::string& error_str) {
 	// SET a value at the xpath given
 	bool retval = true;
 	DOMXPathResult* xpr = NULL;
@@ -318,7 +319,8 @@ bool XMLObject::xp(const DataItem* ins,const std::string& path,DOMLSParser::Acti
 					} else {
 						if (node_expected) {
 							if (error_str.empty()) {
-								error_str = "When attempting a set, the xpath " + path + " result was not a node.";
+								std::string xpath; XML::transcode(path,xpath);
+								error_str = "When attempting a set, the xpath " + xpath + " result was not a node.";
 							}
 						}
 						retval	= false;					
@@ -331,8 +333,8 @@ bool XMLObject::xp(const DataItem* ins,const std::string& path,DOMLSParser::Acti
 			string::size_type slpoint = path.rfind('/');
 			string::size_type apoint = path.rfind('@');
 			if ( apoint == slpoint+1 ) {
-				string apath=path.substr(0,slpoint);
-				string aname=path.substr(apoint+1);
+				u_str apath=path.substr(0,slpoint);
+				u_str aname=path.substr(apoint+1);
 				DOMXPathResult* xpra = NULL;
 				retval = xp_result(apath,xpra,error_str);
 				if (retval && xpra != NULL) {
@@ -345,7 +347,6 @@ bool XMLObject::xp(const DataItem* ins,const std::string& path,DOMLSParser::Acti
 									if ( pt->getNodeType() == DOMNode::ELEMENT_NODE ) {
 										DOMElement* enod = (DOMElement*)pt;
 										u_str xaname,xvalue;
-										XML::transcode(aname,xaname);		
 										if ( ins != NULL && ! ins->empty() ) {
 											string value = *ins;
 											XML::transcode(value,xvalue);		
@@ -364,7 +365,8 @@ bool XMLObject::xp(const DataItem* ins,const std::string& path,DOMLSParser::Acti
 					} else {
 						if (node_expected) {
 							if (error_str.empty()) {
-								error_str = "When attempting an attribute set, the xpath " + apath + " did not return a node position.";
+								std::string epath; XML::transcode(apath,epath);
+								error_str = "When attempting an attribute set, the xpath " + epath + " did not return a node position.";
 							}
 							retval=false;
 						}
@@ -374,16 +376,17 @@ bool XMLObject::xp(const DataItem* ins,const std::string& path,DOMLSParser::Acti
 				} else {
 					if (node_expected) {
 						if (error_str.empty()) {
-							error_str = "When attempting an attribute set, the xpath " + apath + " did not return a node position.";
+							std::string epath; XML::transcode(apath,epath);
+							error_str = "When attempting an attribute set, the xpath " + epath + " did not return a node position.";
 						}
 						retval=false;
 					}
 				}
 			} else {
 				string::size_type pathlen = path.size();
-				string::size_type com_pos = path.rfind("/comment()",pathlen-10);
+				string::size_type com_pos = path.rfind(UCS2(L"/comment()"),pathlen-10);
 				if (com_pos != string::npos) {
-					string apath=path.substr(0,com_pos);
+					u_str apath=path.substr(0,com_pos);
 					DOMXPathResult* xpra = NULL;
 					retval = xp_result(apath,xpra,error_str);
 					if (retval && xpra != NULL) {
@@ -413,7 +416,8 @@ bool XMLObject::xp(const DataItem* ins,const std::string& path,DOMLSParser::Acti
 					} else {
 						if (node_expected) {
 							if (error_str.empty()) {
-								error_str = "When attempting to set a comment, the xpath " + apath + " did not return a node position.";
+								std::string epath; XML::transcode(apath,epath);
+								error_str = "When attempting to set a comment, the xpath " + epath + " did not return a node position.";
 							}
 							retval=false;
 						}
@@ -421,7 +425,8 @@ bool XMLObject::xp(const DataItem* ins,const std::string& path,DOMLSParser::Acti
 				} else {
 					if (node_expected) {
 						if (error_str.empty()) {
-							error_str = "When attempting a set, the xpath " + path + " did not return a node position.";
+							std::string epath; XML::transcode(path,epath);
+							error_str = "When attempting a set, the xpath " + epath + " did not return a node position.";
 						}
 						retval=false;
 					}
@@ -433,27 +438,28 @@ bool XMLObject::xp(const DataItem* ins,const std::string& path,DOMLSParser::Acti
 	} else {
 		if (node_expected) {
 			if (error_str.empty()) {
-				error_str = "When attempting a set, the xpath " + path + " failed.";
+				std::string epath; XML::transcode(path,epath);
+				error_str = "When attempting a set, the xpath " + epath + " failed.";
 			}
 			retval=false;
 		}
 	}
 	return retval;
 }
-bool XMLObject::sort(const std::string& path,const std::string& sortpath,bool ascending,bool node_expected,std::string& error_str) {
+bool XMLObject::sort(const u_str& path,const u_str& sortpath,bool ascending,bool node_expected,std::string& error_str) {
 	bool retval = true;
 	if (!path.empty() ) { //currently, this is a redundant check.
-		if (path.rfind("-gap()",path.length()-6) == string::npos) { //  eg //BOOK[0]/child-gap() will always return empty.
-			std::string xp_path(path);
+		if (path.rfind(UCS2(L"-gap()"),path.length()-6) == string::npos) { //  eg //BOOK[0]/child-gap() will always return empty.
+			u_str xp_path(path);
 			DOMXPathResult* result = NULL;
 			bool want_value = false;
-			if (xp_path.rfind("/value()",xp_path.length()-8) != string::npos) { //eg comment()/value()
+			if (xp_path.rfind(UCS2(L"/value()"),xp_path.length()-8) != string::npos) { //eg comment()/value()
 				xp_path.resize(xp_path.length()-8);
 				want_value = true;
 			}
 			retval = xp_result(xp_path,result,error_str);
 			if (retval && result != NULL) { //otherwise return empty.	
-				vector< pair<string,XMLObject*> > results_for_sorting;
+				std::list< pair<u_str,XMLObject*> > results_for_sorting;
 				XMLSize_t sslena = result->getSnapshotLength();
 				//if sslena < 1 then life is easy for a sort... but here let's assume not first.
 				for ( XMLSize_t ai = 0; ai < sslena; ai++) {
@@ -463,7 +469,7 @@ bool XMLObject::sort(const std::string& path,const std::string& sortpath,bool as
 							item = new XMLObject(result->getNodeValue());
 							DataItem* sortitem = NULL;
 							item->xp(sortpath,sortitem,true,error_str);
-							string sstr("");
+							u_str sstr;
 							if (sortitem != NULL) {
 								sstr = *sortitem; delete sortitem;
 							} else {
@@ -471,40 +477,51 @@ bool XMLObject::sort(const std::string& path,const std::string& sortpath,bool as
 									error_str.append(*item);
 								}
 							}
-							results_for_sorting.push_back( pair<string,XMLObject*>(sstr,item) );
+							results_for_sorting.push_back( pair<u_str,XMLObject*>(sstr,item) );
 						} else {
 							error_str = "While expecting node results for a search, the xpath returned text.";												
 							retval=false;
 						}
 					}
 				}
+				results_for_sorting.sort();
 				if (ascending) {
-					std::stable_sort(results_for_sorting.begin(),results_for_sorting.end(), a_compare );
+					std::list< pair<u_str,XMLObject*> >::iterator i = results_for_sorting.begin();
+					for ( XMLSize_t ai = 0; ai < sslena; ai++) {
+						if (result->snapshotItem(ai)) { //should always return true - but best to do this, eh?
+							DOMNode* pt = result->getNodeValue();
+							DOMNode* vv = i->second->x_doc; i++;
+							XML::Manager::parser()->insertContext(x_doc,pt,vv,DOMLSParser::ACTION_REPLACE);
+						}
+					}
 				} else {
-					std::stable_sort(results_for_sorting.begin(),results_for_sorting.end(), d_compare );
-				}
-				for ( XMLSize_t ai = 0; ai < sslena; ai++) {
-					if (result->snapshotItem(ai)) { //should always return true - but best to do this, eh?
-						DOMNode* pt = result->getNodeValue();
-						DOMNode* vv = results_for_sorting[ai].second->x_doc;
-						XML::Manager::parser()->insertContext(x_doc,pt,vv,DOMLSParser::ACTION_REPLACE);
-						delete results_for_sorting[ai].second;
+					std::list< pair<u_str,XMLObject*> >::reverse_iterator i = results_for_sorting.rbegin();
+					for ( XMLSize_t ai = 0; ai < sslena; ai++) {
+						if (result->snapshotItem(ai)) { //should always return true - but best to do this, eh?
+							DOMNode* pt = result->getNodeValue();
+							DOMNode* vv = i->second->x_doc; i++;
+							XML::Manager::parser()->insertContext(x_doc,pt,vv,DOMLSParser::ACTION_REPLACE);
+						}
 					}
 				}
+				results_for_sorting.clear();
 				delete result; result = NULL;
 				if (sslena == 0 && node_expected) {
-					error_str = "While attempting a get, the xpath " + path + " returned no nodes.";												
+					std::string epath; XML::transcode(path,epath);
+					error_str = "While attempting a get, the xpath " + epath + " returned no nodes.";												
 					retval=false;
 				}
 			} else {
 				if (node_expected) {
-					error_str = "While attempting a get, the xpath " + path + " returned an empty result.";												
+					std::string epath; XML::transcode(path,epath);
+					error_str = "While attempting a get, the xpath " + epath + " returned an empty result.";												
 					retval=false;
 				}
 			}
 		} else {
 			if (node_expected) {
-				error_str = "While attempting a sort, the xpath " + path + " included an insertion point.";												
+				std::string epath; XML::transcode(path,epath);
+				error_str = "While attempting a sort, the xpath " + epath + " included an insertion point.";												
 				retval=false;
 			}
 		}
@@ -543,3 +560,97 @@ XMLObject::~XMLObject() {
 		x_doc = NULL;
 	}	
 }
+#pragma mark static utility
+//-----------------------------------------------------------------------------
+pair<unsigned long long,bool> XMLObject::hex(const u_str& s) { //Given a string, returns a natural from any hex that it STARTS with.
+	bool isnumber = false;
+	u_str::const_iterator in = s.begin();
+	u_str::const_iterator out = s.end();
+	if ( in != out ) isnumber = true;
+	unsigned long long val = 0;
+	bool ended = false;
+	while (!ended && in != out) {
+		switch (*in++) {
+			case '0': val = val << 4; break;
+			case '1': val = (val << 4) + 1; break;
+			case '2': val = (val << 4) + 2; break;
+			case '3': val = (val << 4) + 3; break;
+			case '4': val = (val << 4) + 4; break;
+			case '5': val = (val << 4) + 5; break;
+			case '6': val = (val << 4) + 6; break;
+			case '7': val = (val << 4) + 7; break;
+			case '8': val = (val << 4) + 8; break;
+			case '9': val = (val << 4) + 9; break;
+			case 'a': val = (val << 4) + 10; break;
+			case 'b': val = (val << 4) + 11; break;
+			case 'c': val = (val << 4) + 12; break;
+			case 'd': val = (val << 4) + 13; break;
+			case 'e': val = (val << 4) + 14; break;
+			case 'f': val = (val << 4) + 15; break;
+			case 'A': val = (val << 4) + 10; break;
+			case 'B': val = (val << 4) + 11; break;
+			case 'C': val = (val << 4) + 12; break;
+			case 'D': val = (val << 4) + 13; break;
+			case 'E': val = (val << 4) + 14; break;
+			case 'F': val = (val << 4) + 15; break;
+			default: {
+				isnumber = false;
+				ended=true; 
+				in--;
+			} break;
+		}
+	}
+	return pair<unsigned long long,bool>(val,isnumber);
+}
+pair<unsigned long long,bool> XMLObject::znatural(const u_str& s) { //Given a u_str, returns a natural from any digits that it STARTS with.
+	bool isnumber = false;
+	unsigned long long val = 0;
+	if (!s.empty()) {
+		if (s.size() > 2 && s[0]=='0' && ( s[1]=='x' || s[1]=='X' )) {
+			pair<unsigned long long,bool> rsp = hex(s.substr(2));
+			if (rsp.second) {
+				isnumber= true;
+				val = rsp.first;
+			}
+		} else {
+			u_str::const_iterator in = s.begin();
+			u_str::const_iterator out = s.end();
+			while(in != out && isdigit(*in)) {
+				isnumber= true;
+				val = val * 10 + *in - '0';
+				in++;
+			}
+		}
+	}
+	return pair<unsigned long long,bool>(val,isnumber);
+}
+
+
+bool XMLObject::npsplit(const u_str& basis,pair<u_str,u_str>& result,bool& expected) {
+	expected = false; 
+	string::size_type pos = basis.find_first_of('#');
+	if (pos == string::npos) {
+		result.first = basis;
+		return false;
+	} else {
+		result.first = basis.substr(0, pos);
+		result.second = basis.substr(pos+1, string::npos);
+		if (! result.first.empty()) {
+			if (*(result.first.rbegin()) == '!') { 
+				expected = true; 
+				result.first.resize(result.first.size()-1);  //remove the final character
+			}
+			if (!result.second.empty() && result.second[0] == '#') { result.second.erase(0,1); } //legacy double #
+			return ! result.first.empty(); //ie, "!#wibble" is an invalid namepath.
+		} else {
+			return false;
+		}
+	}
+}
+
+
+
+
+
+
+

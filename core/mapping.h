@@ -53,7 +53,7 @@ private:
 public:
 	bool active() const { return keys_evaluated && dom_evaluated && !mat_evaluated; }
 	const map_type op() const {return operation;}
-	bool field(const string&,string&) const;
+	bool field(const u_str&,string&) const;
 	Mapping(ObyxElement*,const Mapping*); 
 	Mapping(xercesc::DOMNode* const&,ObyxElement*); //done by factory
 	virtual void addInputType(InputType*);

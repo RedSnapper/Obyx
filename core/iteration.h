@@ -69,12 +69,12 @@ protected:
 	string currentkey;					//used in each..
 	
 public:
+	bool field(const u_str&,u_str&,string&) const;
+	bool fieldfind(const u_str&) const;
+	void fieldkeys(const u_str&,set<string>&) const;
+	bool fieldexists(const u_str&,string&) const;
+
 	bool active() const { return ctlevaluated && !evaluated; }
-	bool field(const string&,string&,string&) const;
-	bool fieldfind(const string&) const;
-	unsigned long long forcedbreak() const;
-	void fieldkeys(const string&,set<string>&) const;
-	bool fieldexists(const string&,string&) const;
 	const unsigned long long row() const {return currentrow;}
 	const it_type op() const {return operation;}
 	Iteration(ObyxElement*,const Iteration*); //copy.

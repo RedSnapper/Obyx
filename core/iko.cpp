@@ -77,14 +77,11 @@ IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : ObyxElement
 		}
 	}
 	if (context == immediate) exists=true;
-	u_str str_encoder,str_process,str_kind,u_xpath;
+	u_str str_encoder,str_process,str_kind;
 	XML::Manager::attribute(n,UCS2(L"kind"),str_kind);
 	XML::Manager::attribute(n,UCS2(L"encoder"),str_encoder);
 	XML::Manager::attribute(n,UCS2(L"process"),str_process);
-    
- 	if (XML::Manager::attribute(n,UCS2(L"xpath"),u_xpath)) {
-        transcode(u_xpath.c_str(),xpath);
-    }
+  	XML::Manager::attribute(n,UCS2(L"xpath"),xpath);
 	
     if ( ! str_kind.empty() ) {
 		kind_type_map::const_iterator j = kind_types.find(str_kind);
@@ -176,10 +173,10 @@ IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : ObyxElement
 IKO::~IKO() {}
 IKO::IKO(ObyxElement* par,const IKO* orig) : ObyxElement(par,orig),kind(orig->kind),encoder(orig->encoder),context(orig->context), process(orig->process),wsstrip(orig->wsstrip),exists(orig->exists),name_v(orig->name_v),xpath(orig->xpath) {
 }
-bool IKO::currentenv(const string& req,const usage_tests exist_test, const IKO* iko,DataItem*& container) {
+bool IKO::currentenv(const u_str& req,const usage_tests exist_test, const IKO* iko,DataItem*& container) {
 	Environment* env = Environment::service();
 	bool exists = false;
-	string result;
+	std::string result;
 	container = NULL;
 	current_type_map::const_iterator j = current_types.find(req);
 	if( j != current_types.end() ) {
@@ -284,13 +281,15 @@ bool IKO::currentenv(const string& req,const usage_tests exist_test, const IKO* 
 			}
 		}
 	} else {
-		exists = env->getenv("CURRENT_" + req,result);		
+		string rqbit; XML::transcode(req,rqbit);
+		string recomp="CURRENT_"+rqbit;
+		exists = env->getenv(recomp,result);		
 		switch (exist_test) {
 			case ut_existence: break;
 			case ut_found: {
 				if (!exists) {
-					string test = "CURRENT_" + req;
-					exists = env->envfind("CURRENT_" + req); //regex.		
+					string test = recomp;
+					exists = env->envfind(recomp); //regex.		
 				}
 			} break;
 			case ut_significant: 
@@ -315,13 +314,14 @@ void IKO::setfilepath(const string& input_name,string& file_path) const {
 		}
 	}
 }
-bool IKO::legalsysenv(const string& envname) const {
+bool IKO::legalsysenv(const u_str& envname) const {
 	bool legal = false;
-	if ( envname.find("OBYX_",0,5) != string::npos) {
-		if ( envname.compare("OBYX_VERSION") == 0 ) {
-			log(Log::error,"Error. Sysenv " + envname + " is restricted. Use CURRENT_VERSION instead");
+	if ( envname.find(UCS2(L"OBYX_"),0,5) != string::npos) {
+		string erv; XML::transcode(envname,erv);		
+		if ( envname.compare(UCS2(L"OBYX_VERSION")) == 0 ) {
+			log(Log::error,"Error. Sysenv " + erv + " is restricted. Use CURRENT_VERSION instead");
 		} else {
-			log(Log::error,"Error. Sysenv " + envname + " is restricted.");
+			log(Log::error,"Error. Sysenv " + erv + " is restricted.");
 		}
 	} else { 
 		legal = true;
@@ -346,9 +346,9 @@ bool IKO::httpready() const {
 	}
 	return httpgood;
 }
-void IKO::doerrspace(const string& input_name) const {
+void IKO::doerrspace(const u_str& input_name) const {
 	if (!input_name.empty()) {
-		std::string err_msg = input_name;
+		string err_msg; XML::transcode(input_name,err_msg);		
 		if (err_msg.compare(0,6,"fatal#") == 0) {
 			break_happened = true;
 			err_msg.erase(0,6);
@@ -537,13 +537,13 @@ void IKO::evaltype(inp_space the_space, bool release, bool eval,bool is_context,
 			}
 		}
 	} else {
-		std::string input_name;
+		u_str input_name;
 		if (name_item != NULL && !name_item->empty()) {
 			input_name = *name_item;
 		}
 		usage_tests exist_test = ut_value; //we need to identify the way in which this is to be evaluated.
 		if (!is_context) { //if evaluating this IKO's context, then don't worry about exist_test. yet!
-			XML::transcode(input_name,name_v); //this is a bit dodgy.. - but maybe necessary.
+			name_v = input_name;
 			Comparison* cmp = dynamic_cast<Comparison *>(p);
 			if ((cmp != NULL) && (wotzit == obyx::comparate)) {
 				switch (cmp->op()) {
@@ -616,7 +616,7 @@ void IKO::evaltype(inp_space the_space, bool release, bool eval,bool is_context,
 		name_item = NULL; 
 	}
 }
-bool IKO::foundinspace(const string& input_name,const inp_space the_space,const bool release) {
+bool IKO::foundinspace(const u_str& input_name,const inp_space the_space,const bool release) {
 	Environment* env = Environment::service();
 	exists = false;
 	string errstring;			
@@ -670,26 +670,30 @@ bool IKO::foundinspace(const string& input_name,const inp_space the_space,const 
 		case file: {
 			vector<FileUtils::File> list;
 			string file_path; setfilepath("",file_path);
-			FileUtils::Path basis(file_path); 
-			basis.listFiles(list,true,input_name);
+			FileUtils::Path basis(file_path);
+			XML::transcode(input_name,file_path);
+			basis.listFiles(list,true,file_path);
 			exists = ! list.empty();
 		} break;
 		case url: {
 			log(Log::error,"Error. find key over url space not supported. use an existence test.");
 		} break;
 		case cookie: {
-			exists = env->cookiefind(input_name);
+			string iname; XML::transcode(input_name,iname);
+			exists = env->cookiefind(iname);
 		} break;
 		case sysparm: {
-			exists = env->parmfind(input_name);
+			string iname; XML::transcode(input_name,iname);
+			exists = env->parmfind(iname);
 		} break;
 		case sysenv: {
 			if (legalsysenv(input_name)) {
-				if ( input_name.find("CURRENT_",0,8) == !string::npos) {
+				if ( input_name.find(UCS2(L"CURRENT_"),0,8) == !string::npos) {
 					DataItem* dummy = NULL;
 					exists = currentenv(input_name.substr(8,string::npos),ut_found,this,dummy);
 				} else {
-					exists = env->envfind(input_name);
+					string iname; XML::transcode(input_name,iname);
+					exists = env->envfind(iname);
 				}
 			}
 		} break;
@@ -700,7 +704,7 @@ bool IKO::foundinspace(const string& input_name,const inp_space the_space,const 
 	}	
 	return exists;
 }
-bool IKO::existsinspace(string& input_name,const inp_space the_space,const bool is_context,const bool release) {
+bool IKO::existsinspace(u_str& input_name,const inp_space the_space,const bool is_context,const bool release) {
 	Environment* env = Environment::service();
 	exists = false;
 	string errstring;			
@@ -735,20 +739,22 @@ bool IKO::existsinspace(string& input_name,const inp_space the_space,const bool 
 					}														
 				}
 				if (!errstring.empty()) {
-					log(Log::error,"Error. Field " + input_name + " : " + errstring);
+					string erv; XML::transcode(input_name,erv);		
+					log(Log::error,"Error. Field " + erv + " : " + errstring);
 				}
 			}
 		} break;
 		case xmlnamespace: { 
-			exists = ItemStore::nsexists(input_name,release);
+			string iname; XML::transcode(input_name,iname);		
+			exists = ItemStore::nsexists(iname,release);
 		} break;
 		case xmlgrammar: {
-			exists = ItemStore::grammarexists(input_name,release);
+			string iname; XML::transcode(input_name,iname);		
+			exists = ItemStore::grammarexists(iname,release);
 		} break;
 		case store: {
             if (!is_context && !xpath.empty()) {
-                string name(input_name);
-                exists = owner->storeexists(name,xpath,release,errstring);
+                exists = owner->storeexists(input_name,xpath,release,errstring);
             } else {
                 exists = owner->storeexists(input_name,release,errstring);
             }
@@ -760,7 +766,8 @@ bool IKO::existsinspace(string& input_name,const inp_space the_space,const bool 
 			exists = owner->parmexists(input_name);
 		} break;					
 		case file: {
-			string file_path; setfilepath(input_name,file_path);
+			string iname; XML::transcode(input_name,iname);		
+			string file_path; setfilepath(iname,file_path);
 			string orig_wd(FileUtils::Path::wd());
 			FileUtils::Path destination; 
 			destination.cd(file_path);
@@ -773,33 +780,31 @@ bool IKO::existsinspace(string& input_name,const inp_space the_space,const bool 
 		case url: {
 			if (httpready()) {
 				string redirect_str,timeout_str;
-				int max_redirects,timeout_secs;
-				if (owner->getstore("REDIRECT_BREAK_COUNT",redirect_str)) {
-					pair<long long,bool> enval = String::integer(redirect_str);
-					max_redirects = (int)enval.first;
-				} 
-				if (owner->getstore("URL_TIMEOUT_SECS",timeout_str)) {
-					pair<long long,bool> toval = String::integer(timeout_str);
-					timeout_secs = (int)toval.first;
-				} 
-				string req_url=input_name,req_errors,body,response_head,response_body;
-				HTTPFetch my_req(req_url,"GET","HTTP/1.0",body,max_redirects,timeout_secs,req_errors);
-				exists  = my_req.doRequest(response_head,response_body, max_redirects, timeout_secs, req_errors);
+				unsigned long long max_redirects=ULLONG_MAX,timeout_secs=ULLONG_MAX;
+				owner->metastore("REDIRECT_BREAK_COUNT",max_redirects);
+				owner->metastore("URL_TIMEOUT_SECS",timeout_secs);
+				string req_url; XML::transcode(input_name,req_url);		
+				string req_errors,body,response_head,response_body;
+				HTTPFetch my_req(req_url,"GET","HTTP/1.0",body,(int)max_redirects,(int)timeout_secs,req_errors);
+				exists  = my_req.doRequest(response_head,response_body,(int)max_redirects,(int)timeout_secs, req_errors);
 			}
 		} break;
 		case cookie: {
-			exists = env->cookieexists(input_name);
+			string iname; XML::transcode(input_name,iname);		
+			exists = env->cookieexists(iname);
 		} break;
 		case sysparm: {
-			exists = env->parmexists(input_name);
+			string iname; XML::transcode(input_name,iname);		
+			exists = env->parmexists(iname);
 		} break;
 		case sysenv: {
 			if (legalsysenv(input_name)) {
-				if ( input_name.find("CURRENT_",0,8) == !string::npos) {
+				if ( input_name.find(UCS2(L"CURRENT_"),0,8) == !string::npos) {
 					DataItem* dummy = NULL;
 					exists = currentenv(input_name.substr(8,string::npos),ut_existence,this,dummy);
 				} else { 
-					exists = env->envexists(input_name);
+					string iname; XML::transcode(input_name,iname);		
+					exists = env->envexists(iname);
 				}
 			}
 		} break;
@@ -810,10 +815,11 @@ bool IKO::existsinspace(string& input_name,const inp_space the_space,const bool 
 	}	
 	return exists;
 }
-bool IKO::valuefromspace(string& input_name,const inp_space the_space,const bool is_context,const bool release,const kind_type ikind, DataItem*& container) {
+bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool is_context,const bool release,const kind_type ikind, DataItem*& container) {
 	Environment* env = Environment::service();
 	exists = false;
 	string fresult;	//used to hold result for most spaces.
+	u_str uresult;	//used to hold result for most spaces.
 	switch ( the_space ) { //now do all the named input_spaces!
 		case none: break; //exists = false by default.
 		case immediate: { 
@@ -830,7 +836,7 @@ bool IKO::valuefromspace(string& input_name,const inp_space the_space,const bool
 				const Mapping* mpp = dynamic_cast<const Mapping *>(par);
 				while (par != NULL && !exists ) {
 					if (ite != NULL && ite->active() && (cur->wotzit==body)) {
-						exists = ite->field(input_name,fresult,errstring);
+						exists = ite->field(input_name,uresult,errstring);
 					}
 					if (mpp != NULL && mpp->active() && (cur->wotzit==match)) {
 						exists = mpp->field(input_name,fresult); 
@@ -843,33 +849,36 @@ bool IKO::valuefromspace(string& input_name,const inp_space the_space,const bool
 					}														
 				}
 				if (!exists) {
-					log(Log::error,"Error. Field " + input_name + " : " + errstring);
+					string erv; XML::transcode(input_name,erv);		
+					log(Log::error,"Error. Field " + erv + " : " + errstring);
 				}
 			}
 		} break;
 		case xmlnamespace: { 
-			exists = ItemStore::getns(input_name,container,release);
+			string xns_n; XML::transcode(input_name,xns_n);		
+			exists = ItemStore::getns(xns_n,container,release);
 			if (!exists)  {
-				log(Log::error,"Error. Namespace " + input_name + " does not exist");
+				log(Log::error,"Error. Namespace " + xns_n + " does not exist");
 			}
 		} break;
 		case xmlgrammar: {
-			exists = ItemStore::getgrammar(input_name,container,ikind,release);
+			string xg_n; XML::transcode(input_name,xg_n);		
+			exists = ItemStore::getgrammar(xg_n,container,ikind,release);
 			if (!exists)  {
-				log(Log::error,"Error. Grammar " + input_name + " does not exist");
+				log(Log::error,"Error. Grammar " + xg_n + " does not exist");
 			}
 		} break;
 		case store: {
 			string errstring;
             if (!is_context && !xpath.empty()) {
-                string name(input_name);
-                exists = owner->getstore(name,xpath,container,release,errstring);
+                exists = owner->getstore(input_name,xpath,container,release,errstring);
             } else {
                 exists = owner->getstore(input_name,container,release,errstring);
             }
 			if (!exists || !errstring.empty()) {
+				string erv; XML::transcode(input_name,erv);		
 				if (errstring.empty()) { errstring = "does not exist.";}
-				log(Log::error,"Error. Store error: " + input_name + " " + errstring);
+				log(Log::error,"Error. Store error: " + erv + " " + errstring);
 			} 
 		} break;
 		case fnparm: {
@@ -880,11 +889,13 @@ bool IKO::valuefromspace(string& input_name,const inp_space the_space,const bool
 					ires->copy(container);
 				}
 			} else {
-				log(Log::error,"Error. Parm " + input_name + " does not exist here.");
+				string erv; XML::transcode(input_name,erv);		
+				log(Log::error,"Error. Parm " + erv + " does not exist here.");
 			} 
 		} break;					
 		case file: {
-			string file_path; setfilepath(input_name,file_path);
+			string fpath; XML::transcode(input_name,fpath);		
+			string file_path; setfilepath(fpath,file_path);
 			string orig_wd(FileUtils::Path::wd());
 			FileUtils::Path destination; 
 			destination.cd(file_path);
@@ -901,52 +912,51 @@ bool IKO::valuefromspace(string& input_name,const inp_space the_space,const bool
 					wd.erase(0,root.length());
 					if ( wd.empty() ) wd = "/";
 				}
-				log(Log::error,"Error. File '" + input_name + "' glossed to '" + dest_out + "' does not exist. wd: " + wd );
+				log(Log::error,"Error. File '" + fpath + "' glossed to '" + dest_out + "' does not exist. wd: " + wd );
 			}
 			destination.cd(orig_wd);
 		} break;
 		case url: {
 			if (httpready()) {
-				string redirect_val,timeout_val,errstr;
-				int max_redirects = -1,timeout_secs = -1;
-				if (owner->getstore("REDIRECT_BREAK_COUNT",redirect_val)) {
-					pair<long long,bool> enval = String::integer(redirect_val);
-					max_redirects = (int)enval.first;
-				} 
-				if (owner->getstore("URL_TIMEOUT_SECS",timeout_val)) {
-					pair<long long,bool> toval = String::integer(timeout_val);
-					timeout_secs = (int)toval.first;
-				} 
-				string req_url=input_name,req_errors,body,response_head;
-				HTTPFetch my_req(req_url,"GET","HTTP/1.0",body,max_redirects,timeout_secs,req_errors);
-				exists  = my_req.doRequest(response_head,fresult,max_redirects,timeout_secs,req_errors);
+				string req_url; XML::transcode(input_name,req_url);		
+				string redirect_val,timeout_val,errstr;				
+				unsigned long long max_redirects = ULLONG_MAX,timeout_secs = ULLONG_MAX;
+				owner->metastore("REDIRECT_BREAK_COUNT",max_redirects);
+				owner->metastore("URL_TIMEOUT_SECS",timeout_secs);
+				string req_errors,body,response_head;
+				HTTPFetch my_req(req_url,"GET","HTTP/1.0",body,(int)max_redirects,(int)timeout_secs,req_errors);
+				exists  = my_req.doRequest(response_head,fresult,(int)max_redirects,(int)timeout_secs,req_errors);
 				if (!req_errors.empty()) {
-					log(Log::error,"Error. url '" + input_name + "' had error '" + req_errors + "'");
+					log(Log::error,"Error. url '" + req_url + "' had error '" + req_errors + "'");
 				}
 			}
 		} break;
 		case cookie: {
-			exists = env->getcookie_req(input_name,fresult);
+			string cookie_n; XML::transcode(input_name,cookie_n);		
+			exists = env->getcookie_req(cookie_n,fresult);
 			if( !exists ) {
-				log(Log::error,"Error. Cookie " + input_name + " does not exist.");
+				log(Log::error,"Error. Cookie " + cookie_n + " does not exist.");
 			}
 		} break;
 		case sysparm: {
-			exists = env->getparm(input_name,fresult);
+			string sysp_n; XML::transcode(input_name,sysp_n);		
+			exists = env->getparm(sysp_n,fresult);
 			if (!exists) {
-				log(Log::error,"Error. Sysparm " + input_name + " does not exist.");
+				log(Log::error,"Error. Sysparm " + sysp_n + " does not exist.");
 			}
 		} break;
 		case sysenv: {
 			if (legalsysenv(input_name)) {
 				string errmsg = " does not exist.";
-				if ( input_name.find("CURRENT_",0,8) == !string::npos) {
+				if ( input_name.find(UCS2(L"CURRENT_"),0,8) == !string::npos) {
 					exists = currentenv(input_name.substr(8,string::npos),ut_value,this,container);
-				} else { //it's a CURRENT_
-					exists = env->getenv(input_name,fresult);
+				} else { //it's not a CURRENT_
+					string syse_n; XML::transcode(input_name,syse_n);		
+					exists = env->getenv(syse_n,fresult);
 				}
 				if (!exists) { 
-					log(Log::error,"Error. Sysenv " + input_name + errmsg);
+					string syse_n; XML::transcode(input_name,syse_n);		
+					log(Log::error,"Error. Sysenv " + syse_n + errmsg);
 				}				
 			}
 		} break;
@@ -955,15 +965,22 @@ bool IKO::valuefromspace(string& input_name,const inp_space the_space,const bool
 			exists = true;
 		} break;
 	}	
-	if ( exists && !fresult.empty() && container == NULL ) {
-		container = DataItem::factory(fresult,ikind); //test for xml if needs be.	
+	if ( exists && container == NULL ) {
+		if (!fresult.empty()) {
+			container = DataItem::factory(fresult,ikind); //test for xml if needs be.
+		} else {
+			if (!uresult.empty()) {
+				container = DataItem::factory(uresult,ikind); //test for xml if needs be.
+			}
+		}
 	} 
 	return exists;
 }
-bool IKO::sigfromspace(const string& input_name,const inp_space the_space,const bool release, DataItem*& container) {
+bool IKO::sigfromspace(const u_str& input_name,const inp_space the_space,const bool release, DataItem*& container) {
 	Environment* env = Environment::service();
 	exists = false;
 	string errstring,fresult;	//used to hold result for most spaces.
+	u_str uresult; 
 	switch ( the_space ) { //now do all the named input_spaces!
 		case none: break; //exists = false by default.
 		case immediate: { 
@@ -979,7 +996,7 @@ bool IKO::sigfromspace(const string& input_name,const inp_space the_space,const 
 				const Mapping* mpp = dynamic_cast<const Mapping *>(par);
 				while (par != NULL && !exists ) {
 					if (ite != NULL && ite->active() && cur->wotzit==body ) {
-						exists = ite->field(input_name,fresult,errstring);
+						exists = ite->field(input_name,uresult,errstring);
 					}
 					if (mpp != NULL && mpp->active() && cur->wotzit==match) {
 						exists = mpp->field(input_name,fresult); 
@@ -992,17 +1009,20 @@ bool IKO::sigfromspace(const string& input_name,const inp_space the_space,const 
 					}														
 				}
 				if (!errstring.empty()) {
-					log(Log::error,"Error. Field " + input_name + " : " + errstring);
+					string erv; XML::transcode(input_name,erv);		
+					log(Log::error,"Error. Field " + erv + " : " + errstring);
 				}
 			}
 		} break;
 		case xmlnamespace: { 
-			exists = ItemStore::nsexists(input_name,release);
-			if (exists) {fresult = input_name;}
+			string skey; XML::transcode(input_name,skey);		
+			exists = ItemStore::nsexists(skey,release);
+			if (exists) {uresult = input_name;}
 		} break;
 		case xmlgrammar: {
-			exists = ItemStore::grammarexists(input_name,release);
-			if (exists) {fresult = input_name;}
+			string skey; XML::transcode(input_name,skey);		
+			exists = ItemStore::grammarexists(skey,release);
+			if (exists) {uresult = input_name;}
 		} break;
 		case store: {
 			exists = owner->getstore(input_name,container,release,errstring);
@@ -1018,7 +1038,8 @@ bool IKO::sigfromspace(const string& input_name,const inp_space the_space,const 
 			} 
 		} break;		
 		case file: {
-			string file_path; setfilepath(input_name,file_path);
+			string skey; XML::transcode(input_name,skey);		
+			string file_path; setfilepath(skey,file_path);
 			string orig_wd(FileUtils::Path::wd());
 			FileUtils::Path destination; 
 			destination.cd(file_path);
@@ -1037,17 +1058,12 @@ bool IKO::sigfromspace(const string& input_name,const inp_space the_space,const 
 		} break;
 		case url: {
 			if (httpready()) {
+				string req_url; XML::transcode(input_name,req_url);		
 				string redirect_val,timeout_val,errstr;
-				int max_redirects = -1,timeout_secs = -1;
-				if (owner->getstore("REDIRECT_BREAK_COUNT",redirect_val)) {
-					pair<long long,bool> enval = String::integer(redirect_val);
-					max_redirects = (int)enval.first;
-				} 
-				if (owner->getstore("URL_TIMEOUT_SECS",timeout_val)) {
-					pair<long long,bool> toval = String::integer(timeout_val);
-					timeout_secs = (int)toval.first;
-				}
-				string req_url=input_name,req_errors,body,response_head;
+				unsigned long long max_redirects = ULLONG_MAX,timeout_secs = ULLONG_MAX;
+				owner->metastore("REDIRECT_BREAK_COUNT",max_redirects);
+				owner->metastore("URL_TIMEOUT_SECS",timeout_secs);
+				string req_errors,body,response_head;
 				HTTPFetch my_req(req_url,"GET","HTTP/1.0",body,max_redirects,timeout_secs,req_errors);
 				if (!req_errors.empty()) {
 					*Logger::log << Log::error << Log::LI << Log::II << req_url << Log::IO << Log::II << req_errors << Log::IO << Log::LO << Log::blockend;
@@ -1065,17 +1081,20 @@ bool IKO::sigfromspace(const string& input_name,const inp_space the_space,const 
 			}
 		} break;
 		case cookie: {
-			exists = env->getcookie_req(input_name,fresult);
+			string skey; XML::transcode(input_name,skey);		
+			exists = env->getcookie_req(skey,fresult);
 		} break;
 		case sysparm: {
-			exists = env->getparm(input_name,fresult);
+			string skey; XML::transcode(input_name,skey);		
+			exists = env->getparm(skey,fresult);
 		} break;
 		case sysenv: {
 			if (legalsysenv(input_name)) {
-				if ( input_name.find("CURRENT_",0,8) == !string::npos) {
+				if ( input_name.find(UCS2(L"CURRENT_"),0,8) == !string::npos) {
 					exists = currentenv(input_name.substr(8,string::npos),ut_significant,this,container);
 				} else { //it's a CURRENT_
-					exists = env->getenv(input_name,fresult);
+					string skey; XML::transcode(input_name,skey);		
+					exists = env->getenv(skey,fresult);
 				}
 			}
 		} break;
@@ -1084,18 +1103,24 @@ bool IKO::sigfromspace(const string& input_name,const inp_space the_space,const 
 			exists = true;
 		} break;
 	}	
-	if ( exists && !fresult.empty() && container == NULL ) {
-		container = DataItem::factory(fresult,di_text); //test for xml if needs be.	
+	if ( exists && container == NULL ) {
+		if (!fresult.empty()) {
+			container = DataItem::factory(fresult,di_text); //test for xml if needs be.
+		} else {
+			if (!uresult.empty()) {
+				container = DataItem::factory(uresult,di_text); //test for xml if needs be.
+			}
+		}
 	} 
 	return exists;
 }
-void IKO::keysinspace(const string& input_name,const inp_space the_space,set<string>& keylist) {
+void IKO::keysinspace(const u_str& input_name,const inp_space the_space,set<string>& keylist) {
 	Environment* env = Environment::service();
 	string errstring;			
 	switch ( the_space ) { //now do all the named input_spaces!
 		case immediate: {  
-			//			keylist.push_back(input_name);
-			keylist.insert(input_name);		
+			string skey; XML::transcode(input_name,skey);		
+			keylist.insert(skey);		
 		} break;
 		case field: {
 			const ObyxElement* cur = this;
@@ -1123,10 +1148,11 @@ void IKO::keysinspace(const string& input_name,const inp_space the_space,set<str
 		} break;					
 		case file: { 
 			vector<FileUtils::File> list;
+			string skey; XML::transcode(input_name,skey);		
 			string root(env->getpathforroot());
 			string file_path; setfilepath("",file_path);
 			FileUtils::Path basis(file_path); 
-			basis.listFiles(list,true,input_name);
+			basis.listFiles(list,true,skey);
 			for (size_t i=0; i < list.size(); i++) {
 				string kyresult(list[i].output(false));
 				if ( kyresult.find(root) == 0 ) {
@@ -1137,9 +1163,20 @@ void IKO::keysinspace(const string& input_name,const inp_space the_space,set<str
 			}
 		} break;
 		case url: { log(Log::error,"Error. finding keys over url space not supported."); } break;
-		case cookie: { env->cookiekeys(input_name,keylist); } break;
-		case sysparm: { env->parmkeys(input_name,keylist); } break;
-		case sysenv: { if (legalsysenv(input_name)) { env->envkeys(input_name,keylist); } } break;
+		case cookie: { 
+			string skey; XML::transcode(input_name,skey);		
+			env->cookiekeys(skey,keylist); 
+		} break;
+		case sysparm: { 
+			string skey; XML::transcode(input_name,skey);		
+			env->parmkeys(skey,keylist); 
+		} break;
+		case sysenv: { 
+			if (legalsysenv(input_name)) { 
+				string skey; XML::transcode(input_name,skey);		
+				env->envkeys(skey,keylist); 
+			} 
+		} break;
 		case none:
 		case IKO::error: break; // error was already done.
 	}	
@@ -1151,18 +1188,18 @@ void IKO::finalise() {
 void IKO::startup() {
 	InputType::startup();
 	Output::startup();
-	current_types.insert(current_type_map::value_type("OBJECT",c_object));
-	current_types.insert(current_type_map::value_type("NAME",c_name));
-	current_types.insert(current_type_map::value_type("REQUEST",c_request));
-	current_types.insert(current_type_map::value_type("OSI_RESPONSE",c_osi_response));
-	current_types.insert(current_type_map::value_type("TIMING",c_timing));
-	current_types.insert(current_type_map::value_type("TIME",c_time));
-	current_types.insert(current_type_map::value_type("TS",c_ts));
-	current_types.insert(current_type_map::value_type("VERSION",c_version));
-	current_types.insert(current_type_map::value_type("VERSION_NUMBER",c_vnumber));
-	current_types.insert(current_type_map::value_type("RESPONSE",c_response));
-	current_types.insert(current_type_map::value_type("POINT",c_point));
-	current_types.insert(current_type_map::value_type("COOKIES",c_cookies));
+	current_types.insert(current_type_map::value_type(UCS2(L"OBJECT"),c_object));
+	current_types.insert(current_type_map::value_type(UCS2(L"NAME"),c_name));
+	current_types.insert(current_type_map::value_type(UCS2(L"REQUEST"),c_request));
+	current_types.insert(current_type_map::value_type(UCS2(L"OSI_RESPONSE"),c_osi_response));
+	current_types.insert(current_type_map::value_type(UCS2(L"TIMING"),c_timing));
+	current_types.insert(current_type_map::value_type(UCS2(L"TIME"),c_time));
+	current_types.insert(current_type_map::value_type(UCS2(L"TS"),c_ts));
+	current_types.insert(current_type_map::value_type(UCS2(L"VERSION"),c_version));
+	current_types.insert(current_type_map::value_type(UCS2(L"VERSION_NUMBER"),c_vnumber));
+	current_types.insert(current_type_map::value_type(UCS2(L"RESPONSE"),c_response));
+	current_types.insert(current_type_map::value_type(UCS2(L"POINT"),c_point));
+	current_types.insert(current_type_map::value_type(UCS2(L"COOKIES"),c_cookies));
 	
 	kind_types.insert(kind_type_map::value_type(UCS2(L"auto"), di_auto));
 	kind_types.insert(kind_type_map::value_type(UCS2(L"text"), di_text));

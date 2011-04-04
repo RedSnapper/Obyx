@@ -45,6 +45,8 @@ using namespace Log;
 using namespace XML;
 using namespace Vdb;
 
+#define DEFAULT_MAX_ITERATIONS 100000
+
 it_type_map Iteration::it_types;
 
 Iteration::Iteration(xercesc::DOMNode* const& n,ObyxElement* par) : 
@@ -70,21 +72,6 @@ Iteration::Iteration(ObyxElement* par,const Iteration* orig) : Function(par,orig
 ctlevaluated(orig->ctlevaluated),evaluated(orig->evaluated),query(orig->query),
 operation(orig->operation),lastrow(orig->lastrow),expanded(orig->expanded),
 currentrow(orig->currentrow),numreps(orig->numreps),currentkey(orig->currentkey) {
-}
-unsigned long long Iteration::forcedbreak() const {
-	unsigned long long forced_break = ULLONG_MAX;
-	string tmp_var;
-	if ( owner->getstore("ITERATION_BREAK_COUNT",tmp_var) ) {
-		pair<unsigned long long,bool> forced_break_setting = String::znatural(tmp_var);
-		if ( forced_break_setting.second ) { 
-			forced_break = forced_break_setting.first;
-		} else {
-			*Logger::log << Log::error << Log::LI << "Error. ITERATION_BREAK_COUNT expected a natural number, but found [" << tmp_var << "]." << Log::LO;
-			trace();
-			*Logger::log << Log::blockend;
-		}
-	}
-	return forced_break;
 }
 bool Iteration::evaluate_this() { //This can be run as an evaluated iteration within the current iteration.
 	// evaluated returns true only if the control is successful, the body is expanded, and the expansion is successful.
@@ -157,11 +144,12 @@ bool Iteration::evaluate_this() { //This can be run as an evaluated iteration wi
 	}
 	return evaluated;
 }
-bool Iteration::fieldfind(const string& pattern) const { //regex..
+bool Iteration::fieldfind(const u_str& pattern) const { //regex..
 	bool retval = false;
 	if ( String::Regex::available() ) {
 		if (query != NULL) {
-			retval = query->findfield(pattern);
+			string rexpr; XML::transcode(pattern,rexpr);		
+			retval = query->findfield(rexpr);
 		}
 	} else {
 		string dummy;
@@ -169,21 +157,21 @@ bool Iteration::fieldfind(const string& pattern) const { //regex..
 	}
 	return retval;
 }
-void Iteration::fieldkeys(const string& pattern,set<string>& keylist) const { //regex..
+void Iteration::fieldkeys(const u_str& pattern,set<string>& keylist) const { //regex..
 	if (query != NULL) {
-		query->fieldkeys(pattern,keylist);
+		string rexpr; XML::transcode(pattern,rexpr);
+		query->fieldkeys(rexpr,keylist);
 	}
 }
-
-bool Iteration::fieldexists(const string& fname,string& errstring) const {
+bool Iteration::fieldexists(const u_str& fname,string& errstring) const {
 	bool retval = false,rcfound = false,rfound=false,fcfound=false,kyfound=false;
 	size_t hashpt = fname.find('#');
 	if (hashpt != string::npos) {
 		if (hashpt > 0 ) { hashpt--; }
-		rcfound = fname.find("#rowcount",hashpt) != string::npos;
-		rfound = fname.find("#row",hashpt) != string::npos;
-		fcfound = fname.find("#fieldcount",hashpt) != string::npos;
-		kyfound = fname.find("#key",hashpt) != string::npos;
+		rcfound = fname.find(UCS2(L"#rowcount"),hashpt) != string::npos;
+		rfound = fname.find(UCS2(L"#row"),hashpt) != string::npos;
+		fcfound = fname.find(UCS2(L"#fieldcount"),hashpt) != string::npos;
+		kyfound = fname.find(UCS2(L"#key"),hashpt) != string::npos;
 	}
 	switch (operation) {
 		case it_sql: {
@@ -191,7 +179,8 @@ bool Iteration::fieldexists(const string& fname,string& errstring) const {
 				retval = true;
 			} else {
 				if (!kyfound && query != NULL) {
-					retval = query->hasfield(fname);
+					string qkey; XML::transcode(fname,qkey);
+					retval = query->hasfield(qkey);
 				} else {
 					errstring = "The field was not found.";
 				}
@@ -218,31 +207,36 @@ bool Iteration::fieldexists(const string& fname,string& errstring) const {
 	}
 	return retval;
 }
-bool Iteration::field(const string& fname,string& container,string& errstring) const {
+bool Iteration::field(const u_str& fname,u_str& container,string& errstring) const {
 	bool retval = false;
 	if (query != NULL && operation == it_sql) {
-		retval = query->readfield(currentrow,fname,container,errstring);
+		//This is where we could do an xpath split.
+		string qkey,srepo; XML::transcode(fname,qkey);
+		retval = query->readfield(currentrow,qkey,srepo,errstring);
+		if (retval) {
+			XML::transcode(srepo,container);
+		}
 	} else {
-		string tmpval;
 		container = fname;
 		size_t hashpos = container.find('#');
 		while (hashpos != string::npos) {
-			if (container.compare(hashpos,9,"#rowcount") == 0) {
+			if (container.compare(hashpos,9,UCS2(L"#rowcount")) == 0) {
 				if ( operation == it_repeat || operation == it_each ) {
-					String::tostring(tmpval,numreps);
-					container.replace(hashpos,9,tmpval);
+					u_str rowstr; XML::to_ustr(numreps,rowstr);
+					container.replace(hashpos,9,rowstr);
 					hashpos--;
 					retval = true; 
 				} 
 			} else {
-				if ( container.compare(hashpos,4,"#row") == 0 ) {
-					String::tostring(tmpval,currentrow);
-					container.replace(hashpos,4,tmpval);
+				if ( container.compare(hashpos,4,UCS2(L"#row")) == 0 ) {
+					u_str rowstr; XML::to_ustr(currentrow,rowstr);
+					container.replace(hashpos,4,rowstr);
 					hashpos--;
 					retval = true;
 				} else {
-					if ( container.compare(hashpos,4,"#key") == 0 ) {
-						container.replace(hashpos,4,currentkey);
+					if ( container.compare(hashpos,4,UCS2(L"#key")) == 0 ) {
+						u_str ckey; XML::transcode(currentkey,ckey);		
+						container.replace(hashpos,4,ckey);
 						hashpos--;
 						retval = true;
 					}
@@ -251,8 +245,9 @@ bool Iteration::field(const string& fname,string& container,string& errstring) c
 			hashpos = container.find('#',++hashpos);
 		}
 		if (!retval) {
-			container = "";
-			errstring = "Error. Field " + fname + " not allowed here. In while and repeat only the fields #rowcount and #row are valid";
+			container.clear();
+			string erv; XML::transcode(fname,erv);		
+			errstring = "Error. Field " + erv + " not allowed here. In while and repeat only the fields #rowcount, #row and #key are valid";
 		}
 	}
 	return retval;
@@ -281,19 +276,25 @@ void Iteration::list(const ObyxElement* base) { //static.
 	*Logger::log << Log::blockend; //subhead
 }
 bool Iteration::operation_each() {
-	set<string> spacekeys;
+	std::set<std::string,less<std::string> > spacekeys;
 	if ( ! inputs.empty() ) { 
 		inputs[0]->evalfind(spacekeys);			//now we have the search string	
 		delete inputs[0]; inputs.clear();
 		if (definputs.size() > 0) {
 			DefInpType* base_template = definputs[0]; definputs.clear();
 			numreps = spacekeys.size();
-			unsigned long long forced_break = forcedbreak();
+			unsigned long long forced_break = DEFAULT_MAX_ITERATIONS;
+			if(!owner->metastore("ITERATION_BREAK_COUNT",forced_break)) {
+				*Logger::log << Log::error << Log::LI << "Error. each with bad ITERATION_BREAK_COUNT" << Log::LO;
+				trace();
+				*Logger::log << Log::blockend;
+			}
 			if ( forced_break < numreps) { numreps = forced_break;}
 			if ( numreps == 0 ) {
 				delete base_template; //just let it be deleted.
 			} else {
-//				std::sort(spacekeys.begin(),spacekeys.end()); 
+				// sort should already be sorted
+				// std::sort(spacekeys.begin(),spacekeys.end()); 
 				DefInpType* iter_input = NULL;
 				set<string>::const_iterator ski = spacekeys.begin();
 				for (currentrow = 1; currentrow <= numreps; currentrow++) {
@@ -332,7 +333,6 @@ bool Iteration::operation_repeat() {
 	bool fully_evaluated = true;
 	string tmp_var;
 	string controlstring;
-	unsigned long long forced_break = ULLONG_MAX;
 	if ( ! inputs.empty() ) { 
 		const DataItem* res = inputs[0]->results.result();
 		if (res != NULL) {
@@ -340,15 +340,11 @@ bool Iteration::operation_repeat() {
 		}
 	}
 	numreps = 1;
-	if ( owner->getstore("ITERATION_BREAK_COUNT",tmp_var) ) {
-		pair<unsigned long long,bool> forced_break_setting = String::znatural(tmp_var);
-		if ( forced_break_setting.second ) { 
-			forced_break = forced_break_setting.first;
-		} else {
-			*Logger::log << Log::error << Log::LI << "Error. ITERATION_BREAK_COUNT expected a natural number, but found [" << tmp_var << "]." << Log::LO;
-			trace();
-			*Logger::log << Log::blockend;
-		}
+	unsigned long long forced_break = DEFAULT_MAX_ITERATIONS;
+	if(!owner->metastore("ITERATION_BREAK_COUNT",forced_break)) {
+		*Logger::log << Log::error << Log::LI << "Error. repeat with bad ITERATION_BREAK_COUNT" << Log::LO;
+		trace();
+		*Logger::log << Log::blockend;
 	}
 	pair<unsigned long long,bool> repeat_count = String::znatural(controlstring);
 	if  ( repeat_count.second ) {
@@ -400,19 +396,14 @@ bool Iteration::operation_sql() {
 					if (definputs.size() > 0) {
 						DefInpType* base_template = definputs[0];
 						definputs.clear();
-						unsigned long long forced_break = ULLONG_MAX;
 						long long queryrows = query->getnumrows();
 						numreps = queryrows < 1 ? 0 :  queryrows;
-						if ( owner->getstore("ITERATION_BREAK_COUNT",tmp_var) ) {
-							pair<unsigned long long,bool> forced_break_setting = String::znatural(tmp_var);
-							if ( forced_break_setting.second ) { 
-								forced_break = forced_break_setting.first;
-							} else {
-								*Logger::log << Log::error << Log::LI << "Error. ITERATION_BREAK_COUNT expected a natural number, but found [" << tmp_var << "]." << Log::LO;
-								trace();
-								*Logger::log << Log::blockend;
-							}
-						}						
+						unsigned long long forced_break = DEFAULT_MAX_ITERATIONS;
+						if(!owner->metastore("ITERATION_BREAK_COUNT",forced_break)) {
+							*Logger::log << Log::error << Log::LI << "Error. sql with bad ITERATION_BREAK_COUNT" << Log::LO;
+							trace();
+							*Logger::log << Log::blockend;
+						}
 						if (numreps > forced_break) numreps = forced_break;
 						if ( numreps == 0 ) {
 							delete base_template; 
@@ -456,18 +447,13 @@ bool Iteration::operation_sql() {
 }
 bool Iteration::operation_while(bool existence) {
 	bool inputsfinal = true;
-	unsigned long long forced_break = 100;
 	numreps = 0;
 	string tmp_var;
-	if ( owner->getstore("ITERATION_BREAK_COUNT",tmp_var) ) {
-		pair<unsigned long long,bool> forced_break_setting = String::znatural(tmp_var);
-		if ( forced_break_setting.second ) { 
-			forced_break = forced_break_setting.first;
-		} else {
-			*Logger::log << Log::error << Log::LI << "Error. ITERATION_BREAK_COUNT expected a natural number, but found [" << tmp_var << "]." << Log::LO;
-			trace();
-			*Logger::log << Log::blockend;
-		}
+	unsigned long long forced_break = DEFAULT_MAX_ITERATIONS;
+	if(!owner->metastore("ITERATION_BREAK_COUNT",forced_break)) {
+		*Logger::log << Log::error << Log::LI << "Error. while with bad ITERATION_BREAK_COUNT" << Log::LO;
+		trace();
+		*Logger::log << Log::blockend;
 	}
 	if (definputs.size() > 0) {
 		DefInpType* base_template = definputs[0];

@@ -37,6 +37,11 @@
 
 class Iteration;
 
+//our space repository hashmaps are keyed with strings because 
+//we want to use Regex searches over their keys - (afaik) and regex doesn't support 
+//ustr.
+//Here string == std::string
+
 namespace obyx {
 	typedef xercesc::DOMLSParser::ActionType insertion_type;
 	typedef hash_map<const string,DataItem*, hash<const string&> > item_map_type;
@@ -52,10 +57,10 @@ namespace obyx {
 	
 	class ItemStore {
 	private:
-		std::string					owner;
+		string						owner;
 		item_map_type*				the_item_map;
 		item_map_stack_type*		the_item_map_stack;
-		item_map_stack_map_type	the_item_map_stack_map;
+		item_map_stack_map_type		the_item_map_stack_map;
 		static  iter_stack_type*	the_iteration_stack; //stack of iterations
 		
 	public:
@@ -68,18 +73,20 @@ namespace obyx {
 		ItemStore(const ItemStore*);
 		
 		void list();									//list all current items to debugger.	
-		bool exists(const string&,bool,std::string&);	//name#path
-		bool exists(string&,string&,bool,string&); // name, path.
-		
-		bool find(const string&,bool,std::string&);	
-		void keys(const std::string&,set<string>&,std::string&);
-		bool release(const std::string&);
-		bool sset(string&,string&,bool,DataItem*&, kind_type, std::string& );	//name,path,expected,document, intended kind...
-		bool sget(string&,string&,bool,DataItem*&, bool, std::string&);			//name,path,expected,container, release?, errstr
-		bool sget(const string&, string&);					//name container (used for quick internal hacks)
+//internal api, as keys are actually held as strings..
+		bool exists(const u_str&,bool,string&);	//name#path
+		bool exists(const u_str&,const u_str&,bool,string&); //name,path.
+		bool meta(const string&,unsigned long long&); //used for meta settings.
+		bool find(const u_str&,bool,string&);
+		bool find(const string&,bool,string&);
+		void keys(const u_str&,set<string>&,string&);
+		bool release(const u_str&);
+		bool sset(const u_str&,const u_str&,bool,DataItem*&, kind_type, string& );	//name,path,expected,document, intended kind...
+		bool sget(const u_str&,const u_str&,bool,DataItem*&, bool, string&);		//name,path,expected,container, release?, errstr
+//		bool sget(const u_str&,u_str&);								//name container (used for quick internal hacks)
 		void prefixpushed(const u_str&);
 		void prefixpopped(const u_str&);
-		void setowner(const std::string);
+		void setowner(const string);
 		//NS functions	
 		static bool nsfind(const DataItem*,bool);
 		static bool setns(const DataItem*, DataItem*&);				//namespace name, namespace identity. eg setns("o","http://www.obyx.org");

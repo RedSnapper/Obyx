@@ -39,8 +39,8 @@ namespace {
 class XMLObject : public DataItem {
 private:
 	XMLObject() {}
-	void setxp(const std::string&,const std::string&,xercesc::DOMLSParser::ActionType);
-	bool xp_result(const string&,DOMXPathResult*&,std::string&) const;
+//	void setxp(const std::string&,const std::string&,xercesc::DOMLSParser::ActionType);
+	bool xp_result(const u_str&,DOMXPathResult*&,std::string&) const;
 	static bool a_compare(pair<string,XMLObject*>,pair<string,XMLObject*>);
 	static inline bool d_compare(pair<string,XMLObject*>,pair<string,XMLObject*>);
 	
@@ -59,14 +59,19 @@ public:
 	
 	static bool setns(const u_str&, const u_str&);
 	static bool getns(const u_str&, u_str&,bool);
+
+	//utility
+	static bool npsplit(const u_str&,pair<u_str,u_str>&,bool&);
+	static pair<unsigned long long,bool> hex(const u_str&);
+	static pair<unsigned long long,bool> znatural(const u_str&);
 	
 	XMLObject(const std::string);
 	XMLObject(const u_str);
 	XMLObject(const XMLObject&);	
 	XMLObject(const DataItem&);	
-	bool xp(const std::string&,DataItem*&,bool,std::string&) const; //get a result from xpath into a dataitem
-	bool xp(const DataItem*,const std::string&,DOMLSParser::ActionType,bool,std::string&); //set a value by xpath
-	bool sort(const std::string&,const std::string&,bool,bool,std::string&); //Sorts in place!
+	bool xp(const u_str&,DataItem*&,bool,std::string&) const; //get a result from xpath into a dataitem
+	bool xp(const DataItem*,const u_str&,DOMLSParser::ActionType,bool,std::string&); //set a value by xpath
+	bool sort(const u_str&,const u_str&,bool,bool,std::string&); //Sorts in place!
 	operator xercesc::DOMNode*&();
 	
 	void copy(XMLObject*&) const;

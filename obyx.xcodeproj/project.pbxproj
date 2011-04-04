@@ -234,7 +234,7 @@
 		B55597880F8A0D3E003C3BE0 /* strobject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = strobject.cpp; sourceTree = "<group>"; };
 		B55597890F8A0D3E003C3BE0 /* strobject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = strobject.h; sourceTree = "<group>"; };
 		B555978A0F8A0D3E003C3BE0 /* xmlobject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = xmlobject.cpp; sourceTree = "<group>"; };
-		B555978B0F8A0D3E003C3BE0 /* xmlobject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = xmlobject.h; sourceTree = "<group>"; };
+		B555978B0F8A0D3E003C3BE0 /* xmlobject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = xmlobject.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		B55C285E09A48FD500714977 /* environment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = environment.h; sourceTree = "<group>"; };
 		B55C287409A4903700714977 /* environment.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = environment.cpp; sourceTree = "<group>"; };
 		B55C29B309A4AABE00714977 /* httphead.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = httphead.h; sourceTree = "<group>"; };

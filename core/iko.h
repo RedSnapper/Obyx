@@ -36,16 +36,17 @@ public:
 private:
 	friend class Function;
 	typedef enum { c_object, c_name, c_request, c_response, c_osi_response, c_ts, c_time, c_timing, c_version, c_vnumber, c_point, c_cookies } current_type;	//what kind of dataItem
-	typedef std::map< std::string, current_type > current_type_map; 
-	bool valuefromspace(string&,const inp_space,const bool,const bool,const kind_type,DataItem*&);
-	bool existsinspace(string&,const inp_space,const bool,const bool);
-	bool sigfromspace(const string&,const inp_space,const bool,DataItem*&);
-	bool foundinspace(const string&,const inp_space,const bool);
+	typedef std::map< u_str, current_type > current_type_map; 
+//ok - problem is that xpath is u_str, whereas keys are string (so that we can use regex without having to transliterate every key in a map).
+	bool valuefromspace(u_str&,const inp_space,const bool,const bool,const kind_type,DataItem*&);
+	bool existsinspace(u_str&,const inp_space,const bool,const bool);
+	bool sigfromspace(const u_str&,const inp_space,const bool,DataItem*&);
+	bool foundinspace(const u_str&,const inp_space,const bool);
 	void log(const Log::msgtype,const std::string) const;
-	void doerrspace(const string&) const;
+	void doerrspace(const u_str&) const;
 	void setfilepath(const string&,string&) const;
 	bool httpready() const;
-	bool legalsysenv(const string&) const;
+	bool legalsysenv(const u_str&) const;
 	
 protected:
 	typedef std::map<u_str, inp_space > inp_space_map;
@@ -63,18 +64,18 @@ protected:
 	bool	  wsstrip;			//referring to wsstrip attribute.
 	bool	  exists;		    //a value exists - is inp_space or has a context != none
 	u_str     name_v;			//name value - used for tracing etc.
-    std::string xpath;			//xpath used as am object modifier.
+    u_str 	  xpath;			//xpath used as am object modifier.
 	
 	//            input    release eval, is_context name/ref  container 
 	void evaltype(inp_space, bool, bool, bool, kind_type, DataItem*&,DataItem*&); 
-	void keysinspace(const string&,const inp_space,set<string>&);	//gather them keys.
+	void keysinspace(const u_str&,const inp_space,set<string>&);	//gather them keys.
 	
 public:
 	static void init(); 
 	static void finalise();
 	static void startup(); 
 	static void shutdown();	
-	static bool currentenv(const string&,const usage_tests,const IKO*,DataItem*&);
+	static bool currentenv(const u_str&,const usage_tests,const IKO*,DataItem*&);
 	bool getexists() const {return exists;}
 	bool found() const {return exists;}
 	virtual void evaluate(size_t,size_t)=0;

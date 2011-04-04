@@ -95,15 +95,11 @@ const xercesc::DOMDocument* Document::doc() const {
 bool Document::setstore(const DataItem* namepath_di, DataItem*& item,kind_type kind,Output::scope_type scope,std::string& errorstr) {
 	bool retval = true;
 	if (namepath_di != NULL) {
-		pair<string,string> np;
-		string namepath,name,path;
 		bool node_expected = false;
-		namepath = *namepath_di; 
-		String::split('#',namepath,np);		 // eg foobar#/BOOK[0]      -- foobar       /BOOK[0]
-		name=np.first; path=np.second;
-		if (*name.rbegin() == '!') { node_expected = true; name.resize(name.size()-1); }  //remove the final character
+		u_str namepath = *namepath_di; pair<u_str,u_str> np;
+		XMLObject::npsplit(namepath,np,node_expected);
 		if (doc_version < 1.110208 || scope == Output::global ) {
-			retval = root->store.sset(name,path,node_expected,item,kind,errorstr);
+			retval = root->store.sset(np.first,np.second,node_expected,item,kind,errorstr);
 		} else {
 			if (scope == Output::ancestor) {
 				bool found = false;
@@ -115,23 +111,23 @@ bool Document::setstore(const DataItem* namepath_di, DataItem*& item,kind_type k
 						doc = NULL;
 					}
 					if (doc != NULL) {
-						found = doc->store.exists(name,false,errorstr);
+						found = doc->store.exists(np.first,false,errorstr);
 					}
 				} while (doc != NULL && !found);
 				if (found && doc!=NULL) {
-					retval = doc->store.sset(name,path,node_expected,item,kind,errorstr);
+					retval = doc->store.sset(np.first,np.second,node_expected,item,kind,errorstr);
 				} else {
 					retval = false;
 					errorstr.append("Ancestor was not found for output.");
 				}
 			} else { //branch is set to this store, unless there's a path there.
-				if ( path.empty()) {
-					retval = store.sset(name,path,node_expected,item,kind,errorstr);
+				if ( np.second.empty()) {
+					retval = store.sset(np.first,np.second,node_expected,item,kind,errorstr);
 				} else {
 					bool found = false;
 					Document* doc = this;
 					while (doc != NULL && !found) {
-						found = doc->store.exists(name,false,errorstr);
+						found = doc->store.exists(np.first,false,errorstr);
 						if (!found) {
 							if (doc->p != NULL) {
 								doc = doc->p->owner;
@@ -141,9 +137,10 @@ bool Document::setstore(const DataItem* namepath_di, DataItem*& item,kind_type k
 						}
 					}
 					if (found && doc!=NULL) {
-						retval = doc->store.sset(name,path,node_expected,item,kind,errorstr);
+						retval = doc->store.sset(np.first,np.second,node_expected,item,kind,errorstr);
 					} else {
-						errorstr = "There was no existing store " + name + " for the path " + path;
+						string ervn,ervp; XML::transcode(np.first,ervn); XML::transcode(np.second,ervp);	
+						errorstr = "There was no existing store " + ervn + " for the path " + ervp;
 					}
 				}
 			}
@@ -151,69 +148,67 @@ bool Document::setstore(const DataItem* namepath_di, DataItem*& item,kind_type k
 	}
 	return retval;
 }
-bool Document::setstore(std::string& name,std::string& path, DataItem*& item,kind_type kind,Output::scope_type scope,std::string& errorstr) {
+bool Document::setstore(u_str& name,u_str& path, DataItem*& item,kind_type kind,Output::scope_type scope,std::string& errorstr) {
 	bool retval = true;
     bool node_expected = false;
-    if (name.find('#') != string::npos) {
-        errorstr = name + " already has an xpath set: " + path;
-    } else  {
-        if (doc_version < 1.110208 || scope == Output::global ) {
-            retval = root->store.sset(name,path,node_expected,item,kind,errorstr);
-        } else {
-            if (scope == Output::ancestor) {
-                bool found = false;
-                Document* doc = this;
-                do {
-                    if (doc->p != NULL) {
-                        doc = doc->p->owner;
-                    } else {
-                        doc = NULL;
-                    }
-                    if (doc != NULL) {
-                        found = doc->store.exists(name,false,errorstr);
-                    }
-                } while (doc != NULL && !found);
-                if (found && doc!=NULL) {
-                    retval = doc->store.sset(name,path,node_expected,item,kind,errorstr);
-                } else {
-                    retval = false;
-                    errorstr.append("Ancestor was not found for output.");
-                }
-            } else { //branch is set to this store, unless there's a path there.
-                if ( path.empty()) {
-                    retval = store.sset(name,path,node_expected,item,kind,errorstr);
-                } else {
-                    bool found = false;
-                    Document* doc = this;
-                    while (doc != NULL && !found) {
-                        found = doc->store.exists(name,false,errorstr);
-                        if (!found) {
-                            if (doc->p != NULL) {
-                                doc = doc->p->owner;
-                            } else {
-                                doc = NULL;
-                            }
-                        }
-                    }
-                    if (found && doc!=NULL) {
-                        retval = doc->store.sset(name,path,node_expected,item,kind,errorstr);
-                    } else {
-                        errorstr = "There was no existing store " + name + " for the path " + path;
-                    }
-                }
-            }
-        }
-    }
+	if (doc_version < 1.110208 || scope == Output::global ) {
+		retval = root->store.sset(name,path,node_expected,item,kind,errorstr);
+	} else {
+		if (scope == Output::ancestor) {
+			bool found = false;
+			Document* doc = this;
+			do {
+				if (doc->p != NULL) {
+					doc = doc->p->owner;
+				} else {
+					doc = NULL;
+				}
+				if (doc != NULL) {
+					found = doc->store.exists(name,false,errorstr);
+				}
+			} while (doc != NULL && !found);
+			if (found && doc!=NULL) {
+				retval = doc->store.sset(name,path,node_expected,item,kind,errorstr);
+			} else {
+				retval = false;
+				errorstr.append("Ancestor was not found for output.");
+			}
+		} else { //branch is set to this store, unless there's a path there.
+			if ( path.empty()) {
+				retval = store.sset(name,path,node_expected,item,kind,errorstr);
+			} else {
+				bool found = false;
+				Document* doc = this;
+				while (doc != NULL && !found) {
+					found = doc->store.exists(name,false,errorstr);
+					if (!found) {
+						if (doc->p != NULL) {
+							doc = doc->p->owner;
+						} else {
+							doc = NULL;
+						}
+					}
+				}
+				if (found && doc!=NULL) {
+					retval = doc->store.sset(name,path,node_expected,item,kind,errorstr);
+				} else {
+					string ervn,ervp; XML::transcode(name,ervn); XML::transcode(name,ervp);		
+					errorstr = "There was no existing store " + ervn + " for the path " + ervp;
+				}
+			}
+		}
+	}
 	return retval;
 }
-bool Document::storeexists(std::string& sname,std::string& sxpath,bool release,std::string& errorstr) {
+
+bool Document::storeexists(const u_str& name,const u_str& xpath,bool release,std::string& errorstr) {
 	bool retval = false;
 	if (doc_version < 1.110208) {
-		retval = root->store.exists(sname,sxpath,release,errorstr);
+		retval = root->store.exists(name,xpath,release,errorstr);
 	} else {
 		Document* doc = this;
 		while (doc != NULL && !retval) {
-			retval = doc->store.exists(sname,sxpath,release,errorstr);
+			retval = doc->store.exists(name,xpath,release,errorstr);
 			if (!retval) {
 				if (doc->p != NULL) {
 					doc = doc->p->owner;
@@ -225,7 +220,28 @@ bool Document::storeexists(std::string& sname,std::string& sxpath,bool release,s
 	}
 	return retval;
 }
-bool Document::storeexists(const std::string& obj_id,bool release,std::string& errorstr) {
+
+bool Document::metastore(const string key,unsigned long long& container) {
+	bool retval = false;
+	if (doc_version < 1.110208) {
+		retval = root->store.meta(key,container);
+	} else {
+		Document* doc = this;
+		while (doc != NULL && !retval) {
+			retval = doc->store.meta(key,container);
+			if (!retval) {
+				if (doc->p != NULL) {
+					doc = doc->p->owner;
+				} else {
+					doc = NULL;
+				}
+			}
+		}
+	}
+	return retval;
+}
+
+bool Document::storeexists(const u_str& obj_id,bool release,std::string& errorstr) {
 	bool retval = false;
 	if (doc_version < 1.110208) {
 		retval = root->store.exists(obj_id,release,errorstr);
@@ -244,7 +260,26 @@ bool Document::storeexists(const std::string& obj_id,bool release,std::string& e
 	}
 	return retval;
 }
-bool Document::storefind(const std::string& pattern,bool release,std::string& errorstr) {
+bool Document::storefind(const string& pattern,bool release,std::string& errorstr) {
+	bool retval = false;
+	if (doc_version < 1.110208) {
+		retval = root->store.find(pattern,release,errorstr);
+	} else {
+		Document* doc = this;
+		while (doc != NULL && !retval) {
+			retval = doc->store.find(pattern,release,errorstr);
+			if (!retval) {
+				if (doc->p != NULL) {
+					doc = doc->p->owner;
+				} else {
+					doc = NULL;
+				}
+			}
+		}
+	}
+	return retval;
+}
+bool Document::storefind(const u_str& pattern,bool release,std::string& errorstr) {
 	bool retval = false;
 	if (doc_version < 1.110208) {
 		retval = root->store.find(pattern,release,errorstr);
@@ -263,7 +298,7 @@ bool Document::storefind(const std::string& pattern,bool release,std::string& er
 	}
 	return retval;
 }	
-void Document::storekeys(const std::string& pattern,std::set<std::string>& keylist,std::string& errorstr) {
+void Document::storekeys(const u_str& pattern,std::set<std::string>& keylist,std::string& errorstr) {
 	if (doc_version < 1.110208) {
 		root->store.keys(pattern,keylist,errorstr);
 	} else {
@@ -278,21 +313,18 @@ void Document::storekeys(const std::string& pattern,std::set<std::string>& keyli
 		}
 	}
 }
-bool Document::getstore(const string& namepath, DataItem*& item, bool release,std::string& errorstr) {
+bool Document::getstore(const u_str& namepath, DataItem*& item, bool release,std::string& errorstr) {
 	bool retval = false;
-	pair<string,string> np;
-	string name,path;
 	bool node_expected = false;
-	String::split('#',namepath,np);		 // eg foobar#/BOOK[0]      -- foobar       /BOOK[0]
-	name=np.first; path=np.second;
-	if (*name.rbegin() == '!') { node_expected = true; name.resize(name.size()-1); }  //remove the final character
+	pair<u_str,u_str> np;
+	XMLObject::npsplit(namepath,np,node_expected);
 	if (doc_version < 1.110208) {
-		retval = root->store.sget(name,path,node_expected,item,release,errorstr);
+		retval = root->store.sget(np.first,np.second,node_expected,item,release,errorstr);
 	} else {
 		bool found = false;
 		Document* doc = this;
 		while (doc != NULL && !found) {
-			found = doc->store.exists(name,false,errorstr);
+			found = doc->store.exists(np.first,false,errorstr);
 			if (!found) {
 				if (doc->p != NULL) {
 					doc = doc->p->owner;
@@ -302,18 +334,15 @@ bool Document::getstore(const string& namepath, DataItem*& item, bool release,st
 			}
 		}
 		if (found && doc!=NULL) {
-			retval = doc->store.sget(name,path,node_expected,item,release,errorstr);
+			retval = doc->store.sget(np.first,np.second,node_expected,item,release,errorstr);
 		}
 	}
 	return retval;
 }
-bool Document::getstore(string& name,string& path,DataItem*& item, bool release,std::string& errorstr) {
+bool Document::getstore(const u_str& name,const u_str& path,DataItem*& item, bool release,std::string& errorstr) {
 	bool retval = false;
 	bool node_expected = false;
-    if (name.find('#') != string::npos) {
-        errorstr = name + " already has an xpath set: " + path;
-    } else  {
-        if (doc_version < 1.110208) {
+    if (doc_version < 1.110208) {
             retval = root->store.sget(name,path,node_expected,item,release,errorstr);
         } else {
             bool found = false;
@@ -332,10 +361,10 @@ bool Document::getstore(string& name,string& path,DataItem*& item, bool release,
                 retval = doc->store.sget(name,path,node_expected,item,release,errorstr);
             }
         }
-    }
 	return retval;
 }
-bool Document::getstore(const string& name, string& container) {
+/*
+bool Document::getstore(const u_str& name, u_str& container) { //quick hack
 	bool retval = false;
 	if (doc_version < 1.110208) {
 		retval = root->store.sget(name,container);
@@ -359,9 +388,10 @@ bool Document::getstore(const string& name, string& container) {
 	}
 	return retval;
 }
+*/
 void Document::releasestore(const DataItem* obj_id) {
 	if (obj_id != NULL) {
-		string name = *obj_id; 		
+		u_str name = *obj_id; 		
 		if (doc_version < 1.110208) {
 			root->store.release(name);
 		} else {
@@ -375,7 +405,9 @@ void Document::liststore() {
 		p->owner->liststore(); //now get the stuff above me.
 	}
 }
-bool Document::getparm(const std::string& parmkey,const DataItem*& container) const {
+
+//private, reached when going through higher owners.
+bool Document::getparm(const string& parmkey,const DataItem*& container) const {
 	bool retval = false;
 	if (parm_map != NULL) {
 		container = NULL;
@@ -390,10 +422,32 @@ bool Document::getparm(const std::string& parmkey,const DataItem*& container) co
 	}
 	return retval; //if we are outside of a function there is no parm.
 }
-bool Document::parmexists(const std::string& parmkey) const {
+
+bool Document::getparm(const u_str& parmkey,const DataItem*& container) const {
+	bool retval = false;
+	if (parm_map != NULL) {
+		container = NULL;
+		string pkey; XML::transcode(parmkey,pkey);		
+		type_parm_map::const_iterator it = parm_map->find(pkey);
+		if (it != parm_map->end()) {
+			container = ((*it).second);
+			retval = true;
+		} else {
+			if (p != NULL && doc_version > 1.110120) {
+				retval = p->owner->getparm(pkey,container); //now get the stuff above me.
+			}
+		}
+	} 
+	if (!retval && p != NULL && doc_version > 1.110120) {
+		retval = p->owner->getparm(parmkey,container); //now get the stuff above me.
+	}
+	return retval; //if we are outside of a function there is no parm.
+}
+bool Document::parmexists(const u_str& parmkey) const {
 	bool existent = false;
 	if (parm_map != NULL) {
-		type_parm_map::const_iterator it = parm_map->find(parmkey);
+		string pkey; XML::transcode(parmkey,pkey);		
+		type_parm_map::const_iterator it = parm_map->find(pkey);
 		existent = (it != parm_map->end());
 	} 
 	if (!existent && p != NULL && doc_version > 1.110120) {
@@ -401,11 +455,12 @@ bool Document::parmexists(const std::string& parmkey) const {
 	}
 	return existent; //if we are outside of a function there is no parm.
 }
-bool Document::parmfind(const string& pattern) const {
+bool Document::parmfind(const u_str& pattern) const {
 	bool retval = false;
 	if ( String::Regex::available() ) {
+		string rexpr; XML::transcode(pattern,rexpr);		
 		for(type_parm_map::const_iterator imt = parm_map->begin(); !retval && imt != parm_map->end(); imt++) {
-			retval= String::Regex::match(pattern,imt->first);
+			retval= String::Regex::match(rexpr,imt->first);
 		}
 	} else {
 		retval = parmexists(pattern);
@@ -415,16 +470,18 @@ bool Document::parmfind(const string& pattern) const {
 	}
 	return retval;
 }
-void Document::parmkeys(const string& pattern,set<string>& keylist) const {
+void Document::parmkeys(const u_str& pattern,set<string>& keylist) const {
 	if ( String::Regex::available() ) {
+		string rexpr; XML::transcode(pattern,rexpr);		
 		for(type_parm_map::const_iterator imt = parm_map->begin(); imt != parm_map->end(); imt++) {
-			if (String::Regex::match(pattern,imt->first)) {
+			if (String::Regex::match(rexpr,imt->first)) {
 				keylist.insert(imt->first);
 			}
 		}
 	} else {
 		if (parmexists(pattern)) {
-			keylist.insert(pattern);
+			string rexpr; XML::transcode(pattern,rexpr);		
+			keylist.insert(rexpr);
 		}
 	}
 	if (p != NULL && doc_version > 1.110120) {
