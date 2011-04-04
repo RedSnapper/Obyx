@@ -177,15 +177,15 @@ namespace Fetch {
 	
 	// http://curl.haxx.se/libcurl/c/curl_easy_setopt.html
 	
-	HTTPFetch::HTTPFetch(const string& u,const string& m,const string& v,string& b,int redirects, int timeout, string& errstr) : headers(NULL),cookies(),body(b),handle(NULL),errorBuf(new char[CURL_ERROR_SIZE]),had_error(false) {
+	HTTPFetch::HTTPFetch(const string& u,const string& m,const string& v,string& b,unsigned long long redirects,unsigned long long timeout, string& errstr) : headers(NULL),cookies(),body(b),handle(NULL),errorBuf(new char[CURL_ERROR_SIZE]),had_error(false) {
 		errorBuf[0] = '\0'; 
 		handle = curl_easy_init();
 		assert(handle != NULL);
 		//		processErrorCode(curl_easy_setopt(handle, CURLOPT_VERBOSE, true));
 		string redirect_val,timeout_val;
 		unsigned long maxRedirects = 10,timeout_seconds=30;
-		if (redirects >= 0) { maxRedirects = redirects; }
-		if (timeout >= 0) { timeout_seconds = timeout; }
+		if (redirects != ULLONG_MAX) { maxRedirects = redirects; }
+		if (timeout != ULLONG_MAX) { timeout_seconds = timeout; }		
 		if (maxRedirects == 0) {
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_FOLLOWLOCATION,0), errstr);
 		} else {
@@ -251,7 +251,7 @@ namespace Fetch {
 	}
 	
 	//used by OSI Request directly.
-	bool HTTPFetch::doRequest(string& headerString,string& bodyString,int redirects,int timeout,string& errstr) {
+	bool HTTPFetch::doRequest(string& headerString,string& bodyString,unsigned long long redirects,unsigned long long timeout,string& errstr) {
 		string redirect_val,timeout_val;
 		unsigned long maxRedirects = 0,timeout_seconds=30;
 		if ( Logger::debugging() ) {
@@ -262,8 +262,8 @@ namespace Fetch {
 				*Logger::log << Log::LO;
 			}
 		}
-		if (redirects >= 0) { maxRedirects = redirects; }
-		if (timeout >= 0) { timeout_seconds = timeout; }		
+		if (redirects != ULLONG_MAX) { maxRedirects = redirects; }
+		if (timeout != ULLONG_MAX) { timeout_seconds = timeout; }		
 		if (maxRedirects == 0) {
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_FOLLOWLOCATION,0), errstr);
 		} else {

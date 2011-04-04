@@ -76,6 +76,12 @@ namespace XML {
 		}
 	}
 	
+	void to_ustr(const long num,u_str& repo) {
+		XMLCh buff[64]; //sizeof long should not be more than 64 chars.
+		XMLString::binToText(num,buff,63,10);
+		repo = buff;
+	}
+	
 	bool Manager::attribute(const DOMNode* n,const std::string attrname, std::string& attrval) {
 		bool result=false;
 		if (n != NULL && !attrname.empty() && n->getNodeType() == DOMNode::ELEMENT_NODE ) {
