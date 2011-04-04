@@ -237,8 +237,7 @@ bool XMLObject::xp(const u_str& path,DataItem*& container,bool node_expected,std
 								case DOMNode::PROCESSING_INSTRUCTION_NODE: 
 								case DOMNode::COMMENT_NODE: {
 									if (want_value) {
-										string xs;
-										XML::transcode(xn->getNodeValue(),xs);
+										u_str xs(xn->getNodeValue());
 										item = DataItem::factory(xs,di_text);
 									} else {
 										item = DataItem::factory(xn);
@@ -247,8 +246,7 @@ bool XMLObject::xp(const u_str& path,DataItem*& container,bool node_expected,std
 								case DOMNode::TEXT_NODE:
 								case DOMNode::CDATA_SECTION_NODE:
 								case DOMNode::ATTRIBUTE_NODE: {
-									string xs;
-									XML::transcode(xn->getNodeValue(),xs);
+									u_str xs(xn->getNodeValue());
 									item = DataItem::factory(xs,di_text);
 								} break;
 								default: {
@@ -256,8 +254,7 @@ bool XMLObject::xp(const u_str& path,DataItem*& container,bool node_expected,std
 								} break;
 							}
 						} else {
-							string xs;
-							XML::transcode(result->getStringValue(),xs);
+							u_str xs(result->getStringValue());
 							item = DataItem::factory(xs);
 						}
 						DataItem::append(container,item); //either/both could be NULL. and we may need to convert from one type to another.
@@ -306,8 +303,7 @@ bool XMLObject::xp(const DataItem* ins,const u_str& path,DOMLSParser::ActionType
 							if ( fg == NULL ) {  //ins is a string.
 								u_str insval;
 								if (ins != NULL) {
-									std::string insstr = *ins;								
-									XML::transcode(insstr,insval);
+									insval = *ins; 
 								}
 								XML::Manager::parser()->insertContext(x_doc,pt,insval,action);
 							} else { //fragment.
