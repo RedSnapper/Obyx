@@ -348,8 +348,7 @@ bool XMLObject::xp(const DataItem* ins,const u_str& path,DOMLSParser::ActionType
 										DOMElement* enod = (DOMElement*)pt;
 										u_str xaname,xvalue;
 										if ( ins != NULL && ! ins->empty() ) {
-											string value = *ins;
-											XML::transcode(value,xvalue);		
+											xvalue = *ins;
 											DOMAttr* dnoda = x_doc->createAttribute(xaname.c_str());
 											dnoda->setNodeValue(xvalue.c_str());
 											enod->setAttributeNode(dnoda);
