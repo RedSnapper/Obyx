@@ -346,14 +346,13 @@ bool XMLObject::xp(const DataItem* ins,const u_str& path,DOMLSParser::ActionType
 								if ( pt != NULL ) {
 									if ( pt->getNodeType() == DOMNode::ELEMENT_NODE ) {
 										DOMElement* enod = (DOMElement*)pt;
-										u_str xaname,xvalue;
 										if ( ins != NULL && ! ins->empty() ) {
-											xvalue = *ins;
-											DOMAttr* dnoda = x_doc->createAttribute(xaname.c_str());
+											u_str xvalue = *ins;
+											DOMAttr* dnoda = x_doc->createAttribute(aname.c_str());
 											dnoda->setNodeValue(xvalue.c_str());
 											enod->setAttributeNode(dnoda);
 										} else { //in obyx, setting an attribute to nothing deletes it.								
-											enod->removeAttribute(xaname.c_str());
+											enod->removeAttribute(aname.c_str());
 										}
 									}
 								} else {
@@ -397,9 +396,7 @@ bool XMLObject::xp(const DataItem* ins,const u_str& path,DOMLSParser::ActionType
 									if ( pt->getNodeType() == DOMNode::ELEMENT_NODE ) {
 										DOMElement* enod = (DOMElement*)pt;
 										if ( ins != NULL && ! ins->empty() ) {
-											string value = *ins;
-											u_str xvalue;
-											XML::transcode(value,xvalue);		
+											u_str xvalue  = *ins;
 											DOMNode* dnoda = x_doc->createComment(xvalue.c_str());
 											dnoda->setNodeValue(xvalue.c_str());
 											enod->appendChild(dnoda);
