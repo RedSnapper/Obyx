@@ -169,11 +169,17 @@ bool FragmentObject::empty() const {
 }
 bool FragmentObject::same(const DataItem* xtst) const {
 	bool retval = false;
-	const FragmentObject* ox = dynamic_cast<const FragmentObject*>(xtst);
-	if ( fragment != NULL && ox != NULL ) {
-		retval = fragment->isEqualNode(*ox);
+	if (fragment == NULL && xtst == NULL) {
+		retval = true;	
 	} else {
-		if (fragment == NULL && xtst == NULL) retval = true;
+		const FragmentObject* ox = dynamic_cast<const FragmentObject*>(xtst);
+		if ( fragment != NULL && ox != NULL ) {
+			retval = fragment->isEqualNode(*ox);
+		} else {
+			string frag,text = *xtst;
+			XML::Manager::parser()->writenode(fragment,frag);
+			retval = (frag.compare(text) == 0);
+		}
 	}
 	return retval;
 }
