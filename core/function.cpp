@@ -147,7 +147,7 @@ void Function::evaluate(size_t,size_t) {
 	finalised = false;
 	if (!deferred) {
 		prep_breakpoint();
-		if (wotzit != endqueue) { 
+		if (wotzit != endqueue) {
 			if (!stream_is_set) {
 				for (unsigned int s = 0; s < outputs.size(); s++) {
 					Output* theoutput = outputs[s];
@@ -163,53 +163,61 @@ void Function::evaluate(size_t,size_t) {
 			}
 			if (results.final() && !outputs.empty()) {
 				if ( may_eval_outputs() ) {	
-					DataItem* my_result = NULL; //need to keep immediate results.
-					bool out_evaluated = true;
+					/* Now evaluate the outputs for this function.
+					 There are zero or more outputs, so we will need to have as many copies of the results as there are outputs.
+					 However, when one of the outputs is a caught error, then the other outputs are not evaluated, and the current results are discarded.
+					 When the error is not caught, everything is as normal.
+					 
+					 if (there is an error to catch && it is caught) {
+					 discard the other outputs and the result
+					 } else {
+					 evaluate the other outputs
+					 }
+					 
+					 */
+					//Find if there is an output..
+					bool err_caught = false;
 					size_t os = outputs.size();
-					Output* erroutput = NULL;   //temporary storage until all the other outputs are done.
-					for (size_t s = 0; s < os; s++) {
+					DataItem* imm_result = NULL; //need to keep immediate results.
+					for (size_t s = 0; s < os; s++) { //see if we are catching errors.
 						if (outputs[s] != NULL && outputs[s]->gettype() == out_error) {
-							erroutput = outputs[s];
-							outputs[s] = NULL;
+							if (stream_is_set) {
+								Logger::unset_stream();
+								stream_is_set = false; //see if I can get rid of this.. need to semaphore, esp. when multiple evaluations are called for this.
+							} 
+							outputs[s]->evaluate(s,string::npos); //We only want a copy here...
+							err_caught = outputs[s]->caughterr();
+							delete outputs[s]; outputs[s] = NULL;
+							if (s == os -1) { os--; }
+							break;
 						}
-					}
-					if (erroutput != NULL) { //catch the error if it is there.
-						if (stream_is_set) {
-							Logger::unset_stream();
-							stream_is_set = false; //see if I can get rid of this.. need to semaphore, esp. when multiple evaluations are called for this.
-						} 
-						erroutput->evaluate(os,os);
 					}
 					for (size_t s = 0; s < os; s++) { //if there was an error, and nothing was caught, then do any output.
 						Output* theoutput = outputs[s];
-						if (theoutput != NULL && (erroutput == NULL || !erroutput->caughterr())) { //evaluate what we can.
-							theoutput->evaluate(s+1,os);
-							if ( theoutput->gettype() == out_immediate ) {
-								theoutput->results.takeresult(my_result);
+						if (theoutput != NULL) { //evaluate what we can.
+							if ( !err_caught) {
+								theoutput->evaluate(s+1,os);
+								if ( theoutput->gettype() == out_immediate ) {
+									theoutput->results.takeresult(imm_result);
+								}
 							}
+							delete theoutput;
+							outputs[s] = NULL;
 						}
-						delete theoutput;
-						outputs[s] = NULL;
 					}
-					if (erroutput != NULL) { //tidy off erroutput.
-						delete erroutput;
-					}
-					if ( out_evaluated ) {
-						outputs.clear();			  //all will be set to NULL...
-						results.setresult(my_result); //now encoded and what-have-you - or may be null.
-					} else {
-						finalised=false;
-					}
+					outputs.clear();			  //all will be set to NULL...
+					results.setresult(imm_result); //now encoded and what-have-you - or may be null.
 				} else {
+					finalised=false;
 					results.clearresult();
 				}
-			} 
-		} else {
-			finalised=true; 
-		}
-		do_breakpoint();
-	} 
-}
+			}
+		} 
+	} else {
+		finalised=true; 
+	}
+	do_breakpoint();
+} 
 bool Function::final() {
 	return finalised;
 }
