@@ -60,6 +60,7 @@ Environment* Environment::instance;
 double Environment::runtime_version = 999999.99999;
 
 Environment::Environment()  : gDevelop(false),gSQLport(0),gRootDir(""),gScriptsDir(""),gScratchDir("/tmp/"),basetime(0),parmprefix("")  {
+	pid = getpid();
 	gArgc=0;
 	gArgv=NULL;
 }
@@ -956,10 +957,11 @@ void Environment::setbasetime() {
 	unsigned long long clocktime = tb.tms_utime + tb.tms_stime + tb.tms_cutime + tb.tms_cstime;;
 	basetime = static_cast<long double>(clocktime) / sysconf(_SC_CLK_TCK);	
 #else
+	clockid_t clock_id;
 	struct timespec tb = {0,0};
-	clock_gettime(CLOCK_REALTIME,&tb);
-	unsigned long long clocktime = tb.tv_sec * 1000000000ULL + tb.tv_nsec;
-	basetime = clocktime / 1000000000ULL; // nanoseconds
+	clock_getcpuclockid(pid,&clock_id);	
+	clock_gettime(clock_id,&tb);
+	basetime = (tb.tv_sec * 1000000000ULL + tb.tv_nsec) / 1000000000ULL; // nanoseconds
 #endif
 }
 void Environment::setienv(string name,string value) {
@@ -1308,12 +1310,11 @@ void Environment::gettiming(string& result) {
 	
 #else
 	struct timespec tb = {0,0};
-	int err = clock_gettime(CLOCK_REALTIME,&tb);
-	if ( err != 0 ) *Logger::log << Log::error << Log::LI << "Error. Environment::setbasetime error:" << err << Log::LO << Log::blockend;
-	unsigned long long clocktime = tb.tv_sec * 1000000000ULL + tb.tv_nsec;
-	long double timing = clocktime / 1000000000ULL; // nanoseconds
-	timing = timing - basetime;
-	result = String::tostring(timing,12L);
+	clockid_t clock_id;
+	clock_getcpuclockid(pid,&clock_id);	
+	clock_gettime(clock_id,&tb);
+	long double timing = (tb.tv_sec * 1000000000ULL + tb.tv_nsec) / 1000000000ULL; // nanoseconds
+	result = String::tostring(timing - basetime,12L);
 #endif
 }
 void Environment::getresponsehttp(string& result) {

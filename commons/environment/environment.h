@@ -70,6 +70,7 @@ private:
 	string gRootDir;
 	string gScriptsDir;
 	string gScratchDir;
+	pid_t pid;
 	long double basetime;	//used for timing.
 	std::string empty;
 	std::string parmprefix;
