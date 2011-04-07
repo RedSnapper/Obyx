@@ -17,6 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.110407
+	Enh.		Added a u_str dataitem. Moved transcode to be inside Manager.
 v1.110404
 	BUG.		Mantis #69. With thrown errors, adjacent outputs are set.
 v1.110331
