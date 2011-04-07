@@ -1302,7 +1302,7 @@ void Environment::gettiming(string& result) {
 	struct tms tb;
 	times(&tb);
 	unsigned long long clocktime = tb.tms_utime + tb.tms_stime + tb.tms_cutime + tb.tms_cstime;
-	long double timing = static_cast<long double>(clocktime) / sysconf(_SC_CLK_TCK);
+	long double timing = clocktime / sysconf(_SC_CLK_TCK);
 	timing = timing - basetime;
 	result = String::tostring(timing,12L);
 	
@@ -1311,7 +1311,7 @@ void Environment::gettiming(string& result) {
 	int err = clock_gettime(CLOCK_REALTIME,&tb);
 	if ( err != 0 ) *Logger::log << Log::error << Log::LI << "Error. Environment::setbasetime error:" << err << Log::LO << Log::blockend;
 	unsigned long long clocktime = tb.tv_sec * 1000000000ULL + tb.tv_nsec;
-	long double timing = static_cast<long double>(clocktime) / 1000000000ULL; // nanoseconds
+	long double timing = clocktime / 1000000000ULL; // nanoseconds
 	timing = timing - basetime;
 	result = String::tostring(timing,12L);
 #endif
