@@ -958,8 +958,8 @@ void Environment::setbasetime() {
 #else
 	struct timespec tb = {0,0};
 	clock_gettime(CLOCK_REALTIME,&tb);
-	unsigned long long clocktime = tb.tv_sec * 1000000000 + tb.tv_nsec;
-	basetime = static_cast<long double>(clocktime) / 1000000000; // nanoseconds
+	unsigned long long clocktime = tb.tv_sec * 1000000000ULL + tb.tv_nsec;
+	basetime = clocktime / 1000000000ULL; // nanoseconds
 #endif
 }
 void Environment::setienv(string name,string value) {
@@ -1307,7 +1307,7 @@ void Environment::gettiming(string& result) {
 	result = String::tostring(timing,12L);
 	
 #else
-	struct timespec tb;
+	struct timespec tb = {0,0};
 	int err = clock_gettime(CLOCK_REALTIME,&tb);
 	if ( err != 0 ) *Logger::log << Log::error << Log::LI << "Error. Environment::setbasetime error:" << err << Log::LO << Log::blockend;
 	unsigned long long clocktime = tb.tv_sec * 1000000000ULL + tb.tv_nsec;
