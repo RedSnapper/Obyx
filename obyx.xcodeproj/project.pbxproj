@@ -13,6 +13,8 @@
 		B52556180C7DDB7700E3ADFC /* mapping.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B52556170C7DDB7700E3ADFC /* mapping.cpp */; };
 		B52D56D909BF72F800F639C5 /* function.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B52D56D809BF72F800F639C5 /* function.cpp */; };
 		B52DB5060CBB9A5E00D5B5D0 /* servicefactory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B52DB5050CBB9A5E00D5B5D0 /* servicefactory.cpp */; };
+		B5350FA1134DBE3F00801466 /* ustritem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5350F9F134DBE3E00801466 /* ustritem.cpp */; };
+		B5350FA2134DBE3F00801466 /* ustritem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5350F9F134DBE3E00801466 /* ustritem.cpp */; };
 		B53AE9BE0C1DE1CA00B2371C /* httpfetch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B53AE9B50C1DE1CA00B2371C /* httpfetch.cpp */; };
 		B53AE9BF0C1DE1CA00B2371C /* httpfetcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B53AE9B70C1DE1CA00B2371C /* httpfetcher.cpp */; };
 		B53AE9C00C1DE1CA00B2371C /* httpfetchheadparser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B53AE9BA0C1DE1CA00B2371C /* httpfetchheadparser.cpp */; };
@@ -182,6 +184,8 @@
 		B52DB5040CBB9A5E00D5B5D0 /* servicefactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = servicefactory.h; sourceTree = "<group>"; };
 		B52DB5050CBB9A5E00D5B5D0 /* servicefactory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = servicefactory.cpp; sourceTree = "<group>"; };
 		B52DB5160CBB9A9D00D5B5D0 /* service.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = service.h; sourceTree = "<group>"; };
+		B5350F9F134DBE3E00801466 /* ustritem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ustritem.cpp; sourceTree = "<group>"; };
+		B5350FA0134DBE3F00801466 /* ustritem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ustritem.h; sourceTree = "<group>"; };
 		B53AE9B50C1DE1CA00B2371C /* httpfetch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = httpfetch.cpp; sourceTree = "<group>"; };
 		B53AE9B60C1DE1CA00B2371C /* httpfetch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = httpfetch.h; sourceTree = "<group>"; };
 		B53AE9B70C1DE1CA00B2371C /* httpfetcher.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = httpfetcher.cpp; sourceTree = "<group>"; };
@@ -489,6 +493,8 @@
 				B58DA8C11104B05E00C34661 /* fragmentobject.cpp */,
 				B55597890F8A0D3E003C3BE0 /* strobject.h */,
 				B55597880F8A0D3E003C3BE0 /* strobject.cpp */,
+				B5350FA0134DBE3F00801466 /* ustritem.h */,
+				B5350F9F134DBE3E00801466 /* ustritem.cpp */,
 				B555978B0F8A0D3E003C3BE0 /* xmlobject.h */,
 				B555978A0F8A0D3E003C3BE0 /* xmlobject.cpp */,
 			);
@@ -893,6 +899,7 @@
 				B53B010311F524D600C1D7E3 /* crypto.cpp in Sources */,
 				B56A57031265F924001C4299 /* infix.cpp in Sources */,
 				B5F79CB31268876B008CBD64 /* bitwise.cpp in Sources */,
+				B5350FA2134DBE3F00801466 /* ustritem.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -961,6 +968,7 @@
 				B53B010411F524D600C1D7E3 /* crypto.cpp in Sources */,
 				B56A57021265F924001C4299 /* infix.cpp in Sources */,
 				B5F79CB41268876B008CBD64 /* bitwise.cpp in Sources */,
+				B5350FA1134DBE3F00801466 /* ustritem.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

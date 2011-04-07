@@ -22,6 +22,7 @@
 
 #include "dataitem.h"
 #include "strobject.h"
+#include "ustritem.h"
 #include "xmlobject.h"
 #include "fragmentobject.h"
 
@@ -128,6 +129,48 @@ DataItem* DataItem::autoItem(const std::string& s) {
 	}
 	return retval;
 }
+DataItem* DataItem::autoItem(const u_str& s) {
+	DataItem* retval = NULL;
+	if ( s.empty() ) {
+		retval=NULL;
+	} else {
+		u_str::size_type b = s.find_first_not_of(UCS2(L" \r\n\t" )); //Test for first non-ws is a '<'
+		if(s[b] != '<') {  
+			retval=new UStrItem(s);
+		} else {
+			string::size_type e = s.find_last_not_of(UCS2(L" \r\n\t" )); //Test for last non-ws is a '>'
+			if(s[e] != '>') { 
+				retval=new UStrItem(s);
+			} else {
+				bool xml_dt_prolog_found = false;
+				if(s.substr(b,6).compare(UCS2(L"<?xml "))==0) { 
+					xml_dt_prolog_found = true;
+					retval=new XMLObject(s);
+				}
+				if(!xml_dt_prolog_found) {  
+					bool xmlns_found = false;
+					if (s.find(UCS2(L"xmlns")) != string::npos) {
+						xmlns_found = true;
+						retval=new XMLObject(s);
+					}
+					if (!xmlns_found) {  //no xml prolog, no xmlns declaration, but < and > so try a suppressed xmlobject.
+						ostringstream* suppressor = NULL;
+						suppressor = new ostringstream();
+						Logger::set_stream(suppressor);
+						retval=new XMLObject(s);
+						Logger::unset_stream();
+						if (!suppressor->str().empty()) {
+							if (retval != NULL) { delete retval; }
+							retval=new UStrItem(s);
+						}
+						delete suppressor;
+					}
+				}
+			} 
+		}
+	}
+	return retval;
+}
 
 DataItem* DataItem::factory(std::string& s,kind_type kind_it_is) {
 	DataItem* retval = NULL;
@@ -137,6 +180,9 @@ DataItem* DataItem::factory(std::string& s,kind_type kind_it_is) {
 		} break;
 		case di_text: {
 			retval= new StrObject(s);
+		} break;
+		case di_utext: {
+			retval= new UStrItem(s);
 		} break;
 		case di_fragment: {
 			retval= new FragmentObject(s);
@@ -159,6 +205,9 @@ DataItem* DataItem::factory(const string& s,kind_type kind_it_is) {
 		case di_text: {
 			retval= new StrObject(s);
 		} break;
+		case di_utext: {
+			retval= new UStrItem(s);
+		} break;
 		case di_fragment: {
 			retval= new FragmentObject(s);
 		} break;			
@@ -179,6 +228,15 @@ DataItem* DataItem::factory(const char* s,kind_type kind_it_is) {
 		return NULL;
 	}
 }
+DataItem* DataItem::factory(const XMLCh* s,kind_type kind_it_is) {
+	if (s != NULL) {
+		u_str test(s);
+		return factory(test,kind_it_is);
+	} else {
+		return NULL;
+	}
+}
+
 DataItem* DataItem::factory(xercesc::DOMDocument*& s,kind_type kind_it_is) {
 	DataItem* retval = NULL;
 	switch (kind_it_is) {
@@ -189,10 +247,11 @@ DataItem* DataItem::factory(xercesc::DOMDocument*& s,kind_type kind_it_is) {
 		case di_fragment: {
 			retval= new FragmentObject(s);
 		} break;
+		case di_utext: {
+			retval= new UStrItem(s);
+		} break;
 		case di_text: {
-			string doc; 
-			XML::Manager::parser()->writenode(s,doc);
-			retval = new StrObject(doc);
+			retval= new StrObject(s);
 		} break;
 		case di_null: {
 			retval=NULL;
@@ -210,10 +269,11 @@ DataItem* DataItem::factory(const xercesc::DOMDocument*& s,kind_type kind_it_is)
 		case di_fragment: {
 			retval= new FragmentObject(s);
 		} break;
+		case di_utext: {
+			retval= new UStrItem(s);
+		} break;
 		case di_text: {
-			string doc; 
-			XML::Manager::parser()->writenode(s,doc);
-			retval = new StrObject(doc);
+			retval= new StrObject(s);
 		} break;
 		case di_null: {
 			retval=NULL;
@@ -243,6 +303,12 @@ DataItem* DataItem::factory(DataItem* s,kind_type kind_it_is) {
 				}
 			}			
 		} break;
+		case di_utext: {
+			if ( s != NULL) {
+				u_str x = *s;
+				retval = new UStrItem(x);
+			}
+		} break;
 		case di_text: {
 			if ( s != NULL) {
 				std::string x = *s;
@@ -270,14 +336,16 @@ DataItem* DataItem::factory(xercesc::DOMNode* const& pt,kind_type kind_it_is) {
 					case DOMNode::DOCUMENT_TYPE_NODE: 
 					case DOMNode::DOCUMENT_FRAGMENT_NODE: 
 					case DOMNode::NOTATION_NODE: 
-					case DOMNode::TEXT_NODE: 
-					case DOMNode::COMMENT_NODE: 
-					case DOMNode::PROCESSING_INSTRUCTION_NODE:
 					case DOMNode::ENTITY_NODE:
-					case DOMNode::ENTITY_REFERENCE_NODE:
-					case DOMNode::CDATA_SECTION_NODE: 
-					case DOMNode::ATTRIBUTE_NODE: {
+					case DOMNode::ENTITY_REFERENCE_NODE: {
 						retval = new FragmentObject(pt);
+					} break;
+					case DOMNode::CDATA_SECTION_NODE: 
+					case DOMNode::ATTRIBUTE_NODE:
+					case DOMNode::PROCESSING_INSTRUCTION_NODE:
+					case DOMNode::COMMENT_NODE: 
+					case DOMNode::TEXT_NODE: {
+						retval = new UStrItem(pt);
 					} break;
 					default: {
 						*Logger::log << Log::fatal << Log::LI << "Node Type not recognised. Probably corrupt data." << Log::LO << Log::blockend;
@@ -290,9 +358,11 @@ DataItem* DataItem::factory(xercesc::DOMNode* const& pt,kind_type kind_it_is) {
 			case di_object: {
 				retval = new XMLObject(pt);
 			} break;
+			case di_utext: {
+				retval = new UStrItem(pt);
+			} break;				
 			case di_text: {
-				string snode; XML::Manager::parser()->writenode(pt,snode);
-				retval = new StrObject(snode);
+				retval = new StrObject(pt);
 			} break;
 			case di_null: break;
 		}
@@ -306,10 +376,15 @@ DataItem* DataItem::factory(u_str s,kind_type kind_it_is) {
 		switch (kind_it_is) {
 			case di_auto: {			
 				if (! s.empty() ) {
-					retval= new FragmentObject(s); //why are we not doing xml detection here?
+					retval= autoItem(s);
+
+//					retval= new UStrItem(s); //why are we not doing xml detection here?
 				} else {
 					retval=NULL;
 				}
+			} break;
+			case di_utext: {
+				retval = new UStrItem(s);
 			} break;
 			case di_text: {
 				retval= new StrObject(s);

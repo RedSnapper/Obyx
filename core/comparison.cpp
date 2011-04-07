@@ -61,7 +61,7 @@ cmp_evaluated(false),def_evaluated(false),operation_result('X') {
 			invert = i->second.second;
 		} else {
 			if ( ! op_string.empty() ) {
-				string err_msg; transcode(op_string.c_str(),err_msg);
+				string err_msg; Manager::transcode(op_string.c_str(),err_msg);
 				*Logger::log << Log::syntax << Log::LI << "Syntax Error. " <<  err_msg << " is not a legal comparison operation. It should be one of: equal,existent,empty,significant,found,greater,lesser,true" << Log::LO; 
 				trace();
 				*Logger::log << Log::blockend;
@@ -73,7 +73,7 @@ cmp_evaluated(false),def_evaluated(false),operation_result('X') {
 			invert = !invert;
 		} else {
 			if (invert_str.compare(UCS2(L"false")) != 0) {
-				string err_msg; transcode(invert_str.c_str(),err_msg);
+				string err_msg; Manager::transcode(invert_str.c_str(),err_msg);
 				*Logger::log << Log::syntax << Log::LI << "Syntax Error. " <<  err_msg << " is not a legal invert. It should be one of: true,false" << Log::LO; 
 				trace();
 				*Logger::log << Log::blockend;
@@ -101,7 +101,7 @@ cmp_evaluated(false),def_evaluated(false),operation_result('X') {
 			logic = obyx::any;
 		} else {
 			if (logic_str.compare(UCS2(L"all")) != 0) {
-				string err_msg; transcode(logic_str.c_str(),err_msg);
+				string err_msg; Manager::transcode(logic_str.c_str(),err_msg);
 				*Logger::log << Log::syntax << Log::LI << "Syntax Error. " << err_msg << " is not a legal logic attribute. It should be one of: any,all" << Log::LO; 
 				trace();
 				*Logger::log << Log::blockend;

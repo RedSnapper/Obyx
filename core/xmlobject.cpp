@@ -172,6 +172,23 @@ bool XMLObject::find(const char* o,std::string& error_msg) const {
 	}
 	return retval;
 }
+
+bool XMLObject::find(const XMLCh* srch,std::string& error_msg) const {
+	bool retval = false;
+	if (srch != NULL && x_doc != NULL) {
+		u_str xpath(srch);
+		DOMXPathResult* pt = NULL;
+		retval = xp_result(xpath,pt,error_msg);
+		if (retval && pt != NULL && pt->getSnapshotLength()  > 0 ) {
+			pt->release();
+			retval = true;
+		}
+	} else {
+		retval = true;
+	}
+	return retval;
+}
+
 /* -- more non-virtual methods -- */
 /* private */
 bool XMLObject::xp_result(const u_str& xpath,DOMXPathResult*& result,std::string& err_message) const {
@@ -187,19 +204,19 @@ bool XMLObject::xp_result(const u_str& xpath,DOMXPathResult*& result,std::string
 			result = parsedExpression->evaluate(x_doc->getDocumentElement(),DOMXPathResult::SNAPSHOT_RESULT_TYPE, NULL);
 		} 
 		catch (XQException &e) {
-			XML::transcode(e.getError(),err_message);
+			XML::Manager::transcode(e.getError(),err_message);
 			retval = false;
 		}
 		catch (XQillaException &e) {
-			XML::transcode(e.getString(),err_message);
+			XML::Manager::transcode(e.getString(),err_message);
 			retval = false;
 		}					
 		catch (DOMXPathException &e) { 
-			XML::transcode(e.getMessage(),err_message);
+			XML::Manager::transcode(e.getMessage(),err_message);
 			retval = false;
 		}
 		catch (DOMException &e) {
-			XML::transcode(e.getMessage(),err_message);
+			XML::Manager::transcode(e.getMessage(),err_message);
 			retval = false;
 		}
 		catch (...) {
@@ -232,13 +249,12 @@ bool XMLObject::xp(const u_str& path,DataItem*& container,bool node_expected,std
 						if ( result->isNode() ) {
 							DOMNode* xn = result->getNodeValue();
 							DOMNode::NodeType xnt = xn->getNodeType();
-							string itemx;
 							switch (xnt) {
 								case DOMNode::PROCESSING_INSTRUCTION_NODE: 
 								case DOMNode::COMMENT_NODE: {
 									if (want_value) {
 										u_str xs(xn->getNodeValue());
-										item = DataItem::factory(xs,di_text);
+										item = DataItem::factory(xs,di_utext);
 									} else {
 										item = DataItem::factory(xn);
 									}
@@ -247,7 +263,7 @@ bool XMLObject::xp(const u_str& path,DataItem*& container,bool node_expected,std
 								case DOMNode::CDATA_SECTION_NODE:
 								case DOMNode::ATTRIBUTE_NODE: {
 									u_str xs(xn->getNodeValue());
-									item = DataItem::factory(xs,di_text);
+									item = DataItem::factory(xs,di_utext);
 								} break;
 								default: {
 									item = DataItem::factory(xn);
@@ -262,20 +278,20 @@ bool XMLObject::xp(const u_str& path,DataItem*& container,bool node_expected,std
 				}
 				delete result; result = NULL;
 				if (sslena == 0 && node_expected) {
-					std::string xpath; XML::transcode(path,xpath);
+					std::string xpath; XML::Manager::transcode(path,xpath);
 					error_str = "While attempting a get, the xpath " + xpath + " returned no nodes.";												
 					retval=false;
 				}
 			} else {
 				if (node_expected) {
-					std::string xpath; XML::transcode(path,xpath);
+					std::string xpath; XML::Manager::transcode(path,xpath);
 					error_str = "While attempting a get, the xpath " + xpath + " returned an empty result.";												
 					retval=false;
 				}
 			}
 		} else {
 			if (node_expected) {
-				std::string xpath; XML::transcode(path,xpath);
+				std::string xpath; XML::Manager::transcode(path,xpath);
 				error_str = "While attempting a get, the xpath " + xpath + " included an insertion point.";												
 				retval=false;
 			}
@@ -315,7 +331,7 @@ bool XMLObject::xp(const DataItem* ins,const u_str& path,DOMLSParser::ActionType
 					} else {
 						if (node_expected) {
 							if (error_str.empty()) {
-								std::string xpath; XML::transcode(path,xpath);
+								std::string xpath; XML::Manager::transcode(path,xpath);
 								error_str = "When attempting a set, the xpath " + xpath + " result was not a node.";
 							}
 						}
@@ -359,7 +375,7 @@ bool XMLObject::xp(const DataItem* ins,const u_str& path,DOMLSParser::ActionType
 					} else {
 						if (node_expected) {
 							if (error_str.empty()) {
-								std::string epath; XML::transcode(apath,epath);
+								std::string epath; XML::Manager::transcode(apath,epath);
 								error_str = "When attempting an attribute set, the xpath " + epath + " did not return a node position.";
 							}
 							retval=false;
@@ -370,7 +386,7 @@ bool XMLObject::xp(const DataItem* ins,const u_str& path,DOMLSParser::ActionType
 				} else {
 					if (node_expected) {
 						if (error_str.empty()) {
-							std::string epath; XML::transcode(apath,epath);
+							std::string epath; XML::Manager::transcode(apath,epath);
 							error_str = "When attempting an attribute set, the xpath " + epath + " did not return a node position.";
 						}
 						retval=false;
@@ -408,7 +424,7 @@ bool XMLObject::xp(const DataItem* ins,const u_str& path,DOMLSParser::ActionType
 					} else {
 						if (node_expected) {
 							if (error_str.empty()) {
-								std::string epath; XML::transcode(apath,epath);
+								std::string epath; XML::Manager::transcode(apath,epath);
 								error_str = "When attempting to set a comment, the xpath " + epath + " did not return a node position.";
 							}
 							retval=false;
@@ -417,7 +433,7 @@ bool XMLObject::xp(const DataItem* ins,const u_str& path,DOMLSParser::ActionType
 				} else {
 					if (node_expected) {
 						if (error_str.empty()) {
-							std::string epath; XML::transcode(path,epath);
+							std::string epath; XML::Manager::transcode(path,epath);
 							error_str = "When attempting a set, the xpath " + epath + " did not return a node position.";
 						}
 						retval=false;
@@ -430,7 +446,7 @@ bool XMLObject::xp(const DataItem* ins,const u_str& path,DOMLSParser::ActionType
 	} else {
 		if (node_expected) {
 			if (error_str.empty()) {
-				std::string epath; XML::transcode(path,epath);
+				std::string epath; XML::Manager::transcode(path,epath);
 				error_str = "When attempting a set, the xpath " + epath + " failed.";
 			}
 			retval=false;
@@ -499,20 +515,20 @@ bool XMLObject::sort(const u_str& path,const u_str& sortpath,bool ascending,bool
 				results_for_sorting.clear();
 				delete result; result = NULL;
 				if (sslena == 0 && node_expected) {
-					std::string epath; XML::transcode(path,epath);
+					std::string epath; XML::Manager::transcode(path,epath);
 					error_str = "While attempting a get, the xpath " + epath + " returned no nodes.";												
 					retval=false;
 				}
 			} else {
 				if (node_expected) {
-					std::string epath; XML::transcode(path,epath);
+					std::string epath; XML::Manager::transcode(path,epath);
 					error_str = "While attempting a get, the xpath " + epath + " returned an empty result.";												
 					retval=false;
 				}
 			}
 		} else {
 			if (node_expected) {
-				std::string epath; XML::transcode(path,epath);
+				std::string epath; XML::Manager::transcode(path,epath);
 				error_str = "While attempting a sort, the xpath " + epath + " included an insertion point.";												
 				retval=false;
 			}
@@ -553,6 +569,21 @@ XMLObject::~XMLObject() {
 	}	
 }
 #pragma mark static utility
+//---------------------------------------------------------------------------
+void XMLObject::trim(u_str& str) {
+	XMLCh const* delims = UCS2(L" \t\r\n");
+	u_str::size_type notwhite = str.find_first_not_of(delims);
+	str.erase(0,notwhite);
+	notwhite = str.find_last_not_of(delims);
+	str.erase(notwhite+1);	
+}
+
+void XMLObject::rtrim(u_str& str) {
+	XMLCh const* delims = UCS2(L" \t\r\n");
+	u_str::size_type notwhite = str.find_last_not_of(delims);
+	str.erase(notwhite+1);	
+}
+
 //-----------------------------------------------------------------------------
 pair<unsigned long long,bool> XMLObject::hex(const u_str& s) { //Given a string, returns a natural from any hex that it STARTS with.
 	bool isnumber = false;

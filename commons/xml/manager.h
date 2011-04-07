@@ -28,23 +28,30 @@
 #include <ostream>
 
 #include "commons/xml/xml.h"
+#include "commons/string/strings.h"
 
 namespace XML {
 	
 	class XercesInitExn { };
 	
-	void transcode(const u_str&, std::string&);
-	void transcode(const std::string&,u_str&,const std::string = "UTF-8");
-	void to_ustr(const long,u_str&);
-	
 	class Manager {
 	private:
+		typedef hash_map<const std::string,u_str, hash<const string&> > su_map_type;
+		typedef hash_map<const u_str,std::string, hash<const u_str&> > us_map_type;
+
 		friend class XMLObject;
+
+		static su_map_type tsu;	//cache transcodes.
+		static us_map_type tus;	//cache transcodes.
 	    static std::ostream*			serial_ostream;
 		
 	public:
 		static XML::Parser*				xparser;
 		
+		static void transcode(const u_str&, std::string&);
+		static void transcode(const std::string&,u_str&,const std::string = "UTF-8");
+		static void to_ustr(const long,u_str&);
+
 		static bool attribute(const DOMNode*,const std::string,std::string&);
 		static bool attribute(const DOMNode*,const u_str,u_str&);
 		static bool attribute(const DOMNode*,const u_str);

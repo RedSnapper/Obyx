@@ -61,7 +61,7 @@ Output::Output(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el): IKO(n,
 		if( j != output_types.end() ) {
 			type = j->second; 
 		} else {
-			string err_type; transcode(str_type.c_str(),err_type);
+			string err_type; Manager::transcode(str_type.c_str(),err_type);
 			*Logger::log << Log::syntax << Log::LI << "Syntax Error. Output: space '" << err_type << "'  not recognised needs to be one of:";
 			*Logger::log << "immediate,none,cookie,store,file,error,http,namespace,grammar." << Log::LO;
 			trace();
@@ -75,7 +75,7 @@ Output::Output(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el): IKO(n,
 			if( k != scope_types.end() ) {
 				scope = k->second; 
 			} else {
-				string err_msg; transcode(str_scope.c_str(),err_msg);
+				string err_msg; Manager::transcode(str_scope.c_str(),err_msg);
 				*Logger::log << Log::syntax << Log::LI << "Syntax Error. Output: scope '" << err_msg << "'  not recognised needs to be one of:";
 				*Logger::log << "global,branch,ancestor" << Log::LO;
 				trace();
@@ -89,7 +89,7 @@ Output::Output(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el): IKO(n,
 			if( k != part_types.end() ) {
 				part = k->second; 
 			} else {
-				string err_msg; transcode(str_part.c_str(),err_msg);
+				string err_msg; Manager::transcode(str_part.c_str(),err_msg);
 				*Logger::log << Log::syntax << Log::LI << "Syntax Error. Output: scope '" << err_msg << "'  can only belong to store spaces." << Log::LO;
 				trace();
 				*Logger::log  << Log::blockend;
@@ -289,7 +289,7 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 					case out_xmlnamespace: { 
 						if (name_v.find(':') != string::npos) {
 							string val_value = *value_comp;
-							string err_msg; transcode(name_v.c_str(),err_msg);
+							string err_msg; Manager::transcode(name_v.c_str(),err_msg);
 							*Logger::log << Log::error << Log::LI << "Error while outputting to namespace. ";
 							*Logger::log << Log::error << "Signature " << err_msg << " for namespace " << val_value << " cannot use colons!" << Log::LO;	
 							trace();
@@ -314,7 +314,7 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 							}
 						}
 						if (!errstring.empty()) {
-							string err_msg; transcode(name_v.c_str(),err_msg);
+							string err_msg; Manager::transcode(name_v.c_str(),err_msg);
 							*Logger::log << Log::error << Log::LI << "Error while outputting to store with " << err_msg << Log::LO;	
 							*Logger::log << Log::LI << errstring << Log::LO;	
 							if (value_comp != NULL) {
@@ -343,7 +343,7 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 							DataItem* err_doc = new XMLObject(err_result);
 							owner->setstore(name_part,err_doc,di_object,scope,errstring);
 							if (!errstring.empty()) {
-								string err_msg; transcode(name_v.c_str(),err_msg);
+								string err_msg; Manager::transcode(name_v.c_str(),err_msg);
 								*Logger::log << Log::error << Log::LI << "Error while outputting an error space to store with " << err_msg << Log::LO;	
 								*Logger::log << Log::LI << errstring << Log::LO;	
 								trace();
@@ -436,7 +436,7 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 								sethttp(line_type,value); 
 							}
 						} else {
-							string err_type; transcode(oname.c_str(),err_type);
+							string err_type; Manager::transcode(oname.c_str(),err_type);
 							*Logger::log << Log::error << Log::LI << "Error. Http line name '" << err_type << "' not recognised." << Log::LO;	
 							trace();
 							*Logger::log << Log::blockend;

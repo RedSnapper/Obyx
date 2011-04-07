@@ -64,7 +64,7 @@ namespace XML {
 				grec->grx = Manager::parser()->parser->loadGrammar(grec->inp, grec->typ, true); 
 				Manager::parser()->grammar_reading_off();
 				if ( Manager::parser()->errorHandler->hadErrors() ) {
-					string err_name; transcode(name.c_str(),err_name);
+					string err_name; Manager::transcode(name.c_str(),err_name);
 					*Logger::log << Log::error << Log::LI << "loading grammar:" << err_name << " with contents:" << Log::LO;
 					*Logger::log << Log::LI << grec->gra << Log::LO;
 					*Logger::log << Log::blockend;
@@ -87,25 +87,25 @@ namespace XML {
 					if ( String::Regex::available() ) {
 						size_t s = String::Regex::after("\\s+SYSTEM\\s*=?\\s*[\"']",grammar);
 						if ( s == string::npos ) {
-							string err_name; transcode(name.c_str(),err_name);
+							string err_name; Manager::transcode(name.c_str(),err_name);
 							*Logger::log << Log::error << Log::LI << "When loading the DTD:" << err_name << " there was no xml comment found " <<  Log::LO;
 							*Logger::log << Log::LI << " at the beginning of the document indicating the SYSTEM ID." << Log::LO;
 							*Logger::log << Log::blockend;
 						} else {
 							string::size_type q = grammar.find(grammar[s-1],s); //Get the end of the trick.
 							string sysIdDecl=grammar.substr(s,q-s);
-							transcode(sysIdDecl,sysIDstr);
+							Manager::transcode(sysIdDecl,sysIDstr);
 						}
 						size_t p = String::Regex::after("\\s+PUBLIC\\s*=?\\s*[\"']",grammar);
 						if ( p == string::npos ) {
-							string err_name; transcode(name.c_str(),err_name);
+							string err_name; Manager::transcode(name.c_str(),err_name);
 							*Logger::log << Log::error << Log::LI << "When loading the DTD:" << err_name << " there was no xml comment found " <<  Log::LO;
 							*Logger::log << Log::LI << " at the beginning of the document indicating the PUBLIC ID." << Log::LO;
 							*Logger::log << Log::blockend;
 						} else {
 							string::size_type q = grammar.find(grammar[p-1],p); //Get the end of the trick.
 							string pubIdDecl=grammar.substr(p,q-p);
-							transcode(pubIdDecl,pubIDstr);
+							Manager::transcode(pubIdDecl,pubIDstr);
 						}
 						
 					} 
@@ -117,7 +117,7 @@ namespace XML {
 					record->grx = Manager::parser()->parser->loadGrammar(record->inp, type, true); 
 					Manager::parser()->grammar_reading_off();
 					if ( Manager::parser()->errorHandler->hadErrors() ) {
-						string err_name; transcode(name.c_str(),err_name);
+						string err_name; Manager::transcode(name.c_str(),err_name);
 						*Logger::log << Log::error << Log::LI << "loading grammar:" << err_name << " with contents:" << Log::LO;
 						*Logger::log << Log::LI << grammar << Log::LO;
 						*Logger::log << Log::blockend;
@@ -139,7 +139,7 @@ namespace XML {
 	}
 	void XMLResourceHandler::getGrammar(string& grammarfile,const string name,bool release) {
 		if (!name.empty()) {
-			u_str gname; transcode(name,gname);
+			u_str gname; Manager::transcode(name,gname);
 			grammar_map_type::iterator it = the_grammar_map.find(gname);
 			if (it != the_grammar_map.end() ) {
 				GrammarRecord* gr =  it->second;
@@ -154,7 +154,7 @@ namespace XML {
 	bool XMLResourceHandler::existsGrammar(const string name,bool release) {
 		bool retval = false;
 		if (!name.empty()) {
-			u_str gname; transcode(name,gname);
+			u_str gname; Manager::transcode(name,gname);
 			grammar_map_type::iterator it = the_grammar_map.find(gname);
 			if (it != the_grammar_map.end()) {
 				retval = true;
@@ -187,9 +187,9 @@ namespace XML {
 		grammar_map_type::iterator it = the_grammar_map.find(grammarkey);
 		if (it == the_grammar_map.end()) {
 			string a_nsu="-",a_pid="-",a_sid="-";
-			if (namespaceUri != NULL) transcode(namespaceUri,a_nsu); 
-			if (publicId != NULL ) transcode(publicId,a_pid);  //Currently we only bind on publicID.
-			if (systemId != NULL ) transcode(systemId,a_sid);
+			if (namespaceUri != NULL) Manager::transcode(namespaceUri,a_nsu); 
+			if (publicId != NULL ) Manager::transcode(publicId,a_pid);  //Currently we only bind on publicID.
+			if (systemId != NULL ) Manager::transcode(systemId,a_sid);
 			*Logger::log << Log::error << Log::LI << "Remote Grammar Required. Ensure that you have a local grammar file for this." << Log::LO;
 			*Logger::log << Log::LI << Log::subhead << Log::LI << "Grammar details follow:" << Log::LO; 
 			*Logger::log << Log::LI << a_nsu << Log::LO << Log::LI << a_pid << Log::LO << Log::LI << a_sid << Log::LO; 

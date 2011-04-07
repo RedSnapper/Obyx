@@ -1310,8 +1310,8 @@ void Environment::gettiming(string& result) {
 	struct timespec tb;
 	int err = clock_gettime(CLOCK_REALTIME,&tb);
 	if ( err != 0 ) *Logger::log << Log::error << Log::LI << "Error. Environment::setbasetime error:" << err << Log::LO << Log::blockend;
-	unsigned long long clocktime = tb.tv_sec * 1000000000 + tb.tv_nsec;
-	long double timing = static_cast<long double>(clocktime) / 1000000000; // nanoseconds
+	unsigned long long clocktime = tb.tv_sec * 1000000000ULL + tb.tv_nsec;
+	long double timing = static_cast<long double>(clocktime) / 1000000000ULL; // nanoseconds
 	timing = timing - basetime;
 	result = String::tostring(timing,12L);
 #endif

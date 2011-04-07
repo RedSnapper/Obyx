@@ -53,13 +53,13 @@ bool OsiAPP::request(const xercesc::DOMNode* n,int max_redirects,int timeout_sec
 	Environment* env = Environment::service();
 	std::string elname = "";
 	bool request_result = true;
-	XML::transcode(n->getLocalName(),elname);
+	XML::Manager::transcode(n->getLocalName(),elname);
 	if (elname.compare("http") == 0) {
 		n=n->getFirstChild();		//this is one of request|response - but we only support request here.
 		while ( n != NULL && n->getNodeType() != DOMNode::ELEMENT_NODE)  {
 			n = n->getNextSibling();
 		}
-		XML::transcode(n->getLocalName(),elname);
+		XML::Manager::transcode(n->getLocalName(),elname);
 		if (elname.compare("request") == 0) {
 			string req_url,req_method,req_version;
 			if ( ! XML::Manager::attribute(n,"url",req_url)) {
@@ -135,7 +135,7 @@ bool OsiAPP::request(const xercesc::DOMNode* n,int max_redirects,int timeout_sec
 			while ( n != NULL && n->getNodeType() != DOMNode::ELEMENT_NODE)  {
 				n = n->getNextSibling();
 			}
-			XML::transcode(n->getLocalName(),elname);
+			XML::Manager::transcode(n->getLocalName(),elname);
 			if (elname.compare("send") == 0) {
 				string send_path,env_sender;
 				if (XML::Manager::attribute(n,"sender",env_sender)) {

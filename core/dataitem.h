@@ -33,18 +33,20 @@ namespace {
 }	
 
 namespace obyx {
-	typedef enum { di_auto,di_text,di_object,di_fragment,di_null } kind_type;	//what kind of dataItem
+	typedef enum { di_auto,di_text,di_utext,di_object,di_fragment,di_null } kind_type;	//what kind of dataItem
 	typedef std::map<u_str, kind_type > kind_type_map; 
 }
 
 class XMLObject;
 class StrObject;
+class UStrItem;
 using namespace obyx;	
 
 //base class for xml / text that appear in PairQueue.
 class DataItem {
 private:
 	static DataItem* autoItem(const std::string&);
+	static DataItem* autoItem(const u_str&);
 	
 	//	typedef std::map<unsigned long, std::string > long_map; 
 	//	static long_map ce_map;
@@ -64,7 +66,8 @@ public:
 	static DataItem* factory(const std::string&,kind_type = di_auto);
 	static DataItem* factory(std::string&,kind_type = di_auto);
 	static DataItem* factory(const char*,kind_type = di_auto);
-	static DataItem* factory(u_str,kind_type = di_fragment);
+	static DataItem* factory(u_str,kind_type = di_auto);
+	static DataItem* factory(const XMLCh*,kind_type = di_auto);
 	static DataItem* factory(const xercesc::DOMDocument*&,kind_type = di_object);
 	static DataItem* factory(xercesc::DOMDocument*&,kind_type = di_object);
 	static DataItem* factory(xercesc::DOMNode* const&,kind_type = di_auto); //actually must be const.
@@ -85,6 +88,7 @@ public:
 	virtual long long size() const =0;
 	virtual bool find(const DataItem*,std::string&) const =0;
 	virtual bool find(const char*,std::string&) const =0;
+	virtual bool find(const XMLCh*,std::string&) const = 0;
 	virtual bool empty() const =0;
 	virtual bool same(const DataItem*) const =0;
 	virtual void append(DataItem*&);	//handle xmlobjects here.

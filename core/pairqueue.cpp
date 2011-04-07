@@ -179,6 +179,24 @@ void PairQueue::append(DataItem*& stuff) { //stuff is taken from here.
 		DataItem::append(queue.back().first,stuff);
 	}	
 }
+void PairQueue::append(u_str stuff,kind_type kind) { //from xmlnode / xmleelement
+	//used by instruction etc.
+	if (finalised) {
+		if (theresult == NULL) {
+			theresult = DataItem::factory(stuff,kind);
+		} else {
+			DataItem* tmp = DataItem::factory(stuff,kind);
+			DataItem::append(theresult,tmp);
+		}
+	} else {
+		if (queue.back().first == NULL) {
+			queue.back().first = DataItem::factory(stuff,kind);
+		} else {
+			DataItem* tmp = DataItem::factory(stuff,kind);
+			DataItem::append(queue.back().first,tmp);
+		}
+	}
+}
 void PairQueue::append(std::string stuff,kind_type kind) { //from xmlnode / xmleelement
 	//used by instruction etc.
 	if (finalised) {

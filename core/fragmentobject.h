@@ -73,6 +73,7 @@ public:
 	virtual bool empty() const;
 	virtual bool find(const DataItem*,std::string&) const;
 	virtual bool find(const char*,std::string&) const;
+	virtual bool find(const XMLCh*,std::string&) const;
 	virtual void append(DataItem*&);
 	virtual bool same(const DataItem*) const;
 	virtual void clear();

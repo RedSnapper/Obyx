@@ -251,7 +251,7 @@ namespace XML {
 				}
 				catch (DOMException e) {
 					string err_message;
-					transcode(e.getMessage(),err_message);			
+					Manager::transcode(e.getMessage(),err_message);			
 					*Logger::log << error << Log::LI << "DOM Copy. Exception message is:" << Log::br << err_message << "\n" << Log::LO << Log::blockend;				
 				}
 			}
@@ -279,7 +279,7 @@ namespace XML {
 						string f_namespace;
 						if (String::Regex::field(String::Regex::xml_namespace_prolog,xfile,2,f_namespace)) {
 							u_str ns_load;
-							transcode(f_namespace,ns_load);
+							Manager::transcode(f_namespace,ns_load);
 							resourceHandler->installGrammar(ns_load); //will only do it the first time.
 							do_validation = true;
 						} else {
@@ -306,12 +306,12 @@ namespace XML {
 			}
 			catch (DOMLSException e) {
 				string err_message;
-				transcode(e.getMessage(),err_message);			
+				Manager::transcode(e.getMessage(),err_message);			
 				*Logger::log << error << Log::LI << "Error during parsing memory stream. Exception message is:" << Log::br << err_message << "\n" << Log::LO << Log::blockend;
 			}
 			catch (DOMException e) {
 				string err_message;
-				transcode(e.getMessage(),err_message);			
+				Manager::transcode(e.getMessage(),err_message);			
 				*Logger::log << error << Log::LI << "Error during parsing memory stream. Exception message is:" << Log::br << err_message << "\n" << Log::LO << Log::blockend;
 			}
 			catch ( ... ) {
@@ -375,7 +375,7 @@ namespace XML {
 			}
 			if ( errorHandler->hadErrors() ) {	
 				string exml_file;
-				XML::transcode(xmlfile.c_str(),exml_file);
+				Manager::transcode(xmlfile.c_str(),exml_file);
 				*Logger::log << error << Log::LI << "Failed to parse:" << exml_file << Log::LO << Log::blockend;
 				rslt=NULL;
 				errorHandler->resetErrors();
@@ -784,7 +784,7 @@ namespace XML {
 		}
 		catch (const XMLException& e) {
 			string err_message;
-			transcode(e.getMessage(),err_message);			
+			Manager::transcode(e.getMessage(),err_message);			
 			*Logger::log << error << Log::LI << "Error during parsing memory stream. Exception message is:" << Log::br << err_message << "\n" << Log::LO << Log::blockend;
 		}
 		catch ( ... ) {

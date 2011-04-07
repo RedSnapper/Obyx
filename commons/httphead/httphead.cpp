@@ -466,7 +466,7 @@ void Httphead::doheader(ostream* x,bool explaining,const response_format& f) {
 void Httphead::objectparse(xercesc::DOMNode* const& n) {
 	Environment* env = Environment::service();
 	std::string elname;
-	XML::transcode(n->getLocalName(),elname);
+	XML::Manager::transcode(n->getLocalName(),elname);
 	if (elname.compare("header") == 0) {
 		string name_attr_val;
 		if ( XML::Manager::attribute(n,"name",name_attr_val)  ) {
@@ -481,7 +481,7 @@ void Httphead::objectparse(xercesc::DOMNode* const& n) {
 			while (ch != NULL && ch->getNodeType() != DOMNode::ELEMENT_NODE) ch=ch->getNextSibling();
 			if ( ch != NULL ) {
 				string subhead;
-				XML::transcode(ch->getLocalName(),subhead);
+				XML::Manager::transcode(ch->getLocalName(),subhead);
 				if (subhead.compare("subhead") == 0) {
 					if ( name_attr_val.compare("Set-Cookie") == 0) {
 						std::string cookie_name = "";
@@ -530,7 +530,7 @@ void Httphead::objectparse(xercesc::DOMNode* const& n) {
 							ch=ch->getNextSibling();
 							while (ch != NULL && ch->getNodeType() != DOMNode::ELEMENT_NODE) ch=ch->getNextSibling();
 							if (ch != NULL) {
-								XML::transcode(ch->getLocalName(),subhead);
+								XML::Manager::transcode(ch->getLocalName(),subhead);
 							} else {
 								subhead.clear();
 							}
@@ -569,7 +569,7 @@ void Httphead::objectparse(xercesc::DOMNode* const& n) {
 							ch=ch->getNextSibling();
 							while (ch != NULL && ch->getNodeType() != DOMNode::ELEMENT_NODE) ch=ch->getNextSibling();
 							if (ch != NULL) {
-								XML::transcode(ch->getLocalName(),subhead);
+								XML::Manager::transcode(ch->getLocalName(),subhead);
 							} else {
 								subhead.clear();
 							}
@@ -667,7 +667,7 @@ void Httphead::objectparse(xercesc::DOMNode* const& n) {
 				std::string ch_elname;
 				for (DOMNode* child=n->getFirstChild(); child != NULL; child=child->getNextSibling()) {
 					if (child->getNodeType() == DOMNode::ELEMENT_NODE) {
-						XML::transcode(child->getLocalName(),ch_elname);
+						XML::Manager::transcode(child->getLocalName(),ch_elname);
 						if (ch_elname.compare("message") == 0) {
 							for (DOMNode* mchild=child->getFirstChild(); mchild != NULL; mchild=mchild->getNextSibling()) {
 								if (mchild->getNodeType() == DOMNode::ELEMENT_NODE) {

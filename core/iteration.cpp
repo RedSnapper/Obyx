@@ -59,7 +59,7 @@ operation(it_repeat),lastrow(false),expanded(false),currentrow(1),numreps(1),cur
 		operation = j->second; 
 	} else {
 		if ( ! op_string.empty() ) {
-			string err_op; transcode(op_string.c_str(),err_op);
+			string err_op; Manager::transcode(op_string.c_str(),err_op);
 			*Logger::log << Log::syntax << Log::LI << "Syntax Error. " <<  err_op << " is not a legal iteration operation. It should be one of sql, repeat, while." << Log::LO; 
 			trace();
 			*Logger::log << Log::blockend;
@@ -148,7 +148,7 @@ bool Iteration::fieldfind(const u_str& pattern) const { //regex..
 	bool retval = false;
 	if ( String::Regex::available() ) {
 		if (query != NULL) {
-			string rexpr; XML::transcode(pattern,rexpr);		
+			string rexpr; XML::Manager::transcode(pattern,rexpr);		
 			retval = query->findfield(rexpr);
 		}
 	} else {
@@ -159,7 +159,7 @@ bool Iteration::fieldfind(const u_str& pattern) const { //regex..
 }
 void Iteration::fieldkeys(const u_str& pattern,set<string>& keylist) const { //regex..
 	if (query != NULL) {
-		string rexpr; XML::transcode(pattern,rexpr);
+		string rexpr; XML::Manager::transcode(pattern,rexpr);
 		query->fieldkeys(rexpr,keylist);
 	}
 }
@@ -179,7 +179,7 @@ bool Iteration::fieldexists(const u_str& fname,string& errstring) const {
 				retval = true;
 			} else {
 				if (!kyfound && query != NULL) {
-					string qkey; XML::transcode(fname,qkey);
+					string qkey; XML::Manager::transcode(fname,qkey);
 					retval = query->hasfield(qkey);
 				} else {
 					errstring = "The field was not found.";
@@ -211,10 +211,10 @@ bool Iteration::field(const u_str& fname,u_str& container,string& errstring) con
 	bool retval = false;
 	if (query != NULL && operation == it_sql) {
 		//This is where we could do an xpath split.
-		string qkey,srepo; XML::transcode(fname,qkey);
+		string qkey,srepo; XML::Manager::transcode(fname,qkey);
 		retval = query->readfield(currentrow,qkey,srepo,errstring);
 		if (retval) {
-			XML::transcode(srepo,container);
+			XML::Manager::transcode(srepo,container);
 		}
 	} else {
 		container = fname;
@@ -222,20 +222,20 @@ bool Iteration::field(const u_str& fname,u_str& container,string& errstring) con
 		while (hashpos != string::npos) {
 			if (container.compare(hashpos,9,UCS2(L"#rowcount")) == 0) {
 				if ( operation == it_repeat || operation == it_each ) {
-					u_str rowstr; XML::to_ustr(numreps,rowstr);
+					u_str rowstr; XML::Manager::to_ustr(numreps,rowstr);
 					container.replace(hashpos,9,rowstr);
 					hashpos--;
 					retval = true; 
 				} 
 			} else {
 				if ( container.compare(hashpos,4,UCS2(L"#row")) == 0 ) {
-					u_str rowstr; XML::to_ustr(currentrow,rowstr);
+					u_str rowstr; XML::Manager::to_ustr(currentrow,rowstr);
 					container.replace(hashpos,4,rowstr);
 					hashpos--;
 					retval = true;
 				} else {
 					if ( container.compare(hashpos,4,UCS2(L"#key")) == 0 ) {
-						u_str ckey; XML::transcode(currentkey,ckey);		
+						u_str ckey; XML::Manager::transcode(currentkey,ckey);		
 						container.replace(hashpos,4,ckey);
 						hashpos--;
 						retval = true;
@@ -246,7 +246,7 @@ bool Iteration::field(const u_str& fname,u_str& container,string& errstring) con
 		}
 		if (!retval) {
 			container.clear();
-			string erv; XML::transcode(fname,erv);		
+			string erv; XML::Manager::transcode(fname,erv);		
 			errstring = "Error. Field " + erv + " not allowed here. In while and repeat only the fields #rowcount, #row and #key are valid";
 		}
 	}

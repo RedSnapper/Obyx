@@ -1,3 +1,4 @@
+
 /* 
  * dataitem.cpp is authored and maintained by Ben Griffin of Red Snapper Ltd 
  * dataitem.cpp is a part of Obyx - see http://www.obyx.org .
@@ -22,74 +23,80 @@
 
 #include "commons/logger/logger.h"
 #include "commons/string/strings.h"
+#include "ustritem.h"
 #include "strobject.h"
 #include "xmlobject.h"
 #include "dataitem.h"
 
-StrObject::StrObject(const std::string& s) : DataItem(),o_str(s) {
-	//	do_alloc("1 "+o_str);
+UStrItem::UStrItem(const std::string& s) : DataItem(),o_str() {
+	XML::Manager::transcode(s,o_str);
 }
-StrObject::StrObject(u_str s) : DataItem(),o_str("") { 
-		XML::Manager::transcode(s.c_str(),o_str);
-	//	do_alloc("2 "+o_str);
+UStrItem::UStrItem(u_str s) : DataItem(),o_str(s) {
 }
-StrObject::StrObject(std::string& s) : DataItem(),o_str(s) {
-	//	do_alloc("3 "+o_str);
-}
-
-StrObject::StrObject(const char* s) : DataItem(),o_str(s) {
-	//	do_alloc("4 "+o_str);
+//UStrItem::UStrItem(const u_str& s) : DataItem(),o_str(s) {}
+UStrItem::UStrItem(std::string& s) : DataItem() {
+	XML::Manager::transcode(s,o_str);
 }
 
-StrObject::StrObject(const DataItem& s) : DataItem(),o_str(s) {
-	//	do_alloc("5 "+o_str);
+UStrItem::UStrItem(const char* s) : DataItem(),o_str() {
+	if (s!=NULL) {
+		string tmp(s);	
+		XML::Manager::transcode(tmp,o_str);
+	}
 }
-StrObject::StrObject(const xercesc::DOMNode* s) : DataItem(),o_str() {
+
+UStrItem::UStrItem(const XMLCh* s) : DataItem(),o_str() {
+	if (s!=NULL) {
+		o_str = s;
+	}
+}
+
+UStrItem::UStrItem(const xercesc::DOMNode* s) : DataItem(),o_str() {
 	XML::Manager::parser()->writenode(s,o_str);
 }
 
-StrObject::~StrObject() {
-	//	do_dealloc();
+UStrItem::UStrItem(const DataItem& s) : DataItem(),o_str(s) {
+}
+
+UStrItem::~UStrItem() {
 	o_str.clear();
 }
 
-StrObject::operator XMLObject*() {
+UStrItem::operator XMLObject*() {
 	return new XMLObject(o_str);
 }
 
-StrObject::operator xercesc::DOMDocument*() const {
+UStrItem::operator xercesc::DOMDocument*() const {
 	return  XML::Manager::parser()->loadDoc(o_str);
 }
 
-StrObject::operator xercesc::DOMNode*() const {
+UStrItem::operator xercesc::DOMNode*() const {
 	return XML::Manager::parser()->loadDoc(o_str);
 }
 
-StrObject::operator u_str() const {
-	u_str ustr; 
-	XML::Manager::transcode(o_str,ustr);
-	return ustr;
+UStrItem::operator u_str() const {
+	return o_str;
 }
 
-StrObject::operator std::string() const { 
-	return o_str; 
+UStrItem::operator std::string() const { 
+	string cstr;
+	XML::Manager::transcode(o_str,cstr);
+	return cstr; 
 }	
 
-void StrObject::copy(DataItem*& container) const {
-	container = DataItem::factory(o_str,di_text); 	
+void UStrItem::copy(DataItem*& container) const {
+	container = DataItem::factory(o_str,di_utext); 	
 }
 
-bool StrObject::empty() const {
+bool UStrItem::empty() const {
 	return o_str.empty();
 }
 
-void StrObject::append(DataItem*& s) {
-	std::string ns = *s;
-	o_str.append(ns);
-	delete s;
+void UStrItem::append(DataItem*& s) {
+	o_str.append(*s);
 }
 
-bool StrObject::find(const DataItem* o,std::string&) const {
+bool UStrItem::find(const DataItem* o,std::string&) const {
 	if ( o != NULL) {
 		return o_str.find(*o) != string::npos;
 	} else {
@@ -97,14 +104,10 @@ bool StrObject::find(const DataItem* o,std::string&) const {
 	}
 }
 
-bool StrObject::find(const char* o,std::string&) const {
-	return o_str.find(o) != string::npos;
-}
-
-bool StrObject::find(const XMLCh* s,std::string&) const {
-	if (s!=NULL) {
-		u_str tmp(s);
-		string srch;
+bool UStrItem::find(const char* o,std::string&) const {
+	if (o!=NULL) {
+		string tmp(o);
+		u_str srch;
 		XML::Manager::transcode(tmp,srch);
 		return o_str.find(srch) != string::npos;
 	} else {
@@ -112,7 +115,15 @@ bool StrObject::find(const XMLCh* s,std::string&) const {
 	}
 }
 
-bool StrObject::same(const DataItem* o) const {
+bool UStrItem::find(const XMLCh* srch,std::string&) const {
+	if (srch!=NULL) {
+		return o_str.find(srch) != string::npos;
+	} else {
+		return true; //null is always found?!
+	}
+}
+
+bool UStrItem::same(const DataItem* o) const {
 	if (o != NULL) {
 		return o_str.compare(*o) == 0;
 	} else {
@@ -120,19 +131,19 @@ bool StrObject::same(const DataItem* o) const {
 	}
 }
 
-void StrObject::clear() {
+void UStrItem::clear() {
 	o_str.clear();
 }
 
-void StrObject::trim() {
+void UStrItem::trim() {
 	if (!o_str.empty()) {
-		String::trim(o_str);
+		XMLObject::trim(o_str);
 	}
 }
 
-long long StrObject::size() const {
+long long UStrItem::size() const {
 	unsigned long long result = 0;
-	String::length(o_str,result);
+	result = (unsigned long long)o_str.size();
 	return result;
 }
 

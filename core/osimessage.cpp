@@ -740,8 +740,8 @@ void OsiMessage::compile(string& msg_str, ostringstream& res, bool do_namespace)
 		if (!body_charset.empty()) {
 			if ((body_charset.compare("UTF-8") !=0) && (body_charset.compare("utf-8") !=0) ) {
 				u_str x_body;
-				XML::transcode(body,x_body,body_charset);
-				XML::transcode(x_body.c_str(),body);
+				XML::Manager::transcode(body,x_body,body_charset);
+				XML::Manager::transcode(x_body.c_str(),body);
 			}
 			res << " charset=\"UTF-8\"";
 		}
@@ -848,10 +848,10 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 	until_el(n);
 	if ( n != NULL) {
 		std::string elname;
-		XML::transcode(n->getLocalName(),elname);
+		XML::Manager::transcode(n->getLocalName(),elname);
 		if (elname.compare("message") == 0) {
 			for (next_ch(n); n!=NULL;next_el(n)) { //for each child of n...
-				XML::transcode(n->getLocalName(),elname);
+				XML::Manager::transcode(n->getLocalName(),elname);
 				if (elname.compare("header") == 0) {	//basically - headers
 					//Handle the (multiple) header elements.
 					//Header is a single line: name: value; subvalue="foo"; subvue="bar";
@@ -872,7 +872,7 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 					const DOMNode* ch=n;	//Now do all the subheads..
 					for (next_ch(ch); ch!=NULL; next_el(ch)) {
 						string subhead(""),shcomment("");
-						XML::transcode(ch->getLocalName(),subhead);
+						XML::Manager::transcode(ch->getLocalName(),subhead);
 						if (subhead.compare("subhead") == 0 || subhead.compare("address") == 0) {
 							std::string shvalue,shnote,shname;
 							bool url_encoded=false;
@@ -899,7 +899,7 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 							}
 							const DOMNode* shvo=ch; string shcom("");
 							for (next_ch(shvo); shvo!=NULL;next_el(shvo)) {
-								XML::transcode(shvo->getLocalName(),shcom);
+								XML::Manager::transcode(shvo->getLocalName(),shcom);
 								if (shcom.compare("comment") == 0) {
 									shcomment.push_back('(');
 									encode_comment(shvo,shcomment);

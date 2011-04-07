@@ -48,7 +48,7 @@ FragmentObject::FragmentObject(const std::string s) : DataItem(),fragment(NULL) 
 	fragment = frag_doc->createDocumentFragment();
 	if ( ! s.empty() ) {
 		u_str tt;
-		XML::transcode(s,tt);
+		XML::Manager::transcode(s,tt);
 		DOMText* vt = frag_doc->createTextNode(tt.c_str());
 		fragment->appendChild(vt);
 	}
@@ -122,7 +122,7 @@ void FragmentObject::append(DataItem*& s) {
 				std::string str = *s;
 				if ( ! str.empty() ) {
 					u_str tt;
-					XML::transcode(str,tt);
+					XML::Manager::transcode(str,tt);
 					n = frag_doc->createTextNode(tt.c_str());
 				}
 			}
@@ -172,13 +172,22 @@ bool FragmentObject::same(const DataItem* xtst) const {
 	if (fragment == NULL && xtst == NULL) {
 		retval = true;	
 	} else {
-		const FragmentObject* ox = dynamic_cast<const FragmentObject*>(xtst);
-		if ( fragment != NULL && ox != NULL ) {
-			retval = fragment->isEqualNode(*ox);
-		} else {
-			string frag,text = *xtst;
-			XML::Manager::parser()->writenode(fragment,frag);
-			retval = (frag.compare(text) == 0);
+		if (fragment != NULL) {
+			const FragmentObject* ox = dynamic_cast<const FragmentObject*>(xtst);
+			if (ox != NULL ) {
+				retval = fragment->isEqualNode(*ox);
+			} else {
+				const StrObject* ox = dynamic_cast<const StrObject*>(xtst);
+				if (ox != NULL) {
+					string frag,text = *xtst;
+					XML::Manager::parser()->writenode(fragment,frag);
+					retval = (frag.compare(text) == 0);
+				} else {
+					u_str frag,text = *xtst;
+					XML::Manager::parser()->writenode(fragment,frag);
+					retval = (frag.compare(text) == 0);
+				}
+			}
 		}
 	}
 	return retval;
@@ -208,6 +217,19 @@ bool FragmentObject::find(const char* str,std::string&) const {
 	}
 	return retval;
 }
+bool FragmentObject::find(const XMLCh* s,std::string&) const {
+	bool retval = false;
+	if (s != NULL && fragment != NULL) {
+		u_str srch(s);
+		u_str doc; 
+		XML::Manager::parser()->writenode(fragment,doc);
+		retval = doc.find(srch) != string::npos;
+	} else {
+		retval = true;
+	}
+	return retval;
+}
+
 void FragmentObject::trim() {
 	//do nothing.
 }

@@ -133,7 +133,7 @@ bool ItemStore::setns(const DataItem* c, DataItem*& sig) {
 bool ItemStore::getns(const string& c, DataItem*& container,bool release) {
 	bool exist_result=false;
 	u_str cont,code;
-	XML::transcode(c,code);
+	XML::Manager::transcode(c,code);
 	exist_result = XMLObject::getns(code,cont,release);
 	container = DataItem::factory(cont,di_text);
 	return exist_result;
@@ -141,7 +141,7 @@ bool ItemStore::getns(const string& c, DataItem*& container,bool release) {
 bool ItemStore::nsexists(const string& c,bool release) {
 	bool exist_result=false;
 	u_str cont,code;
-	XML::transcode(c,code);
+	XML::Manager::transcode(c,code);
 	exist_result = XMLObject::getns(code,cont,release);
 	return exist_result;
 }
@@ -157,7 +157,7 @@ bool ItemStore::exists(const u_str& namepath,bool release,std::string& errorstr)
 		delete xp; 
 	} else {
 		std::string skey;
-		XML::transcode(namepath,skey);	//Regex works on strings!	
+		XML::Manager::transcode(namepath,skey);	//Regex works on strings!	
 		item_map_type::iterator it = the_item_map->find(skey);
 		if (it != the_item_map->end()) {
 			retval = true;
@@ -179,7 +179,7 @@ bool ItemStore::exists(const u_str& name,const u_str& path,bool release,string& 
 bool ItemStore::find(const string& pattern,bool release,std::string& errorstr) {
 	bool retval=false;
 	if (pattern.find('#') != string::npos) { //this is a namepath
-		u_str uxpr; XML::transcode(pattern,uxpr);	
+		u_str uxpr; XML::Manager::transcode(pattern,uxpr);	
 		return exists(uxpr,release,errorstr);
 	} else {
 		if ( String::Regex::available() ) {
@@ -209,7 +209,7 @@ bool ItemStore::find(const u_str& pattern,bool release,std::string& errorstr) {
 	if (pattern.find('#') != string::npos) { //this is a namepath
 		return exists(pattern,release,errorstr);
 	} else {
-		string rxpr; XML::transcode(pattern,rxpr);	//Regex works on strings!	
+		string rxpr; XML::Manager::transcode(pattern,rxpr);	//Regex works on strings!	
 		if ( String::Regex::available() ) {
 			ostringstream* suppressor = new ostringstream();
 			Logger::set_stream(suppressor);
@@ -236,7 +236,7 @@ void ItemStore::keys(const u_str& pattern,std::set<string>& keylist,std::string&
 	if (pattern.find('#') != string::npos) {
 		errorstr="to iterate over multiple xpaths, use xpath function 'count()'";
 	} else {
-		std::string rpattern; XML::transcode(pattern,rpattern);	//Regex works on strings!	
+		std::string rpattern; XML::Manager::transcode(pattern,rpattern);	//Regex works on strings!	
 		if ( String::Regex::available() ) {
 			for(item_map_type::iterator imt = the_item_map->begin(); imt != the_item_map->end(); imt++) {
 				if (String::Regex::match(rpattern,imt->first)) {
@@ -253,7 +253,7 @@ void ItemStore::keys(const u_str& pattern,std::set<string>& keylist,std::string&
 }
 bool ItemStore::release(const u_str& obj_name) {
 	bool retval = false;
-	std::string name; XML::transcode(obj_name,name); //Our keys are actually std::strings	
+	std::string name; XML::Manager::transcode(obj_name,name); //Our keys are actually std::strings	
 	item_map_type::iterator it = the_item_map->find(name);
 	if (it != the_item_map->end()) {
 		it->second = NULL;
@@ -290,7 +290,7 @@ bool ItemStore::sset(const u_str& sname,const u_str& tpath,bool node_expected, D
 	//if not, we must attempt to cast it.  If we fail, we post an error, but KEEP the item set
 	//as it is.
 	bool retval = false;
-	std::string name; XML::transcode(sname,name); //Our keys are actually std::strings	
+	std::string name; XML::Manager::transcode(sname,name); //Our keys are actually std::strings	
 	u_str path(tpath); //we may want to manipulate the path.
 	if ( String::nametest(name)) {
 		if ( (kind != di_auto) && (item != NULL) && (kind != item->kind())) {
@@ -343,16 +343,16 @@ bool ItemStore::sset(const u_str& sname,const u_str& tpath,bool node_expected, D
 						} 
 						//------------------------------								
 						catch (XQException &e) {
-							XML::transcode(e.getError(),errorstr);
+							XML::Manager::transcode(e.getError(),errorstr);
 						}
 						catch (XQillaException &e) {
-							XML::transcode(e.getString(),errorstr);
+							XML::Manager::transcode(e.getString(),errorstr);
 						}					
 						catch (DOMXPathException &e) { 
-							XML::transcode(e.getMessage(),errorstr);
+							XML::Manager::transcode(e.getMessage(),errorstr);
 						}
 						catch (DOMException &e) {
-							XML::transcode(e.getMessage(),errorstr);
+							XML::Manager::transcode(e.getMessage(),errorstr);
 						}
 						catch (...) {
 							errorstr = "unknown xpath error";
@@ -360,7 +360,7 @@ bool ItemStore::sset(const u_str& sname,const u_str& tpath,bool node_expected, D
 						//-----------------------------								
 					} else {
 						the_item_map->erase(it);
-						std::string erv; XML::transcode(path,erv);	
+						std::string erv; XML::Manager::transcode(path,erv);	
 						errorstr = "There was no store " + name + " for the path " + erv;
 						retval= true; //bad name/path				
 					}
@@ -369,7 +369,7 @@ bool ItemStore::sset(const u_str& sname,const u_str& tpath,bool node_expected, D
 						errorstr = "The item is empty. Maybe a parse or previous xpath failed?";
 					} else {
 						string bvalue = *basis;
-						std::string erv; XML::transcode(path,erv);	
+						std::string erv; XML::Manager::transcode(path,erv);	
 						errorstr = "Item '" + name + "' is of kind 'text'. so xpath '" + erv + "' cannot be used.";
 						if (bvalue.empty()) {
 							errorstr = "The item is empty. Maybe a parse or previous xpath failed?";
@@ -380,7 +380,7 @@ bool ItemStore::sset(const u_str& sname,const u_str& tpath,bool node_expected, D
 					retval= true; // cannot honour xpath		
 				}
 			} else { //paths need an object.
-				std::string erv; XML::transcode(path,erv);	
+				std::string erv; XML::Manager::transcode(path,erv);	
 				errorstr = "There was no existing store " + name + " for the path " + erv;
 				retval= true; //bad name/path				
 			}
@@ -394,7 +394,7 @@ bool ItemStore::sset(const u_str& sname,const u_str& tpath,bool node_expected, D
 bool ItemStore::sget(const u_str& sname,const u_str& path,bool node_expected, DataItem*& item, bool release,std::string& errorstr) {
 	// bool here represents existence.
 	bool retval = false;
-	std::string name; XML::transcode(sname,name); //Our keys are actually std::strings	
+	std::string name; XML::Manager::transcode(sname,name); //Our keys are actually std::strings	
 	if ( String::nametest(name)) {
 		retval = true; 
 		item_map_type::iterator it = the_item_map->find(name);
@@ -416,13 +416,13 @@ bool ItemStore::sget(const u_str& sname,const u_str& path,bool node_expected, Da
 								}
 							} else {
 								if (node_expected) {
-									std::string erv; XML::transcode(path,erv);	
+									std::string erv; XML::Manager::transcode(path,erv);	
 									errorstr = "Released item '" + name + "' was empty, so the xpath '" + erv + "' was unused";
 								}
 							}
 						} else {
 							if (node_expected) {
-								std::string erv; XML::transcode(path,erv);	
+								std::string erv; XML::Manager::transcode(path,erv);	
 								errorstr = "Released item '" + name + "' was of kind 'text', so the xpath '" + erv + "' was unused.";
 							}
 						}
@@ -450,12 +450,28 @@ bool ItemStore::sget(const u_str& sname,const u_str& path,bool node_expected, Da
 									}
 								}
 							} break;
+							case di_utext: {
+								if (path.compare(UCS2(L"text()")) == 0) {
+									item = basis; 
+								} else {
+									if (node_expected) {
+										std::string erv; XML::Manager::transcode(path,erv);	
+										errorstr = "Item '" + name + "' is of kind 'text'. so xpath '" + erv + "' was unused.";
+										string bvalue = *basis;	
+										if (bvalue.empty()) {
+											errorstr.append(" The item is empty. Maybe a previous xpath failed?");
+										} else {
+											errorstr.append(" It's value is '" + bvalue + "'");
+										}
+									}
+								}
+							} break;
 							case di_text: {
 								if (path.compare(UCS2(L"text()")) == 0) {
 									item = basis; 
 								} else {
 									if (node_expected) {
-										std::string erv; XML::transcode(path,erv);	
+										std::string erv; XML::Manager::transcode(path,erv);	
 										errorstr = "Item '" + name + "' is of kind 'text'. so xpath '" + erv + "' was unused.";
 										string bvalue = *basis;	
 										if (bvalue.empty()) {
@@ -471,7 +487,7 @@ bool ItemStore::sget(const u_str& sname,const u_str& path,bool node_expected, Da
 									item = basis; 
 								} else {
 									if (node_expected) {
-										std::string erv; XML::transcode(path,erv);	
+										std::string erv; XML::Manager::transcode(path,erv);	
 										errorstr = "Item '" + name + "' is of kind 'fragment'. so xpath '" + erv + "' was unused.";
 										string bvalue = *basis;	
 										if (bvalue.empty()) {
@@ -511,7 +527,7 @@ bool ItemStore::sget(const u_str& sname,const u_str& path,bool node_expected, Da
 bool ItemStore::sget(const u_str& sname, u_str& container) {	//name container (quick hack)
 	//This is always used to get settings values, such as REDIRECT_BREAK_COUNT
 	bool retval = false;
-	std::string name; XML::transcode(sname,name);	
+	std::string name; XML::Manager::transcode(sname,name);	
 	if (the_item_map != NULL) { //this happens when eg. using an OSI as root document
 		item_map_type::iterator it = the_item_map->find(name);
 		if (it != the_item_map->end()) {

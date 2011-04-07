@@ -46,13 +46,17 @@ namespace XML {
 	
 	Parser*					Manager::xparser = NULL;
 	ostream*				Manager::serial_ostream = NULL;
+	Manager::su_map_type 	Manager::tsu;	//transcode (str to ustr) cache.
+	Manager::us_map_type 	Manager::tus;	//transcode (ustr to str) cache.
 	
 	//u_str	to std::string.
-	void transcode(const u_str& source, std::string& result) {
+	void Manager::transcode(const u_str& source, std::string& result) {
 		if (!source.empty()) {
 			if (source.size() == 1) {
 				result = (char)(source[0]); 
 			} else {
+//				tus.clear();	//cache transcodes.
+				
 				char* buff = NULL;
 				const XMLCh* src=(const XMLCh*)(source.c_str());
 				buff = (char*)(TranscodeToStr(src,source.size(),"UTF-8").adopt());
@@ -64,8 +68,10 @@ namespace XML {
 		}
 	}
 	
-	void transcode(const std::string& source,u_str& result,const std::string encoding) {
+	void Manager::transcode(const std::string& source,u_str& result,const std::string encoding) {
 		if (!source.empty()) {
+//			tsu.clear();	//cache transcodes.
+
 			XMLCh* buf = NULL;
 			const XMLByte* src=(const XMLByte*)(source.c_str());
 			buf=TranscodeFromStr(src,source.size(),encoding.c_str()).adopt();	
@@ -76,7 +82,7 @@ namespace XML {
 		}
 	}
 	
-	void to_ustr(const long num,u_str& repo) {
+	void Manager::to_ustr(const long num,u_str& repo) {
 		XMLCh buff[64]; //sizeof long should not be more than 64 chars.
 		XMLString::binToText(num,buff,63,10);
 		repo = buff;

@@ -41,7 +41,7 @@ namespace XML {
 		if (domError.getSeverity() != xercesc::DOMError::DOM_SEVERITY_WARNING) { //discard warnings?
 			fSawErrors = true;
 			string err_message; 
-			transcode(domError.getMessage(),err_message);
+			Manager::transcode(domError.getMessage(),err_message);
 			*Logger::log << Log::error << Log::LI << "DOM Error:" << err_message << Log::LO;
 			DOMLocator* loc = domError.getLocation(); //
 			if (loc != NULL) {
@@ -49,7 +49,7 @@ namespace XML {
 				if (!fGrammar && (errnode != NULL)) { 
 					string info_string;
 					basic_string<XMLCh> xp = Manager::parser()->xpath(errnode);
-					transcode(xp.c_str(),info_string);
+					Manager::transcode(xp.c_str(),info_string);
 					if (info_string.empty()) {
 						DOMDocument* errdoc = errnode->getOwnerDocument();
 						Manager::parser()->writedoc(errdoc,info_string);

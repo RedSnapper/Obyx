@@ -60,7 +60,7 @@ IKO(n,par,el),eval(false),release(false),ascending(true),type(immediate),parm_na
 		if( j != inp_spaces.end() ) {
 			type = j->second;
 		} else {
-			string err_type; transcode(str_type.c_str(),err_type);
+			string err_type; Manager::transcode(str_type.c_str(),err_type);
 			*Logger::log << Log::syntax << Log::LI << "Syntax Error. " << name() << ": " <<  err_type << " is not a legal space. It should be one of " ;
 			*Logger::log << "immediate, none, store, field, sysparm, sysenv, cookie, file, url, parm, namespace, grammar" << Log::LO; 
 			trace();
@@ -189,7 +189,9 @@ IKO(n,par,el),eval(false),release(false),ascending(true),type(immediate),parm_na
 						case function:
 						case arithmetic:
 						case bitwise: {
-							Manager::attribute(n,UCS2(L"name"),parm_name);
+							u_str tmp_v;
+							Manager::attribute(n,UCS2(L"name"),tmp_v);
+							XML::Manager::transcode(tmp_v,parm_name);
 						} break;
 						case obyx::sort: {
 							u_str order_s;

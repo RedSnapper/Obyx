@@ -139,7 +139,9 @@ bool Document::setstore(const DataItem* namepath_di, DataItem*& item,kind_type k
 					if (found && doc!=NULL) {
 						retval = doc->store.sset(np.first,np.second,node_expected,item,kind,errorstr);
 					} else {
-						string ervn,ervp; XML::transcode(np.first,ervn); XML::transcode(np.second,ervp);	
+						string ervn,ervp; 
+						XML::Manager::transcode(np.first,ervn); 
+						XML::Manager::transcode(np.second,ervp);	
 						errorstr = "There was no existing store " + ervn + " for the path " + ervp;
 					}
 				}
@@ -192,7 +194,9 @@ bool Document::setstore(u_str& name,u_str& path, DataItem*& item,kind_type kind,
 				if (found && doc!=NULL) {
 					retval = doc->store.sset(name,path,node_expected,item,kind,errorstr);
 				} else {
-					string ervn,ervp; XML::transcode(name,ervn); XML::transcode(name,ervp);		
+					string ervn,ervp; 
+					XML::Manager::transcode(name,ervn); 
+					XML::Manager::transcode(name,ervp);		
 					errorstr = "There was no existing store " + ervn + " for the path " + ervp;
 				}
 			}
@@ -427,7 +431,7 @@ bool Document::getparm(const u_str& parmkey,const DataItem*& container) const {
 	bool retval = false;
 	if (parm_map != NULL) {
 		container = NULL;
-		string pkey; XML::transcode(parmkey,pkey);		
+		string pkey; XML::Manager::transcode(parmkey,pkey);		
 		type_parm_map::const_iterator it = parm_map->find(pkey);
 		if (it != parm_map->end()) {
 			container = ((*it).second);
@@ -446,7 +450,7 @@ bool Document::getparm(const u_str& parmkey,const DataItem*& container) const {
 bool Document::parmexists(const u_str& parmkey) const {
 	bool existent = false;
 	if (parm_map != NULL) {
-		string pkey; XML::transcode(parmkey,pkey);		
+		string pkey; XML::Manager::transcode(parmkey,pkey);		
 		type_parm_map::const_iterator it = parm_map->find(pkey);
 		existent = (it != parm_map->end());
 	} 
@@ -458,7 +462,7 @@ bool Document::parmexists(const u_str& parmkey) const {
 bool Document::parmfind(const u_str& pattern) const {
 	bool retval = false;
 	if ( String::Regex::available() ) {
-		string rexpr; XML::transcode(pattern,rexpr);		
+		string rexpr; XML::Manager::transcode(pattern,rexpr);		
 		for(type_parm_map::const_iterator imt = parm_map->begin(); !retval && imt != parm_map->end(); imt++) {
 			retval= String::Regex::match(rexpr,imt->first);
 		}
@@ -472,7 +476,7 @@ bool Document::parmfind(const u_str& pattern) const {
 }
 void Document::parmkeys(const u_str& pattern,set<string>& keylist) const {
 	if ( String::Regex::available() ) {
-		string rexpr; XML::transcode(pattern,rexpr);		
+		string rexpr; XML::Manager::transcode(pattern,rexpr);		
 		for(type_parm_map::const_iterator imt = parm_map->begin(); imt != parm_map->end(); imt++) {
 			if (String::Regex::match(rexpr,imt->first)) {
 				keylist.insert(imt->first);
@@ -480,7 +484,7 @@ void Document::parmkeys(const u_str& pattern,set<string>& keylist) const {
 		}
 	} else {
 		if (parmexists(pattern)) {
-			string rexpr; XML::transcode(pattern,rexpr);		
+			string rexpr; XML::Manager::transcode(pattern,rexpr);		
 			keylist.insert(rexpr);
 		}
 	}
@@ -592,7 +596,7 @@ ObyxElement(par,xmldocument,other,NULL), xdoc(NULL),root_node(NULL),filepath(fp)
 		if ( root_node != NULL ) {
 			if (use_loader == URLText) {
 				string textstuff;
-				XML::transcode(root_node->getTextContent(),textstuff);
+				XML::Manager::transcode(root_node->getTextContent(),textstuff);
 				String::trim(textstuff);
 				results.append(textstuff,di_text);
 			} else {

@@ -1,6 +1,6 @@
 /*
- * strobject.h is authored and maintained by Ben Griffin of Red Snapper Ltd 
- * strobject.h is a part of Obyx - see http://www.obyx.org .
+ * ustritem.h is authored and maintained by Ben Griffin of Red Snapper Ltd 
+ * ustritem.h is a part of Obyx - see http://www.obyx.org .
  * Obyx is protected as a trade mark (2483369) in the name of Red Snapper Ltd.
  * This file is Copyright (C) 2006-2010 Red Snapper Ltd. http://www.redsnapper.net
  * The governing usage license can be found at http://www.gnu.org/licenses/gpl-3.0.txt
@@ -20,8 +20,8 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef OBYX_STR_OBJECT_H
-#define OBYX_STR_OBJECT_H
+#ifndef OBYX_USTR_ITEM_H
+#define OBYX_USTR_ITEM_H
 
 #include <ext/hash_map>
 #include <string>
@@ -29,21 +29,22 @@
 #include "dataitem.h"
 #include "commons/xml/xml.h"
 
-class StrObject : public DataItem {
+class UStrItem : public DataItem {
 private:
-	StrObject() : o_str("") {}
-
+	UStrItem() : o_str(UCS2(L"")){}
+	
 protected:
 	friend class DataItem;
 	friend class XMLObject;
-	StrObject(std::string& s);
-	StrObject(u_str);
-	StrObject(const std::string& s);
-	StrObject(const char* s);
-	StrObject(const xercesc::DOMNode*);
+	UStrItem(std::string&);
+	UStrItem(u_str);
+	UStrItem(const std::string&);
+	UStrItem(const char*);
+	UStrItem(const XMLCh*);
+	UStrItem(const xercesc::DOMNode*);
 	
 public:
-	StrObject(const DataItem&);	
+	UStrItem(const DataItem&);	
 	
 	//dataitem API.
 	virtual operator XMLObject*();	
@@ -52,7 +53,7 @@ public:
 	virtual operator xercesc::DOMDocument*() const;	
 	virtual operator xercesc::DOMNode*() const;	
 	virtual void copy(DataItem*&) const;
-	virtual kind_type kind() const { return di_text; }
+	virtual kind_type kind() const { return di_utext; }
 	virtual long long size() const;
 	virtual bool empty() const;
 	virtual bool find(const DataItem*,std::string&) const;
@@ -63,10 +64,10 @@ public:
 	virtual void clear();
 	virtual void trim();
 	
-	virtual ~StrObject();
+	virtual ~UStrItem();
 	
 private:
-	std::string o_str;
+	u_str o_str;
 };
 
 #endif

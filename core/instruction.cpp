@@ -60,7 +60,7 @@ Function(n,instruction,par),operation(move),precision(0),bitpadding(0),base_conv
 		operation = i->second; 
 	} else {
 		if ( ! op_string.empty() ) {
-			string err_type; transcode(op_string.c_str(),err_type);
+			string err_type; Manager::transcode(op_string.c_str(),err_type);
 			*Logger::log << Log::syntax << Log::LI << "Syntax Error. " <<  err_type << " is not a legal instruction operation. It should be one of assign, append, position, substring, length, left, right, upper, lower, add, subtract, multiply, divide, remainder, quotient, shell, query, function." << Log::LO; 
 			trace();
 			*Logger::log << Log::blockend;
@@ -111,11 +111,9 @@ void Instruction::do_function() {
 	Document::type_parm_map* function_instance = new Document::type_parm_map();
 	size_t n = inputs.size();
 	for ( unsigned int i = 1; i < n; i++ ) {
-		u_str pname=inputs[i]->parm_name;
-		if ( ! pname.empty()) {
+		string parm_key=inputs[i]->parm_name;
+		if ( ! parm_key.empty()) {
 			DataItem* rslt = NULL;
-			string parm_key;
-			XML::transcode(pname.c_str(),parm_key);
 			if ( ! inputs[i]->results.final() ) {
 				inputs[i]->evaluate();
 				if ( ! inputs[i]->results.final() ) {
@@ -147,7 +145,7 @@ void Instruction::do_function() {
 	string fn_filename;
 	//really need to get the value from input 1 value.
 	if (! inputs[0]->name_v.empty()) {
-		transcode(inputs[0]->name_v.c_str(),fn_filename);
+		Manager::transcode(inputs[0]->name_v.c_str(),fn_filename);
 	} 
 	if (fn_filename.empty()) {
 		fn_filename="function call"; 
@@ -382,20 +380,16 @@ bool Instruction::evaluate_this() {
 									break; //operations handled outside of this switch.
 								case bitwise: {
 #ifndef DISALLOW_GMP											
-									u_str pname=inputs[i]->parm_name;
-									if ( ! pname.empty()) {
+									string parm_key=inputs[i]->parm_name;
+									if ( ! parm_key.empty()) {
 										string fv; if (srcval != NULL) { fv = *srcval; }
-										string parm_key;
-										XML::transcode(pname.c_str(),parm_key);
 										expr_bit_eval->add_parm(parm_key,fv);
 									}
 #endif
 								} break;
 								case arithmetic: {
-									u_str pname=inputs[i]->parm_name;
-									if ( ! pname.empty()) {
-										string parm_key;
-										XML::transcode(pname.c_str(),parm_key);
+									string parm_key=inputs[i]->parm_name;
+									if ( ! parm_key.empty()) {
 										string fv; if (srcval != NULL) { fv = *srcval; }
 										double dble = String::real(fv);
 										expr_eval->add_parm(parm_key,dble);

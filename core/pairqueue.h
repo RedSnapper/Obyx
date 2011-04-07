@@ -86,6 +86,7 @@ public:
 	void append(pqpair&,ObyxElement *);
 	void append(DataItem*&);
 	void append(std::string,kind_type);
+	void append(u_str,kind_type);
 	void append(Function*,std::string&);
 	void explain();
 };

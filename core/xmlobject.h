@@ -64,6 +64,8 @@ public:
 	static bool npsplit(const u_str&,pair<u_str,u_str>&,bool&);
 	static pair<unsigned long long,bool> hex(const u_str&);
 	static pair<unsigned long long,bool> znatural(const u_str&);
+	static void trim(u_str&);
+	static void rtrim(u_str&);
 	
 	XMLObject(const std::string);
 	XMLObject(const u_str);
@@ -91,6 +93,7 @@ public:
 	virtual bool empty() const;
 	virtual bool find(const DataItem*,std::string&) const;
 	virtual bool find(const char*,std::string&) const;
+	virtual bool find(const XMLCh*,std::string&) const;
 	virtual bool same(const DataItem*) const;
 	virtual void clear();
 	virtual void trim();

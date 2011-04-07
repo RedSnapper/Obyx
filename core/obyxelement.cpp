@@ -64,7 +64,7 @@ XMLNode::XMLNode(DOMNode* const& n,ObyxElement *par) : ObyxElement(par,xmlnode,o
 		u_str u_nodevalue = n->getNodeValue();
 		if ( Document::prefix_length == 0 ) {
 			if ( u_nodevalue[0] == ':' ) {  // [[: identification.
-				transcode(u_nodevalue,nodevalue);
+				Manager::transcode(u_nodevalue,nodevalue);
 				p->results.append(nodevalue.substr(1,string::npos),di_text); 
 				doneit = true;
 			}
@@ -74,7 +74,7 @@ XMLNode::XMLNode(DOMNode* const& n,ObyxElement *par) : ObyxElement(par,xmlnode,o
 				*Logger::log << Log::error << Log::LI << "Error. Master Namespace prefix problem." << Log::LO << Log::blockend;	
 			} else {
 				if ( u_nodevalue.compare(0,Document::prefix_length,masterprefix) == 0) { // [[o: identification.
-					transcode(u_nodevalue,nodevalue);
+					Manager::transcode(u_nodevalue,nodevalue);
 					p->results.append(nodevalue.substr(Document::prefix_length+1,string::npos),di_text); 				
 					doneit = true;
 				}
@@ -88,7 +88,7 @@ XMLNode::~XMLNode() {}
  XMLElement::XMLElement(DOMNode* const& n,ObyxElement *par,unsigned long sib) : 
  ObyxElement(par,xmlelement,other),nodename() {
  DataItem* elnode = DataItem::factory(n,di_object);
- transcode(n->getLocalName(),nodename);
+ Manager::transcode(n->getLocalName(),nodename);
  p->results.append( elnode ); //this TAKES elnode.
  } 
  
@@ -281,7 +281,7 @@ void ObyxElement::trace() const { //always called within a block
 		}
 		if (t_node->node != NULL) { 
 			basic_string<XMLCh> xp = Manager::parser()->xpath(t_node->node);
-			transcode(xp,xpath);
+			Manager::transcode(xp,xpath);
 		}
 		fps.push_back(pair<string,pair<string, string> >(filepath,pair<string, string>(xpath,language_version)));
 		if (t_node->owner != NULL) {
@@ -351,7 +351,7 @@ ObyxElement* ObyxElement::Factory(DOMNode* const& n,ObyxElement* parent) {
 					} else {
 						if (Document::prefix_length > 0) { 
 							std::string ele_name;
-							transcode(elname,ele_name);
+							Manager::transcode(elname,ele_name);
 							*Logger::log << Log::error << Log::LI << "Error. " << ele_name << " is not a valid obyx element." << Log::LO;	
 							parent->trace();
 							*Logger::log << Log::blockend;
@@ -365,22 +365,25 @@ ObyxElement* ObyxElement::Factory(DOMNode* const& n,ObyxElement* parent) {
 		} break;
 		case DOMNode::TEXT_NODE: {
 			if (parent->wotspace != flowfunction) {
-				std::string nodevalue;
-				transcode(n->getNodeValue(),nodevalue);
+				u_str nodevalue;
+				const XMLCh* nv = n->getNodeValue();
+				if (nv != NULL) {
+					nodevalue = nv;
+				}
 				if (! parent->results.final()) {
 					IKO* iko = dynamic_cast<IKO*>(parent);
 					if (iko != NULL) {
 						if (iko->wsstrip) {
-							String::trim(nodevalue);
+							XMLObject::trim(nodevalue);
 						}
 					} else {
-						String::rtrim(nodevalue);
+						XMLObject::rtrim(nodevalue);
 					}
 					if ( !nodevalue.empty()) {
 						parent->results.append(nodevalue,di_auto); 
 					}
 				} else {
-					String::trim(nodevalue); 
+					XMLObject::trim(nodevalue); 
 					if (!nodevalue.empty()) {
 						*Logger::log << Log::syntax << Log::LI << "Syntax Error. Value attribute is already set. Content is disallowed if there is a value attribute." << Log::LO;
 						ObyxElement* oe = dynamic_cast<ObyxElement*>(parent);
@@ -395,7 +398,7 @@ ObyxElement* ObyxElement::Factory(DOMNode* const& n,ObyxElement* parent) {
 			u_str u_nodevalue = n->getNodeValue();
 			if ( Document::prefix_length == 0 ) {
 				if ( u_nodevalue[0] == ':' ) {  // [[: identification.
-					transcode(u_nodevalue,nodevalue);
+					Manager::transcode(u_nodevalue,nodevalue);
 					parent->results.append(nodevalue.substr(1,string::npos),di_text); 
 				} else {
 					DataItem* elcdata = DataItem::factory(n);
@@ -407,7 +410,7 @@ ObyxElement* ObyxElement::Factory(DOMNode* const& n,ObyxElement* parent) {
 					*Logger::log << Log::error << Log::LI << "Error. Namespace prefix problem in XMLCData." << Log::LO << Log::blockend;	
 				} else {
 					if ( u_nodevalue.compare(0,Document::prefix_length,masterprefix) == 0) { // [[o: identification.
-						transcode(u_nodevalue,nodevalue);
+						Manager::transcode(u_nodevalue,nodevalue);
 						parent->results.append(nodevalue.substr(Document::prefix_length+1,string::npos),di_text); 				
 					} else {
 						DataItem* elcdata = DataItem::factory(n);

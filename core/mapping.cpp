@@ -58,7 +58,7 @@ Function(n,mapping,par),operation(m_switch),repeated(false),keys_evaluated(false
 		operation = i->second; 
 	} else {
 		if ( ! op_string.empty() ) {
-			string err_msg; transcode(op_string.c_str(),err_msg);
+			string err_msg; Manager::transcode(op_string.c_str(),err_msg);
 			*Logger::log <<  Log::syntax << Log::LI << "Syntax Error. " <<  err_msg << " is not a legal operation. It should be one of switch, substitute" << Log::LO; 
 			trace();
 			*Logger::log << Log::blockend;

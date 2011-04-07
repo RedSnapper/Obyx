@@ -60,11 +60,11 @@ namespace Fetch {
 					} else {
 						redirects.push_back(page);
 						u_str relUri,xpage;
-						XML::transcode(relativeUri,relUri);
-						XML::transcode(page,xpage);
+						XML::Manager::transcode(relativeUri,relUri);
+						XML::Manager::transcode(page,xpage);
 						XMLUri base(xpage.c_str());
 						XMLUri uri(&base,relUri.c_str());
-						transcode(uri.getUriText(),page);
+						XML::Manager::transcode(uri.getUriText(),page);
 						if (Logger::debugging()) {
 							*Logger::log << Log::info << Log::LI << "Redirecting to: " << page << Log::LO << Log::blockend;
 						}
