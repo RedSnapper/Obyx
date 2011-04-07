@@ -961,7 +961,8 @@ void Environment::setbasetime() {
 	struct timespec tb = {0,0};
 	clock_getcpuclockid(pid,&clock_id);	
 	clock_gettime(clock_id,&tb);
-	basetime = (tb.tv_sec * 1000000000ULL + tb.tv_nsec) / 1000000000ULL; // nanoseconds
+	basetime = 0.000000001 * (tb.tv_sec * 1000000000 + tb.tv_nsec);
+//	basetime = (tb.tv_sec * 1000000000ULL + tb.tv_nsec) / 1000000000ULL; // nanoseconds
 #endif
 }
 void Environment::setienv(string name,string value) {
@@ -1306,14 +1307,14 @@ void Environment::gettiming(string& result) {
 	unsigned long long clocktime = tb.tms_utime + tb.tms_stime + tb.tms_cutime + tb.tms_cstime;
 	long double timing = clocktime / sysconf(_SC_CLK_TCK);
 	timing = timing - basetime;
-	result = String::tostring(timing,12L);
+	result = String::tostring(timing - basetime,12L);
 	
 #else
 	struct timespec tb = {0,0};
 	clockid_t clock_id;
 	clock_getcpuclockid(pid,&clock_id);	
 	clock_gettime(clock_id,&tb);
-	long double timing = (tb.tv_sec * 1000000000ULL + tb.tv_nsec) / 1000000000ULL; // nanoseconds
+	long double timing = 0.000000001 * (tb.tv_sec * 1000000000 + tb.tv_nsec);
 	result = String::tostring(timing - basetime,12L);
 #endif
 }
