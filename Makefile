@@ -65,7 +65,7 @@ BASE_SRCS        =${HTTPF_SRCS} ${FILE_SRCS} ${ENV_SRCS} ${VDB_SRCS} ${LOG_SRCS}
 OBYX_USES =${BASE_SRCS}
 OBYX_LIBS =
 OBYX_SRCS = \
-     fragmentobject.cpp strobject.cpp xmlobject.cpp dataitem.cpp itemstore.cpp pairqueue.cpp \
+     fragmentobject.cpp ustritem.cpp strobject.cpp xmlobject.cpp dataitem.cpp itemstore.cpp pairqueue.cpp \
      obyxelement.cpp function.cpp comparison.cpp instruction.cpp mapping.cpp iteration.cpp \
      iko.cpp output.cpp inputtype.cpp osiapp.cpp osimessage.cpp document.cpp filer.cpp main.cpp 
 
