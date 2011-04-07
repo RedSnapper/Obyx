@@ -957,7 +957,7 @@ void Environment::setbasetime() {
 	basetime = static_cast<long double>(clocktime) / sysconf(_SC_CLK_TCK);	
 #else
 	struct timespec tb = {0,0};
-	clock_gettime(CLOCK_REALTIME,&tb);
+	clock_gettime(CLOCK_PROCESS_CPUTIME_ID,&tb);
 	unsigned long long clocktime = tb.tv_sec * 1000000000ULL + tb.tv_nsec;
 	basetime = clocktime / 1000000000ULL; // nanoseconds
 #endif
@@ -1308,7 +1308,7 @@ void Environment::gettiming(string& result) {
 	
 #else
 	struct timespec tb = {0,0};
-	int err = clock_gettime(CLOCK_REALTIME,&tb);
+	int err = clock_gettime(CLOCK_PROCESS_CPUTIME_ID,&tb);
 	if ( err != 0 ) *Logger::log << Log::error << Log::LI << "Error. Environment::setbasetime error:" << err << Log::LO << Log::blockend;
 	unsigned long long clocktime = tb.tv_sec * 1000000000ULL + tb.tv_nsec;
 	long double timing = clocktime / 1000000000ULL; // nanoseconds
