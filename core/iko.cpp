@@ -1064,20 +1064,14 @@ bool IKO::sigfromspace(const u_str& input_name,const inp_space the_space,const b
 				owner->metastore("REDIRECT_BREAK_COUNT",max_redirects);
 				owner->metastore("URL_TIMEOUT_SECS",timeout_secs);
 				string req_errors,body,response_head;
+				exists = false;
 				HTTPFetch my_req(req_url,"GET","HTTP/1.0",body,max_redirects,timeout_secs,req_errors);
-				if (!req_errors.empty()) {
-					*Logger::log << Log::error << Log::LI << Log::II << req_url << Log::IO << Log::II << req_errors << Log::IO << Log::LO << Log::blockend;
+				if (req_errors.empty()) {
+					exists = my_req.doRequest(response_head,fresult,max_redirects,timeout_secs,req_errors);
+					if (req_errors.empty()) {
+						exists = ! fresult.empty();
+					}
 				}
-				exists  = my_req.doRequest(response_head,fresult,max_redirects,timeout_secs,req_errors);
-				if (!req_errors.empty()) {
-					*Logger::log << Log::error << Log::LI << Log::II << req_url << Log::IO << Log::II << req_errors << Log::IO << Log::LO << Log::blockend;
-				}
-				/*				
-				 HTTPFetch pr(errstr);
-				 HTTPFetchHeader header;
-				 std::vector<std::string> redirects;
-				 exists = pr.fetchPage(input_name, header, redirects, fresult, max_redirects,timeout_seconds,errstr);
-				 */
 			}
 		} break;
 		case cookie: {
