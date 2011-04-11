@@ -54,6 +54,7 @@ private:
 	static void finalise();
 	static void startup(); 
 	static void shutdown();	
+	bool while_repeat_metafield(u_str&) const;
 	
 protected:
 	friend class IKO;
@@ -68,8 +69,9 @@ protected:
 	unsigned long long numreps;
 	string currentkey;					//used in each..
 	
-public:
-	bool field(const u_str&,u_str&,string&) const;
+public:   
+	bool field(const u_str&,DataItem*&,const kind_type&,string&) const;
+	bool fieldsig(const u_str&,string&) const;
 	bool fieldfind(const u_str&) const;
 	void fieldkeys(const u_str&,set<string>&) const;
 	bool fieldexists(const u_str&,string&) const;

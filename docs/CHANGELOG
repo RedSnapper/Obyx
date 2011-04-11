@@ -17,6 +17,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.110411
+	BUG.		'significant' comparates not being tested after eval. 
+	BUG.		fields always being transcoded.
 v1.110408
 	BUG.		url significant should return true or false.
 v1.110407

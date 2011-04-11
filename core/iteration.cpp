@@ -207,47 +207,53 @@ bool Iteration::fieldexists(const u_str& fname,string& errstring) const {
 	}
 	return retval;
 }
-bool Iteration::field(const u_str& fname,u_str& container,string& errstring) const {
+bool Iteration::while_repeat_metafield(u_str& metafield) const {
+	bool retval = false;
+	size_t hashpos = metafield.find('#');
+	while (hashpos != string::npos) {
+		if (metafield.compare(hashpos,9,UCS2(L"#rowcount")) == 0) {
+			if ( operation == it_repeat || operation == it_each ) {
+				u_str rowstr; XML::Manager::to_ustr(numreps,rowstr);
+				metafield.replace(hashpos,9,rowstr);
+				hashpos--;
+				retval = true; 
+			} 
+		} else {
+			if ( metafield.compare(hashpos,4,UCS2(L"#row")) == 0 ) {
+				u_str rowstr; XML::Manager::to_ustr(currentrow,rowstr);
+				metafield.replace(hashpos,4,rowstr);
+				hashpos--;
+				retval = true;
+			} else {
+				if ( metafield.compare(hashpos,4,UCS2(L"#key")) == 0 ) {
+					u_str ckey; XML::Manager::transcode(currentkey,ckey);		
+					metafield.replace(hashpos,4,ckey);
+					hashpos--;
+					retval = true;
+				}
+			}
+		}
+		hashpos = metafield.find('#',++hashpos);
+	}
+	return retval;
+}
+bool Iteration::field(const u_str& fname,DataItem*& container,const kind_type& kind,string& errstring) const { 
 	bool retval = false;
 	if (query != NULL && operation == it_sql) {
 		//This is where we could do an xpath split.
 		string qkey,srepo; XML::Manager::transcode(fname,qkey);
 		retval = query->readfield(currentrow,qkey,srepo,errstring);
 		if (retval) {
-			XML::Manager::transcode(srepo,container);
+			container = DataItem::factory(srepo,kind);
 		}
 	} else {
-		container = fname;
-		size_t hashpos = container.find('#');
-		while (hashpos != string::npos) {
-			if (container.compare(hashpos,9,UCS2(L"#rowcount")) == 0) {
-				if ( operation == it_repeat || operation == it_each ) {
-					u_str rowstr; XML::Manager::to_ustr(numreps,rowstr);
-					container.replace(hashpos,9,rowstr);
-					hashpos--;
-					retval = true; 
-				} 
-			} else {
-				if ( container.compare(hashpos,4,UCS2(L"#row")) == 0 ) {
-					u_str rowstr; XML::Manager::to_ustr(currentrow,rowstr);
-					container.replace(hashpos,4,rowstr);
-					hashpos--;
-					retval = true;
-				} else {
-					if ( container.compare(hashpos,4,UCS2(L"#key")) == 0 ) {
-						u_str ckey; XML::Manager::transcode(currentkey,ckey);		
-						container.replace(hashpos,4,ckey);
-						hashpos--;
-						retval = true;
-					}
-				}
-			}
-			hashpos = container.find('#',++hashpos);
-		}
+		u_str metafield = fname;
+		retval = while_repeat_metafield(metafield);
 		if (!retval) {
-			container.clear();
 			string erv; XML::Manager::transcode(fname,erv);		
 			errstring = "Error. Field " + erv + " not allowed here. In while and repeat only the fields #rowcount, #row and #key are valid";
+		}  else {
+			container = DataItem::factory(metafield,kind);
 		}
 	}
 	return retval;
@@ -309,20 +315,6 @@ bool Iteration::operation_each() {
 					definputs.push_back(iter_input);
 					iter_input = NULL;
 				}
-/*				
-				for (currentrow = 1; currentrow <= numreps; currentrow++) {
-					currentkey = spacekeys[currentrow - 1];
-					if (currentrow != numreps) {
-						iter_input = new DefInpType(this,base_template);
-					} else {
-						iter_input = base_template;		
-						lastrow = true;
-					}
-					iter_input->evaluate();
-					definputs.push_back(iter_input);
-					iter_input = NULL;
-				}
- */
 			}
 		}
 	} 

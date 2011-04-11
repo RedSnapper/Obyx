@@ -40,7 +40,7 @@ private:
 //ok - problem is that xpath is u_str, whereas keys are string (so that we can use regex without having to transliterate every key in a map).
 	bool valuefromspace(u_str&,const inp_space,const bool,const bool,const kind_type,DataItem*&);
 	bool existsinspace(u_str&,const inp_space,const bool,const bool);
-	bool sigfromspace(const u_str&,const inp_space,const bool,DataItem*&);
+	bool sigfromspace(const u_str&,const inp_space,const bool,const kind_type,DataItem*&);
 	bool foundinspace(const u_str&,const inp_space,const bool);
 	void log(const Log::msgtype,const std::string) const;
 	void doerrspace(const u_str&) const;

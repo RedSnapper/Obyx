@@ -519,6 +519,7 @@ void IKO::evaltype(inp_space the_space, bool release, bool eval,bool is_context,
 	//evaltype() is used for evaluating BOTH inputs proper and also contexts for inputs and outputs.
 	//exists is evaluated. significant is tested by comparision and will be looking for a value.
 	exists = false; 
+	usage_tests exist_test = ut_value; //we need to identify the way in which this is to be evaluated.
 	if (container != NULL) {
 		*Logger::log << Log::error << Log::LI << "Internal Error. container should be empty!" << Log::LO; 
 		trace();
@@ -541,7 +542,6 @@ void IKO::evaltype(inp_space the_space, bool release, bool eval,bool is_context,
 		if (name_item != NULL && !name_item->empty()) {
 			input_name = *name_item;
 		}
-		usage_tests exist_test = ut_value; //we need to identify the way in which this is to be evaluated.
 		if (!is_context) { //if evaluating this IKO's context, then don't worry about exist_test. yet!
 			name_v = input_name;
 			Comparison* cmp = dynamic_cast<Comparison *>(p);
@@ -574,7 +574,11 @@ void IKO::evaltype(inp_space the_space, bool release, bool eval,bool is_context,
 				exists = existsinspace(input_name,the_space,is_context,release);
 			} break;			
             case ut_significant: {
-				exists = sigfromspace(input_name,the_space,release,container);
+				if (eval) {
+					exists = valuefromspace(input_name,the_space,is_context,release,ikind,container);
+				} else {
+					exists = sigfromspace(input_name,the_space,release,ikind,container);
+				}
 			} break;
 			case ut_found: {
 				exists = foundinspace(input_name,the_space,release);
@@ -600,6 +604,9 @@ void IKO::evaltype(inp_space the_space, bool release, bool eval,bool is_context,
 			container = NULL;
 			Document eval_doc(doc_to_eval,Document::File,filestring,this); //evaluate immediately!
 			if (eval_doc.results.final()) { 
+				if (exist_test == ut_significant && !is_context ) {
+					exists = ! eval_doc.results.empty();
+				}
 				eval_doc.results.takeresult(container); //
 			} else {
 				*Logger::log << Log::error << Log::LI << "Error. File " << filestring << " was not evaluated " << Log::LO;
@@ -819,7 +826,6 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 	Environment* env = Environment::service();
 	exists = false;
 	string fresult;	//used to hold result for most spaces.
-	u_str uresult;	//used to hold result for most spaces.
 	switch ( the_space ) { //now do all the named input_spaces!
 		case none: break; //exists = false by default.
 		case immediate: { 
@@ -836,7 +842,7 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 				const Mapping* mpp = dynamic_cast<const Mapping *>(par);
 				while (par != NULL && !exists ) {
 					if (ite != NULL && ite->active() && (cur->wotzit==body)) {
-						exists = ite->field(input_name,uresult,errstring);
+						exists = ite->field(input_name,container,ikind,errstring);
 					}
 					if (mpp != NULL && mpp->active() && (cur->wotzit==match)) {
 						exists = mpp->field(input_name,fresult); 
@@ -968,15 +974,15 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 	if ( exists && container == NULL ) {
 		if (!fresult.empty()) {
 			container = DataItem::factory(fresult,ikind); //test for xml if needs be.
-		} else {
-			if (!uresult.empty()) {
-				container = DataItem::factory(uresult,ikind); //test for xml if needs be.
-			}
 		}
 	} 
 	return exists;
 }
-bool IKO::sigfromspace(const u_str& input_name,const inp_space the_space,const bool release, DataItem*& container) {
+bool IKO::sigfromspace(const u_str& input_name,const inp_space the_space,const bool release,const kind_type ikind,DataItem*& container) {
+	/*
+	 Sig from space needs the container, as there are further tests that may be required for significance, such as
+	 eval, and encoders.
+	 */
 	Environment* env = Environment::service();
 	exists = false;
 	string errstring,fresult;	//used to hold result for most spaces.
@@ -996,7 +1002,7 @@ bool IKO::sigfromspace(const u_str& input_name,const inp_space the_space,const b
 				const Mapping* mpp = dynamic_cast<const Mapping *>(par);
 				while (par != NULL && !exists ) {
 					if (ite != NULL && ite->active() && cur->wotzit==body ) {
-						exists = ite->field(input_name,uresult,errstring);
+						exists = ite->field(input_name,container,ikind,errstring);
 					}
 					if (mpp != NULL && mpp->active() && cur->wotzit==match) {
 						exists = mpp->field(input_name,fresult); 
