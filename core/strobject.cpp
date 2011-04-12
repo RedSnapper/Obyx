@@ -66,8 +66,16 @@ StrObject::operator xercesc::DOMNode*() const {
 }
 
 StrObject::operator u_str() const {
-	u_str ustr; 
-	XML::Manager::transcode(o_str,ustr);
+	u_str ustr;
+	if (XMLChar::isutf8(o_str)) {
+		XML::Manager::transcode(o_str,ustr);
+	} else {
+		std::size_t n = o_str.length();
+		for (std::size_t i = 0; i < n; i++) {
+			XMLCh x = (unsigned char)o_str[i];
+			ustr.push_back(x);
+		}
+	}
 	return ustr;
 }
 

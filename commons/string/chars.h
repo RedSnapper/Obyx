@@ -38,6 +38,7 @@ public:
 	static void startup();
 	static void shutdown();
 	static bool is(unsigned long);
+	static bool isutf8(const std::string&);
 	static void convert(std::string &);
 	static void encode(std::string &);
 };

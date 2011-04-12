@@ -27,6 +27,53 @@ using namespace std;
 map<unsigned long, char> XMLChar::Lo;
 map<unsigned long, char> XMLChar::Hi;
 
+//Tests if a string is valid XML UTF-8
+bool XMLChar::isutf8(const std::string& source) {
+	bool result=true;
+	unsigned long test;
+	if ( ! source.empty() )  {
+		string::const_iterator b=source.begin();
+		string::const_iterator e=source.end();
+		while(b < e) {
+			test = 0;
+			if ((*b & 0x80) == 0x00) {
+				test = *b;
+				if (! is(test) ) {
+					result = false;
+					break;
+				}
+				b++;
+			} else if ((*b & 0xe0) == 0xc0 && b + 1 != e && (b[1] & 0xc0) == 0x80) {
+				test = *(b+1); 
+				test = test << 8; 
+				test |= *b;
+				if (! is(test) ) {
+					result = false;
+					break;
+				}
+				b+= 2;
+			}
+			else if ((*b & 0xf0) == 0xe0 && b + 1 != e && b + 2 != e && (b[1] & 0xc0) == 0x80 && (b[2] & 0xc0) == 0x80) {
+				test = *(b+2); 
+				test = test << 8; 
+				test |= *(b+1); 
+				test = test << 8; 
+				test |= *b;
+				if (! is(test) ) {
+					result = false;
+					break;
+				}
+				b+= 3;
+			} else {
+				result = false;
+				break;
+			}
+		}
+	}
+	return result;
+}
+
+
 //Ensures that the string is valid XML UTF-8
 void XMLChar::convert(std::string& source) {
 	string result;
