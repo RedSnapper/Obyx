@@ -17,8 +17,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.110413
+	Enh.		NOT all strobject are utf-8 strings. Added an internal kind:di_raw 
 v1.110412
-	BUG.		NOT all strobject are utf-8 strings. 
+	BUG.		NOT all strobject are utf-8 strings. (was not resolved)
 v1.110411
 	BUG.		'significant' comparates not being tested after eval. 
 	BUG.		fields always being transcoded.
