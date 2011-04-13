@@ -58,8 +58,19 @@ Function(n,mapping,par),operation(m_switch),repeated(false),keys_evaluated(false
 		operation = i->second; 
 	} else {
 		if ( ! op_string.empty() ) {
-			string err_msg; Manager::transcode(op_string.c_str(),err_msg);
-			*Logger::log <<  Log::syntax << Log::LI << "Syntax Error. " <<  err_msg << " is not a legal operation. It should be one of switch, substitute" << Log::LO; 
+			string err_type,name; Manager::transcode(op_string.c_str(),err_type);
+			*Logger::log << Log::syntax << Log::LI << "Syntax Error. " <<  err_type << " is not a legal mapping operation. It should be one of ";
+			map_type_map::iterator op_ti = map_types.begin();
+			while ( op_ti != map_types.end() ) {
+				XML::Manager::transcode(op_ti->first,name);
+				op_ti++;
+				if (op_ti == map_types.end()) {
+					*Logger::log << name << ".";
+				} else {
+					*Logger::log << name << ",";
+				}
+			}
+			*Logger::log << Log::LO; 
 			trace();
 			*Logger::log << Log::blockend;
 		}

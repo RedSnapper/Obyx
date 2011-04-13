@@ -18,6 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 ------------------------------------------------------------------------------------
 CHANGELOG file
 v1.110413
+	BUG.		Mantis #70. Errors not listing full set of available fn operations.
 	Enh.		NOT all strobject are utf-8 strings. Added an internal kind:di_raw 
 v1.110412
 	BUG.		NOT all strobject are utf-8 strings. (was not resolved)

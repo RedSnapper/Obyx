@@ -60,8 +60,19 @@ Function(n,instruction,par),operation(move),precision(0),bitpadding(0),base_conv
 		operation = i->second; 
 	} else {
 		if ( ! op_string.empty() ) {
-			string err_type; Manager::transcode(op_string.c_str(),err_type);
-			*Logger::log << Log::syntax << Log::LI << "Syntax Error. " <<  err_type << " is not a legal instruction operation. It should be one of assign, append, position, substring, length, left, right, upper, lower, add, subtract, multiply, divide, remainder, quotient, shell, query, function." << Log::LO; 
+			string err_type,name; Manager::transcode(op_string.c_str(),err_type);
+			*Logger::log << Log::syntax << Log::LI << "Syntax Error. " <<  err_type << " is not a legal instruction operation. It should be one of ";
+			op_type_map::iterator op_ti = op_types.begin();
+			while ( op_ti != op_types.end() ) {
+				XML::Manager::transcode(op_ti->first,name);
+				op_ti++;
+				if (op_ti == op_types.end()) {
+					*Logger::log << name << ".";
+				} else {
+					*Logger::log << name << ",";
+				}
+			}
+			*Logger::log << Log::LO; 
 			trace();
 			*Logger::log << Log::blockend;
 		}
@@ -930,8 +941,8 @@ void Instruction::finalise() {
 void Instruction::startup() {
 	op_types.insert(op_type_map::value_type(UCS2(L"add"), obyx::add));
 	op_types.insert(op_type_map::value_type(UCS2(L"append"), obyx::append));
-	op_types.insert(op_type_map::value_type(UCS2(L"assign"), move));
 	op_types.insert(op_type_map::value_type(UCS2(L"arithmetic"), arithmetic));
+	op_types.insert(op_type_map::value_type(UCS2(L"assign"), move));
 	op_types.insert(op_type_map::value_type(UCS2(L"bitwise"), bitwise));
 	op_types.insert(op_type_map::value_type(UCS2(L"divide"), divide));
 	op_types.insert(op_type_map::value_type(UCS2(L"function"), function));
@@ -942,10 +953,10 @@ void Instruction::startup() {
 	op_types.insert(op_type_map::value_type(UCS2(L"max"), maximum ));
 	op_types.insert(op_type_map::value_type(UCS2(L"min"), minimum ));
 	op_types.insert(op_type_map::value_type(UCS2(L"multiply"), multiply));
-	op_types.insert(op_type_map::value_type(UCS2(L"random"), obyx::random));
 	op_types.insert(op_type_map::value_type(UCS2(L"position"), position));
 	op_types.insert(op_type_map::value_type(UCS2(L"query"), query_command));
 	op_types.insert(op_type_map::value_type(UCS2(L"quotient"), quotient ));
+	op_types.insert(op_type_map::value_type(UCS2(L"random"), obyx::random));
 	op_types.insert(op_type_map::value_type(UCS2(L"remainder"), obyx::remainder ));
 	op_types.insert(op_type_map::value_type(UCS2(L"reverse"), obyx::reverse));
 	op_types.insert(op_type_map::value_type(UCS2(L"right"), obyx::right));

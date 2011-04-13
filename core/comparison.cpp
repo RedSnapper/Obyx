@@ -61,8 +61,19 @@ cmp_evaluated(false),def_evaluated(false),operation_result('X') {
 			invert = i->second.second;
 		} else {
 			if ( ! op_string.empty() ) {
-				string err_msg; Manager::transcode(op_string.c_str(),err_msg);
-				*Logger::log << Log::syntax << Log::LI << "Syntax Error. " <<  err_msg << " is not a legal comparison operation. It should be one of: equal,existent,empty,significant,found,greater,lesser,true" << Log::LO; 
+				string err_type,name; Manager::transcode(op_string.c_str(),err_type);
+				*Logger::log << Log::syntax << Log::LI << "Syntax Error. " <<  err_type << " is not a legal comparison operation. It should be one of ";
+				cmp_type_map::iterator op_ti = cmp_types.begin();
+				while ( op_ti != cmp_types.end() ) {
+					XML::Manager::transcode(op_ti->first,name);
+					op_ti++;
+					if (op_ti == cmp_types.end()) {
+						*Logger::log << name << ".";
+					} else {
+						*Logger::log << name << ",";
+					}
+				}
+				*Logger::log << Log::LO; 
 				trace();
 				*Logger::log << Log::blockend;
 			}
@@ -336,9 +347,9 @@ void Comparison::init() {
 void Comparison::finalise() {
 }
 void Comparison::startup() {
+	cmp_types.insert(cmp_type_map::value_type(UCS2(L"empty"), std::pair<cmp_type,bool>::pair(is_empty,false) ));
 	cmp_types.insert(cmp_type_map::value_type(UCS2(L"equal"), std::pair<cmp_type,bool>::pair(equivalent_to,false) ));
 	cmp_types.insert(cmp_type_map::value_type(UCS2(L"existent"), std::pair<cmp_type,bool>::pair(exists,false)));
-	cmp_types.insert(cmp_type_map::value_type(UCS2(L"empty"), std::pair<cmp_type,bool>::pair(is_empty,false) ));
 	cmp_types.insert(cmp_type_map::value_type(UCS2(L"found"), std::pair<cmp_type,bool>::pair(found,false) ));
 	cmp_types.insert(cmp_type_map::value_type(UCS2(L"greater"), std::pair<cmp_type,bool>::pair(greater_than,false) ));
 	cmp_types.insert(cmp_type_map::value_type(UCS2(L"lesser"), std::pair<cmp_type,bool>::pair(less_than,false) ));

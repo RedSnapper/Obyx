@@ -59,8 +59,19 @@ operation(it_repeat),lastrow(false),expanded(false),currentrow(1),numreps(1),cur
 		operation = j->second; 
 	} else {
 		if ( ! op_string.empty() ) {
-			string err_op; Manager::transcode(op_string.c_str(),err_op);
-			*Logger::log << Log::syntax << Log::LI << "Syntax Error. " <<  err_op << " is not a legal iteration operation. It should be one of sql, repeat, while." << Log::LO; 
+			string err_type,name; Manager::transcode(op_string.c_str(),err_type);
+			*Logger::log << Log::syntax << Log::LI << "Syntax Error. " <<  err_type << " is not a legal iteration operation. It should be one of ";
+			it_type_map::iterator op_ti = it_types.begin();
+			while ( op_ti != it_types.end() ) {
+				XML::Manager::transcode(op_ti->first,name);
+				op_ti++;
+				if (op_ti == it_types.end()) {
+					*Logger::log << name << ".";
+				} else {
+					*Logger::log << name << ",";
+				}
+			}
+			*Logger::log << Log::LO; 
 			trace();
 			*Logger::log << Log::blockend;
 		}
