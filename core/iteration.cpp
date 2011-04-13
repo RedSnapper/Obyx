@@ -68,7 +68,7 @@ operation(it_repeat),lastrow(false),expanded(false),currentrow(1),numreps(1),cur
 				if (op_ti == it_types.end()) {
 					*Logger::log << name << ".";
 				} else {
-					*Logger::log << name << ",";
+					*Logger::log << name << ", ";
 				}
 			}
 			*Logger::log << Log::LO; 

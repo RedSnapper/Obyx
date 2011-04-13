@@ -70,7 +70,7 @@ cmp_evaluated(false),def_evaluated(false),operation_result('X') {
 					if (op_ti == cmp_types.end()) {
 						*Logger::log << name << ".";
 					} else {
-						*Logger::log << name << ",";
+						*Logger::log << name << ", ";
 					}
 				}
 				*Logger::log << Log::LO; 

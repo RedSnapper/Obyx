@@ -67,7 +67,7 @@ Function(n,mapping,par),operation(m_switch),repeated(false),keys_evaluated(false
 				if (op_ti == map_types.end()) {
 					*Logger::log << name << ".";
 				} else {
-					*Logger::log << name << ",";
+					*Logger::log << name << ", ";
 				}
 			}
 			*Logger::log << Log::LO; 
@@ -353,9 +353,9 @@ void Mapping::init() {
 void Mapping::finalise() {
 }
 void Mapping::startup() {
-	map_types.insert(map_type_map::value_type(UCS2(L"switch"), m_switch));
-	map_types.insert(map_type_map::value_type(UCS2(L"substitute"), m_substitute));
 	map_types.insert(map_type_map::value_type(UCS2(L"state"), m_state));
+	map_types.insert(map_type_map::value_type(UCS2(L"substitute"), m_substitute));
+	map_types.insert(map_type_map::value_type(UCS2(L"switch"), m_switch));
 }
 void Mapping::shutdown() {
 	map_types.clear();

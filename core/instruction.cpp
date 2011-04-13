@@ -69,7 +69,7 @@ Function(n,instruction,par),operation(move),precision(0),bitpadding(0),base_conv
 				if (op_ti == op_types.end()) {
 					*Logger::log << name << ".";
 				} else {
-					*Logger::log << name << ",";
+					*Logger::log << name << ", ";
 				}
 			}
 			*Logger::log << Log::LO; 
