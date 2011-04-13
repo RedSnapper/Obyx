@@ -463,7 +463,7 @@ void IKO::process_encoding(DataItem*& basis) {
 			case e_sql: {
 				if (dbc != NULL)  {
 					dbc->escape(encoded);
-					basis = DataItem::factory(encoded,di_text); //MAY be XML - maybe not.
+					basis = DataItem::factory(encoded,di_auto); //MAY be XML, maybe RAW.
 				} else {
 					*Logger::log << Log::error << Log::LI << "Error. In '" << name() << "', sql encoding depends on there being an sql connection, and there isn't one." << Log::LO;
 					trace();
@@ -496,7 +496,7 @@ void IKO::process_encoding(DataItem*& basis) {
 				if (String::Deflate::available(errs)) {
 					if ( process == encode) {
 						String::Deflate::deflate(encoded,errs);
-						basis = DataItem::factory(encoded,di_text); //cannot be xml.
+						basis = DataItem::factory(encoded,di_raw); //cannot be xml.
 					} else {
 						String::Deflate::inflate(encoded,errs);
 						basis = DataItem::factory(encoded,kind); //MAY be XML - maybe not.

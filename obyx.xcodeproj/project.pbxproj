@@ -106,6 +106,8 @@
 		B5741877119436A80046BE0B /* httplogger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B50F509E09939223002FC561 /* httplogger.cpp */; };
 		B5741878119436AA0046BE0B /* clilogger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B50F509C09939223002FC561 /* clilogger.cpp */; };
 		B5798122124282DA004752BE /* libxqilla.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B599F9230F583DEA00AD3D2C /* libxqilla.dylib */; };
+		B57DFC7D13559D8F00122195 /* rawitem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B57DFC7B13559D8F00122195 /* rawitem.cpp */; };
+		B57DFC7E13559D8F00122195 /* rawitem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B57DFC7B13559D8F00122195 /* rawitem.cpp */; };
 		B58852A60CC39E1B009D0279 /* regex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B58852A10CC39E1B009D0279 /* regex.cpp */; };
 		B58DA8C21104B05E00C34661 /* fragmentobject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B58DA8C11104B05E00C34661 /* fragmentobject.cpp */; };
 		B5A68E9209CF266B00D69316 /* pairqueue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5A68E9109CF266B00D69316 /* pairqueue.cpp */; };
@@ -258,6 +260,8 @@
 		B568C2FB0CC63C1600B1EBFF /* connection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = connection.cpp; sourceTree = "<group>"; };
 		B56A57001265F924001C4299 /* infix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = infix.h; sourceTree = "<group>"; };
 		B56A57011265F924001C4299 /* infix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = infix.cpp; sourceTree = "<group>"; };
+		B57DFC7B13559D8F00122195 /* rawitem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rawitem.cpp; sourceTree = "<group>"; };
+		B57DFC7C13559D8F00122195 /* rawitem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rawitem.h; sourceTree = "<group>"; };
 		B58852A00CC39E1B009D0279 /* regex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = regex.h; sourceTree = "<group>"; };
 		B58852A10CC39E1B009D0279 /* regex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = regex.cpp; sourceTree = "<group>"; };
 		B58DA8C01104B05E00C34661 /* fragmentobject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fragmentobject.h; sourceTree = "<group>"; };
@@ -491,6 +495,8 @@
 				B55597860F8A0D3E003C3BE0 /* dataitem.cpp */,
 				B58DA8C01104B05E00C34661 /* fragmentobject.h */,
 				B58DA8C11104B05E00C34661 /* fragmentobject.cpp */,
+				B57DFC7C13559D8F00122195 /* rawitem.h */,
+				B57DFC7B13559D8F00122195 /* rawitem.cpp */,
 				B55597890F8A0D3E003C3BE0 /* strobject.h */,
 				B55597880F8A0D3E003C3BE0 /* strobject.cpp */,
 				B5350FA0134DBE3F00801466 /* ustritem.h */,
@@ -900,6 +906,7 @@
 				B56A57031265F924001C4299 /* infix.cpp in Sources */,
 				B5F79CB31268876B008CBD64 /* bitwise.cpp in Sources */,
 				B5350FA2134DBE3F00801466 /* ustritem.cpp in Sources */,
+				B57DFC7E13559D8F00122195 /* rawitem.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -969,6 +976,7 @@
 				B56A57021265F924001C4299 /* infix.cpp in Sources */,
 				B5F79CB41268876B008CBD64 /* bitwise.cpp in Sources */,
 				B5350FA1134DBE3F00801466 /* ustritem.cpp in Sources */,
+				B57DFC7D13559D8F00122195 /* rawitem.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

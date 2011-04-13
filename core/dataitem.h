@@ -33,13 +33,14 @@ namespace {
 }	
 
 namespace obyx {
-	typedef enum { di_auto,di_text,di_utext,di_object,di_fragment,di_null } kind_type;	//what kind of dataItem
+	typedef enum { di_auto,di_raw,di_text,di_utext,di_object,di_fragment,di_null } kind_type;	//what kind of dataItem
 	typedef std::map<u_str, kind_type > kind_type_map; 
 }
 
 class XMLObject;
 class StrObject;
 class UStrItem;
+class RawItem;
 using namespace obyx;	
 
 //base class for xml / text that appear in PairQueue.

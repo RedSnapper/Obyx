@@ -466,6 +466,22 @@ bool ItemStore::sget(const u_str& sname,const u_str& path,bool node_expected, Da
 									}
 								}
 							} break;
+							case di_raw: {
+								if (path.compare(UCS2(L"text()")) == 0) {
+									item = basis; 
+								} else {
+									if (node_expected) {
+										std::string erv; XML::Manager::transcode(path,erv);	
+										errorstr = "Item '" + name + "' is of kind 'text'. so xpath '" + erv + "' was unused.";
+										string bvalue = *basis;	
+										if (bvalue.empty()) {
+											errorstr = "The item is empty. Maybe a previous xpath failed?";
+										} else {
+											errorstr =  "It's value is raw binary.";
+										}
+									}
+								}
+							} break;
 							case di_text: {
 								if (path.compare(UCS2(L"text()")) == 0) {
 									item = basis; 

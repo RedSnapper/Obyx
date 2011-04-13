@@ -1,6 +1,6 @@
 /* 
- * dataitem.cpp is authored and maintained by Ben Griffin of Red Snapper Ltd 
- * dataitem.cpp is a part of Obyx - see http://www.obyx.org .
+ * rawitem.cpp is authored and maintained by Ben Griffin of Red Snapper Ltd 
+ * rawitem.cpp is a part of Obyx - see http://www.obyx.org .
  * Obyx is protected as a trade mark (2483369) in the name of Red Snapper Ltd.
  * This file is Copyright (C) 2006-2010 Red Snapper Ltd. http://www.redsnapper.net
  * The governing usage license can be found at http://www.gnu.org/licenses/gpl-3.0.txt
@@ -22,76 +22,78 @@
 
 #include "commons/logger/logger.h"
 #include "commons/string/strings.h"
-#include "strobject.h"
-#include "xmlobject.h"
+#include "rawitem.h"
 #include "dataitem.h"
+#include "xmlobject.h"
 
-//StrObject is a UTF-8 string
-
-StrObject::StrObject(const std::string& s) : DataItem(),o_str(s) {
+RawItem::RawItem(const std::string& s) : DataItem(),o_str(s) {
 	//	do_alloc("1 "+o_str);
 }
-StrObject::StrObject(u_str s) : DataItem(),o_str("") { 
-		XML::Manager::transcode(s.c_str(),o_str);
+RawItem::RawItem(u_str s) : DataItem(),o_str("") { 
+	XML::Manager::transcode(s.c_str(),o_str);
 	//	do_alloc("2 "+o_str);
 }
-StrObject::StrObject(std::string& s) : DataItem(),o_str(s) {
+RawItem::RawItem(std::string& s) : DataItem(),o_str(s) {
 	//	do_alloc("3 "+o_str);
 }
 
-StrObject::StrObject(const char* s) : DataItem(),o_str(s) {
+RawItem::RawItem(const char* s) : DataItem(),o_str(s) {
 	//	do_alloc("4 "+o_str);
 }
 
-StrObject::StrObject(const DataItem& s) : DataItem(),o_str(s) {
+RawItem::RawItem(const DataItem& s) : DataItem(),o_str(s) {
 	//	do_alloc("5 "+o_str);
 }
-StrObject::StrObject(const xercesc::DOMNode* s) : DataItem(),o_str() {
+RawItem::RawItem(const xercesc::DOMNode* s) : DataItem(),o_str() {
 	XML::Manager::parser()->writenode(s,o_str);
 }
 
-StrObject::~StrObject() {
-	//	do_dealloc();
+RawItem::~RawItem() {
+	//do_dealloc();
 	o_str.clear();
 }
 
-StrObject::operator XMLObject*() {
+RawItem::operator XMLObject*() {
+	//This will fail.
 	return new XMLObject(o_str);
 }
 
-StrObject::operator xercesc::DOMDocument*() const {
+RawItem::operator xercesc::DOMDocument*() const {
+	//This will fail.
 	return  XML::Manager::parser()->loadDoc(o_str);
 }
 
-StrObject::operator xercesc::DOMNode*() const {
+RawItem::operator xercesc::DOMNode*() const {
+	//This will fail.
 	return XML::Manager::parser()->loadDoc(o_str);
 }
 
-StrObject::operator u_str() const {
+RawItem::operator u_str() const {
+	//This will fail. Transcode only deals with utf-8.
 	u_str ustr;
 	XML::Manager::transcode(o_str,ustr);
 	return ustr;
 }
 
-StrObject::operator std::string() const { 
+RawItem::operator std::string() const { 
 	return o_str; 
 }	
 
-void StrObject::copy(DataItem*& container) const {
-	container = DataItem::factory(o_str,di_text); 	
+void RawItem::copy(DataItem*& container) const {
+	container = DataItem::factory(o_str,di_raw); 	
 }
 
-bool StrObject::empty() const {
+bool RawItem::empty() const {
 	return o_str.empty();
 }
 
-void StrObject::append(DataItem*& s) {
+void RawItem::append(DataItem*& s) {
 	std::string ns = *s;
 	o_str.append(ns);
 	delete s;
 }
 
-bool StrObject::find(const DataItem* o,std::string&) const {
+bool RawItem::find(const DataItem* o,std::string&) const {
 	if ( o != NULL) {
 		return o_str.find(*o) != string::npos;
 	} else {
@@ -99,11 +101,11 @@ bool StrObject::find(const DataItem* o,std::string&) const {
 	}
 }
 
-bool StrObject::find(const char* o,std::string&) const {
+bool RawItem::find(const char* o,std::string&) const {
 	return o_str.find(o) != string::npos;
 }
 
-bool StrObject::find(const XMLCh* s,std::string&) const {
+bool RawItem::find(const XMLCh* s,std::string&) const {
 	if (s!=NULL) {
 		u_str tmp(s);
 		string srch;
@@ -114,7 +116,7 @@ bool StrObject::find(const XMLCh* s,std::string&) const {
 	}
 }
 
-bool StrObject::same(const DataItem* o) const {
+bool RawItem::same(const DataItem* o) const {
 	if (o != NULL) {
 		return o_str.compare(*o) == 0;
 	} else {
@@ -122,20 +124,16 @@ bool StrObject::same(const DataItem* o) const {
 	}
 }
 
-void StrObject::clear() {
+void RawItem::clear() {
 	o_str.clear();
 }
 
-void StrObject::trim() {
-	if (!o_str.empty()) {
-		String::trim(o_str);
-	}
+void RawItem::trim() {
+	//do nothing
 }
 
-long long StrObject::size() const {
-	//StrObject is UTF-8
-	unsigned long long result = 0;
-	String::length(o_str,result);
+long long RawItem::size() const {
+	unsigned long long result = o_str.size();
 	return result;
 }
 

@@ -21,6 +21,7 @@
  */
 
 #include "dataitem.h"
+#include "rawitem.h"
 #include "strobject.h"
 #include "ustritem.h"
 #include "xmlobject.h"
@@ -55,13 +56,17 @@ DataItem::DataItem() {}
 void DataItem::append(DataItem*& a,DataItem*& b) { //this is static
 	if (a != NULL) {
 		if (b != NULL) { //if b is null, then we are appending nothing.
-			XMLObject* x = dynamic_cast<XMLObject*>(a);
-			if (x != NULL) {
-				DOMNode* n;
-				x->take(n);
-				delete a;
-				a = new FragmentObject(n);
-			} 
+			if (a->kind() == di_raw || b->kind() == di_raw) { //raw + xxx == raw.
+				std::string x = *a; delete a;
+				a = new RawItem(x);
+			} else {
+				XMLObject* x = dynamic_cast<XMLObject*>(a);
+				if (x != NULL) {
+					DOMNode* n;
+					x->take(n); delete a;
+					a = new FragmentObject(n);
+				} 
+			}
 			a->append(b);
 		} 
 	} else {
@@ -78,53 +83,57 @@ DataItem* DataItem::autoItem(const std::string& s) {
 	if ( s.empty() ) {
 		retval=NULL;
 	} else {
-		string::size_type b = s.find_first_not_of(" \r\n\t" ); //Test for first non-ws is a '<'
-		if(s[b] != '<') {  
-			retval=new StrObject(s);
-		} else {
-			string::size_type e = s.find_last_not_of(" \r\n\t" ); //Test for last non-ws is a '>'
-			if(s[e] != '>') { 
+		if (XMLChar::isutf8(s)) {
+			string::size_type b = s.find_first_not_of(" \r\n\t" ); //Test for first non-ws is a '<'
+			if(s[b] != '<') {  
 				retval=new StrObject(s);
 			} else {
-				bool xml_dt_prolog_found = false;
-				if ( String::Regex::available() ) {
-					if (String::Regex::match(String::Regex::xml_doctype_prolog,s)) {
-						xml_dt_prolog_found = true;
-						retval=new XMLObject(s);
-					} 
+				string::size_type e = s.find_last_not_of(" \r\n\t" ); //Test for last non-ws is a '>'
+				if(s[e] != '>') { 
+					retval=new StrObject(s);
 				} else {
-					if(s.substr(b,6).compare("<?xml ")==0) { 
-						xml_dt_prolog_found = true;
-						retval=new XMLObject(s);
-					}
-				}
-				if(!xml_dt_prolog_found) {  
-					bool xmlns_found = false;
+					bool xml_dt_prolog_found = false;
 					if ( String::Regex::available() ) {
-						if (String::Regex::match(String::Regex::xml_namespace_prolog,s)) {
-							xmlns_found = true;
+						if (String::Regex::match(String::Regex::xml_doctype_prolog,s)) {
+							xml_dt_prolog_found = true;
 							retval=new XMLObject(s);
 						} 
 					} else {
-						if (s.find("xmlns") != string::npos) {
-							xmlns_found = true;
+						if(s.substr(b,6).compare("<?xml ")==0) { 
+							xml_dt_prolog_found = true;
 							retval=new XMLObject(s);
 						}
 					}
-					if (!xmlns_found) {  //no xml prolog, no xmlns declaration, but < and > so try a suppressed xmlobject.
-						ostringstream* suppressor = NULL;
-						suppressor = new ostringstream();
-						Logger::set_stream(suppressor);
-						retval=new XMLObject(s);
-						Logger::unset_stream();
-						if (!suppressor->str().empty()) {
-							if (retval != NULL) { delete retval; }
-							retval=new StrObject(s);
+					if(!xml_dt_prolog_found) {  
+						bool xmlns_found = false;
+						if ( String::Regex::available() ) {
+							if (String::Regex::match(String::Regex::xml_namespace_prolog,s)) {
+								xmlns_found = true;
+								retval=new XMLObject(s);
+							} 
+						} else {
+							if (s.find("xmlns") != string::npos) {
+								xmlns_found = true;
+								retval=new XMLObject(s);
+							}
 						}
-						delete suppressor;
+						if (!xmlns_found) {  //no xml prolog, no xmlns declaration, but < and > so try a suppressed xmlobject.
+							ostringstream* suppressor = NULL;
+							suppressor = new ostringstream();
+							Logger::set_stream(suppressor);
+							retval=new XMLObject(s);
+							Logger::unset_stream();
+							if (!suppressor->str().empty()) {
+								if (retval != NULL) { delete retval; }
+								retval=new StrObject(s);
+							}
+							delete suppressor;
+						}
 					}
-				}
-			} 
+				} 
+			}
+		} else {
+			retval=new RawItem(s);
 		}
 	}
 	return retval;
@@ -178,6 +187,9 @@ DataItem* DataItem::factory(std::string& s,kind_type kind_it_is) {
 		case di_auto: {
 			retval= autoItem(s);
 		} break;
+		case di_raw: {
+			retval= new RawItem(s);
+		} break;
 		case di_text: {
 			retval= new StrObject(s);
 		} break;
@@ -201,6 +213,9 @@ DataItem* DataItem::factory(const string& s,kind_type kind_it_is) {
 	switch (kind_it_is) {
 		case di_auto: {
 			retval= autoItem(s);
+		} break;
+		case di_raw: {
+			retval= new RawItem(s);
 		} break;
 		case di_text: {
 			retval= new StrObject(s);
@@ -253,6 +268,9 @@ DataItem* DataItem::factory(xercesc::DOMDocument*& s,kind_type kind_it_is) {
 		case di_text: {
 			retval= new StrObject(s);
 		} break;
+		case di_raw: { //we don't want to lose the utf-8 of this if possible.
+			retval= new StrObject(s);
+		} break;
 		case di_null: {
 			retval=NULL;
 		}
@@ -273,6 +291,9 @@ DataItem* DataItem::factory(const xercesc::DOMDocument*& s,kind_type kind_it_is)
 			retval= new UStrItem(s);
 		} break;
 		case di_text: {
+			retval= new StrObject(s);
+		} break;
+		case di_raw: { //we don't want to lose the utf-8 of this if possible.
 			retval= new StrObject(s);
 		} break;
 		case di_null: {
@@ -313,6 +334,16 @@ DataItem* DataItem::factory(DataItem* s,kind_type kind_it_is) {
 			if ( s != NULL) {
 				std::string x = *s;
 				retval = new StrObject(x);
+			}
+		} break;
+		case di_raw: { 
+			if ( s != NULL) {
+				std::string x = *s;
+				if (s->kind() == di_raw) {
+					retval = new RawItem(x);
+				} else { //crosscast, keep the utf-8
+					retval = new StrObject(x);
+				}
 			}
 		} break;
 		case di_null: {
@@ -364,12 +395,14 @@ DataItem* DataItem::factory(xercesc::DOMNode* const& pt,kind_type kind_it_is) {
 			case di_text: {
 				retval = new StrObject(pt);
 			} break;
+			case di_raw: { //we don't want to lose the utf-8 of this if possible.
+				retval= new StrObject(pt);
+			} break;
 			case di_null: break;
 		}
 	}
 	return retval;
 }
-//static DataItem* factory(std::string&,kind_type = di_auto);
 DataItem* DataItem::factory(u_str s,kind_type kind_it_is) {
 	DataItem* retval = NULL;
 	if (! s.empty() ) {
@@ -382,6 +415,9 @@ DataItem* DataItem::factory(u_str s,kind_type kind_it_is) {
 				} else {
 					retval=NULL;
 				}
+			} break;
+			case di_raw: { //we don't want to lose the utf-8
+				retval= new StrObject(s);
 			} break;
 			case di_utext: {
 				retval = new UStrItem(s);
