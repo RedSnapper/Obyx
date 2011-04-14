@@ -93,9 +93,7 @@ bool UStrItem::empty() const {
 }
 
 void UStrItem::append(DataItem*& s) {
-	string s_c;
-	u_str s_str = *s;
-	XML::Manager::append(o_str,s_str);
+	o_str.append(*s);
 }
 
 bool UStrItem::find(const DataItem* o,std::string&) const {

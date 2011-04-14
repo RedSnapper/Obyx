@@ -18,6 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 ------------------------------------------------------------------------------------
 CHANGELOG file
 v1.110414
+	BUG.		MemBufFormatTarget.getLen() is size of buffer, not of result
 	BUG.		UTF-8 char testing needs to cast unsigned char before doing logic.
 v1.110413
 	BUG.		Mantis #70. Errors not listing full set of available fn operations.

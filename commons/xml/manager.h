@@ -48,7 +48,6 @@ namespace XML {
 	public:
 		static XML::Parser*				xparser;
 		
-		static void append(u_str&,const u_str&);
 		static void transcode(const u_str&, std::string&);
 		static void transcode(const std::string&,u_str&,const std::string = "UTF-8");
 		static void to_ustr(const long,u_str&);

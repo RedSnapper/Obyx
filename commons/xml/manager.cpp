@@ -49,15 +49,6 @@ namespace XML {
 	Manager::su_map_type 	Manager::tsu;	//transcode (str to ustr) cache.
 	Manager::us_map_type 	Manager::tus;	//transcode (ustr to str) cache.
 	
-	//u_str	append (!!!!).
-	void Manager::append(u_str& target,const u_str& extra) {
-		XMLCh* buf = new XMLCh(target.size()+extra.size()+1);
-		XMLString::copyString(buf,target.c_str());
-		XMLString::catString(buf,extra.c_str());
-		target = buf;
-		delete buf;
-	}
-	
 	//u_str	to std::string.
 	void Manager::transcode(const u_str& source, std::string& result) {
 		if (!source.empty()) {

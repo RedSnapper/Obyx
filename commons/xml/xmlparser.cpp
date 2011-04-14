@@ -71,7 +71,10 @@ namespace XML {
 			output->setEncoding(XMLUni::fgXMLChEncodingString); //This must be done.
 			if ( writer->write(n,output) ) {
 				XMLCh* c_result = (XMLCh*)((MemBufFormatTarget*)mbft)->getRawBuffer();
-				result = u_str(c_result,((MemBufFormatTarget*)mbft)->getLen());
+				if (c_result != NULL) {
+					// ((MemBufFormatTarget*)mbft)->getLen() is size of buffer, not of result.
+					result = u_str(c_result,XMLString::stringLen(c_result));
+				}
 			}
 			delete mbft;
 		} // else {} //node was NULL
@@ -85,7 +88,9 @@ namespace XML {
 			output->setEncoding(XMLUni::fgXMLChEncodingString); //This must be done.
 			if ( writer->write(n,output) ) {
 				XMLCh* c_result = (XMLCh*)((MemBufFormatTarget*)mbft)->getRawBuffer();
-				result = u_str(c_result,((MemBufFormatTarget*)mbft)->getLen());
+				if (c_result != NULL) {
+					result = u_str(c_result,XMLString::stringLen(c_result));
+				}
 			}
 			delete mbft;
 		} // else {} //node was NULL
@@ -99,7 +104,9 @@ namespace XML {
 			output->setEncoding(XMLUni::fgUTF8EncodingString); //This must be done.
 			if ( writer->write(n,output) ) {
 				char* c_result = (char*)((MemBufFormatTarget*)mbft)->getRawBuffer();
-				result = string(c_result,((MemBufFormatTarget*)mbft)->getLen());
+				if (c_result != NULL) {
+					result = string(c_result,XMLString::stringLen(c_result));
+				}
 			}
 			delete mbft;
 		} // else {} //node was NULL
@@ -113,15 +120,12 @@ namespace XML {
 			output->setEncoding(XMLUni::fgUTF8EncodingString); //This must be done.
 			if ( writer->write(n,output) ) {
 				char* c_result = (char*)((MemBufFormatTarget*)mbft)->getRawBuffer();
-				result = string(c_result,((MemBufFormatTarget*)mbft)->getLen());
+				if (c_result != NULL) {
+					result = string(c_result,XMLString::stringLen(c_result));
+				}
 			}
 			delete mbft;
 			if ( ! result.empty() ) {
-//PRETTY_PRINT was deprecated 26 Jan 2011				
-//				Environment* env = Environment::service();
-//				if (env->envexists("OBYX_PRETTY_PRINT")) {
-//					result.erase(0,result.find_first_not_of("\n\r\t "));
-//				} 
 				if ( String::Regex::available()) {
 					// NEED TO FIX single quote attributes as well as double quote ones.
 					const string textarea_find="<textarea((?:\\s+(?:\\w+:)?\\w+=\"[^\"]+\")+)/>";
