@@ -94,6 +94,7 @@ bool UStrItem::empty() const {
 
 void UStrItem::append(DataItem*& s) {
 	o_str.append(*s);
+	delete s;
 }
 
 bool UStrItem::find(const DataItem* o,std::string&) const {

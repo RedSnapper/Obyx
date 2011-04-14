@@ -86,8 +86,7 @@ bool StrObject::empty() const {
 }
 
 void StrObject::append(DataItem*& s) {
-	std::string ns = *s;
-	o_str.append(ns);
+	o_str.append(*s);
 	delete s;
 }
 

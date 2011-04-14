@@ -67,8 +67,7 @@ void DataItem::append(DataItem*& a,DataItem*& b) { //this is static
 					a = new FragmentObject(n);
 				} 
 			}
-			a->append(b);
-			delete b;
+			a->append(b); //does the delete.
 		} 
 	} else {
 		a = b;
