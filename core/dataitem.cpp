@@ -68,6 +68,7 @@ void DataItem::append(DataItem*& a,DataItem*& b) { //this is static
 				} 
 			}
 			a->append(b);
+			delete b;
 		} 
 	} else {
 		a = b;
