@@ -36,35 +36,24 @@ bool XMLChar::isutf8(const std::string& source) {
 		string::const_iterator e=source.end();
 		while(b < e) {
 			test = 0;
-			if ((*b & 0x80) == 0x00) {
-				test = *b;
-				if (! is(test) ) {
-					result = false;
-					break;
-				}
+			unsigned char c1= *b;
+			if ((c1 & 0x80) == 0x00) {
+				test = c1; 
 				b++;
-			} else if ((*b & 0xe0) == 0xc0 && b + 1 != e && (b[1] & 0xc0) == 0x80) {
-				test = *(b+1); 
-				test = test << 8; 
-				test |= *b;
-				if (! is(test) ) {
-					result = false;
-					break;
-				}
+			} else if ((c1 & 0xe0) == 0xc0 && b + 1 != e && (b[1] & 0xc0) == 0x80) {
+				unsigned char c2= *(b+1);
+				test = c1 << 8 | c2;
 				b+= 2;
 			}
-			else if ((*b & 0xf0) == 0xe0 && b + 1 != e && b + 2 != e && (b[1] & 0xc0) == 0x80 && (b[2] & 0xc0) == 0x80) {
-				test = *(b+2); 
-				test = test << 8; 
-				test |= *(b+1); 
-				test = test << 8; 
-				test |= *b;
-				if (! is(test) ) {
-					result = false;
-					break;
-				}
+			else if ((c1 & 0xf0) == 0xe0 && b + 1 != e && b + 2 != e && (b[1] & 0xc0) == 0x80 && (b[2] & 0xc0) == 0x80) {
+				unsigned char c2= *(b+1),c3 = *(b+2);
+				test = c1 << 16 | c2 << 8 | c3; 
 				b+= 3;
 			} else {
+				result = false;
+				break;
+			}
+			if (! is(test) ) {
 				result = false;
 				break;
 			}
@@ -72,7 +61,6 @@ bool XMLChar::isutf8(const std::string& source) {
 	}
 	return result;
 }
-
 
 //Ensures that the string is valid XML UTF-8
 void XMLChar::convert(std::string& source) {
@@ -83,30 +71,27 @@ void XMLChar::convert(std::string& source) {
 		string::const_iterator e=source.end();
 		while(b < e) {
 			test = 0;
-			if ((*b & 0x80) == 0x00) {
-				test = *b;
-				if ( is(test) ) result.push_back(*b);
+			unsigned char c1= *b;
+			if ((c1 & 0x80) == 0x00) {
+				test = c1; 
+				if ( is(test) ) { result.push_back(c1); }
 				b++;
-			} else if ((*b & 0xe0) == 0xc0 && b + 1 != e && (b[1] & 0xc0) == 0x80) {
-				test = *(b+1); 
-				test = test << 8; 
-				test |= *b;
+			} else if ((c1 & 0xe0) == 0xc0 && b + 1 != e && (b[1] & 0xc0) == 0x80) {
+				unsigned char c2= *(b+1);
+				test = c1 << 8 | c2;
 				if ( is(test) ) {
-					result.push_back(*b);
-					result.push_back(*(b+1));
+					result.push_back(c1);
+					result.push_back(c2);
 				}
 				b+= 2;
 			}
-			else if ((*b & 0xf0) == 0xe0 && b + 1 != e && b + 2 != e && (b[1] & 0xc0) == 0x80 && (b[2] & 0xc0) == 0x80) {
-				test = *(b+2); 
-				test = test << 8; 
-				test |= *(b+1); 
-				test = test << 8; 
-				test |= *b;
+			else if ((c1 & 0xf0) == 0xe0 && b + 1 != e && b + 2 != e && (b[1] & 0xc0) == 0x80 && (b[2] & 0xc0) == 0x80) {
+				unsigned char c2= *(b+1),c3 = *(b+2);
+				test = c1 << 16 | c2 << 8 | c3; 
 				if ( is(test) ) {
-					result.push_back(*b);
-					result.push_back(*(b+1));
-					result.push_back(*(b+2));
+					result.push_back(c1);
+					result.push_back(c2);
+					result.push_back(c3);
 				}
 				b+= 3;
 			} else {
