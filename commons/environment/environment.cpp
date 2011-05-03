@@ -1306,7 +1306,7 @@ void Environment::gettiming(string& result) {
 	unsigned long long clocktime = tb.tms_utime + tb.tms_stime + tb.tms_cutime + tb.tms_cstime;
 	long double timing = clocktime / sysconf(_SC_CLK_TCK);
 	timing = timing - basetime;
-	result = String::tostring(timing - basetime,12L);
+	result = String::tostring(timing,12L);
 	
 #else
 	clockid_t clock_id;
