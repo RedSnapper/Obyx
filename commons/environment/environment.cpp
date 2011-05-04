@@ -30,6 +30,7 @@
 #include <vector>
 #include <cstdlib>
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <ctime>
 
@@ -957,11 +958,9 @@ void Environment::setbasetime() {
 	unsigned long long clocktime = tb.tms_utime + tb.tms_stime + tb.tms_cutime + tb.tms_cstime;;
 	basetime = static_cast<long double>(clocktime) / sysconf(_SC_CLK_TCK);	
 #else
-	clockid_t clock_id;
-	clock_getcpuclockid(pid,&clock_id);	
-	timespec tb;
-	clock_gettime(clock_id,&tb);
-	basetime = 0.000000001 * (tb.tv_sec * 1000000000 + tb.tv_nsec);
+	clockid_t clock_id; clock_getcpuclockid(pid,&clock_id);	
+	timespec tb; clock_gettime(clock_id,&tb);
+	basetime = ((unsigned)tb.tv_sec + (0.000000001 * (unsigned)tb.tv_nsec));
 #endif
 }
 void Environment::setienv(string name,string value) {
@@ -1300,21 +1299,20 @@ string Environment::getpathforroot() {
 	return the_result;
 }
 void Environment::gettiming(string& result) {
+	ostringstream ost;
+	long double timing = 0;
 #ifdef __MACH__
 	struct tms tb;
 	times(&tb);
 	unsigned long long clocktime = tb.tms_utime + tb.tms_stime + tb.tms_cutime + tb.tms_cstime;
-	long double timing = clocktime / sysconf(_SC_CLK_TCK);
-	timing = timing - basetime;
-	result = String::tostring(timing,12L);
-	
+	timing = (clocktime / sysconf(_SC_CLK_TCK)) - basetime;
 #else
-	clockid_t clock_id;
-	clock_getcpuclockid(pid,&clock_id);	
+	clockid_t clock_id; clock_getcpuclockid(pid,&clock_id);	
 	timespec tb; clock_gettime(clock_id,&tb);
-	long double timing = (0.000000001 * (tb.tv_sec * 1000000000 + tb.tv_nsec)) - basetime;
-	result = String::tostring(timing,12L);
+	timing = ((unsigned)tb.tv_sec + (0.000000001 * (unsigned)tb.tv_nsec)) - basetime;
 #endif
+	ost << fixed << setprecision(12L) << timing;
+	result = ost.str();
 }
 void Environment::getresponsehttp(string& result) {
 	Httphead* http = Httphead::service();	
