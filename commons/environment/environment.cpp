@@ -60,7 +60,7 @@ var_map_type Environment::cgi_rfc_map;
 Environment* Environment::instance;
 double Environment::runtime_version = 999999.99999;
 
-Environment::Environment()  : gDevelop(false),gSQLport(0),gRootDir(""),gScriptsDir(""),gScratchDir("/tmp/"),basetime(0),parmprefix("")  {
+Environment::Environment()  : gDevelop(false),gSQLport(0),gRootDir(""),gScriptsDir(""),gScratchDir("/tmp/"),basetime(0)  {
 	pid = getpid();
 	gArgc=0;
 	gArgv=NULL;
@@ -130,6 +130,19 @@ void Environment::finalise() {
 Environment* Environment::service() { 
 	return instance;
 }
+
+double Environment::version() { 
+	double e_version = 0;
+	string version_str;
+	if (instance->getenv("OBYX_DEFAULT_VERSION",version_str)) {
+		e_version=String::real(version_str);
+	}
+	if (isnan(e_version)) {
+		e_version = runtime_version;
+	}
+	return e_version; 
+}
+
 
 #pragma mark COOKIE MANAGEMENT FUNCTIONS
 //Request cookies: GET
@@ -525,8 +538,13 @@ void Environment::dopostparms() {
 					size_t xmltestB = contenttype.find("application/xml");
 					size_t xmltest1_2 = contenttype.find("application/soap+xml");
 					if ( (xmltest != string::npos) || (xmltestB != string::npos) || (xmltest1_2 != string::npos) ) {
-						setparm(parmprefix+"_n[1]","XML_DOCUMENT"); 
-						setparm(parmprefix+"_v[1]",input); 
+						if (version() < 1.110503 ) {
+							setparm("_n[1]","XML_DOCUMENT"); 
+							setparm("_v[1]",input); 
+						} else {
+							setparm("#n[1]","XML_DOCUMENT"); 
+							setparm("#v[1]",input); 
+						}
 						setparm("XML_DOCUMENT",input);
 						return;
 					} else {
@@ -535,12 +553,20 @@ void Environment::dopostparms() {
 							doparms(-1,NULL);
 							return;
 						} else { // unknown or empty
-							setparm(parmprefix+"_n[1]","POST_MIME"); 
-							setparm(parmprefix+"_v[1]",contenttype); 
 							setparm("POST_MIME",contenttype);
-							setparm(parmprefix+"_n[2]","THIS_REQ_BODY"); 
-							setparm(parmprefix+"_v[2]",input); 
-							setparm("_count","2");
+							if (version() < 1.110503 ) {
+								setparm("_n[1]","POST_MIME"); 
+								setparm("_v[1]",contenttype); 
+								setparm("_n[2]","THIS_REQ_BODY"); 
+								setparm("_v[2]",input); 
+								setparm("_count","2");
+							} else {
+								setparm("#n[1]","POST_MIME"); 
+								setparm("#v[1]",contenttype); 
+								setparm("#n[2]","THIS_REQ_BODY"); 
+								setparm("#v[2]",input); 
+								setparm("#count","2");
+							}
 							return;
 						}
 					}
@@ -654,8 +680,13 @@ void Environment::dopostparms() {
 									//									*Logger::log <<  name <<" value:[" << value << "]" << Log::LO;
 									if ( value.length() > 0 ) {
 										//									*Logger::log << LI << "Posting parm:[" << name << "]=[" << value << "]" << LO; //should be in debug here..
-										setparm(parmprefix+"_n["+String::tostring(numparms+1)+"]",name); 
-										setparm(parmprefix+"_v["+String::tostring(numparms+1)+"]",value); 
+										if (version() < 1.110503 ) {
+											setparm("_n["+String::tostring(numparms+1)+"]",name); 
+											setparm("_v["+String::tostring(numparms+1)+"]",value); 
+										} else {
+											setparm("#n["+String::tostring(numparms+1)+"]",name); 
+											setparm("#v["+String::tostring(numparms+1)+"]",value); 
+										}
 										setparm(name,value);
 										numparms++;
 										if (! filename.empty()) {
@@ -677,16 +708,20 @@ void Environment::dopostparms() {
 											string fext(name+"_ext");
 											string fname(name+"_name");
 											//										*Logger::log << Log::LI << "Posting parm:[" << fname << "]=[" << fbase << "." << fext << "] file:[" << filename << "]=[" << base << "].[" << ext << "]" << Log::LO;
-											setparm(parmprefix+"_n["+String::tostring(numparms+1)+"]",fname); 
-											setparm(parmprefix+"_v["+String::tostring(numparms+1)+"]",filename); 
+											string metadelim="#";
+											if (version() < 1.110503 ) {
+												string metadelim="_";
+											}
+											setparm(metadelim+"n["+String::tostring(numparms+1)+"]",fname); 
+											setparm(metadelim+"v["+String::tostring(numparms+1)+"]",filename); 
 											setparm(fname,filename);
 											numparms++;
-											setparm(parmprefix+"_n["+String::tostring(numparms+1)+"]",fbase); 
-											setparm(parmprefix+"_v["+String::tostring(numparms+1)+"]",base); 
+											setparm(metadelim+"n["+String::tostring(numparms+1)+"]",fbase); 
+											setparm(metadelim+"v["+String::tostring(numparms+1)+"]",base); 
 											setparm(fbase,base);
 											numparms++;
-											setparm(parmprefix+"_n["+String::tostring(numparms+1)+"]",fext); 
-											setparm(parmprefix+"_v["+String::tostring(numparms+1)+"]",ext); 
+											setparm(metadelim+"n["+String::tostring(numparms+1)+"]",fext); 
+											setparm(metadelim+"v["+String::tostring(numparms+1)+"]",ext); 
 											setparm(fext,ext);
 											numparms++;
 										}
@@ -694,14 +729,24 @@ void Environment::dopostparms() {
 											string lenval = String::tostring(static_cast<long long>(value.length()));
 											//											*Logger::log << Log::LI <<  name <<" Length of file:[" << lenval << "]" << Log::LO;
 											string flength(name+"_length");
-											setparm(parmprefix+"_n["+String::tostring(numparms+1)+"]",flength); 
-											setparm(parmprefix+"_v["+String::tostring(numparms+1)+"]",lenval); 
+											if (version() < 1.110503 ) {
+												setparm("_n["+String::tostring(numparms+1)+"]",flength); 
+												setparm("_v["+String::tostring(numparms+1)+"]",lenval); 
+											} else {
+												setparm("#n["+String::tostring(numparms+1)+"]",flength); 
+												setparm("#v["+String::tostring(numparms+1)+"]",lenval); 
+											}
 											setparm(flength,lenval);
 											numparms++;
 											
 											string fmime(name+"_mime");
-											setparm(parmprefix+"_n["+String::tostring(numparms+1)+"]",fmime); 
-											setparm(parmprefix+"_v["+String::tostring(numparms+1)+"]",mimetype); 
+											if (version() < 1.110503 ) {
+												setparm("_n["+String::tostring(numparms+1)+"]",fmime); 
+												setparm("_v["+String::tostring(numparms+1)+"]",mimetype); 
+											} else {
+												setparm("#n["+String::tostring(numparms+1)+"]",fmime); 
+												setparm("#v["+String::tostring(numparms+1)+"]",mimetype); 
+											}
 											setparm(fmime,mimetype);
 											numparms++;
 											//This requires the Info structure								
@@ -721,14 +766,23 @@ void Environment::dopostparms() {
 													string sheight;
 													String::tostring(sheight,height);
 													//													*Logger::log << Log::LI << "Posting parm width: " << fwidth << "=" << swidth <<  Log::LO;
-													setparm(parmprefix+"_n["+String::tostring(numparms+1)+"]",fwidth); 
-													setparm(parmprefix+"_v["+String::tostring(numparms+1)+"]",swidth); 
+													if (version() < 1.110503 ) {
+														setparm("_n["+String::tostring(numparms+1)+"]",fwidth); 
+														setparm("_v["+String::tostring(numparms+1)+"]",swidth); 
+													} else {
+														setparm("#n["+String::tostring(numparms+1)+"]",fwidth); 
+														setparm("#v["+String::tostring(numparms+1)+"]",swidth); 
+													}
 													setparm(fwidth,swidth);
 													numparms++;
-													
 													//													*Logger::log <<  Log::LI << "Posting parm height: " << fheight << "=" << sheight <<  Log::LO;
-													setparm(parmprefix+"_n["+String::tostring(numparms+1)+"]",fheight); 
-													setparm(parmprefix+"_v["+String::tostring(numparms+1)+"]",sheight); 
+													if (version() < 1.110503 ) {
+														setparm("_n["+String::tostring(numparms+1)+"]",fheight); 
+														setparm("_v["+String::tostring(numparms+1)+"]",sheight); 
+													} else {
+														setparm("#n["+String::tostring(numparms+1)+"]",fheight); 
+														setparm("#v["+String::tostring(numparms+1)+"]",sheight); 
+													}
 													setparm(fheight,sheight);
 													numparms++;
 												} else {
@@ -745,8 +799,13 @@ void Environment::dopostparms() {
 									} else { // still add empty, if it isn't a file.
 										if ( mimetype.empty() && filename.empty() ) {
 											//											*Logger::log << LI << "Empty Field:[" << name << "]=[" << value << "]" << LO;
-											setparm(parmprefix+"_n["+String::tostring(numparms+1)+"]",name); 
-											setparm(parmprefix+"_v["+String::tostring(numparms+1)+"]",value); 
+											if (version() < 1.110503 ) {
+												setparm("_n["+String::tostring(numparms+1)+"]",name); 
+												setparm("_v["+String::tostring(numparms+1)+"]",value); 
+											} else {
+												setparm("#n["+String::tostring(numparms+1)+"]",name); 
+												setparm("#v["+String::tostring(numparms+1)+"]",value); 
+											}
 											setparm(name,value);
 											numparms++;
 										}
@@ -759,7 +818,11 @@ void Environment::dopostparms() {
 						//						*Logger::log << Log::LO << Log::blockend;;
 					} // end of postfinished test
 				} // end of while
-				setparm(parmprefix+"_count",String::tostring(numparms)); 
+				if (version() < 1.110503 ) {
+					setparm("_count",String::tostring(numparms)); 
+				} else {
+					setparm("#count",String::tostring(numparms)); 
+				}
 				if ( Logger::debugging() ) {
 					*Logger::log << Log::debug << Log::LI << "POST Processing Completed" << Log::LO << Log::blockend; //
 				}
@@ -770,22 +833,27 @@ void Environment::dopostparms() {
 void Environment::setnamedparm(string parmstring,unsigned long long pnum) {
 	ostringstream numparm;
 	numparm << pnum+1 << flush;
+	char meta_delim('#');
+	if (version() < 1.110503 ) {
+		meta_delim='_';
+	}
 	size_t split =  parmstring.find('=');
 	if (split != string::npos) {
 		ostringstream nameparm;
 		if (split > 0) {
 			string splitparm = parmstring.substr(0,split);
 			nameparm << splitparm << flush;
-			ostringstream parmnstr;
-			parmnstr << parmprefix << "_n[" << numparm.str() << "]";
-			setparm(nameparm.str(),parmstring.substr(split+1,string::npos));
-			setparm(parmnstr.str(),nameparm.str()); 
+			ostringstream parmnstr,parmvstr;
+			parmnstr << meta_delim << "n[" << numparm.str() << "]";
+			parmvstr << meta_delim << "v[" << numparm.str() << "]";
+			setparm(parmnstr.str(),nameparm.str()); 							//foo=bar
+			setparm(nameparm.str(),parmstring.substr(split+1,string::npos));	//#n[1]=foo
+			setparm(parmvstr.str(),parmstring.substr(split+1,string::npos)); 	//#n[1]=bar
 		} 
-		setparm(parmprefix+"_v["+numparm.str()+"]",parmstring.substr(split+1,string::npos));
-	} else {
+ 	} else {
 		setparm(parmstring,"");
-		setparm(parmprefix+"_n["+numparm.str()+"]",parmstring); 
-		setparm(parmprefix+"_v["+numparm.str()+"]",""); 
+		setparm(meta_delim+"n["+numparm.str()+"]",parmstring); 
+		setparm(meta_delim+"v["+numparm.str()+"]",""); 
 	}
 }
 void Environment::doparms(int argc, char *argv[]) {
@@ -818,7 +886,13 @@ void Environment::doparms(int argc, char *argv[]) {
 				}
 				do_query_string(qstr);
 				string console_file;
-				if ( !envexists("REQUEST_METHOD") && (getparm("_n[1]",console_file)) ) {
+				string parm_name;
+				if (version() < 1.110503 ) {
+					parm_name = "_n[1]";
+				} else {
+					parm_name = "#n[1]";
+				}
+				if ( !envexists("REQUEST_METHOD") && (getparm(parm_name,console_file)) ) {
 					setienv("PATH_TRANSLATED",console_file);
 					setienv("OBYX_DEVELOPMENT","true");
 					gDevelop = true;
@@ -847,13 +921,24 @@ void Environment::do_query_string(string& qstr) {
 		setnamedparm(raw,count);
 		count++;
 	}
-	setparm(parmprefix+"_count",String::tostring(count)); //This is correct for query_String
+	if (version() < 1.110503 ) {
+		setparm("_count",String::tostring(count)); //This is correct for query_String
+	} else {
+		setparm("#count",String::tostring(count)); //This is correct for query_String
+	}
 }
 void Environment::setparm(string name,string value) {
-	pair<var_map_type::iterator, bool> ins = parm_map.insert(var_map_type::value_type(name, value));
-	if (!ins.second)	{ // Cannot insert (something already there with same ref
+	vector<string> tiny;
+	vec_map_type::iterator it = parm_map.find(name);
+	if (it != parm_map.end()) {
+		tiny = it->second;
+		parm_map.erase(it);
+	} 
+	tiny.push_back(value);
+	pair<vec_map_type::iterator, bool> ins = parm_map.insert(vec_map_type::value_type(name, tiny));
+	if (!ins.second)	{ // Should never happen
 		parm_map.erase(ins.first);
-		parm_map.insert(var_map_type::value_type(name, value));
+		parm_map.insert(vec_map_type::value_type(name,tiny));
 	}
 }
 void Environment::dodocument() { //for POST values
@@ -1099,8 +1184,7 @@ void Environment::getenvvars_base() {
 	if (getenvd("OBYX_SCRATCH_DIR",gScratchDir,"/tmp/")) { //defaults to /tmp/.
 		if ( gScratchDir[gScratchDir.size()-1] != '/') gScratchDir+='/';
 	}
-	
-	getenv("OBYX_PARM_PREFIX",parmprefix); //Used to prevent ambiguity - someone may need parmxxx
+//	getenv("OBYX_PARM_PREFIX",parmprefix); //Used to prevent ambiguity - someone may need parmxxx
 }
 void Environment::getenvvars() {
 	//Called before LOGGER is initialised.
@@ -1182,7 +1266,7 @@ bool Environment::envfind(const string& pattern) { //regex..
 bool Environment::parmfind(const string& pattern) { //regex..
 	bool retval = false;
 	if ( String::Regex::available() ) {
-		for(var_map_type::iterator imt = parm_map.begin(); !retval && imt != parm_map.end(); imt++) {
+		for(vec_map_type::iterator imt = parm_map.begin(); !retval && imt != parm_map.end(); imt++) {
 			retval= String::Regex::match(pattern,imt->first);
 		}
 	} else {
@@ -1221,7 +1305,7 @@ void Environment::envkeys(const string& pattern,set<string>& keylist) {
 }
 void Environment::parmkeys(const string& pattern,set<string>& keylist) {
 	if ( String::Regex::available() ) {
-		for(var_map_type::iterator imt = parm_map.begin(); imt != parm_map.end(); imt++) {
+		for(vec_map_type::iterator imt = parm_map.begin(); imt != parm_map.end(); imt++) {
 			if (String::Regex::match(pattern,imt->first)) {
 				keylist.insert(imt->first);
 			}
@@ -1246,7 +1330,7 @@ void Environment::cookiekeys(const string& pattern,set<string>& keylist) {
 	}
 }
 bool Environment::parmexists(const string& name) { //regex..
-	var_map_type::iterator it = parm_map.find(name);
+	vec_map_type::iterator it = parm_map.find(name);
 	return (it != parm_map.end());
 }
 bool Environment::cookieexists(const string& name) { //request cookies...
@@ -1282,11 +1366,48 @@ bool Environment::getenv(const string name,string& container) {
 }
 bool Environment::getparm(string const name,string& container) {
 	bool retval = false;
+	pair<string,string> result;
 	container.clear();
-	var_map_type::iterator it = parm_map.find(name);
-	if (it != parm_map.end()) {
-		container = ((*it).second);
-		retval = true;
+	if (version() >= 1.110503 && String::rsplit('#',name,result) && (!result.second.empty()) && (!result.first.empty())) {
+		size_t index = 0;
+		vec_map_type::iterator it = parm_map.find(result.first);
+		if (result.second.compare("count") == 0) {
+			if (it != parm_map.end()) {
+				 index = it->second.size();
+			}
+			String::tostring(container,(unsigned long long)index);
+			retval = true;
+		} else {
+			if ((result.second[1] == '[') &&(result.second[0] == 'n' || result.second[0] == 'v')) {
+				if (result.second[0] == 'n') {
+					container = result.first;
+					retval = true;
+				} else {
+					vector<string> parmvals = it->second;
+					string::const_iterator numit = result.second.begin()+2;
+					index = String::natural(numit);
+					if (index < parmvals.size()) {
+						retval = true;
+						container = parmvals[index];
+					}
+				}
+			} else {
+				vector<string> parmvals = it->second;
+				string::const_iterator numit = result.second.begin();
+				index = String::natural(numit);
+				if (index < parmvals.size()) {
+					retval = true;
+					container = parmvals[index];
+				}
+			}
+		}
+	} else {
+		vec_map_type::iterator it = parm_map.find(name);
+		if (it != parm_map.end()) {
+			vector<string> parmvals = it->second;
+			container = parmvals[0];
+			retval = true;
+		}
 	}
 	return retval;
 }
@@ -1347,8 +1468,11 @@ void Environment::getrequesthttp(string& head,string& body) {
 #pragma mark Debugging/Disclosure
 void Environment::listParms() {
 	vector<pair<string,string> >vmp;
-	for(var_map_type::iterator imt = parm_map.begin(); imt != parm_map.end(); imt++) {
-		vmp.push_back(pair<string,string>(imt->first,imt->second));
+	for(vec_map_type::iterator imt = parm_map.begin(); imt != parm_map.end(); imt++) {
+		vector<string> vals=imt->second;
+		for(vector<string>::iterator ivt = vals.begin(); ivt != vals.end(); ivt++) {
+			vmp.push_back(pair<string,string>(imt->first,*ivt));
+		}
 	}
 	if (!vmp.empty()) {
 		*Logger::log << Log::subhead << Log::LI << "List of sysparms" << Log::LO;
@@ -1456,8 +1580,11 @@ void  Environment::list(string& result) {
 		}
 	}
 	vector<pair<string,string> >vmp;
-	for(var_map_type::iterator imt = parm_map.begin(); imt != parm_map.end(); imt++) {
-		vmp.push_back(pair<string,string>(imt->first,imt->second));
+	for(vec_map_type::iterator imt = parm_map.begin(); imt != parm_map.end(); imt++) {
+		vector<string> vals=imt->second;
+		for(vector<string>::iterator ivt = vals.begin(); ivt != vals.end(); ivt++) {
+			vmp.push_back(pair<string,string>(imt->first,*ivt));
+		}
 	}
 	std::sort(vmp.begin(), vmp.end(), sortvps); 
 	for(vector<pair<string,string> >::iterator vmpi = vmp.begin(); vmpi != vmp.end(); vmpi++) {

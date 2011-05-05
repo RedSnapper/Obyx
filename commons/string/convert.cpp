@@ -270,7 +270,6 @@ namespace String {
 			ist >> comma;
 		}
 	}
-		
 	//---------------------------------------------------------------------------
 	int integer(string::const_iterator& i) {
 		bool minus = false;

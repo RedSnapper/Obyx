@@ -51,7 +51,8 @@ public:
 //	typedef enum {Root,Public,Console,Scripts,Logs,Web} buildarea_type;
 	
 private:
-	typedef hash_map<const string,string, hash<const string&> > var_map_type;
+	typedef hash_map<const string,string,hash<const string&> > var_map_type;
+	typedef hash_map<const string,vector<string>,hash<const string&> > vec_map_type;
 	
 	Environment();
 	~Environment();
@@ -73,7 +74,7 @@ private:
 	pid_t pid;
 	long double basetime;	//used for timing.
 	std::string empty;
-	std::string parmprefix;
+//	std::string parmprefix;
 	//-- The following are RESPONSE cookies
 	var_map_type ck_map;								//store the cookie values  (rw)
 	var_map_type ck_expires_map;						//store the cookie expires  (rw)
@@ -85,7 +86,7 @@ private:
 	var_map_type cke_path_map;							//store the cookie values  (r)
 	var_map_type cke_domain_map;						//store the cookie values  (r)
 	//--
-	var_map_type parm_map;								//Application parms  (ro)
+	vec_map_type parm_map;								//Application parms  (ro)
 	var_map_type httphead_map;							//Request HTTP headers  (ro)
 	
 	void setbasetime();
@@ -132,8 +133,8 @@ public:
 	static void shutdown();
 	static void init(int,char **,char **);
 	static void finalise();
-	static double version() { return runtime_version; }
-
+	static double version();
+	
 	static Environment* service(); 
 	static bool getbenv(string const,string&);
 	static bool benvexists(const string&);
