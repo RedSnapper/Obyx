@@ -21,8 +21,8 @@
 #The includes for xerc are not normally needed, unless xercesc is built there.
 ###############################################################################
 #Also RPATH and CGIDIR must have values -e.g.
-#export RPATH=/WWW_ROOT 
-#export CGIDIR=bin
+#RPATH=/var/www 
+#CGIDIR=bin
 #make ${RPATH}/${CGIDIR}/obyx.cgi 
 #Environment dependent settings (default is set for mysql)
 CC_INCLUDES = -I/usr/include/mysql -I/usr/local/xerc/include
