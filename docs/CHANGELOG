@@ -17,8 +17,12 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.110510       <----- From this version on, stores may have scope 'document' for documents with a signature attribute.
+	Enh.		Stores may have scope 'document', which are private to a document, and persistent for a document.
+	Enh.		There is a new document element attribute 'signature', used to identify the document scope.
 v1.110504       <----- From this version on, meta sysparms are accessed via # rather than _ 
-	Enh.		Sysparms are vectors, not values. Accessed via eg myparm#0  myparm#count
+	Enh.		Sysparms are now available as vectors, not just values. Accessed via eg myparm#2  myparm#count myparm#v[3]
+				For index 0, myparm, myparm#0, myparm#v[0] are all synonyms.
 v1.110414
 	BUG.		DataItem virtual method append() should delete suffix.
 	BUG.		MemBufFormatTarget.getLen() is size of buffer, not of result

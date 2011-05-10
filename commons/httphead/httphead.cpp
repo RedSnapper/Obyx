@@ -469,11 +469,11 @@ void Httphead::objectparse(xercesc::DOMNode* const& n) {
 	XML::Manager::transcode(n->getLocalName(),elname);
 	if (elname.compare("header") == 0) {
 		string name_attr_val;
-		if ( XML::Manager::attribute(n,"name",name_attr_val)  ) {
+		if ( XML::Manager::attribute(n,UCS2(L"name"),name_attr_val)  ) {
 			string value_attr_val="";
-			if ( XML::Manager::attribute(n,"value",value_attr_val)  ) {
+			if ( XML::Manager::attribute(n,UCS2(L"value"),value_attr_val)  ) {
 				string urlenc_attr_val;
-				if ( XML::Manager::attribute(n,"urlencoded",urlenc_attr_val)  && (urlenc_attr_val.compare("true") == 0) ) {
+				if ( XML::Manager::attribute(n,UCS2(L"urlencoded"),urlenc_attr_val) && (urlenc_attr_val.compare("true") == 0) ) {
 					String::urldecode(value_attr_val); 
 				}
 			}
@@ -487,9 +487,9 @@ void Httphead::objectparse(xercesc::DOMNode* const& n) {
 						std::string cookie_name = "";
 						while (ch != NULL && subhead.compare("subhead") == 0) {
 							std::string shname,shvalue,shencoded;
-							if (XML::Manager::attribute(ch,"name",shname)) {
-								if (XML::Manager::attribute(ch,"value",shvalue)) {
-									if ( XML::Manager::attribute(n,"urlencoded",shencoded) && (shencoded.compare("true") == 0) ) {
+							if (XML::Manager::attribute(ch,UCS2(L"name"),shname)) {
+								if (XML::Manager::attribute(ch,UCS2(L"value"),shvalue)) {
+									if ( XML::Manager::attribute(n,UCS2(L"urlencoded"),shencoded) && (shencoded.compare("true") == 0) ) {
 										String::urldecode(shvalue); 
 									}
 								} else {
@@ -501,7 +501,7 @@ void Httphead::objectparse(xercesc::DOMNode* const& n) {
 										}
 										shvo=shvo->getNextSibling();
 									}
-									if ( !shvalue.empty() && XML::Manager::attribute(n,"urlencoded",shencoded) && (shencoded.compare("true") == 0) ) {
+									if ( !shvalue.empty() && XML::Manager::attribute(n,UCS2(L"urlencoded"),shencoded) && (shencoded.compare("true") == 0) ) {
 										String::urldecode(shvalue); 
 									}
 								}
@@ -540,9 +540,9 @@ void Httphead::objectparse(xercesc::DOMNode* const& n) {
 						string cookie_name;
 						string sh_name,sh_value,sh_enc;
 						while (ch != NULL && subhead.compare("subhead") == 0) {
-							if (XML::Manager::attribute(ch,"name",sh_name))
-								if( XML::Manager::attribute(ch,"value",sh_value) ) {
-									if( XML::Manager::attribute(ch,"urlencoded",sh_enc) && (sh_enc.compare("true") == 0 )) {
+							if (XML::Manager::attribute(ch,UCS2(L"name"),sh_name))
+								if( XML::Manager::attribute(ch,UCS2(L"value"),sh_value) ) {
+									if( XML::Manager::attribute(ch,UCS2(L"urlencoded"),sh_enc) && (sh_enc.compare("true") == 0 )) {
 										String::urldecode(sh_value);
 									}
 								}
@@ -616,11 +616,11 @@ void Httphead::objectparse(xercesc::DOMNode* const& n) {
 	} else {
 		if (elname.compare("body") == 0) {
 			string url_encoded,type,subtype;
-			if (! XML::Manager::attribute(n,"urlencoded",url_encoded)  ) {
+			if (! XML::Manager::attribute(n,UCS2(L"urlencoded"),url_encoded)  ) {
 				url_encoded = "false";
 			}
-			if ( XML::Manager::attribute(n,"type",type)  ) {
-				if (XML::Manager::attribute(n,"subtype",subtype)  ) {
+			if ( XML::Manager::attribute(n,UCS2(L"type"),type)  ) {
+				if (XML::Manager::attribute(n,UCS2(L"subtype"),subtype)  ) {
 					mimevalue = type + "/" + subtype;
 				}
 			}
@@ -650,18 +650,18 @@ void Httphead::objectparse(xercesc::DOMNode* const& n) {
 				
 				//do the attributes version, code, reason here.
 				string code_attr_val,reason_attr_val,version_attr_val;
-				if ( XML::Manager::attribute(n,"code",code_attr_val)  ) {
+				if ( XML::Manager::attribute(n,UCS2(L"code"),code_attr_val)  ) {
 					pair<long long,bool> code_result = String::integer(code_attr_val);
 					if (code_result.second) {
 						setcode((unsigned int)code_result.first);
 					}
 				}
-				if ( XML::Manager::attribute(n,"version",version_attr_val)  ) {
+				if ( XML::Manager::attribute(n,UCS2(L"version"),version_attr_val)  ) {
 					if(httpsig.compare("Status") != 0) {
 						httpsig = version_attr_val;
 					}
 				}
-				if ( XML::Manager::attribute(n,"reason",reason_attr_val)  ) {
+				if ( XML::Manager::attribute(n,UCS2(L"reason"),reason_attr_val)  ) {
 					codemessage = reason_attr_val;
 				}
 				std::string ch_elname;

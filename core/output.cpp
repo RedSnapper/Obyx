@@ -73,11 +73,16 @@ Output::Output(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el): IKO(n,
 		if (type == out_store || type == out_error) {
 			scope_type_map::const_iterator k = scope_types.find(str_scope);
 			if( k != scope_types.end() ) {
-				scope = k->second; 
+				scope = k->second;
+				if (scope == document && owner->doc_version <= 1.110509) {
+					*Logger::log << Log::syntax << Log::LI << "Syntax Error. Output: scope 'document' may only be used by obyx version 1.110510 or above.";
+					trace();
+					*Logger::log  << Log::blockend;
+				}
 			} else {
 				string err_msg; Manager::transcode(str_scope.c_str(),err_msg);
 				*Logger::log << Log::syntax << Log::LI << "Syntax Error. Output: scope '" << err_msg << "'  not recognised needs to be one of:";
-				*Logger::log << "global,branch,ancestor" << Log::LO;
+				*Logger::log << "global,branch,document,ancestor" << Log::LO;
 				trace();
 				*Logger::log  << Log::blockend;
 			}
@@ -492,6 +497,7 @@ void Output::startup() {
 	scope_types.insert(scope_type_map::value_type(UCS2(L"branch"), branch));
 	scope_types.insert(scope_type_map::value_type(UCS2(L"global"), global));
 	scope_types.insert(scope_type_map::value_type(UCS2(L"ancestor"), ancestor));
+	scope_types.insert(scope_type_map::value_type(UCS2(L"document"), document));
 	
 	part_types.insert(part_type_map::value_type(UCS2(L"value"), value));
 	part_types.insert(part_type_map::value_type(UCS2(L"path"), path));

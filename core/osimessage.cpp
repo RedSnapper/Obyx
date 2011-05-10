@@ -814,17 +814,17 @@ void OsiMessage::encode_nodes(const xercesc::DOMNode*& n,std::string& result) {
 }
 void OsiMessage::encode_comment(const xercesc::DOMNode*& n,std::string& result) {
 	std::string comment,sh,encoded_s,angled_s;
-	if(! XML::Manager::attribute(n,"value",comment)) { //comment value
+	if(! XML::Manager::attribute(n,UCS2(L"value"),comment)) { //comment value
 		const DOMNode* cn=n;
 		for (next_ch(cn); cn!=NULL;next_el(cn)) {
 			XML::Manager::parser()->writenode(cn,sh);
 			comment.append(sh);
 		}
 	}
-	if( XML::Manager::attribute(n,"urlencoded",encoded_s)) { //subhead value
+	if( XML::Manager::attribute(n,UCS2(L"urlencoded"),encoded_s)) { //subhead value
 		if ( encoded_s.compare("true") == 0 ) String::urldecode(comment);
 	}
-	if( XML::Manager::attribute(n,"angled",angled_s)) { //subhead value
+	if( XML::Manager::attribute(n,UCS2(L"angled"),angled_s)) { //subhead value
 		if ( angled_s.compare("true") == 0 ) comment = '<' + comment + '>';
 	}
 	result.append(comment);
@@ -857,15 +857,15 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 					//Header is a single line: name: value; subvalue="foo"; subvue="bar";
 					header_type htype(unstructured);
 					std::string name,headv,comment,header_value;
-					XML::Manager::attribute(n,"name",name); //mandatory.
+					XML::Manager::attribute(n,UCS2(L"name"),name); //mandatory.
 					head.append(name); head.append(": ");	//okay so now we have the start of a new header
 					header_type_map::const_iterator i = header_types.find(name);
 					if( i != header_types.end() ) {	htype = i->second; } else { htype = unstructured; }
-					if ( XML::Manager::attribute(n,"value",header_value)) { //optional
-						if( XML::Manager::attribute(n,"urlencoded",encoded_s)) { //subhead value
+					if ( XML::Manager::attribute(n,UCS2(L"value"),header_value)) { //optional
+						if( XML::Manager::attribute(n,UCS2(L"urlencoded"),encoded_s)) { //subhead value
 							if ( encoded_s.compare("true") == 0 ) String::urldecode(header_value);
 						}
-						if( XML::Manager::attribute(n,"angled",angled_s)) { //subhead value
+						if( XML::Manager::attribute(n,UCS2(L"angled"),angled_s)) { //subhead value
 							if ( angled_s.compare("true") == 0 ) header_value = '<' + header_value + '>';
 						}
 					}
@@ -882,16 +882,16 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 							} else {
 								usequotes=false;
 							}							
-							if (XML::Manager::attribute(ch,"name",shname)) { 
+							if (XML::Manager::attribute(ch,UCS2(L"name"),shname)) { 
 								headv.append(shname);
 								if (shname.compare("name") == 0) {
 									usequotes = true;
 								}
 							}
-							if( XML::Manager::attribute(ch,"urlencoded",encoded_s)) { //subhead value
+							if( XML::Manager::attribute(ch,UCS2(L"urlencoded"),encoded_s)) { //subhead value
 								if ( encoded_s.compare("true") == 0 ) url_encoded=true;
 							}
-							if(! XML::Manager::attribute(ch,"value",shvalue)) { //subhead value
+							if(! XML::Manager::attribute(ch,UCS2(L"value"),shvalue)) { //subhead value
 								const DOMNode* shvo=ch;
 								for (next_ch(shvo); shvo!=NULL;next_el(shvo)) {
 									encode_nodes(shvo,shvalue);
@@ -908,7 +908,7 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 							}
 							if (! shvalue.empty() || ! shnote.empty()) {
 								if (url_encoded) String::urldecode(shvalue);
-								if( XML::Manager::attribute(ch,"angled",angled_s)) { //subhead value
+								if( XML::Manager::attribute(ch,UCS2(L"angled"),angled_s)) { //subhead value
 									if ( angled_s.compare("true") == 0 ) shvalue = '<' + shvalue + '>';
 								}
 								string shstring;
@@ -921,7 +921,7 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 								}
 								switch(htype) {
 									case mailbox: {
-										XML::Manager::attribute(ch,"note",shnote);
+										XML::Manager::attribute(ch,UCS2(L"note"),shnote);
 										if (!shnote.empty()) {
 											if (!inlatin) {
 												headv.append(shnote);
@@ -1037,12 +1037,12 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 					headv.clear();
 				} else { //must be body, if we are validating.
 					std::string mechanism,type,subtype,encoded,charset,bformat;
-					XML::Manager::attribute(n,"mechanism",mechanism); //optional
-					XML::Manager::attribute(n,"type",type);           //optional
-					XML::Manager::attribute(n,"subtype",subtype);     //optional
-					XML::Manager::attribute(n,"urlencoded",encoded);  //optional, NOT with multiparts..
-					XML::Manager::attribute(n,"charset",charset);  //optional, NOT with multiparts..
-					XML::Manager::attribute(n,"format",bformat);  //optional, NOT with multiparts..
+					XML::Manager::attribute(n,UCS2(L"mechanism"),mechanism); //optional
+					XML::Manager::attribute(n,UCS2(L"type"),type);           //optional
+					XML::Manager::attribute(n,UCS2(L"subtype"),subtype);     //optional
+					XML::Manager::attribute(n,UCS2(L"urlencoded"),encoded);  //optional, NOT with multiparts..
+					XML::Manager::attribute(n,UCS2(L"charset"),charset);  //optional, NOT with multiparts..
+					XML::Manager::attribute(n,UCS2(L"format"),bformat);  //optional, NOT with multiparts..
 					if (!mechanism.empty()) {
 						head.append("Content-Transfer-Encoding: ");
 						head.append(mechanism); 

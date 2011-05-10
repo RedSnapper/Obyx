@@ -71,7 +71,7 @@ stream_is_set(false),fnnote(),outputs(),inputs(),definputs() {
 		}
 	}
 	if (el != endqueue) {
-		Manager::attribute(n,"note",fnnote);
+		Manager::attribute(n,UCS2(L"note"),fnnote);
 	}
 }
 Endqueue::Endqueue(ObyxElement* par,const Endqueue* orig) : Function(par,orig) {

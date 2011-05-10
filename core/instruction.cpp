@@ -83,7 +83,7 @@ Function(n,instruction,par),operation(move),precision(0),bitpadding(0),base_conv
 		(operation == obyx::random) || (operation == obyx::arithmetic) || (operation == obyx::bitwise)
 		) {
 		std::string str_prec;
-		Manager::attribute(n,"precision",str_prec);
+		Manager::attribute(n,UCS2(L"precision"),str_prec);
 		if ( ! str_prec.empty() ) {
 			if (str_prec[0] == 'B' || str_prec[0] == 'b') { //2,8,10,16 (B is for base)
 				base_convert = true;

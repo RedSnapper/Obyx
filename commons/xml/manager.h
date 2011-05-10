@@ -52,7 +52,7 @@ namespace XML {
 		static void transcode(const std::string&,u_str&,const std::string = "UTF-8");
 		static void to_ustr(const long,u_str&);
 
-		static bool attribute(const DOMNode*,const std::string,std::string&);
+		static bool attribute(const DOMNode*,const u_str,std::string&);
 		static bool attribute(const DOMNode*,const u_str,u_str&);
 		static bool attribute(const DOMNode*,const u_str);
 		static XML::Parser* parser() { return xparser; }

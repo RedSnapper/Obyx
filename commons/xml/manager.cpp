@@ -86,14 +86,12 @@ namespace XML {
 		XMLString::binToText(num,buff,63,10);
 		repo = buff;
 	}
-	
-	bool Manager::attribute(const DOMNode* n,const std::string attrname, std::string& attrval) {
+
+	bool Manager::attribute(const DOMNode* n,const u_str attrname, std::string& attrval) {
 		bool result=false;
 		if (n != NULL && !attrname.empty() && n->getNodeType() == DOMNode::ELEMENT_NODE ) {
 			DOMElement* enod = (DOMElement*)n;
-			const XMLByte* src=(const XMLByte*)(attrname.c_str());
-			XMLCh* attr = TranscodeFromStr(src,attrname.size(),"UTF-8").adopt();	
-			DOMAttr* enoda = enod->getAttributeNode(attr);
+			DOMAttr* enoda = enod->getAttributeNode(attrname.c_str());
 			if (enoda != NULL) {
 				const XMLCh* x_attrval = enoda->getNodeValue();
 				if (x_attrval != NULL && x_attrval[0] != 0 ) {
@@ -105,7 +103,6 @@ namespace XML {
 					result = true; //only true if result is not empty.
 				}
 			}
-			XMLString::release(&attr); //delete attr;
 		}
 		return result;
 	}

@@ -34,37 +34,22 @@
 using namespace obyx;
 using namespace std;
 
-iter_stack_type*	ItemStore::the_iteration_stack = NULL; //stack of iterations
-
-ItemStore::ItemStore() : owner(),the_item_map(NULL),the_item_map_stack(NULL),the_item_map_stack_map() {
+ItemStore::ItemStore() : owner(),the_item_map() {
 }
 void ItemStore::setowner(const std::string p) {
 	owner=p;
 }
-ItemStore::ItemStore(const ItemStore* orig) : the_item_map(NULL),the_item_map_stack(NULL),the_item_map_stack_map() {
-	if (orig->the_item_map != NULL) {
-		the_item_map = new item_map_type();
-		item_map_type::iterator it = orig->the_item_map->begin();
-		while ( it != orig->the_item_map->end()) {
-			pair<item_map_type::iterator, bool> ins = the_item_map->insert(*it);
+ItemStore::ItemStore(const ItemStore* orig) : the_item_map() {
+	if (orig != NULL && ! orig->the_item_map.empty() ) {
+		item_map_type::const_iterator it = orig->the_item_map.begin();
+		while ( it != orig->the_item_map.end()) {
+			pair<item_map_type::iterator, bool> ins = the_item_map.insert(*it);
 			it++;
 		}
-	} else {
-		the_item_map = NULL;
-	}
+	} 
 }
 ItemStore::~ItemStore() {
-	item_map_stack_map_type::iterator it = the_item_map_stack_map.begin();
-	while ( it != the_item_map_stack_map.end()) {
-		item_map_stack_type* sstack = (*it).second;
-		while ( sstack->size() > 0) {
-			delete sstack->top();
-			sstack->pop();
-		}
-		delete (*it).second;
-		it++;
-	}
-	the_item_map_stack_map.clear();
+	the_item_map.clear();
 }
 
 void ItemStore::startup() {}
@@ -158,11 +143,11 @@ bool ItemStore::exists(const u_str& namepath,bool release,std::string& errorstr)
 	} else {
 		std::string skey;
 		XML::Manager::transcode(namepath,skey);	//Regex works on strings!	
-		item_map_type::iterator it = the_item_map->find(skey);
-		if (it != the_item_map->end()) {
+		item_map_type::iterator it = the_item_map.find(skey);
+		if (it != the_item_map.end()) {
 			retval = true;
 			if (release) {
-				the_item_map->erase(it);
+				the_item_map.erase(it);
 			}
 		}
 	}
@@ -185,9 +170,9 @@ bool ItemStore::find(const string& pattern,bool release,std::string& errorstr) {
 		if ( String::Regex::available() ) {
 			ostringstream* suppressor = new ostringstream();
 			Logger::set_stream(suppressor);
-			for(item_map_type::iterator imt = the_item_map->begin(); !retval && imt != the_item_map->end(); imt++) {
+			for(item_map_type::iterator imt = the_item_map.begin(); !retval && imt != the_item_map.end(); imt++) {
 				retval= String::Regex::match(pattern,imt->first);
-				if (retval && release) { the_item_map->erase(imt); }
+				if (retval && release) { the_item_map.erase(imt); }
 			}
 			Logger::unset_stream();
 			if (!suppressor->str().empty()) {
@@ -196,9 +181,9 @@ bool ItemStore::find(const string& pattern,bool release,std::string& errorstr) {
 			}
 			delete suppressor;
 		} else {
-			item_map_type::iterator it = the_item_map->find(pattern);
-			retval = (it != the_item_map->end());
-			if (retval && release) { the_item_map->erase(it); }
+			item_map_type::iterator it = the_item_map.find(pattern);
+			retval = (it != the_item_map.end());
+			if (retval && release) { the_item_map.erase(it); }
 		}
 	}
 	return retval;
@@ -213,9 +198,9 @@ bool ItemStore::find(const u_str& pattern,bool release,std::string& errorstr) {
 		if ( String::Regex::available() ) {
 			ostringstream* suppressor = new ostringstream();
 			Logger::set_stream(suppressor);
-			for(item_map_type::iterator imt = the_item_map->begin(); !retval && imt != the_item_map->end(); imt++) {
+			for(item_map_type::iterator imt = the_item_map.begin(); !retval && imt != the_item_map.end(); imt++) {
 				retval= String::Regex::match(rxpr,imt->first);
-				if (retval && release) { the_item_map->erase(imt); }
+				if (retval && release) { the_item_map.erase(imt); }
 			}
 			Logger::unset_stream();
 			if (!suppressor->str().empty()) {
@@ -224,9 +209,9 @@ bool ItemStore::find(const u_str& pattern,bool release,std::string& errorstr) {
 			}
 			delete suppressor;
 		} else {
-			item_map_type::iterator it = the_item_map->find(rxpr);
-			retval = (it != the_item_map->end());
-			if (retval && release) { the_item_map->erase(it); }
+			item_map_type::iterator it = the_item_map.find(rxpr);
+			retval = (it != the_item_map.end());
+			if (retval && release) { the_item_map.erase(it); }
 		}
 	}
 	return retval;
@@ -238,14 +223,14 @@ void ItemStore::keys(const u_str& pattern,std::set<string>& keylist,std::string&
 	} else {
 		std::string rpattern; XML::Manager::transcode(pattern,rpattern);	//Regex works on strings!	
 		if ( String::Regex::available() ) {
-			for(item_map_type::iterator imt = the_item_map->begin(); imt != the_item_map->end(); imt++) {
+			for(item_map_type::iterator imt = the_item_map.begin(); imt != the_item_map.end(); imt++) {
 				if (String::Regex::match(rpattern,imt->first)) {
 					keylist.insert(imt->first);
 				}
 			}
 		} else {
-			item_map_type::iterator it = the_item_map->find(rpattern);
-			if (it != the_item_map->end()) {
+			item_map_type::iterator it = the_item_map.find(rpattern);
+			if (it != the_item_map.end()) {
 				keylist.insert(rpattern);
 			}
 		}
@@ -254,20 +239,20 @@ void ItemStore::keys(const u_str& pattern,std::set<string>& keylist,std::string&
 bool ItemStore::release(const u_str& obj_name) {
 	bool retval = false;
 	std::string name; XML::Manager::transcode(obj_name,name); //Our keys are actually std::strings	
-	item_map_type::iterator it = the_item_map->find(name);
-	if (it != the_item_map->end()) {
+	item_map_type::iterator it = the_item_map.find(name);
+	if (it != the_item_map.end()) {
 		it->second = NULL;
-		the_item_map->erase(it);
+		the_item_map.erase(it);
 		retval = true;
 	} 
 	return retval;
 }
 void ItemStore::list() {
-	if ( ! the_item_map->empty() ) {
-		item_map_type::iterator it = the_item_map->begin();
+	if ( ! the_item_map.empty() ) {
+		item_map_type::iterator it = the_item_map.begin();
 		*Logger::log << Log::subhead << Log::LI << "Stores (" << owner << ")" << Log::LO;
 		*Logger::log << Log::LI << Log::even;
-		while (it != the_item_map->end() ) {
+		while (it != the_item_map.end() ) {
 			if ( ! it->first.empty() ) {
 				*Logger::log << Log::LI << Log::II << it->first << Log::IO;
 				if ( it->second == NULL) {
@@ -299,18 +284,18 @@ bool ItemStore::sset(const u_str& sname,const u_str& tpath,bool node_expected, D
 			delete item; item=nitem;
 		}
 		if (path.empty()) {
-			item_map_type::iterator it = the_item_map->find(name);
-			if (it != the_item_map->end()) {
+			item_map_type::iterator it = the_item_map.find(name);
+			if (it != the_item_map.end()) {
 				DataItem*& basis = it->second;
 				delete basis;
-				the_item_map->erase(it); //and if there is any item then insert it.
+				the_item_map.erase(it); //and if there is any item then insert it.
 			}
-			pair<item_map_type::iterator, bool> ins = the_item_map->insert(item_map_type::value_type(name, item));
+			pair<item_map_type::iterator, bool> ins = the_item_map.insert(item_map_type::value_type(name, item));
 			item = NULL; //this was already a document!
 			retval = true;
 		} else {
-			item_map_type::iterator it = the_item_map->find(name);
-			if (it != the_item_map->end()) {
+			item_map_type::iterator it = the_item_map.find(name);
+			if (it != the_item_map.end()) {
 				DataItem* basis = it->second; //we will use the path on the basis.
 				if (basis != NULL && basis->kind() != di_text) {
 					XMLObject* xbase = (XMLObject *)basis;
@@ -359,7 +344,7 @@ bool ItemStore::sset(const u_str& sname,const u_str& tpath,bool node_expected, D
 						}
 						//-----------------------------								
 					} else {
-						the_item_map->erase(it);
+						the_item_map.erase(it);
 						std::string erv; XML::Manager::transcode(path,erv);	
 						errorstr = "There was no store " + name + " for the path " + erv;
 						retval= true; //bad name/path				
@@ -397,8 +382,8 @@ bool ItemStore::sget(const u_str& sname,const u_str& path,bool node_expected, Da
 	std::string name; XML::Manager::transcode(sname,name); //Our keys are actually std::strings	
 	if ( String::nametest(name)) {
 		retval = true; 
-		item_map_type::iterator it = the_item_map->find(name);
-		if (it != the_item_map->end()) {
+		item_map_type::iterator it = the_item_map.find(name);
+		if (it != the_item_map.end()) {
 			DataItem*& basis = it->second;
 			if (release) { 
 				if (! path.empty() && basis != NULL ) {
@@ -430,7 +415,7 @@ bool ItemStore::sget(const u_str& sname,const u_str& path,bool node_expected, Da
 				} else {
 					item = basis; 
 					basis = NULL;
-					the_item_map->erase(it);
+					the_item_map.erase(it);
 				}
 				
 			} else { //not release!
@@ -539,28 +524,13 @@ bool ItemStore::sget(const u_str& sname,const u_str& path,bool node_expected, Da
 	}
 	return retval;
 }
-/*
-bool ItemStore::sget(const u_str& sname, u_str& container) {	//name container (quick hack)
-	//This is always used to get settings values, such as REDIRECT_BREAK_COUNT
-	bool retval = false;
-	std::string name; XML::Manager::transcode(sname,name);	
-	if (the_item_map != NULL) { //this happens when eg. using an OSI as root document
-		item_map_type::iterator it = the_item_map->find(name);
-		if (it != the_item_map->end()) {
-			retval = true;
-			container = *(it->second);
-		} 
-	}
-	return retval;
-}
-*/
 
 //This returns true if there is NO value set, but false if the value is NOT a number!
 bool ItemStore::meta(const string& name,unsigned long long& result) { //used for meta settings.
 	bool retval = true;
-	if (the_item_map != NULL) { //this happens when eg. using an OSI as root document
-		item_map_type::iterator it = the_item_map->find(name);
-		if (it != the_item_map->end()) {
+	if (! the_item_map.empty() ) { //this happens when eg. using an OSI as root document
+		item_map_type::iterator it = the_item_map.find(name);
+		if (it != the_item_map.end()) {
 			u_str stored = *(it->second);
 			pair<unsigned long long,bool> my_ull = 	XMLObject::znatural(stored);
 			retval = my_ull.second;
@@ -570,24 +540,4 @@ bool ItemStore::meta(const string& name,unsigned long long& result) { //used for
 		} 
 	}
 	return retval;
-}
-
-void ItemStore::prefixpushed(const u_str& prefix) {
-	item_map_stack_map_type::iterator it = the_item_map_stack_map.find(prefix);
-	if (it != the_item_map_stack_map.end()) {
-		the_item_map_stack = ((*it).second);
-		the_item_map = the_item_map_stack->top();
-	} else {
-		the_item_map = new item_map_type();
-		the_item_map_stack = new item_map_stack_type();
-		the_item_map_stack->push(the_item_map);
-		the_item_map_stack_map.insert(item_map_stack_map_type::value_type(prefix,the_item_map_stack));
-	}
-}
-void ItemStore::prefixpopped(const u_str& prefix) {
-	item_map_stack_map_type::iterator it = the_item_map_stack_map.find(prefix);
-	if (it != the_item_map_stack_map.end()) {
-		the_item_map_stack = ((*it).second);
-		the_item_map = the_item_map_stack->top();
-	} 		
 }

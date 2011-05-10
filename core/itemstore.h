@@ -45,9 +45,6 @@ class Iteration;
 namespace obyx {
 	typedef xercesc::DOMLSParser::ActionType insertion_type;
 	typedef hash_map<const string,DataItem*, hash<const string&> > item_map_type;
-	typedef std::stack<item_map_type* > item_map_stack_type;												//stack of hashmaps controlled by isolated attr.
-	typedef hash_map<const u_str, item_map_stack_type* , hash<const u_str&> > item_map_stack_map_type;	//hashmap of stacks controlled by ns.
-	typedef std::stack<Iteration*> iter_stack_type;															//stack of hashmaps controlled by isolated attr.	
 }	
 
 using namespace obyx;
@@ -58,10 +55,7 @@ namespace obyx {
 	class ItemStore {
 	private:
 		string						owner;
-		item_map_type*				the_item_map;
-		item_map_stack_type*		the_item_map_stack;
-		item_map_stack_map_type		the_item_map_stack_map;
-		static  iter_stack_type*	the_iteration_stack; //stack of iterations
+		item_map_type				the_item_map;
 		
 	public:
 		static void init();
@@ -83,9 +77,6 @@ namespace obyx {
 		bool release(const u_str&);
 		bool sset(const u_str&,const u_str&,bool,DataItem*&, kind_type, string& );	//name,path,expected,document, intended kind...
 		bool sget(const u_str&,const u_str&,bool,DataItem*&, bool, string&);		//name,path,expected,container, release?, errstr
-//		bool sget(const u_str&,u_str&);								//name container (used for quick internal hacks)
-		void prefixpushed(const u_str&);
-		void prefixpopped(const u_str&);
 		void setowner(const string);
 		//NS functions	
 		static bool nsfind(const DataItem*,bool);

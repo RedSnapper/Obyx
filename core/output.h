@@ -36,7 +36,7 @@ class Function;
 
 class Output : public IKO {
 public:
-	typedef enum { branch, global, ancestor } scope_type;	//what sort of scope (output)
+	typedef enum { branch, global, ancestor, document } scope_type;	//what sort of scope (output)
 	typedef enum { value, path, expires, domain } part_type;	// parts of a cookie.
 	typedef enum { location, privacy, cache, pragma, custom, connection, server, p3p, range, content_length, code, content_type, h_expires, date, content_disposition, nocache, remove_http, remove_nocache, remove_date, http_object} http_line_type;	//
 private:

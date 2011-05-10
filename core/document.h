@@ -51,20 +51,23 @@ private:
 	friend class InputType;
 	friend class Iteration;
 	
-	typedef hash_map<const std::string, DataItem*, hash<const string&> > type_parm_map;
+	typedef hash_map<const string, DataItem*, hash<const string&> > type_parm_map;
+	typedef hash_map<const string, ItemStore*, hash<const string&> > type_store_map;
 	
 	static XML::Manager* xmlmanager;
 	static std::string curr_http_req;
-	static Document* root; //This is the opening document.
+	static type_store_map docstores; //Those stores that are identified by document signatures.
+	static Document* root; 			 //This is the opening document.
 	
 	xercesc::DOMDocument* xdoc; //NOT copied - because we dont want to have to delete each case, and it's owned by parser.
 	xercesc::DOMNode*	root_node;
 	std::string filepath;
-	double doc_version;				//version of obyx that this document is written for.
+	std::string signature;		//Used for identifying a document.
+	double doc_version;			//version of obyx that this document is written for.
 	u_str ownprefix;			//used for really special cases.
 	type_parm_map*					parm_map;
 	ItemStore store;
-	//	ItemStore::ItemStore(const ItemStore* orig)
+	ItemStore* doc_store;
 	
 	static std::stack<u_str>		prefix_stack;
 	static std::stack<std::string>  filepath_stack;
@@ -111,8 +114,6 @@ public:
 	void storekeys(const u_str&,set<string>&,string&);
 	bool getstore(const u_str&,DataItem*&, bool, std::string&);			//name#path, container, release?, errstr
 	bool getstore(const u_str&,const u_str&,DataItem*&, bool, std::string&);	//name,path, container, release?, errstr
-//	bool getstore(const u_str&, u_str&);							//name container (used for quick internal hacks)
-	void releasestore(const DataItem*);
 	void liststore();
 	
 	bool getparm(const u_str&,const DataItem*&) const;
