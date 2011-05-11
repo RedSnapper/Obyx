@@ -696,9 +696,9 @@ bool Document::eval() {
 				XML::Manager::attribute(root_node,UCS2(L"version"),version_str);
 				XML::Manager::attribute(root_node,UCS2(L"signature"),signature);
 				if (!version_str.empty()) {
-					doc_version=String::real(version_str);
-					if (isnan(doc_version)) {
-						doc_version = Environment::version();
+					double version_val=String::real(version_str); 
+					if (!isnan(version_val) && version_val > 0) {
+						doc_version = version_val;
 					}
 				}
 				if (!signature.empty()) {
