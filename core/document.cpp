@@ -239,9 +239,10 @@ bool Document::setstore(u_str& name,u_str& path, DataItem*& item,kind_type kind,
 
 bool Document::storeexists(const u_str& name,const u_str& xpath,bool release,std::string& errorstr) {
 	bool retval = false;
-	if (doc_version < 1.110208) {
-		retval = root->store.exists(name,xpath,release,errorstr);
-	} else {
+//Regardless of version, this document still needs to find branch docs in ancestors above it.
+//	if (doc_version < 1.110208) {
+//		retval = root->store.exists(name,xpath,release,errorstr);
+//	} else {
 		if (doc_store != NULL) {
 			retval = doc_store->exists(name,xpath,release,errorstr);
 		}
@@ -256,15 +257,15 @@ bool Document::storeexists(const u_str& name,const u_str& xpath,bool release,std
 				}
 			}
 		}
-	}
+//	}
 	return retval;
 }
 
 bool Document::metastore(const string key,unsigned long long& container) {
 	bool retval = false;
-	if (doc_version < 1.110208) {
-		retval = root->store.meta(key,container);
-	} else {
+//	if (doc_version < 1.110208) {
+//		retval = root->store.meta(key,container);
+//	} else {
 		if (doc_store != NULL) {
 			retval = doc_store->meta(key,container);
 		}
@@ -279,15 +280,15 @@ bool Document::metastore(const string key,unsigned long long& container) {
 				}
 			}
 		}
-	}
+//	}
 	return retval;
 }
 
 bool Document::storeexists(const u_str& obj_id,bool release,std::string& errorstr) {
 	bool retval = false;
-	if (doc_version < 1.110208) {
-		retval = root->store.exists(obj_id,release,errorstr);
-	} else {
+//	if (doc_version < 1.110208) {
+//		retval = root->store.exists(obj_id,release,errorstr);
+//	} else {
 		Document* doc = this;
 		if (doc_store != NULL) {
 			retval = doc_store->exists(obj_id,release,errorstr);
@@ -302,14 +303,14 @@ bool Document::storeexists(const u_str& obj_id,bool release,std::string& errorst
 				}
 			}
 		}
-	}
+//	}
 	return retval;
 }
 bool Document::storefind(const string& pattern,bool release,std::string& errorstr) {
 	bool retval = false;
-	if (doc_version < 1.110208) {
-		retval = root->store.find(pattern,release,errorstr);
-	} else {
+//	if (doc_version < 1.110208) {
+//		retval = root->store.find(pattern,release,errorstr);
+//	} else {
 		if (doc_store != NULL) {
 			retval = doc_store->find(pattern,release,errorstr);
 		}		
@@ -324,14 +325,14 @@ bool Document::storefind(const string& pattern,bool release,std::string& errorst
 				}
 			}
 		}
-	}
+//	}
 	return retval;
 }
 bool Document::storefind(const u_str& pattern,bool release,std::string& errorstr) {
 	bool retval = false;
-	if (doc_version < 1.110208) {
-		retval = root->store.find(pattern,release,errorstr);
-	} else {
+//	if (doc_version < 1.110208) {
+//		retval = root->store.find(pattern,release,errorstr);
+//	} else {
 		if (doc_store != NULL) {
 			retval = doc_store->find(pattern,release,errorstr);
 		}		
@@ -346,13 +347,13 @@ bool Document::storefind(const u_str& pattern,bool release,std::string& errorstr
 				}
 			}
 		}
-	}
+//	}
 	return retval;
 }	
 void Document::storekeys(const u_str& pattern,std::set<std::string>& keylist,std::string& errorstr) {
-	if (doc_version < 1.110208) {
-		root->store.keys(pattern,keylist,errorstr);
-	} else {
+//	if (doc_version < 1.110208) {
+//		root->store.keys(pattern,keylist,errorstr);
+//	} else {
 		if (doc_store != NULL) {
 			doc_store->keys(pattern,keylist,errorstr);
 		}		
@@ -365,16 +366,16 @@ void Document::storekeys(const u_str& pattern,std::set<std::string>& keylist,std
 				doc = NULL;
 			}
 		}
-	}
+//	}
 }
 bool Document::getstore(const u_str& namepath, DataItem*& item, bool release,std::string& errorstr) {
 	bool retval = false;
 	bool node_expected = false;
 	pair<u_str,u_str> np;
 	XMLObject::npsplit(namepath,np,node_expected);
-	if (doc_version < 1.110208) {
-		retval = root->store.sget(np.first,np.second,node_expected,item,release,errorstr);
-	} else {
+//	if (doc_version < 1.110208) {
+//		retval = root->store.sget(np.first,np.second,node_expected,item,release,errorstr);
+//	} else {
 		if (doc_store != NULL && doc_store->exists(np.first,false,errorstr)) {
 			retval = doc_store->sget(np.first,np.second,node_expected,item,release,errorstr);
 		} else {
@@ -394,15 +395,15 @@ bool Document::getstore(const u_str& namepath, DataItem*& item, bool release,std
 				retval = doc->store.sget(np.first,np.second,node_expected,item,release,errorstr);
 			}
 		}
-	}
+//	}
 	return retval;
 }
 bool Document::getstore(const u_str& name,const u_str& path,DataItem*& item, bool release,std::string& errorstr) {
 	bool retval = false;
 	bool node_expected = false;
-    if (doc_version < 1.110208) {
-		retval = root->store.sget(name,path,node_expected,item,release,errorstr);
-	} else {
+//    if (doc_version < 1.110208) {
+//		retval = root->store.sget(name,path,node_expected,item,release,errorstr);
+//	} else {
 		if (doc_store != NULL && doc_store->exists(name,false,errorstr)) {
 			retval = doc_store->sget(name,path,node_expected,item,release,errorstr);
 		} else {
@@ -422,7 +423,7 @@ bool Document::getstore(const u_str& name,const u_str& path,DataItem*& item, boo
                 retval = doc->store.sget(name,path,node_expected,item,release,errorstr);
             }
 		}
-	}
+//	}
 	return retval;
 }
 
