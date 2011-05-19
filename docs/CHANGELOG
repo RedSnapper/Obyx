@@ -17,6 +17,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.110519       
+	BUG.		Early version docs need access to later version stores!
+
 v1.110510       <----- From this version on, stores may have scope 'document' for documents with a signature attribute.
 	Enh.		Stores may have scope 'document', which are private to a document, and persistent for a document.
 	Enh.		There is a new document element attribute 'signature', used to identify the document scope.
