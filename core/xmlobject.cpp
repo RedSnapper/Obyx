@@ -454,7 +454,6 @@ bool XMLObject::sort(const u_str& path,const u_str& sortpath,bool ascending,bool
 			if (retval && result != NULL) { //otherwise return empty.
 				XMLSize_t sslena = result->getSnapshotLength();
 				if (sslena > 0) {
-					u_str num_prefix(UCS2(L"0123456789-+"));
 					std::list< pair<u_str,XMLObject*> > lex_results_for_sorting;
 					std::list< pair<double,XMLObject*> > num_results_for_sorting;
 					bool using_lex = true, tested_lex=false; 
@@ -478,10 +477,8 @@ bool XMLObject::sort(const u_str& path,const u_str& sortpath,bool ascending,bool
 									if (sstr.empty()) { //empty is nan. ie, there's no value set for num results yet.
 										num_results_for_sorting.push_back( pair<double,XMLObject*>(dnum,item) );
 									} else {
-										if (num_prefix.find(sstr[0]) != u_str::npos) {
-											 dnum = XMLObject::real(sstr);
-											 using_lex = (dnum == NAN);
-										 }
+										dnum = XMLObject::real(sstr);
+										using_lex = (dnum == NAN);
 										tested_lex = true;
 									}
 								} else {
@@ -670,7 +667,11 @@ double XMLObject::real(const u_str& s) {
 				retval = rsp.first;
 			}
 		} else {
-			retval = XMLDouble(s.c_str()).getValue();
+			try {
+				retval = XMLDouble(s.c_str()).getValue();
+			} catch (...) {
+				retval = NAN;
+			}
 		}
 	}
 	return retval;
