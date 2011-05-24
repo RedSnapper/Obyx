@@ -421,7 +421,7 @@ bool Instruction::evaluate_this() {
 											XMLObject* xdoc = *first_value;
 											if (xdoc != NULL) {
 												string error_str;
-												xdoc->sort(uaccumulator,sortstr,inputs[i]->ascending,true,error_str);
+												xdoc->sort(uaccumulator,sortstr,inputs[i]->ascending,false,error_str);
 												if (!error_str.empty()) {
 													*Logger::log <<  Log::error  << Log::LI << "Error. " << error_str << Log::LO;
 													trace();
