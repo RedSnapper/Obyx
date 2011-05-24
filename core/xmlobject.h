@@ -36,14 +36,15 @@ namespace {
 	using xercesc::DOMLSParser;	
 }	
 
+//typedef pair<u_str,XMLObject*> uobj;
+//bool uobj::operator<(const uobj&) const;
+
 class XMLObject : public DataItem {
 private:
 	XMLObject() {}
 //	void setxp(const std::string&,const std::string&,xercesc::DOMLSParser::ActionType);
 	bool xp_result(const u_str&,DOMXPathResult*&,std::string&) const;
-	static bool a_compare(pair<string,XMLObject*>,pair<string,XMLObject*>);
-	static inline bool d_compare(pair<string,XMLObject*>,pair<string,XMLObject*>);
-	
+
 protected:
 	friend class DataItem;
 	friend class StrObject;
@@ -64,6 +65,9 @@ public:
 	static bool npsplit(const u_str&,pair<u_str,u_str>&,bool&);
 	static pair<unsigned long long,bool> hex(const u_str&);
 	static pair<unsigned long long,bool> znatural(const u_str&);
+	static double real(const u_str&);
+	static double real(u_str::const_iterator&);
+	
 	static void trim(u_str&);
 	static void rtrim(u_str&);
 	

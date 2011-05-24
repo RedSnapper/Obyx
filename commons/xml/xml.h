@@ -33,6 +33,7 @@
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/util/XMLUni.hpp>
 #include <xercesc/util/XMLUri.hpp>
+#include <xercesc/util/XMLDouble.hpp>
 #include <xercesc/util/OutOfMemoryException.hpp>
 
 #include <xercesc/dom/DOM.hpp>

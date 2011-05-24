@@ -658,12 +658,12 @@
 		B5E1A7BE0CDA33BF00E7415B /* grammars */ = {
 			isa = PBXGroup;
 			children = (
+				B555971C0F8A04B4003C3BE0 /* xhtml1-strict.dtd */,
 				B55597200F8A04B4003C3BE0 /* xml.xsd */,
 				B555971F0F8A04B4003C3BE0 /* xlink.xsd */,
 				B55597190F8A04B4003C3BE0 /* obyx.xsd */,
 				B55597170F8A04B4003C3BE0 /* message.xsd */,
 				B55597180F8A04B4003C3BE0 /* oal.xsd */,
-				B555971C0F8A04B4003C3BE0 /* xhtml1-strict.dtd */,
 				B5F0776C0D17F67400C5E0F1 /* soap.xsd */,
 				B55EFE020FA5DBC900AFC317 /* soap-encoding.xsd */,
 				B5C208CB0FB982F7000BD08A /* wsdl.xsd */,

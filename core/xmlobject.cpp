@@ -77,22 +77,7 @@ void XMLObject::take(DOMNode*& container) {
 	container = x_doc;
 	x_doc = NULL;
 }
-bool XMLObject::a_compare(pair<string,XMLObject*> a,pair<string,XMLObject*> b) {
-	if ((a.first[0] >= '0' && a.first[0] <= '9') || a.first[0] == '+' || a.first[0] == '-' ) {
-		double da = String::real(a.first);
-		double db = String::real(b.first);
-		if (da != NAN && db != NAN) {
-			return da < db;
-		} else {
-			return ( a.first.compare(b.first) < 0);
-		}
-	} else {
-		return ( a.first.compare(b.first) < 0);
-	}
-}
-inline bool XMLObject::d_compare(pair<string,XMLObject*> a,pair<string,XMLObject*> b) {
-	return a_compare(b,a);
-}
+
 /* ====================  VIRTUAL methods. =========== */
 XMLObject::operator XMLObject*() { return this; }	
 XMLObject::operator u_str() const {
@@ -466,58 +451,108 @@ bool XMLObject::sort(const u_str& path,const u_str& sortpath,bool ascending,bool
 				want_value = true;
 			}
 			retval = xp_result(xp_path,result,error_str);
-			if (retval && result != NULL) { //otherwise return empty.	
-				std::list< pair<u_str,XMLObject*> > results_for_sorting;
+			if (retval && result != NULL) { //otherwise return empty.
 				XMLSize_t sslena = result->getSnapshotLength();
-				//if sslena < 1 then life is easy for a sort... but here let's assume not first.
-				for ( XMLSize_t ai = 0; ai < sslena; ai++) {
-					if (result->snapshotItem(ai)) { //should always return true - but best to do this, eh?
-						XMLObject* item = NULL;
-						if ( result->isNode() ) {
-							item = new XMLObject(result->getNodeValue());
-							DataItem* sortitem = NULL;
-							item->xp(sortpath,sortitem,true,error_str);
-							u_str sstr;
-							if (sortitem != NULL) {
-								sstr = *sortitem; delete sortitem;
+				if (sslena > 0) {
+					u_str num_prefix(UCS2(L"0123456789-+"));
+					std::list< pair<u_str,XMLObject*> > lex_results_for_sorting;
+					std::list< pair<double,XMLObject*> > num_results_for_sorting;
+					bool using_lex = true, tested_lex=false; 
+					//if sslena < 1 then life is easy for a sort... but here let's assume not first.
+					for ( XMLSize_t ai = 0; ai < sslena; ai++) {
+						if (result->snapshotItem(ai)) { //should always return true - but best to do this, eh?
+							XMLObject* item = NULL;
+							if ( result->isNode() ) {
+								item = new XMLObject(result->getNodeValue());
+								DataItem* sortitem = NULL;
+								item->xp(sortpath,sortitem,true,error_str);
+								u_str sstr; double dnum = NAN;
+								if (sortitem != NULL) {
+									sstr = *sortitem; delete sortitem;
+								} else {
+									if (!error_str.empty()) {
+										error_str.append(*item);
+									}
+								}
+								if (!tested_lex) { //work out based on the first value if this is a string or a number.
+									if (sstr.empty()) { //empty is nan. ie, there's no value set for num results yet.
+										num_results_for_sorting.push_back( pair<double,XMLObject*>(dnum,item) );
+									} else {
+										if (num_prefix.find(sstr[0]) != u_str::npos) {
+											 dnum = XMLObject::real(sstr);
+											 using_lex = (dnum == NAN);
+										 }
+										tested_lex = true;
+									}
+								} else {
+									if (!using_lex) {
+										dnum = XMLObject::real(sstr);
+									}
+								} //dnum is now converted for all iterations.
+								if (using_lex) {
+									lex_results_for_sorting.push_back( pair<u_str,XMLObject*>(sstr,item) );
+								} else {
+									num_results_for_sorting.push_back( pair<double,XMLObject*>(dnum,item) );
+								}
 							} else {
-								if (!error_str.empty()) {
-									error_str.append(*item);
+								error_str = "While expecting node results for a search, the xpath returned text.";												
+								retval=false;
+							}
+						}
+					}
+					if (using_lex) {
+						lex_results_for_sorting.sort();
+						if (ascending) {						
+							std::list< pair<u_str,XMLObject*> >::iterator i = lex_results_for_sorting.begin();
+							for ( XMLSize_t ai = 0; ai < sslena; ai++) {
+								if (result->snapshotItem(ai)) { //should always return true - but best to do this, eh?
+									DOMNode* pt = result->getNodeValue();
+									DOMNode* vv = i->second->x_doc; i++;
+									XML::Manager::parser()->insertContext(x_doc,pt,vv,DOMLSParser::ACTION_REPLACE);
 								}
 							}
-							results_for_sorting.push_back( pair<u_str,XMLObject*>(sstr,item) );
 						} else {
-							error_str = "While expecting node results for a search, the xpath returned text.";												
-							retval=false;
+							std::list< pair<u_str,XMLObject*> >::reverse_iterator i = lex_results_for_sorting.rbegin();
+							for ( XMLSize_t ai = 0; ai < sslena; ai++) {
+								if (result->snapshotItem(ai)) { //should always return true - but best to do this, eh?
+									DOMNode* pt = result->getNodeValue();
+									DOMNode* vv = i->second->x_doc; i++;
+									XML::Manager::parser()->insertContext(x_doc,pt,vv,DOMLSParser::ACTION_REPLACE);
+								}
+							}
 						}
-					}
-				}
-				results_for_sorting.sort();
-				if (ascending) {
-					std::list< pair<u_str,XMLObject*> >::iterator i = results_for_sorting.begin();
-					for ( XMLSize_t ai = 0; ai < sslena; ai++) {
-						if (result->snapshotItem(ai)) { //should always return true - but best to do this, eh?
-							DOMNode* pt = result->getNodeValue();
-							DOMNode* vv = i->second->x_doc; i++;
-							XML::Manager::parser()->insertContext(x_doc,pt,vv,DOMLSParser::ACTION_REPLACE);
+						lex_results_for_sorting.clear();
+
+					} else {
+						num_results_for_sorting.sort();
+						if (ascending) {						
+							std::list< pair<double,XMLObject*> >::iterator i = num_results_for_sorting.begin();
+							for ( XMLSize_t ai = 0; ai < sslena; ai++) {
+								if (result->snapshotItem(ai)) { //should always return true - but best to do this, eh?
+									DOMNode* pt = result->getNodeValue();
+									DOMNode* vv = i->second->x_doc; i++;
+									XML::Manager::parser()->insertContext(x_doc,pt,vv,DOMLSParser::ACTION_REPLACE);
+								}
+							}
+						} else {
+							std::list< pair<double,XMLObject*> >::reverse_iterator i = num_results_for_sorting.rbegin();
+							for ( XMLSize_t ai = 0; ai < sslena; ai++) {
+								if (result->snapshotItem(ai)) { //should always return true - but best to do this, eh?
+									DOMNode* pt = result->getNodeValue();
+									DOMNode* vv = i->second->x_doc; i++;
+									XML::Manager::parser()->insertContext(x_doc,pt,vv,DOMLSParser::ACTION_REPLACE);
+								}
+							}
 						}
+						num_results_for_sorting.clear();
 					}
+					delete result; result = NULL;
 				} else {
-					std::list< pair<u_str,XMLObject*> >::reverse_iterator i = results_for_sorting.rbegin();
-					for ( XMLSize_t ai = 0; ai < sslena; ai++) {
-						if (result->snapshotItem(ai)) { //should always return true - but best to do this, eh?
-							DOMNode* pt = result->getNodeValue();
-							DOMNode* vv = i->second->x_doc; i++;
-							XML::Manager::parser()->insertContext(x_doc,pt,vv,DOMLSParser::ACTION_REPLACE);
-						}
+					if (node_expected) {
+						std::string epath; XML::Manager::transcode(path,epath);
+						error_str = "While attempting a get, the xpath " + epath + " returned no nodes.";												
+						retval=false;
 					}
-				}
-				results_for_sorting.clear();
-				delete result; result = NULL;
-				if (sslena == 0 && node_expected) {
-					std::string epath; XML::Manager::transcode(path,epath);
-					error_str = "While attempting a get, the xpath " + epath + " returned no nodes.";												
-					retval=false;
 				}
 			} else {
 				if (node_expected) {
@@ -625,6 +660,22 @@ pair<unsigned long long,bool> XMLObject::hex(const u_str& s) { //Given a string,
 	}
 	return pair<unsigned long long,bool>(val,isnumber);
 }
+
+double XMLObject::real(const u_str& s) {
+	double retval = NAN;
+	if (!s.empty()) {
+		if (s.size() > 2 && s[0]=='0' && ( s[1]=='x' || s[1]=='X' )) {
+			pair<unsigned long long,bool> rsp = hex(s.substr(2));
+			if (rsp.second) {
+				retval = rsp.first;
+			}
+		} else {
+			retval = XMLDouble(s.c_str()).getValue();
+		}
+	}
+	return retval;
+}
+
 pair<unsigned long long,bool> XMLObject::znatural(const u_str& s) { //Given a u_str, returns a natural from any digits that it STARTS with.
 	bool isnumber = false;
 	unsigned long long val = 0;
