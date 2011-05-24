@@ -357,7 +357,7 @@ void IKO::doerrspace(const u_str& input_name) const {
 			if (err_msg.compare(0,6,"debug#") == 0) {
 				Environment* env = Environment::service();
 				err_msg.erase(0,6);
-				*Logger::log << Log::thrown << Log::LI << "Debug '" << err_msg << "'" << Log::LO;
+				*Logger::log << Log::thrown << Log::LI << "Debug '" << err_msg << "' (" << (unsigned int)ObyxElement::eval_count << ")" << Log::LO;
 				trace();
 				*Logger::log << Log::LI ;
 				env->list();
