@@ -176,11 +176,13 @@ namespace String {
 					char csig = curop->sig();
 					if(csig == '(') {
 						opstack.push_back(curop);
+						didfn = true;
 					} else { 
 						if(csig == ')' ) {
 							char ssig =' ';
 							while(!opstack.empty() && ssig !='(') {
 								ssig = evalstack();
+								didfn = false;
 							}
 							//need to test the below with eg "4-3)"
 							if( ssig !='(' ) {
@@ -188,6 +190,7 @@ namespace String {
 							} else {
 								if( !opstack.empty() && opstack.back()->sig() == 'f') {
 									ssig = evalstack(); //was a function declaration. so do it.
+									didfn = false;
 								}
 							}
 						} else {
@@ -198,17 +201,19 @@ namespace String {
 								//mul=5,add=6,neg=3; so if tok=neg, and stack=mul, do neg first.
 								while(!opstack.empty() && (curop->precedence > opstack.back()->precedence)) {
 									evalstack();
+									didfn = false;
 								}
 							} else {
 								//mul=5,add=6,neg=3; so if tok=add, and stack=mul, do mul first. if same, do stack first.
 								while(!opstack.empty() && (curop->precedence >= opstack.back()->precedence)) {
 									evalstack();
+									didfn = false;
 								}
 							}
 							opstack.push_back(curop);
+							didfn = true;
 						}
 					}
-					didfn = true;
 				} else { //non-op - must be value.
 					if (cur_name.empty() ) {
 						Num value(i); // generate from string iterator.
