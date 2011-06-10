@@ -183,54 +183,67 @@ DataItem* DataItem::autoItem(const u_str& s) {
 
 DataItem* DataItem::factory(std::string& s,kind_type kind_it_is) {
 	DataItem* retval = NULL;
-	switch (kind_it_is) {
-		case di_auto: {
-			retval= autoItem(s);
-		} break;
-		case di_raw: {
+	if ( !s.empty() ) {
+		if (XMLChar::isutf8(s)) {
+			switch (kind_it_is) {
+				case di_auto: {
+					retval= autoItem(s);
+				} break;
+				case di_raw: {
+					retval= new RawItem(s);
+				} break;
+				case di_text: {
+					retval= new StrObject(s);
+				} break;
+				case di_utext: {
+					retval= new UStrItem(s);
+				} break;
+				case di_fragment: {
+					retval= new FragmentObject(s);
+				} break;
+				case di_object: {
+					retval= new XMLObject(s);
+				} break;
+				case di_null: {
+					retval=NULL;
+				}
+			}
+		} else {
 			retval= new RawItem(s);
-		} break;
-		case di_text: {
-			retval= new StrObject(s);
-		} break;
-		case di_utext: {
-			retval= new UStrItem(s);
-		} break;
-		case di_fragment: {
-			retval= new FragmentObject(s);
-		} break;
-		case di_object: {
-			retval= new XMLObject(s);
-		} break;
-		case di_null: {
-			retval=NULL;
 		}
 	}
 	return retval;
 }
+
 DataItem* DataItem::factory(const string& s,kind_type kind_it_is) {
 	DataItem* retval = NULL;
-	switch (kind_it_is) {
-		case di_auto: {
-			retval= autoItem(s);
-		} break;
-		case di_raw: {
+	if ( !s.empty() ) {
+		if (XMLChar::isutf8(s)) {
+			switch (kind_it_is) {
+				case di_auto: {
+					retval= autoItem(s);
+				} break;
+				case di_raw: {
+					retval= new RawItem(s);
+				} break;
+				case di_text: {
+					retval= new StrObject(s);
+				} break;
+				case di_utext: {
+					retval= new UStrItem(s);
+				} break;
+				case di_fragment: {
+					retval= new FragmentObject(s);
+				} break;
+				case di_object: {
+					retval= new XMLObject(s);
+				} break;
+				case di_null: {
+					retval=NULL;
+				}
+			}
+		} else {
 			retval= new RawItem(s);
-		} break;
-		case di_text: {
-			retval= new StrObject(s);
-		} break;
-		case di_utext: {
-			retval= new UStrItem(s);
-		} break;
-		case di_fragment: {
-			retval= new FragmentObject(s);
-		} break;			
-		case di_object: {
-			retval= new XMLObject(s);
-		} break;
-		case di_null: {
-			retval=NULL;
 		}
 	}
 	return retval;
@@ -251,7 +264,6 @@ DataItem* DataItem::factory(const XMLCh* s,kind_type kind_it_is) {
 		return NULL;
 	}
 }
-
 DataItem* DataItem::factory(xercesc::DOMDocument*& s,kind_type kind_it_is) {
 	DataItem* retval = NULL;
 	switch (kind_it_is) {
