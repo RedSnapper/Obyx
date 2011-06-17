@@ -428,7 +428,6 @@ bool XMLObject::xp(const DataItem* ins,const u_str& path,DOMLSParser::ActionType
 		}
 		xpr->release();
 		xpr = NULL;
-		x_doc->normalizeDocument(); //necessary for things like document deletion.
 		if (x_doc->getDocumentElement() == NULL) {
 			x_doc->release(); x_doc = NULL;
 		}
