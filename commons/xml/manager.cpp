@@ -138,6 +138,11 @@ namespace XML {
 		return result;
 	}
 	
+	void Manager::resetDocPool() { //static, used to release memory in eg. fcgi.
+		xparser->parser->resetDocumentPool();
+		xparser->parser->resetCachedGrammarPool();
+	}
+	
 	Manager::Manager() {
 		try {
 //			XMLPlatformUtils::Initialize(); 

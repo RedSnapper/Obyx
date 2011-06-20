@@ -93,7 +93,7 @@ void RawItem::append(DataItem*& s) {
 	delete s;
 }
 
-bool RawItem::find(const DataItem* o,std::string&) const {
+bool RawItem::find(const DataItem* o,std::string&)  {
 	if ( o != NULL) {
 		return o_str.find(*o) != string::npos;
 	} else {
@@ -101,11 +101,11 @@ bool RawItem::find(const DataItem* o,std::string&) const {
 	}
 }
 
-bool RawItem::find(const char* o,std::string&) const {
+bool RawItem::find(const char* o,std::string&)  {
 	return o_str.find(o) != string::npos;
 }
 
-bool RawItem::find(const XMLCh* s,std::string&) const {
+bool RawItem::find(const XMLCh* s,std::string&)  {
 	if (s!=NULL) {
 		u_str tmp(s);
 		string srch;

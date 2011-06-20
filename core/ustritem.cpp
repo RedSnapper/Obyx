@@ -97,7 +97,7 @@ void UStrItem::append(DataItem*& s) {
 	delete s;
 }
 
-bool UStrItem::find(const DataItem* o,std::string&) const {
+bool UStrItem::find(const DataItem* o,std::string&)  {
 	if ( o != NULL) {
 		return o_str.find(*o) != string::npos;
 	} else {
@@ -105,7 +105,7 @@ bool UStrItem::find(const DataItem* o,std::string&) const {
 	}
 }
 
-bool UStrItem::find(const char* o,std::string&) const {
+bool UStrItem::find(const char* o,std::string&)  {
 	if (o!=NULL) {
 		string tmp(o);
 		u_str srch;
@@ -116,7 +116,7 @@ bool UStrItem::find(const char* o,std::string&) const {
 	}
 }
 
-bool UStrItem::find(const XMLCh* srch,std::string&) const {
+bool UStrItem::find(const XMLCh* srch,std::string&)  {
 	if (srch!=NULL) {
 		return o_str.find(srch) != string::npos;
 	} else {

@@ -30,30 +30,32 @@
 #include "fragmentobject.h"
 
 XMLObject::u_str_map_type XMLObject::object_ns_map;
+unsigned long XMLObject::ns_map_version = 0; //used to indicate if the namespace has changed.
+
 /* ==================== NON virtual methods. =========== */
 /* protected */
-XMLObject::XMLObject(const XMLObject* s) : DataItem(),x(0),x_doc(NULL) { 
+XMLObject::XMLObject(const XMLObject* s) : DataItem(),x(0),xpnsr_v(0),xpnsr(NULL),x_doc(NULL) { 
 	x_doc = (xercesc::DOMDocument*)(s); 
 }
-XMLObject::XMLObject(const xercesc::DOMDocument* s) : DataItem(),x(1),x_doc(NULL) {
+XMLObject::XMLObject(const xercesc::DOMDocument* s) : DataItem(),x(1),xpnsr_v(0),xpnsr(NULL),x_doc(NULL) {
 	if  ( s != NULL ) {
 		x_doc = XML::Manager::parser()->newDoc(s);
 	}	
 }
-XMLObject::XMLObject(xercesc::DOMDocument*& s) : DataItem(),x(2),x_doc(s) {}
-XMLObject::XMLObject(const xercesc::DOMNode* s) : DataItem(),x(3),x_doc(NULL) {
+XMLObject::XMLObject(xercesc::DOMDocument*& s) : DataItem(),x(2),xpnsr_v(0),xpnsr(NULL),x_doc(s) {}
+XMLObject::XMLObject(const xercesc::DOMNode* s) : DataItem(),x(3),xpnsr_v(0),xpnsr(NULL),x_doc(NULL) {
 	if  ( s != NULL ) {
 		x_doc = XML::Manager::parser()->newDoc(s);
 	}	
 }
 /* Public Errors need to be caught higher up! */
-XMLObject::XMLObject(const std::string s) : DataItem(),x(4),x_doc(NULL) { 
+XMLObject::XMLObject(const std::string s) : DataItem(),x(4),xpnsr_v(0),xpnsr(NULL),x_doc(NULL) { 
 	x_doc = XML::Manager::parser()->loadDoc(s);
 	if (x_doc != NULL) {
 		x_doc->normalize();
 	}
 }
-XMLObject::XMLObject(u_str s) : DataItem(),x(7),x_doc(NULL) { 
+XMLObject::XMLObject(u_str s) : DataItem(),x(7),xpnsr_v(0),xpnsr(NULL),x_doc(NULL) { 
 	x_doc = XML::Manager::parser()->loadDoc(s);
 }
 XMLObject::XMLObject(const XMLObject& src) : DataItem(),x(5),x_doc(src) {}
@@ -62,7 +64,7 @@ void XMLObject::copy(XMLObject*& container) const {
 	if  ( x_doc != NULL ) {
 		DOMDocument* doc = XML::Manager::parser()->newDoc(x_doc);
 		container = new XMLObject(doc);
-	}		
+	}
 }
 void XMLObject::copy(DOMDocument*& container) const {
 	if  ( x_doc != NULL ) { // should really check for NULL here.
@@ -123,16 +125,17 @@ bool XMLObject::same(const DataItem* xtst) const {
 	return retval;
 }
 void XMLObject::clear() {
+	del_pnsr(); // Delete the pnsr and the xpe cache.
 	if (x_doc != NULL) {
 		x_doc->release();
 		x_doc = NULL;
-		XML::Manager::resetDocPool();
+//		XML::Manager::resetDocPool(); //This resets the cache of the entire set of all docs
 	}
 }
 void XMLObject::trim() {
 	//do nothing.
 }
-bool XMLObject::find(const DataItem* o,std::string& error_msg) const {
+bool XMLObject::find(const DataItem* o,std::string& error_msg) {
 	//find with an xpath.
 	bool retval = false;
 	u_str xpath;
@@ -145,7 +148,7 @@ bool XMLObject::find(const DataItem* o,std::string& error_msg) const {
 	}
 	return retval;
 }
-bool XMLObject::find(const char* o,std::string& error_msg) const {
+bool XMLObject::find(const char* o,std::string& error_msg) {
 	bool retval = false;
 	u_str xpath;
 	if (o != NULL)  xpath = *o;
@@ -158,7 +161,7 @@ bool XMLObject::find(const char* o,std::string& error_msg) const {
 	return retval;
 }
 
-bool XMLObject::find(const XMLCh* srch,std::string& error_msg) const {
+bool XMLObject::find(const XMLCh* srch,std::string& error_msg) {
 	bool retval = false;
 	if (srch != NULL && x_doc != NULL) {
 		u_str xpath(srch);
@@ -174,47 +177,91 @@ bool XMLObject::find(const XMLCh* srch,std::string& error_msg) const {
 	return retval;
 }
 
-/* -- more non-virtual methods -- */
-/* private */
-bool XMLObject::xp_result(const u_str& xpath,DOMXPathResult*& result,std::string& err_message) const {
-	bool retval = true;
-	AutoRelease<DOMXPathNSResolver> pnsr(x_doc->createNSResolver(NULL));	
-	if (pnsr != NULL) {
+void XMLObject::set_pnsr() { /* Set the pnsr with the latest list of namespaces if it needs it. */
+	if (xpnsr_v != ns_map_version) {
+		if ( xpnsr != NULL ) { 
+			xpnsr->release(); xpnsr= NULL;
+		}		
+	}
+	if ( x_doc != NULL && xpnsr == NULL ) { 
+		xpnsr = x_doc->createNSResolver(NULL); 
+	}
+	if (xpnsr_v != ns_map_version && xpnsr != NULL) {
 		for (XMLObject::u_str_map_type::const_iterator s = object_ns_map.begin(); s != object_ns_map.end(); s++) {
 			const u_str& nssig = s->first; const u_str& nsurl = s->second;
-			pnsr->addNamespaceBinding(nssig.c_str(),nsurl.c_str());
+			xpnsr->addNamespaceBinding(nssig.c_str(),nsurl.c_str());
 		}
-		try {
-			AutoRelease<DOMXPathExpression>parsedExpression(x_doc->createExpression(xpath.c_str(), pnsr));
-			result = parsedExpression->evaluate(x_doc->getDocumentElement(),DOMXPathResult::SNAPSHOT_RESULT_TYPE, NULL);
-		} 
-		catch (XQException &e) {
-			XML::Manager::transcode(e.getError(),err_message);
-			retval = false;
+		xpnsr_v = ns_map_version;
+	}
+}
+
+void XMLObject::del_pnsr() { /* Set the pnsr with the latest list of namespaces if it needs it. */
+	if ( xpnsr != NULL ) { 
+		xpnsr->release(); xpnsr= NULL;
+		if (!xpe_map.empty()) {
+			xpe_map_type::iterator it = xpe_map.begin();
+			while ( it != xpe_map.end()) {
+				DOMXPathExpression*& x = (*it).second;
+				x->release();
+				it++;
+			}
+			xpe_map.clear();
 		}
-		catch (XQillaException &e) {
-			XML::Manager::transcode(e.getString(),err_message);
-			retval = false;
-		}					
-		catch (DOMXPathException &e) { 
-			XML::Manager::transcode(e.getMessage(),err_message);
-			retval = false;
+	}		
+}
+
+DOMXPathExpression* XMLObject::xpe(const u_str& xpath) {
+	// cached xpath expressions.
+	DOMXPathExpression* retval = NULL;
+	if (! xpath.empty() ) {
+		xpe_map_type::iterator it = xpe_map.find(xpath);
+		if (it != xpe_map.end()) {
+			retval = (*it).second;
+		} else {
+			retval = x_doc->createExpression(xpath.c_str(),xpnsr);
+			xpe_map.insert(xpe_map_type::value_type(xpath, retval));
 		}
-		catch (DOMException &e) {
-			XML::Manager::transcode(e.getMessage(),err_message);
-			retval = false;
-		}
-		catch (...) {
-			err_message = "unknown xpath error.";
-			retval = false;
-		}
+	}
+	return retval;
+}
+
+
+/* -- more non-virtual methods -- */
+/* private */
+bool XMLObject::xp_result(const u_str& xpath,DOMXPathResult*& result,std::string& err_message) {
+	bool retval = true;
+	set_pnsr();	//This only does something if it needs to.
+	try {
+		// DOMXPathExpression*
+		DOMXPathExpression* parsedExpression = xpe(xpath);
+		result = parsedExpression->evaluate(x_doc->getDocumentElement(),DOMXPathResult::SNAPSHOT_RESULT_TYPE, NULL);
 	} 
+	catch (XQException &e) {
+		XML::Manager::transcode(e.getError(),err_message);
+		retval = false;
+	}
+	catch (XQillaException &e) {
+		XML::Manager::transcode(e.getString(),err_message);
+		retval = false;
+	}					
+	catch (DOMXPathException &e) { 
+		XML::Manager::transcode(e.getMessage(),err_message);
+		retval = false;
+	}
+	catch (DOMException &e) {
+		XML::Manager::transcode(e.getMessage(),err_message);
+		retval = false;
+	}
+	catch (...) {
+		err_message = "unknown xpath error.";
+		retval = false;
+	}
 	return retval;
 }
 //with get the value of this at xpath set by input 
 //although the results of an xpath may be multiple, here we must glob them together.
 //Container must be empty when we get here.
-bool XMLObject::xp(const u_str& path,DataItem*& container,bool node_expected,std::string& error_str) const {
+bool XMLObject::xp(const u_str& path,DataItem*& container,bool node_expected,std::string& error_str) {
 	bool retval = true;
 	if (!path.empty() ) { //currently, this is a redundant check.
 		if (path.rfind(UCS2(L"-gap()"),path.length()-6) == string::npos) { //  eg //BOOK[0]/child-gap() will always return empty.
@@ -429,6 +476,7 @@ bool XMLObject::xp(const DataItem* ins,const u_str& path,DOMLSParser::ActionType
 		xpr->release();
 		xpr = NULL;
 		if (x_doc->getDocumentElement() == NULL) {
+			del_pnsr(); // Delete the pnsr and the xpe cache.
 			x_doc->release(); x_doc = NULL;
 		}
 	} else {
@@ -583,6 +631,7 @@ bool XMLObject::setns(const u_str& code, const u_str& signature) {
 			object_ns_map.insert(u_str_map_type::value_type(code, signature));
 		}
 	}
+	ns_map_version++;
 	return true;
 }
 bool XMLObject::getns(const u_str& code, u_str& result,bool release) {
@@ -593,11 +642,13 @@ bool XMLObject::getns(const u_str& code, u_str& result,bool release) {
 		retval = true;
 		if (release) {
 			object_ns_map.erase(it);
+			ns_map_version++;
 		}
 	}
 	return retval;
 }
 XMLObject::~XMLObject() {
+	del_pnsr(); // Delete the pnsr and the xpe cache.
 	if (x_doc != NULL) {
 		x_doc->release();
 		x_doc = NULL;

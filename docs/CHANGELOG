@@ -17,6 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.110620      
+	Enh.		Added xpath expression cache, and improved fcgi memorypool release.
 v1.110617       
 	BUG.		when writing to an xdoc, the entire document may be deleted.
 v1.110610       

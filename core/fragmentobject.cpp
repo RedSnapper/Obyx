@@ -198,7 +198,7 @@ void FragmentObject::clear() {
 		fragment = NULL;
 	}
 }
-bool FragmentObject::find(const DataItem* di,std::string&) const {
+bool FragmentObject::find(const DataItem* di,std::string&)  {
 	bool retval=false;
 	if (fragment != NULL && di != NULL) {
 		string doc; 
@@ -208,7 +208,7 @@ bool FragmentObject::find(const DataItem* di,std::string&) const {
 	}
 	return retval;
 }
-bool FragmentObject::find(const char* str,std::string&) const {
+bool FragmentObject::find(const char* str,std::string&)  {
 	bool retval=false;
 	if (fragment != NULL && str != NULL) {
 		string doc; 
@@ -217,7 +217,7 @@ bool FragmentObject::find(const char* str,std::string&) const {
 	}
 	return retval;
 }
-bool FragmentObject::find(const XMLCh* s,std::string&) const {
+bool FragmentObject::find(const XMLCh* s,std::string&)  {
 	bool retval = false;
 	if (s != NULL && fragment != NULL) {
 		u_str srch(s);

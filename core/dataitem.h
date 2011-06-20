@@ -87,9 +87,9 @@ public:
 	virtual void copy(DataItem*&) const=0;
 	virtual kind_type kind() const =0;
 	virtual long long size() const =0;
-	virtual bool find(const DataItem*,std::string&) const =0;
-	virtual bool find(const char*,std::string&) const =0;
-	virtual bool find(const XMLCh*,std::string&) const = 0;
+	virtual bool find(const DataItem*,std::string&) =0;
+	virtual bool find(const char*,std::string&) =0;
+	virtual bool find(const XMLCh*,std::string&) = 0;
 	virtual bool empty() const =0;
 	virtual bool same(const DataItem*) const =0;
 	virtual void append(DataItem*&);	//handle xmlobjects here.

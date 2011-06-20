@@ -71,9 +71,9 @@ public:
 	virtual kind_type kind() const { return di_fragment; }
 	virtual long long size() const;
 	virtual bool empty() const;
-	virtual bool find(const DataItem*,std::string&) const;
-	virtual bool find(const char*,std::string&) const;
-	virtual bool find(const XMLCh*,std::string&) const;
+	virtual bool find(const DataItem*,std::string&) ;
+	virtual bool find(const char*,std::string&) ;
+	virtual bool find(const XMLCh*,std::string&) ;
 	virtual void append(DataItem*&);
 	virtual bool same(const DataItem*) const;
 	virtual void clear();

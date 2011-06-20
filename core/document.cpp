@@ -73,6 +73,7 @@ void Document::finalise() {
 	for(type_store_map::iterator i = docstores.begin(); i != docstores.end(); i++) {
 		delete i->second;
 	}
+	xmlmanager->resetDocPool(); //This resets the cache of the entire set of all docs
 }
 void Document::shutdown() {
 	delete xmlmanager;

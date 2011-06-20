@@ -41,9 +41,13 @@ namespace {
 
 class XMLObject : public DataItem {
 private:
+	typedef hash_map<const u_str,xercesc::DOMXPathExpression*, hash<const u_str&> > xpe_map_type;
+	
 	XMLObject() {}
-//	void setxp(const std::string&,const std::string&,xercesc::DOMLSParser::ActionType);
-	bool xp_result(const u_str&,DOMXPathResult*&,std::string&) const;
+	bool xp_result(const u_str&,DOMXPathResult*&,std::string&);
+	void set_pnsr(); // Set the pnsr with the latest list of namespaces.
+	void del_pnsr(); // Delete the pnsr and release the xpe cache.
+	xercesc::DOMXPathExpression* xpe(const u_str& );
 
 protected:
 	friend class DataItem;
@@ -75,11 +79,11 @@ public:
 	XMLObject(const u_str);
 	XMLObject(const XMLObject&);	
 	XMLObject(const DataItem&);	
-	bool xp(const u_str&,DataItem*&,bool,std::string&) const; //get a result from xpath into a dataitem
+	bool xp(const u_str&,DataItem*&,bool,std::string&); //get a result from xpath into a dataitem
 	bool xp(const DataItem*,const u_str&,DOMLSParser::ActionType,bool,std::string&); //set a value by xpath
 	bool sort(const u_str&,const u_str&,bool,bool,std::string&); //Sorts in place!
 	operator xercesc::DOMNode*&();
-	
+
 	void copy(XMLObject*&) const;
 	void copy(DOMDocument*&) const;
 	void take(DOMDocument*&);
@@ -95,18 +99,23 @@ public:
 	virtual kind_type kind() const { return di_object; }
 	virtual long long size() const;
 	virtual bool empty() const;
-	virtual bool find(const DataItem*,std::string&) const;
-	virtual bool find(const char*,std::string&) const;
-	virtual bool find(const XMLCh*,std::string&) const;
+	virtual bool find(const DataItem*,std::string&);
+	virtual bool find(const char*,std::string&);
+	virtual bool find(const XMLCh*,std::string&);
 	virtual bool same(const DataItem*) const;
 	virtual void clear();
 	virtual void trim();
 	virtual ~XMLObject();
 	
 private:
-	unsigned int x;									//Used during debugging to see how a doc was created.
-	xercesc::DOMDocument* x_doc;
-	static u_str_map_type object_ns_map;			//Store set of active namespaces across objects
+	unsigned int x;								//Used during debugging to see how a doc was created.
+	xercesc::DOMDocument* 			x_doc;		//Actual document itself.
+	xercesc::DOMXPathNSResolver* 	xpnsr;		//namespace resolver.
+	unsigned long 					xpnsr_v;	//used to indicate if the namespace has changed.
+	xpe_map_type					xpe_map;
+
+	static u_str_map_type 			object_ns_map;	//Store set of active namespaces across objects
+	static unsigned long 			ns_map_version;	//used to indicate if the namespace has changed.
 	
 };
 

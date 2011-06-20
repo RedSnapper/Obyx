@@ -747,6 +747,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 0420;
 				ORGANIZATIONNAME = "Red Snapper Ltd";
 			};
 			buildConfigurationList = B59B3B1E08E2B9FB0065257B /* Build configuration list for PBXProject "obyx" */;
@@ -986,6 +987,7 @@
 		B541F22811941E1E0099F07C /* General */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				OTHER_CFLAGS = (
 					"-DFAST",
 					"-DALLOW_MYSQL",
@@ -1065,10 +1067,9 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "";
-				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
 				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = YES;
-				SDKROOT = macosx10.6;
+				SDKROOT = macosx;
 				SKIP_INSTALL = NO;
 				STANDARD_C_PLUS_PLUS_LIBRARY_TYPE = dynamic;
 				STRIP_INSTALLED_PRODUCT = NO;
@@ -1079,6 +1080,7 @@
 		B5E3209809BC598C00F7FC96 /* General */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				OTHER_CFLAGS = (
 					"-DALLOW_MYSQL",
 					"-DALLOW_POSTGRESQL",
