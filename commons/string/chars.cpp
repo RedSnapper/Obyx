@@ -35,7 +35,6 @@ bool XMLChar::isutf8(const std::string& source) {
 		string::const_iterator b=source.begin();
 		string::const_iterator e=source.end();
 		while(b < e) {
-			test = 0;
 			unsigned char c1= *b;
 			if ((c1 & 0x80) == 0x00) {
 				test = c1; 
@@ -70,7 +69,6 @@ void XMLChar::convert(std::string& source) {
 		string::const_iterator b=source.begin();
 		string::const_iterator e=source.end();
 		while(b < e) {
-			test = 0;
 			unsigned char c1= *b;
 			if ((c1 & 0x80) == 0x00) {
 				test = c1; 
@@ -108,7 +106,6 @@ void XMLChar::encode(std::string& source) {
 		string::const_iterator b=source.begin();
 		string::const_iterator e=source.end();
 		while(b < e) {
-			test = 0;
 			if ((*b & 0x80) == 0x00) {
 				test = (unsigned char)*b;
 				if ( is(test) ) {

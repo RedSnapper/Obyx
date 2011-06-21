@@ -72,7 +72,7 @@ namespace String {
 				size_t eaten;
 				const Op* curop = get(i,eaten); //second is for how many chars were eaten.
 				if (curop == NULL) {
-					eaten = name(i,cur_name);
+					name(i,cur_name);
 					if (!cur_name.empty()) {
 						char x = *i;
 						if(x == '(') {
@@ -100,13 +100,14 @@ namespace String {
 								errs =  "Error. Unbalance bracket in expression " + expr;
 							} else {
 								if( !opstack.empty() && opstack.back()->sig() == 'f') {
-									ssig = evalstack(); //was a function declaration. so do it.
+									evalstack(); //was a function declaration. so do it.
 									didfn = false;	//evalstack pushes to val.
 								}
 							}
 						} else {
 							if ( didfn && csig =='-' ) { //switch for unary minus.
 								curop= get("_"); 
+								didfn = true;
 							}
 							if(curop->assoc == Op::right) {
 								//mul=5,add=6,neg=3; so if tok=neg, and stack=mul, do neg first.
@@ -122,7 +123,6 @@ namespace String {
 								}
 							}
 							opstack.push_back(curop);
-							didfn = true;
 						}
 					}
 				} else { //non-op - must be value.

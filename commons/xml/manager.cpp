@@ -140,7 +140,6 @@ namespace XML {
 	
 	void Manager::resetDocPool() { //static, used to release memory in eg. fcgi.
 		xparser->parser->resetDocumentPool();
-		xparser->parser->resetCachedGrammarPool();
 	}
 	
 	Manager::Manager() {
@@ -157,6 +156,8 @@ namespace XML {
 	}
 	
 	Manager::~Manager() {
+		xparser->parser->resetCachedGrammarPool();
+		xparser->parser->release();
 //		XMLPlatformUtils::Terminate();
 		XQillaPlatformUtils::terminate();
 	}

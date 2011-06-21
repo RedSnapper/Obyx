@@ -480,7 +480,7 @@ bool Iteration::operation_while(bool existence) {
 				delete it_input;
 			}
 		} else {
-			inputsfinal=true; loopdone = true;
+			inputsfinal=true;
 			*Logger::log << Log::error << Log::LI << "Error. Iteration operations 'while' and 'while_not' must have a control." << Log::LO;
 			trace();
 			*Logger::log << Log::blockend;

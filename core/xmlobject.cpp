@@ -496,10 +496,10 @@ bool XMLObject::sort(const u_str& path,const u_str& sortpath,bool ascending,bool
 		if (path.rfind(UCS2(L"-gap()"),path.length()-6) == string::npos) { //  eg //BOOK[0]/child-gap() will always return empty.
 			u_str xp_path(path);
 			DOMXPathResult* result = NULL;
-			bool want_value = false;
+//			bool want_value = false;
 			if (xp_path.rfind(UCS2(L"/value()"),xp_path.length()-8) != string::npos) { //eg comment()/value()
 				xp_path.resize(xp_path.length()-8);
-				want_value = true;
+//				want_value = true;
 			}
 			retval = xp_result(xp_path,result,error_str);
 			if (retval && result != NULL) { //otherwise return empty.

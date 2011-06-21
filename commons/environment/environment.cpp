@@ -648,7 +648,7 @@ void Environment::dopostparms() {
 								namestart += 6;
 								size_t namep = line.find_first_of("\"", namestart) - namestart;
 								name.append(line.substr(namestart,namep));
-								namestart += namep;
+//								namestart += namep; notused.
 								// Now see if we have a filename.		
 								// find filename name-value
 								size_t fnstart = line.find("filename=\"");

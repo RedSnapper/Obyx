@@ -727,7 +727,7 @@ bool IKO::existsinspace(u_str& input_name,const inp_space the_space,const bool i
 			if ( input_name.empty() ) {
 				log(Log::error,"Error. Field name missing.");
 			} else {
-				const ObyxElement* cur = this;
+//				const ObyxElement* cur = this;
 				const ObyxElement* par = p;
 				const Iteration* ite = dynamic_cast<const Iteration *>(par);
 				const Mapping* mpp = dynamic_cast<const Mapping *>(par);
@@ -739,7 +739,7 @@ bool IKO::existsinspace(u_str& input_name,const inp_space the_space,const bool i
 						exists = mpp->field(input_name,discarded_result); 
 					}
 					if (par != NULL && !exists) {
-						cur = par;
+//						cur = par;
 						par = par->p;
 						ite = dynamic_cast<const Iteration *>(par);
 						mpp = dynamic_cast<const Mapping *>(par);

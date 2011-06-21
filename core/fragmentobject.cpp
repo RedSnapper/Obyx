@@ -93,7 +93,7 @@ FragmentObject::FragmentObject(const DataItem& s): DataItem(),fragment(NULL) {
 /* ====================  VIRTUAL methods. =========== */
 void FragmentObject::append(DataItem*& s) {
 	if (s != NULL) {
-		DOMNode* n;
+		DOMNode* n = NULL;
 		XMLObject* x = dynamic_cast<XMLObject*>(s);
 		if (x != NULL) {
 			DOMNode* nbase;

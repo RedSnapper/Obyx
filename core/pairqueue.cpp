@@ -280,7 +280,6 @@ void PairQueue::evaluate(bool wsstrip) {
 							DataItem::append(queue[i].first,queue[i+1].first);
 						} else {
 							queue[i].first = queue[i+1].first;
-							qif = true;
 						}
 					}
 					queue[i].second = queue[i+1].second;
@@ -304,7 +303,6 @@ void PairQueue::evaluate(bool wsstrip) {
 							DataItem::append(queue[i].first,queue[i+1].first);
 						} else {
 							queue[i].first = queue[i+1].first;
-							qif = true;
 						}
 					}
 					queue[i].second = queue[i+1].second;

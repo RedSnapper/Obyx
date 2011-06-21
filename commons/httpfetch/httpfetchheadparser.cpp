@@ -42,7 +42,7 @@ namespace Fetch {
 		size_t pos;
 		try {
 			pos = readFirstLine();
-			pos = readAttributes(pos);
+			readAttributes(pos);
 		}
 		catch(const HTTPFetchHeadParserException&) {
 //			std::cerr << "Parser error in HTTP header:\n" << headerString << std::endl;
