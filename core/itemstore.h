@@ -71,6 +71,7 @@ namespace obyx {
 		bool exists(const u_str&,bool,string&);	//name#path
 		bool exists(const u_str&,const u_str&,bool,string&); //name,path.
 		bool meta(const string&,unsigned long long&); //used for meta settings.
+		bool find(const u_str&,const u_str&,bool,std::string&); //name,path.
 		bool find(const u_str&,bool,string&);
 		bool find(const string&,bool,string&);
 		void keys(const u_str&,set<string>&,string&);

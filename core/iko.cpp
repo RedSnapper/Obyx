@@ -666,7 +666,12 @@ bool IKO::foundinspace(const u_str& input_name,const inp_space the_space,const b
 			log(Log::error,"Error. find key over grammar space not yet supported. use an existence test.");
 		} break;
 		case store: {
-			exists = owner->storefind(input_name,release,errstring);
+            if (!xpath.empty()) {
+                exists = owner->storefind(input_name,xpath,release,errstring);
+            } else {
+                exists = owner->storefind(input_name,release,errstring);
+            }
+//			exists = owner->storefind(input_name,release,errstring);
 			if (!errstring.empty()) {
 				log(Log::error,"Error. Store error: " + errstring);
 			} 

@@ -262,7 +262,7 @@ bool XMLObject::xp_result(const u_str& xpath,DOMXPathResult*& result,std::string
 //although the results of an xpath may be multiple, here we must glob them together.
 //Container must be empty when we get here.
 bool XMLObject::xp(const u_str& path,DataItem*& container,bool node_expected,std::string& error_str) {
-	bool retval = true;
+	bool retval = true; //retval represents existence not failure.
 	if (!path.empty() ) { //currently, this is a redundant check.
 		if (path.rfind(UCS2(L"-gap()"),path.length()-6) == string::npos) { //  eg //BOOK[0]/child-gap() will always return empty.
 			u_str xp_path(path);
@@ -275,6 +275,7 @@ bool XMLObject::xp(const u_str& path,DataItem*& container,bool node_expected,std
 			retval = xp_result(xp_path,result,error_str);
 			if (retval && result != NULL) { //otherwise return empty.			
 				XMLSize_t sslena = result->getSnapshotLength();
+				if (sslena == 0) retval = false;
 				for ( XMLSize_t ai = 0; ai < sslena; ai++) {
 					if (result->snapshotItem(ai)) { //should always return true - but best to do this, eh?
 						DataItem* item = NULL;

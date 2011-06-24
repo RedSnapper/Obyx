@@ -17,6 +17,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.110623      
+	BUG.		existence check on a valid xpath was not returning false.
+	BUG.		using unimplemented xpath attribute failing without error being posted.
 v1.110622      
 	BUG.		itype: encoding often requires that the processing runs under auto before evaluating the final kind.
 v1.110621      

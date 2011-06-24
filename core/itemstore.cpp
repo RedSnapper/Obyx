@@ -189,6 +189,15 @@ bool ItemStore::find(const string& pattern,bool release,std::string& errorstr) {
 	return retval;
 }
 
+bool ItemStore::find(const u_str& pattern,const u_str& xpath,bool release,std::string& errorstr) {
+	bool retval=false;
+	if (release && !xpath.empty() && !pattern.empty()) {
+		retval=false;
+	}
+	errorstr ="Sorry, separated xpath is not yet supported for find.";
+	return retval;
+}
+
 bool ItemStore::find(const u_str& pattern,bool release,std::string& errorstr) {
 	bool retval=false;
 	if (pattern.find('#') != string::npos) { //this is a namepath
