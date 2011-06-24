@@ -840,7 +840,11 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 		namepath.first=input_name;
 		namepath.second=xpath;
 	} else {
-		XMLObject::npsplit(input_name,namepath,node_expected);
+		if(the_space == field || the_space == immediate) {
+			namepath.first=input_name;
+		} else {
+			XMLObject::npsplit(input_name,namepath,node_expected);
+		}
 	}
 	if (namepath.second.empty()) {
 		node_expected = true;
