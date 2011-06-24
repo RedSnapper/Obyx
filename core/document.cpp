@@ -343,19 +343,24 @@ void Document::storekeys(const u_str& pattern,std::set<std::string>& keylist,std
 }
 bool Document::getstore(const u_str& name,const u_str& path,DataItem*& item,bool node_expected,bool release,std::string& errorstr) {
 	bool retval = false;
-	Document* doc = this;
-	while (doc != NULL && !found) {
-		retval = doc->store.exists(name,false,errorstr);
-		if (!found) {
-			if (doc->p != NULL) {
-				doc = doc->p->owner;
-			} else {
-				doc = NULL;
+	if (doc_store != NULL && doc_store->exists(name,false,errorstr)) {
+		retval = doc_store->sget(name,path,node_expected,item,release,errorstr);
+	} else {
+		bool found = false;
+		Document* doc = this;
+		while (doc != NULL && !found) {
+			found = doc->store.exists(name,false,errorstr);
+			if (!found) {
+				if (doc->p != NULL) {
+					doc = doc->p->owner;
+				} else {
+					doc = NULL;
+				}
 			}
 		}
-	}
-	if (retval && doc!=NULL) {
-		retval = doc->store.sget(name,path,node_expected,item,release,errorstr);
+		if (found && doc!=NULL) {
+			retval = doc->store.sget(name,path,node_expected,item,release,errorstr);
+		}
 	}
 	return retval;
 }

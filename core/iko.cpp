@@ -832,6 +832,8 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 	exists = false;
 	string fresult;	//used to hold result for most spaces.
 /* Adding xpath facility to all spaces */	
+	//now this is odd re. xpaths. If there is no xpath, then we throw a non-existence error..
+	//however, if there is an xpath which doen't exist, we return nothing and don't throw an error.
 	pair<u_str,u_str> namepath;
 	bool node_expected = false;
 	if (!is_context && !xpath.empty()) {
@@ -894,8 +896,6 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 			}
 		} break;
 		case store: {
-			//now this is odd re. xpaths. If there is no xpath, then we throw a non-existence error..
-			//however, if there is an xpath which doen't exist, we return nothing and don't throw an error.
 			string errstring;
 			exists = owner->getstore(namepath.first,namepath.second,container,node_expected,release,errstring);
 			if ((node_expected && !exists) || !errstring.empty()) {
