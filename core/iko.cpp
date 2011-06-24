@@ -889,7 +889,7 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
             } else {
 				pair<u_str,u_str> np;
 				XMLObject::npsplit(input_name,np,node_expected);
-                exists = owner->getstore(input_name,xpath,container,node_expected,release,errstring);
+                exists = owner->getstore(np.first,np.second,container,node_expected,release,errstring);
             }
 			if ((node_expected && !exists) || !errstring.empty()) {
 				string erv; XML::Manager::transcode(input_name,erv);		
