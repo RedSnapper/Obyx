@@ -831,6 +831,20 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 	Environment* env = Environment::service();
 	exists = false;
 	string fresult;	//used to hold result for most spaces.
+/* Adding xpath facility to all spaces */	
+	pair<u_str,u_str> namepath;
+	bool node_expected = false;
+	if (!is_context && !xpath.empty()) {
+		namepath.first=input_name;
+		namepath.second=xpath;
+	} else {
+		XMLObject::npsplit(input_name,namepath,node_expected);
+	}
+	if (namepath.second.empty()) {
+		node_expected = true;
+	}
+/* Now we have name,path,expected */
+	
 	switch ( the_space ) { //now do all the named input_spaces!
 		case none: break; //exists = false by default.
 		case immediate: { 
@@ -838,7 +852,7 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 		} break;
 		case field: {
 			std::string errstring = "It does not exist or is not available."; 
-			if ( input_name.empty() ) {
+			if ( namepath.first.empty() ) {
 				log(Log::error,"Error. Field name missing.");
 			} else {
 				const ObyxElement* cur = this;
@@ -847,10 +861,10 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 				const Mapping* mpp = dynamic_cast<const Mapping *>(par);
 				while (par != NULL && !exists ) {
 					if (ite != NULL && ite->active() && (cur->wotzit==body)) {
-						exists = ite->field(input_name,container,ikind,errstring);
+						exists = ite->field(namepath.first,container,ikind,errstring);
 					}
 					if (mpp != NULL && mpp->active() && (cur->wotzit==match)) {
-						exists = mpp->field(input_name,fresult); 
+						exists = mpp->field(namepath.first,fresult); 
 					}
 					if (par != NULL && !exists) {
 						cur = par;
@@ -860,20 +874,20 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 					}														
 				}
 				if (!exists) {
-					string erv; XML::Manager::transcode(input_name,erv);		
+					string erv; XML::Manager::transcode(namepath.first,erv);		
 					log(Log::error,"Error. Field " + erv + " : " + errstring);
 				}
 			}
 		} break;
 		case xmlnamespace: { 
-			string xns_n; XML::Manager::transcode(input_name,xns_n);		
+			string xns_n; XML::Manager::transcode(namepath.first,xns_n);		
 			exists = ItemStore::getns(xns_n,container,release);
 			if (!exists)  {
 				log(Log::error,"Error. Namespace " + xns_n + " does not exist");
 			}
 		} break;
 		case xmlgrammar: {
-			string xg_n; XML::Manager::transcode(input_name,xg_n);		
+			string xg_n; XML::Manager::transcode(namepath.first,xg_n);		
 			exists = ItemStore::getgrammar(xg_n,container,ikind,release);
 			if (!exists)  {
 				log(Log::error,"Error. Grammar " + xg_n + " does not exist");
@@ -883,34 +897,27 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 			//now this is odd re. xpaths. If there is no xpath, then we throw a non-existence error..
 			//however, if there is an xpath which doen't exist, we return nothing and don't throw an error.
 			string errstring;
-			bool node_expected = false;
-            if (!is_context && !xpath.empty()) {
-                exists = owner->getstore(input_name,xpath,container,node_expected,release,errstring);
-            } else {
-				pair<u_str,u_str> np;
-				XMLObject::npsplit(input_name,np,node_expected);
-                exists = owner->getstore(np.first,np.second,container,node_expected,release,errstring);
-            }
+			exists = owner->getstore(namepath.first,namepath.second,container,node_expected,release,errstring);
 			if ((node_expected && !exists) || !errstring.empty()) {
-				string erv; XML::Manager::transcode(input_name,erv);		
+				string erv; XML::Manager::transcode(namepath.first,erv);		
 				if (errstring.empty()) { errstring = "does not exist.";}
 				log(Log::error,"Error. Store error: " + erv + " " + errstring);
 			} 
 		} break;
 		case fnparm: {
 			const DataItem* ires = NULL; // we need to copy the parm from owner, not adopt it.
-			exists = owner->getparm(input_name,ires);
+			exists = owner->getparm(namepath.first,ires);
 			if (exists) {
 				if (ires != NULL) { //it can be empty and exist.
 					ires->copy(container);
 				}
 			} else {
-				string erv; XML::Manager::transcode(input_name,erv);		
+				string erv; XML::Manager::transcode(namepath.first,erv);		
 				log(Log::error,"Error. Parm " + erv + " does not exist here.");
 			} 
 		} break;					
 		case file: {
-			string fpath; XML::Manager::transcode(input_name,fpath);		
+			string fpath; XML::Manager::transcode(namepath.first,fpath);		
 			string file_path; setfilepath(fpath,file_path);
 			string orig_wd(FileUtils::Path::wd());
 			FileUtils::Path destination; 
@@ -934,7 +941,7 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 		} break;
 		case url: {
 			if (httpready()) {
-				string req_url; XML::Manager::transcode(input_name,req_url);		
+				string req_url; XML::Manager::transcode(namepath.first,req_url);		
 				string redirect_val,timeout_val,errstr;				
 				unsigned long long max_redirects = ULLONG_MAX,timeout_secs = ULLONG_MAX;
 				owner->metastore("REDIRECT_BREAK_COUNT",max_redirects);
@@ -948,36 +955,36 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 			}
 		} break;
 		case cookie: {
-			string cookie_n; XML::Manager::transcode(input_name,cookie_n);		
+			string cookie_n; XML::Manager::transcode(namepath.first,cookie_n);		
 			exists = env->getcookie_req(cookie_n,fresult);
 			if( !exists ) {
 				log(Log::error,"Error. Cookie " + cookie_n + " does not exist.");
 			}
 		} break;
 		case sysparm: {
-			string sysp_n; XML::Manager::transcode(input_name,sysp_n);		
+			string sysp_n; XML::Manager::transcode(namepath.first,sysp_n);		
 			exists = env->getparm(sysp_n,fresult);
 			if (!exists) {
 				log(Log::error,"Error. Sysparm " + sysp_n + " does not exist.");
 			}
 		} break;
 		case sysenv: {
-			if (legalsysenv(input_name)) {
+			if (legalsysenv(namepath.first)) {
 				string errmsg = " does not exist.";
-				if ( input_name.find(UCS2(L"CURRENT_"),0,8) == !string::npos) {
-					exists = currentenv(input_name.substr(8,string::npos),ut_value,this,container);
+				if ( namepath.first.find(UCS2(L"CURRENT_"),0,8) == !string::npos) {
+					exists = currentenv(namepath.first.substr(8,string::npos),ut_value,this,container);
 				} else { //it's not a CURRENT_
-					string syse_n; XML::Manager::transcode(input_name,syse_n);		
+					string syse_n; XML::Manager::transcode(namepath.first,syse_n);		
 					exists = env->getenv(syse_n,fresult);
 				}
 				if (!exists) { 
-					string syse_n; XML::Manager::transcode(input_name,syse_n);		
+					string syse_n; XML::Manager::transcode(namepath.first,syse_n);		
 					log(Log::error,"Error. Sysenv " + syse_n + errmsg);
 				}				
 			}
 		} break;
 		case IKO::error: {
-			doerrspace(input_name);
+			doerrspace(namepath.first);
 			exists = true;
 		} break;
 	}	
@@ -1041,7 +1048,10 @@ bool IKO::sigfromspace(const u_str& input_name,const inp_space the_space,const b
 			if (exists) {uresult = input_name;}
 		} break;
 		case store: {
-			exists = owner->getstore(input_name,container,release,errstring);
+			bool node_expected = false;
+			pair<u_str,u_str> np;
+			XMLObject::npsplit(input_name,np,node_expected);
+			exists = owner->getstore(np.first,np.second,container,node_expected,release,errstring);
 			if (!errstring.empty()) {
 				log(Log::error,"Error. Store error: " + errstring);
 			} 

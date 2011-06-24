@@ -341,52 +341,21 @@ void Document::storekeys(const u_str& pattern,std::set<std::string>& keylist,std
 		}
 	}
 }
-bool Document::getstore(const u_str& namepath, DataItem*& item, bool release,std::string& errorstr) {
-	bool retval = false;
-	bool node_expected = false;
-	pair<u_str,u_str> np;
-	XMLObject::npsplit(namepath,np,node_expected);
-	if (doc_store != NULL && doc_store->exists(np.first,false,errorstr)) {
-		retval = doc_store->sget(np.first,np.second,node_expected,item,release,errorstr);
-	} else {
-		bool found = false;
-		Document* doc = this;
-		while (doc != NULL && !found) {
-			found = doc->store.exists(np.first,false,errorstr);
-			if (!found) {
-				if (doc->p != NULL) {
-					doc = doc->p->owner;
-				} else {
-					doc = NULL;
-				}
-			}
-		}
-		if (found && doc!=NULL) {
-			retval = doc->store.sget(np.first,np.second,node_expected,item,release,errorstr);
-		}
-	}
-	return retval;
-}
 bool Document::getstore(const u_str& name,const u_str& path,DataItem*& item,bool node_expected,bool release,std::string& errorstr) {
 	bool retval = false;
-	if (doc_store != NULL && doc_store->exists(name,false,errorstr)) {
-		retval = doc_store->sget(name,path,node_expected,item,release,errorstr);
-	} else {
-		bool found = false;
-		Document* doc = this;
-		while (doc != NULL && !found) {
-			found = doc->store.exists(name,false,errorstr);
-			if (!found) {
-				if (doc->p != NULL) {
-					doc = doc->p->owner;
-				} else {
-					doc = NULL;
-				}
+	Document* doc = this;
+	while (doc != NULL && !found) {
+		retval = doc->store.exists(name,false,errorstr);
+		if (!found) {
+			if (doc->p != NULL) {
+				doc = doc->p->owner;
+			} else {
+				doc = NULL;
 			}
 		}
-		if (found && doc!=NULL) {
-			retval = doc->store.sget(name,path,node_expected,item,release,errorstr);
-		}
+	}
+	if (retval && doc!=NULL) {
+		retval = doc->store.sget(name,path,node_expected,item,release,errorstr);
 	}
 	return retval;
 }

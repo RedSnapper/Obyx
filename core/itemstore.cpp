@@ -403,7 +403,7 @@ bool ItemStore::sget(const u_str& sname,const u_str& path,bool node_expected, Da
 						if (basis_kind == di_object) {
 							XMLObject* xml_document = (XMLObject*)basis;
 							if (xml_document != NULL) {
-								retval = xml_document->xp(path,item,node_expected,errorstr); //will make a copy.
+								retval = xml_document->xp(path,item,node_expected,errorstr); //will put a copy into item.
 								if (retval) {
 									DataItem* mt = NULL;
 									xml_document->xp(mt,path,DOMLSParser::ACTION_REPLACE,node_expected,errorstr);

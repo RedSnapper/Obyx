@@ -76,8 +76,8 @@ namespace obyx {
 		bool find(const string&,bool,string&);
 		void keys(const u_str&,set<string>&,string&);
 		bool release(const u_str&);
-		bool sset(const u_str&,const u_str&,bool,DataItem*&, kind_type, string& );	//name,path,expected,document, intended kind...
-		bool sget(const u_str&,const u_str&,bool,DataItem*&, bool, string&);		//name,path,expected,container, release?, errstr
+		bool sset(const u_str&,const u_str&,bool,DataItem*&, kind_type, string& );	//name,xpath,expected,document, intended kind...
+		bool sget(const u_str&,const u_str&,bool,DataItem*&, bool, string&);		//name,xpath,expected,container, release?, errstr
 		void setowner(const string);
 		//NS functions	
 		static bool nsfind(const DataItem*,bool);

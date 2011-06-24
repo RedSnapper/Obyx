@@ -114,7 +114,6 @@ public:
 	bool storefind(const u_str&,const u_str&,bool,std::string&);
 
 	void storekeys(const u_str&,set<string>&,string&);
-	bool getstore(const u_str&,DataItem*&, bool, std::string&);			//name#path, container, release?, errstr
 	bool getstore(const u_str&,const u_str&,DataItem*&, bool, bool, std::string&);	//name,path, container, expected? release?, errstr
 	void liststore();
 	
