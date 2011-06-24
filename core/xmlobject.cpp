@@ -759,7 +759,7 @@ pair<unsigned long long,bool> XMLObject::znatural(const u_str& s) { //Given a u_
 bool XMLObject::npsplit(const u_str& basis,pair<u_str,u_str>& result,bool& expected) {
 	expected = false; 
 	string::size_type pos = basis.find_first_of('#');
-	if (pos == string::npos) {
+	if (pos == string::npos || pos == 1) { //# as the first character is used for meta values.
 		result.first = basis;
 		return false;
 	} else {
