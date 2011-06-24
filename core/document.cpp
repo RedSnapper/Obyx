@@ -367,9 +367,8 @@ bool Document::getstore(const u_str& namepath, DataItem*& item, bool release,std
 	}
 	return retval;
 }
-bool Document::getstore(const u_str& name,const u_str& path,DataItem*& item, bool release,std::string& errorstr) {
+bool Document::getstore(const u_str& name,const u_str& path,DataItem*& item,bool node_expected,bool release,std::string& errorstr) {
 	bool retval = false;
-	bool node_expected = false;
 	if (doc_store != NULL && doc_store->exists(name,false,errorstr)) {
 		retval = doc_store->sget(name,path,node_expected,item,release,errorstr);
 	} else {

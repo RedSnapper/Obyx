@@ -880,13 +880,18 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 			}
 		} break;
 		case store: {
+			//now this is odd re. xpaths. If there is no xpath, then we throw a non-existence error..
+			//however, if there is an xpath which doen't exist, we return nothing and don't throw an error.
 			string errstring;
+			bool node_expected = false;
             if (!is_context && !xpath.empty()) {
-                exists = owner->getstore(input_name,xpath,container,release,errstring);
+                exists = owner->getstore(input_name,xpath,container,node_expected,release,errstring);
             } else {
-                exists = owner->getstore(input_name,container,release,errstring);
+				pair<u_str,u_str> np;
+				XMLObject::npsplit(input_name,np,node_expected);
+                exists = owner->getstore(input_name,xpath,container,node_expected,release,errstring);
             }
-			if (!exists || !errstring.empty()) {
+			if ((node_expected && !exists) || !errstring.empty()) {
 				string erv; XML::Manager::transcode(input_name,erv);		
 				if (errstring.empty()) { errstring = "does not exist.";}
 				log(Log::error,"Error. Store error: " + erv + " " + errstring);
