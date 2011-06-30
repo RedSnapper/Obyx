@@ -218,8 +218,10 @@ DOMXPathExpression* XMLObject::xpe(const u_str& xpath) {
 		if (it != xpe_map.end()) {
 			retval = (*it).second;
 		} else {
-			retval = x_doc->createExpression(xpath.c_str(),xpnsr);
-			xpe_map.insert(xpe_map_type::value_type(xpath, retval));
+			if (x_doc != NULL) {
+				retval = x_doc->createExpression(xpath.c_str(),xpnsr);
+				xpe_map.insert(xpe_map_type::value_type(xpath, retval));
+			}
 		}
 	}
 	return retval;
@@ -234,7 +236,12 @@ bool XMLObject::xp_result(const u_str& xpath,DOMXPathResult*& result,std::string
 	try {
 		// DOMXPathExpression*
 		DOMXPathExpression* parsedExpression = xpe(xpath);
-		result = parsedExpression->evaluate(x_doc->getDocumentElement(),DOMXPathResult::SNAPSHOT_RESULT_TYPE, NULL);
+		if (parsedExpression != NULL) {
+			result = parsedExpression->evaluate(x_doc->getDocumentElement(),DOMXPathResult::SNAPSHOT_RESULT_TYPE, NULL);
+		} else {
+//			err_message = "empty document for xpath";
+			retval = false;
+		}
 	} 
 	catch (XQException &e) {
 		XML::Manager::transcode(e.getError(),err_message);
@@ -318,7 +325,7 @@ bool XMLObject::xp(const u_str& path,DataItem*& container,bool node_expected,std
 			} else {
 				if (node_expected) {
 					std::string xpath; XML::Manager::transcode(path,xpath);
-					error_str = "While attempting a get, the xpath " + xpath + " returned an empty result.";												
+					error_str.append(". While attempting a get, the xpath " + xpath + " returned an empty result.");												
 					retval=false;
 				}
 			}
