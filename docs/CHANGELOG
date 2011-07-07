@@ -17,6 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.1107072
+	BUG			Fixed show/hide disclosure JS on Logging.
 v1.1107071
 	BUG/Enh.	Several more logging bugs were found. Logging now returns a more general error
 				when OBYX_DEVELOPMENT is not set. Likewise, there are a new set of http headers
