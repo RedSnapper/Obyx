@@ -83,9 +83,9 @@ void HTTPLogger::ltop(string& container,bool do_bits) {		//top log document
 	if (do_bits) {
 		std::string logjs="<script type=\"text/javascript\" charset=\"utf-8\" >"
 		"/* <![CDATA[ */\n"
-		"function e(n){while(n!=null){if(n.nodeType==1){z=n.nodeName;if(n.nodeName.toLowerCase()=='li'){n.style.display='block';r=n.firstchild;if(r!=null){y=n.firstChild.nodeValue;if(y!=null){x=y.substring(0,1);if(x!='▼'&&x!='▶'){e(n.firstChild);}}}}else{e(n.firstChild);}}n=n.nextSibling;}}\n"
-		"function d(n,a,b,m){n.firstChild.nodeValue=a+n.firstChild.nodeValue.substring(1);do{n=n.nextSibling;if(n!=null&&n.nodeType==1){n.style.display=b;if(m){e(n.firstChild)}}}while(n!=null);}\n"
-		"function sh(n){r=n;x=r.firstChild.nodeValue.substring(0,1);switch(x){case'▼':d(r,'▶','none',false);break;case'▶':d(r,'▼','block',true);break;}}\n"
+		"function e(n,b){while(n!=null){if(n.nodeType==1){z=n.nodeName;if(z.toLowerCase()=='li'){n.style.display=b;r=n.firstChild.nodeValue;if(r!=null){x=r.substring(0,1);if(x!='▼'&&x!='▶'){e(n.firstChild);}}}else{e(n.firstChild);}}n=n.nextSibling;}}\n"
+		"function d(n,a,b){n.firstChild.nodeValue=a+n.firstChild.nodeValue.substring(1);e(n.nextSibling,b);}\n"
+		"function sh(n){x=n.firstChild.nodeValue.substring(0,1);switch(x){case'▼':d(n,'▶','none');break;case'▶':d(n,'▼','block');break;}}\n"
 		"/* ]]>*/\n"
 		"</script>\n";
 		std::string logstyle="<style type=\"text/css\">\n"
