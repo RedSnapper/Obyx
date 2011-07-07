@@ -28,9 +28,14 @@
 
 bool HTTPLogger::minititle = true;
 
-void HTTPLogger::dofatal() {
+void HTTPLogger::dofatal(std::string message) {
 	Httphead* http = Httphead::service();
 	if (! http->done() ) {
+		http->addcustom("Obyx-Status","Fatal");
+		http->addcustom("Obyx-Signature",title.c_str());
+		http->addcustom("Obyx-File",path.c_str());
+		http->addcustom("Obyx-Breakpoint",ObyxElement::breakpoint_str());
+		http->addcustom("Obyx-Message",message);
 		if ( logging_on	) {	
 			http->setcode(200);	
 		} else {
@@ -43,7 +48,11 @@ void HTTPLogger::dofatal() {
 	if (!topped) {
 		topped=true;
 		string top_str;
-		top(top_str,true);
+		if (should_report()) {
+			top(top_str,true);
+		} else {
+			top(top_str,false);
+		}
 		*fo << top_str;
 	}
 }
@@ -116,17 +125,29 @@ void HTTPLogger::ltop(string& container,bool do_bits) {		//top log document
 		container.append(logjs);
 		container.append(logstyle);
 	}
-	container.append("</head><body><div class=\"headline\">");
-	container.append(title);	
-	container.append("</div><div>");
+	container.append("</head><body>");
+	if (!should_report()) {
+		container.append("<h1>An internal error has occured.</h1>");
+		if(syslogging) {
+			container.append("<h3>We have been notified and will be fixing it as soon as possible.</h3>");
+		}
+	} else {
+		container.append("<div class=\"headline\">");
+		container.append(title);
+		container.append("</div><div>");
+	}
 }
 
 //top-tail are used to compose external log-reports as well.
 void HTTPLogger::ltail(string& container) {		//tail log document
 	container.clear();
-	container = "</div><div class=\"headline\">";
-	container.append(title);
-	container.append("</div></body></html>\n"); 
+	if (!should_report()) {
+		container.append("</body></html>\n"); 
+	} else {
+		container = "</div><div class=\"headline\">";
+		container.append(title);
+		container.append("</div></body></html>\n"); 
+	}	
 }
 
 void HTTPLogger::open() {	//This should always be called ..
@@ -156,7 +177,7 @@ void HTTPLogger::close() {
 }
 
 void HTTPLogger::extra(extratype t) {
-	if ( !logging_available() ) return;
+//	if ( !logging_available() ) return;
 	switch (t) {
 		case br:  { 
 			*o << "<br />";
@@ -197,7 +218,7 @@ void HTTPLogger::extra(extratype t) {
 }					 
 
 void HTTPLogger::bracket(bracketing bkt) {
-	if ( !logging_available() ) return;
+//	if ( !logging_available() ) return;
 	if (type_stack.empty() ) { 
 		*o << "<ol class=\"error\"><li>Brackets should only occur inside message blocks</li></ol>";
 	}
@@ -255,7 +276,7 @@ void HTTPLogger::bracket(bracketing bkt) {
 }
 
 void HTTPLogger::wrap(bool io) {
-	if ( !logging_available() ) return;
+//	if ( !logging_available() ) return;
 	if (io) {
 		if (type_stack.size() == 2) {
 			minititle = true;

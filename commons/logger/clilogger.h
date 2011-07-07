@@ -44,7 +44,7 @@ protected:
 	virtual void bracket(bracketing);
 	virtual void ltop(string&,bool) {}		//top log document
 	virtual void ltail(string&){}		//tail log document
-	virtual void dofatal() {}
+	virtual void dofatal(std::string) {}
 
 };
 

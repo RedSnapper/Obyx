@@ -326,9 +326,8 @@ namespace XML {
 				rslt=NULL;
 				errorHandler->resetErrors();
 			} 
-			delete mbis; 
+			delete mbis;
 			mbis=NULL;
-			
 			if (!do_validation) {
 				validation_on();
 			}

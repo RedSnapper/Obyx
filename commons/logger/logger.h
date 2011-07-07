@@ -38,29 +38,34 @@ namespace Log {
 
 class Logger {
 private:
-	bool		  syslogging;	//boolean representing syslog alerts (default is on)
 	bool		  top_line;		//first bracket contents of a block.
 	bool		  inraw;
-	string		  path;
 	Log::msgtype  curr_type;
 	std::ostringstream syslogbuffer; 
 	std::ostringstream storage;
 	static std::ostringstream* lstore;
+	size_t 		  msgdepth;     //msg nest depth 
+	size_t 		  fataldepth;   //msg depth at time of fatal.
+
 	
 protected:
+	string		  path;
 	static		  string title;
 	std::stack<std::ostream*> estrm_stack; //error stream
 	std::stack<Log::msgtype> type_stack;    //current log type was static Log::msgtype itype;
+	bool syslogging;	//boolean representing syslog alerts (default is on)
 	bool storageused;
 	bool debugflag;
 	bool logging_on;
 	bool isopened;
 	bool hadfatal;
+	bool infatal;
 	bool evenodd;
 	ostream*	fo;							  //final output stream
 	ostream*	o;							  //output stream
 	Logger(int i);
 	Log::msgtype type() const { return curr_type; }
+	bool 		 should_report();
 	virtual void wrap(bool) =0;					//wrapping log/warning/error etc.  
 	virtual void extra(Log::extratype) =0;		//wrapping raw,urli,urlt,urlo,br,end etc.  
 	virtual void open() =0;						//Open logger
@@ -69,7 +74,7 @@ protected:
 	virtual void bracket(Log::bracketing) =0;
 	virtual void ltop(string&,bool) =0;		//top log document
 	virtual void ltail(string&) =0;		//tail log document
-	virtual void dofatal() =0; //handle fatal.
+	virtual void dofatal(std::string) =0; //handle fatal.
 	
 	
 public:
@@ -98,6 +103,8 @@ public:
 	static bool debugging() {return log->debugflag;}
 	static bool logging_available() {return log->logging_on;}
 	static void set_syslogging(bool t) { log->syslogging = t; }
+	
+	string errline();
 	Logger& operator<< (const bool);
 	Logger& operator<< (const double);
 	Logger& operator<< (const int);

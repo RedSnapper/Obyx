@@ -235,6 +235,11 @@ void ObyxElement::prep_breakpoint() {
 unsigned long long int ObyxElement::breakpoint() {
 	return eval_count + 1;
 }
+std::string ObyxElement::breakpoint_str() {
+	return String::tostring(eval_count + 1);
+}
+
+
 const string ObyxElement::name() const {
 	switch ( wotzit ) {
 		case iteration:		return "iteration"; break;
@@ -460,9 +465,9 @@ void ObyxElement::get_sql_connection() {
 				dbc->database(Environment::Database());
 			} else {
 				if (Logger::log != NULL) {
-					*Logger::log << Log::error << Log::LI << "SQL Service."; 
-					*Logger::log << "The Service library was loaded, but the host connection failed using the current host, user, port, and userpassword settings. ";
-					*Logger::log << "If the host is on another box, check the database client configuration or host that networking is enabled. ";
+					*Logger::log << Log::error << Log::LI << "SQL Service. Service library was loaded but the host connection failed." << Log::LO;
+					*Logger::log << Log::LI << Log::notify << Log::LI;
+					*Logger::log << "If the host is on another box, check the database client configuration or host that networking is enabled. " << Log::LO;
 					*Logger::log << Log::LI << "mysql -D" << Environment::Database() << " -h" << Environment::SQLhost() << " -u" << Environment::SQLuser();
 					int pt = Environment::SQLport(); if (pt != 0) {
 						*Logger::log << " -P" << pt << Log::LO;
@@ -474,7 +479,7 @@ void ObyxElement::get_sql_connection() {
 						px[px.size()-1] = up[up.size()-1];
 						*Logger::log << " -p" << px << Log::LO;
 					}
-					*Logger::log << Log::blockend;
+					*Logger::log << Log::blockend << Log::LO << Log::blockend;
 				}
 			}
 		}

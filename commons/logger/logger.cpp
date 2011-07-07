@@ -91,10 +91,13 @@ Logger::Logger(int i) : syslogging(true),bdepth(i) {
 	storageused=false;
 	isopened=false;
 	hadfatal=false;
+	infatal=false;
 	top_line=false;		//first bracket contents of a block.
 	inraw = false;
 	evenodd = true;
 	curr_type = info;
+	msgdepth = 0;
+	fataldepth = 0;
 	type_stack.push(logger);    //current log type was static Log::msgtype itype;
 }
 
@@ -196,17 +199,24 @@ void Logger::tail(string& container) {
 	log->ltail(container);
 }
 
+bool Logger::should_report() { //always report to stacked errors. 
+	size_t ssize = estrm_stack.size();
+	return (logging_on || ssize > 1);
+//	msgtype& cur = type_stack.top();
+//	return ((cur == fatal || cur == syntax || cur == Log::error) || (ssize > 1));
+}
+
 Logger& Logger::operator<< (const double val ) { 
-	if (log->top_line && log->syslogging ) { log->syslogbuffer << val;}
-	if ( logging_on && ( type_stack.top() != debug || debugging()) )  {
+    if (msgdepth-1 == fataldepth && infatal && log->top_line) { log->syslogbuffer << val;}
+	if ( should_report() || debugging() )  {
 		*o << val; 
 	}
 	return *this;
 }
 
 Logger& Logger::operator<< (const bool val ) { 
-	if (log->top_line && log->syslogging) { log->syslogbuffer << val;}
-	if ( logging_on && ( type_stack.top() != debug || debugging()) )  {
+    if (msgdepth-1 == fataldepth && infatal && log->top_line) { log->syslogbuffer << val;}
+	if ( should_report() || debugging() )  {
 		if (val) {
 			*o << "true"; 
 		} else {
@@ -217,48 +227,58 @@ Logger& Logger::operator<< (const bool val ) {
 }
 
 Logger& Logger::operator<< (const int val ) { 
-	if (log->top_line && log->syslogging) { log->syslogbuffer << val;}
-	if ( logging_on && ( type_stack.top() != debug || debugging()) )  {
+    if (msgdepth-1 == fataldepth && infatal && log->top_line) { log->syslogbuffer << val;}
+	if ( should_report() || debugging() )  {
 		*o << static_cast<int>(val); 
 	}
 	return *this;
 }	
 
 Logger& Logger::operator<< (const unsigned int val ) { 
-	if (log->top_line && log->syslogging) { log->syslogbuffer << val;}
-	if ( logging_on && ( type_stack.top() != debug || debugging()) )  {
+    if (msgdepth-1 == fataldepth && infatal && log->top_line) { log->syslogbuffer << val;}
+	if ( should_report() || debugging() )  {
 		*o << static_cast<unsigned int>(val); 
 	}
 	return *this;
 }	
-// estrm_stack.empty()
+
 Logger& Logger::operator << (const msgtype mtype) {
 	curr_type = mtype;
 	size_t ssize = estrm_stack.size();
-	if ( !hadfatal && (mtype == fatal || mtype == Log::error || mtype == warn || mtype == syntax || mtype == thrown) && (ssize < 2) ) {
-		hadfatal = true;
-		dofatal();
-		string messages = lstore->str();
-		*(log->fo) << messages;
-		unset_stream();
+	if ( !infatal && (mtype == fatal || mtype == Log::error || mtype == syntax || mtype == thrown) && (ssize < 2) ) {
+		infatal = true;
+		fataldepth = msgdepth;
 	}
 	if (mtype == blockend) {
-		if ( logging_on && ( type_stack.top() != debug || debugging()) )  {  wrap(false); }
+		msgdepth--;
+		if (infatal && !hadfatal && fataldepth == msgdepth) {
+			hadfatal = true;
+			dofatal(syslogbuffer.str());
+			ostream* msgs = NULL;
+			get_stream(msgs);
+			ostringstream* txt = dynamic_cast<ostringstream*>(msgs);
+			if (txt!=NULL) {
+				*(log->fo) << txt->str();
+			}
+			unset_stream();
+		}
+		if ( should_report() || debugging() )  {  wrap(false); }
 		type_stack.pop();
 		top_line = false;
 	} else {
+		msgdepth++;
 		top_line = true;
 		if (log->syslogging) {
 			syslogbuffer.str("");
 		}
 		type_stack.push(mtype); // starting
-		if ( logging_on && ( type_stack.top() != debug || debugging()) )  {  wrap(true); }
+		if ( should_report() || debugging() )  {  wrap(true); }
 	}
 	return *this;
 }
 
 Logger& Logger::operator << (const extratype extrabit) {
-	if ( logging_on && ( type_stack.top() != debug || debugging()) )  {
+	if ( should_report() || debugging() )  {
 		extra(extrabit); 
 	}
 	return *this;
@@ -271,9 +291,9 @@ Logger& Logger::operator<< (const char* msg) {
 			mesg = msg;
 			String::base64encode(mesg);
 		}
-		if (log->top_line && log->syslogging) { log->syslogbuffer << mesg;}
-		XMLChar::encode(mesg);
-		if ( logging_on && (type_stack.top() != debug || debugging()) )  {
+		if (msgdepth-1 == fataldepth && infatal && log->top_line) { log->syslogbuffer << mesg;}
+		if ( should_report() || debugging() )  {
+			XMLChar::encode(mesg);
 			*o << mesg;  
 		}
 	}
@@ -281,19 +301,25 @@ Logger& Logger::operator<< (const char* msg) {
 }
 
 Logger& Logger::operator<< (const std::string msg ) {  
-	if (log->top_line && log->syslogging) { log->syslogbuffer << msg;}
-	string mesg(msg);
-	if (! String::normalise(mesg)) {
-		mesg = msg;
-		String::base64encode(mesg);
-	}
-	if ( logging_on && (type_stack.top() != debug || debugging()) )  {
+	if (msgdepth-1 == fataldepth && infatal && log->top_line) { log->syslogbuffer << msg;}
+	if ( should_report() || debugging() )  {
+		string mesg(msg);
+		if (! String::normalise(mesg)) {
+			mesg = msg;
+			String::base64encode(mesg);
+		}
 		if (!inraw) { 
 			XMLChar::encode(mesg);
 		}
 		*o << mesg;  
 	}
 	return *this;
+}
+
+std::string Logger::errline() {
+	ostringstream err;
+	err << title.c_str() << "; " << path.c_str() << "; " << ObyxElement::breakpoint_str() << "; " << log->syslogbuffer.str().c_str();
+	return err.str();
 }
 
 Logger& Logger::operator<< (const bracketing bkt) { 
@@ -334,7 +360,7 @@ Logger& Logger::operator<< (const bracketing bkt) {
 			}
 			top_line=false;
 		}
-		if ( logging_on ) {
+		if ( should_report() || debugging() )  {
 			if ( debugging() ) {
 				bracket(bkt);  
 			} else {

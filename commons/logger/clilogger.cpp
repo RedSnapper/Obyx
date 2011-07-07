@@ -41,7 +41,6 @@ void CLILogger::close() {
 }
 
 void CLILogger::extra(extratype t) {
-	if (!isopened || !logging_available()) { return; }
 	switch (t) {
 		case br:  { 
 			*o << "\n";

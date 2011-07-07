@@ -538,20 +538,12 @@ ObyxElement(par,xmldocument,other,NULL), xdoc(NULL),root_node(NULL),filepath(fp)
 	store.setowner(name());
 	if (use_loader == Main) { //otherwise this is handled by output type = error.
 		root = this;
-		Logger::unset_stream();
+		Logger::unset_stream();		  // docerrs should have all our errors but it does not...
 		string errs = docerrs->str(); // XMLChar::encode(errs);
 		delete docerrs; docerrs=0;
 		if ( ! errs.empty() ) {
 			*Logger::log << Log::syntax << Log::LI << "Syntax Error. Document parse error." << Log::LO;
 			*Logger::log << Log::LI << Log::RI << errs << Log::RO << Log::LO;
-			if (inputfile != NULL) {
-				*Logger::log << Log::LI ;
-				*Logger::log << Log::notify;
-				*Logger::log << Log::LI << "The file that could not be parsed as xml" << Log::LO;
-				*Logger::log << Log::LI << Log::info << Log::LI << string(*inputfile) << Log::LO << Log::blockend << Log::LO;
-				*Logger::log << Log::blockend;
-				*Logger::log << Log::LO;
-			}
 			*Logger::log << Log::blockend;
 		}
 	}

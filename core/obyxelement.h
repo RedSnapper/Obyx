@@ -115,7 +115,9 @@ public:
 	virtual ~ObyxElement();
 	
 	void trace() const;
+
 	static unsigned long long int breakpoint(); 
+	static string breakpoint_str();
 	
 	virtual void explain() { results.explain(); }			//
 	virtual const string name() const;	
