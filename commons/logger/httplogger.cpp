@@ -31,7 +31,11 @@ bool HTTPLogger::minititle = true;
 void HTTPLogger::dofatal() {
 	Httphead* http = Httphead::service();
 	if (! http->done() ) {
-		http->setcode(200);	
+		if ( logging_on	) {	
+			http->setcode(200);	
+		} else {
+			http->setcode(500);	//There may be a good reason for not using 500 here, but I cannot remember it.
+		}
 		http->setmime("text/html; charset=utf-8");
 		http->setdisposition("");
 		http->doheader(); 

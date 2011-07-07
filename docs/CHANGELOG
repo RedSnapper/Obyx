@@ -17,6 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.110707
+	Enh?		When logging is off, changed fatal to output a 500.
 v1.110630     
 	BUG.		xpath caching failing on empty documents.
 v1.110628     
