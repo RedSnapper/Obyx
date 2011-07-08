@@ -83,7 +83,7 @@ void HTTPLogger::ltop(string& container,bool do_bits) {		//top log document
 	if (do_bits) {
 		std::string logjs="<script type=\"text/javascript\" charset=\"utf-8\" >"
 		"/* <![CDATA[ */\n"
-		"function e(n,b){while(n!=null){if(n.nodeType==1){z=n.nodeName;if(z.toLowerCase()=='li'){n.style.display=b;r=n.firstChild.nodeValue;if(r!=null){x=r.substring(0,1);if(x!='▼'&&x!='▶'){e(n.firstChild);}}}else{e(n.firstChild);}}n=n.nextSibling;}}\n"
+		"function e(n,b){while(n!=null){if(n.nodeType==1){z=n.nodeName;if(z.toLowerCase()=='li'){n.style.display=b;r=n.firstChild.nodeValue;if(r!=null){x=r.substring(0,1);if(x!='▼'&&x!='▶'){e(n.firstChild,b);}}}else{e(n.firstChild,b);}}n=n.nextSibling;}}\n"
 		"function d(n,a,b){n.firstChild.nodeValue=a+n.firstChild.nodeValue.substring(1);e(n.nextSibling,b);}\n"
 		"function sh(n){x=n.firstChild.nodeValue.substring(0,1);switch(x){case'▼':d(n,'▶','none');break;case'▶':d(n,'▼','block');break;}}\n"
 		"/* ]]>*/\n"
