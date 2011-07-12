@@ -256,7 +256,7 @@ bool Instruction::evaluate_this() {
 					string value;
 					inputs[0]->results.takeresult(srr);
 					if (srr != NULL) {
-						if (srr->kind() == di_text) {
+						if (srr->kind() == di_text || srr->kind() == di_utext || srr->kind() == di_raw ) {
 							value="text";
 						} else {
 							value="object";

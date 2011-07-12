@@ -83,19 +83,19 @@ void HTTPLogger::ltop(string& container,bool do_bits) {		//top log document
 	if (do_bits) {
 		std::string logjs="<script type=\"text/javascript\" charset=\"utf-8\" >"
 		"/* <![CDATA[ */\n"
-		"function e(n,b){while(n!=null){if(n.nodeType==1){z=n.nodeName;if(z.toLowerCase()=='li'){n.style.display=b;r=n.firstChild.nodeValue;if(r!=null){x=r.substring(0,1);if(x!='▼'&&x!='▶'){e(n.firstChild,b);}}}else{e(n.firstChild,b);}}n=n.nextSibling;}}\n"
-		"function d(n,a,b){n.firstChild.nodeValue=a+n.firstChild.nodeValue.substring(1);e(n.nextSibling,b);}\n"
-		"function sh(n){x=n.firstChild.nodeValue.substring(0,1);switch(x){case'▼':d(n,'▶','none');break;case'▶':d(n,'▼','block');break;}}\n"
-		"/* ]]>*/\n"
+		"function f(n,b){n=n.nextSibling;while(n!=null){if(n.nodeType==1&&n.nodeName.toLowerCase()=='li'){n.style.display=b;}n=n.nextSibling;}}\n"
+		"function s(n){while(n!=null){if(n.nodeType==1){if(n.nodeName.toLowerCase()=='li'){if(n.firstChild!=null&&n.firstChild.nodeValue!=null){switch(n.firstChild.nodeValue.substring(0,1)){case'▶':f(n,'none');break;default:s(n.firstChild);break;}}}s(n.firstChild);}n=n.nextSibling;}}\n"
+		"function d(n,a,b){n.firstChild.nodeValue=a+n.firstChild.nodeValue.substring(1);f(n,b);}\n"
+		"function sh(n){x=n.firstChild.nodeValue.substring(0,1);switch(x){case'▼':d(n,'▶','none');break;case'▶':d(n,'▼','block');break;}}\n"		"/* ]]>*/\n"
 		"</script>\n";
 		std::string logstyle="<style type=\"text/css\">\n"
 		"/* <![CDATA[ */\n"
 		"ol,li,div {font-family: Gill Sans, Arial; font-size: 1em; display: block; padding:0; margin:0; padding-left:0.25em; }\n"
 		"a {text-decoration: none;}\n"
 		"a:hover { background-color: #FFF2B5; }\n"
-		"li {display:none;}\n"
-		"span {padding-right:0.25em;}\n"
-		"li:first-child,li.even,li.odd {display:block;} \n"
+		"li {display:block;}\n"
+		"span {padding-right:2em;}\n"
+		"span + span {padding-right:1em;}\n"
 		".notify {font-weight:normal; color: #3F3F6F; background-color: #DDDDDD;}\n"
 		".info {font-weight:normal; color:#00008B; background-color: #FFF;}\n"
 		".redirect {font-weight:normal; color: #A6A6A6; background-color: #F2F2F2;}\n"
@@ -108,13 +108,15 @@ void HTTPLogger::ltop(string& container,bool do_bits) {		//top log document
 		".eo {font-weight:normal;}\n"
 		".even {font-weight:normal; color:#1C1C1C; background-color: #F8F8F8;}\n"
 		".odd {font-weight:normal; color:#4F4F4F; background-color: #FFFFFF;}\n"
-		"li.xpath, li.filepath, li.breakpoint {display:none; font-weight:normal; color:#1F1F1F; background-color: #DDDDDD;}\n"
+		"li.xpath, li.filepath, li.breakpoint {font-weight:normal; color:#1F1F1F; background-color: #DDDDDD;}\n"
 		"/* ]]>*/\n"
 		"</style>";	
 		container.append(logjs);
 		container.append(logstyle);
+		container.append("</head><body onLoad=\"s(document.body);\">");
+	} else { 
+		container.append("</head><body>");
 	}
-	container.append("</head><body>");
 	if (!should_report()) {
 		container.append("<h1>An internal error has occured.</h1>");
 		if(syslogging) {
