@@ -113,7 +113,7 @@ void HTTPLogger::ltop(string& container,bool do_bits) {		//top log document
 		"</style>";	
 		container.append(logjs);
 		container.append(logstyle);
-		container.append("</head><body onLoad=\"s(document.body);\">");
+		container.append("</head><body onload=\"s(document.body);\">");
 	} else { 
 		container.append("</head><body>");
 	}
