@@ -205,7 +205,8 @@ namespace XML {
 		resourceHandler->setGrammar(obyxxsd,UCS2(L"http://www.obyx.org"),Grammar::SchemaGrammarType);      //I don't really know why this has to be preloaded..
 		resourceHandler->setGrammar(messagexsd,UCS2(L"http://www.obyx.org/message"),Grammar::SchemaGrammarType);
 		resourceHandler->setGrammar(oalxsd,UCS2(L"http://www.obyx.org/osi-application-layer"),Grammar::SchemaGrammarType);
-		
+
+/*
 		//These are all better handled at runtime. The performance hit of preloading them against every request is not so good
 		resourceHandler->setGrammar(xmlxsd,UCS2(L"http://www.w3.org/XML/1998/namespace"),Grammar::SchemaGrammarType);
 		resourceHandler->setGrammar(xlinkxsd,UCS2(L"http://www.w3.org/1999/xlink"),Grammar::SchemaGrammarType);
@@ -213,7 +214,7 @@ namespace XML {
 		resourceHandler->setGrammar(soapencodingxsd,UCS2(L"http://schemas.xmlsoap.org/soap/encoding/"),Grammar::SchemaGrammarType);
 		resourceHandler->setGrammar(wsdlxsd,UCS2(L"http://schemas.xmlsoap.org/wsdl/"),Grammar::SchemaGrammarType);
 		resourceHandler->setGrammar(wsdlmimexsd,UCS2(L"http://schemas.xmlsoap.org/wsdl/mime/"),Grammar::SchemaGrammarType);
-	
+*/
 	}
 	
 	DOMDocument* Parser::newDoc(const DOMNode* n) {
