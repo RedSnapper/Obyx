@@ -199,15 +199,3 @@ void shutdown() {
 #endif
 	Environment::shutdown();
 }
-
-/*
- 
- int main(int argc, char *argv[]) {
- while (true) {
- moin(argc,argv);
- string version="done";
- }
- }
- */
-
-
