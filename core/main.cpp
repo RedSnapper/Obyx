@@ -56,7 +56,9 @@ void shutdown();
 int main(int argc, char *argv[]) {
 	string v_number = "1.1107201"; //Do NOT put the v here!
 #ifdef FAST
-	bool profiling  = false; //NEVER leave this on for anything other than profiling!
+#ifdef PROFILING
+	int  profilecount = 100;
+#endif
 	string version  = "Obyx v"+v_number+"F Supported";
 #else
 	string version  = "Obyx v"+v_number+" Supported";
@@ -71,7 +73,11 @@ int main(int argc, char *argv[]) {
 		ostream* f_out = NULL;
 		char** ienv = NULL;
 #ifdef FAST
-		while (Fast::ready(f_out,ienv) || profiling)   {
+		while (Fast::ready(f_out,ienv)
+#ifdef PROFILING
+			   || ((profilecount--) > 0) 
+#endif
+		) {
 #endif
 			init(f_out,argc,argv,ienv);
 			Httphead* http = Httphead::service();
