@@ -998,7 +998,7 @@ void Environment::initwlogger() {
 		Logger::set_path(fn);
 	}
 	if (getenv("OBYX_AUTO_UTF8_CHECK",fn)) {
-		do_auto_utf8check = fn.compare("true") == 0;
+		do_auto_utf8check = (fn.compare("false") != 0); //ie, if it's not false then it's true.
 	}
 	dodocument();
 	do_request_cookies();
