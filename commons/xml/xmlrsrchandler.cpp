@@ -49,7 +49,7 @@ namespace XML {
 		if (grx != NULL) {
 			grx = NULL; //don't delete it! it appears to be dealt with by grammarpool
 		}
-		if (inp != NULL) {
+		if (inp != NULL && !use) {
 			inp->release(); 
 			delete mem; 
 		}
