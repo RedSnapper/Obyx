@@ -36,7 +36,6 @@
 
 #include "commons/string/bitwise.h"
 
-
 #include "itemstore.h"
 #include "filer.h"
 #include "document.h"
@@ -55,8 +54,9 @@ void finalise();
 void shutdown();
 
 int main(int argc, char *argv[]) {
-	string v_number = "1.110712"; //Do NOT put the v here!
+	string v_number = "1.110720"; //Do NOT put the v here!
 #ifdef FAST
+	bool profiling  = false; //NEVER leave this on for anything other than profiling!
 	string version  = "Obyx v"+v_number+"F Supported";
 #else
 	string version  = "Obyx v"+v_number+" Supported";
@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
 		ostream* f_out = NULL;
 		char** ienv = NULL;
 #ifdef FAST
-		while (Fast::ready(f_out,ienv))   {
+		while (Fast::ready(f_out,ienv) || profiling)   {
 #endif
 			init(f_out,argc,argv,ienv);
 			Httphead* http = Httphead::service();
@@ -199,4 +199,15 @@ void shutdown() {
 #endif
 	Environment::shutdown();
 }
+
+/*
+ 
+ int main(int argc, char *argv[]) {
+ while (true) {
+ moin(argc,argv);
+ string version="done";
+ }
+ }
+ */
+
 
