@@ -60,7 +60,7 @@ var_map_type Environment::cgi_rfc_map;
 Environment* Environment::instance;
 double Environment::runtime_version = 999999.99999;
 
-Environment::Environment()  : gDevelop(false),gSQLport(0),gRootDir(""),gScriptsDir(""),gScratchDir("/tmp/"),basetime(0)  {
+Environment::Environment()  : gDevelop(false),do_auto_utf8check(true),gSQLport(0),gRootDir(""),gScriptsDir(""),gScratchDir("/tmp/"),basetime(0)  {
 	pid = getpid();
 	gArgc=0;
 	gArgv=NULL;
@@ -896,7 +896,7 @@ void Environment::doparms(int argc, char *argv[]) {
 					setienv("PATH_TRANSLATED",console_file);
 					setienv("OBYX_DEVELOPMENT","true");
 					gDevelop = true;
-				}	
+				}
 			}
 		} else {
 			do_query_string(qstr);
@@ -997,6 +997,9 @@ void Environment::initwlogger() {
 	if (getenv("PATH_TRANSLATED",fn)) {
 		Logger::set_path(fn);
 	}
+	if (getenv("OBYX_AUTO_UTF8_CHECK",fn)) {
+		do_auto_utf8check = fn.compare("true") == 0;
+	}
 	dodocument();
 	do_request_cookies();
 	dopostparms();	
@@ -1066,8 +1069,8 @@ void Environment::setbenvmap() {//per box/process environment
 			string v = parmstring.substr(split+1,string::npos);
 			if(v.size() > 0 && v[v.size()-1] == '=') { //weird fastcgi name_mangle
 				v.resize(v.size()-1);
-				//				string problem="fastcgi_name_mangle_"+n;
-				//				setbenv(problem,v);
+				//	string problem="fastcgi_name_mangle_"+n;
+				//	setbenv(problem,v);
 			}
 			setbenv(n,v);
 			if (n.compare("OBYX_CONFIG_FILE") == 0) { //for virtual hosts shouldn't be set here.

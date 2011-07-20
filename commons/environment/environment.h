@@ -66,6 +66,7 @@ private:
 	int gArgc;
 	char** gArgv;
 	bool gDevelop;
+	bool do_auto_utf8check;
 	int gSQLport;
 //	buildarea_type the_area;
 	string gRootDir;
@@ -177,6 +178,7 @@ public:
 	bool envfind(const string&);
 	bool parmfind(const string&);
 	bool cookiefind(const string&);
+	bool auto_utf8() { return do_auto_utf8check; };
 	void envkeys(const string&,set<string>&);
 	void parmkeys(const string&,set<string>&);
 	void cookiekeys(const string&,set<string>&);

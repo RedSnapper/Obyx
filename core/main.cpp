@@ -54,7 +54,7 @@ void finalise();
 void shutdown();
 
 int main(int argc, char *argv[]) {
-	string v_number = "1.110720"; //Do NOT put the v here!
+	string v_number = "1.1107201"; //Do NOT put the v here!
 #ifdef FAST
 	bool profiling  = false; //NEVER leave this on for anything other than profiling!
 	string version  = "Obyx v"+v_number+"F Supported";

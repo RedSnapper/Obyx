@@ -30,25 +30,6 @@
 #include "commons/environment/environment.h"
 #include "commons/logger/logger.h"
 
-/*
- DataItem::long_map			DataItem::ce_map;
- 
- void DataItem::do_alloc(const std::string v) {
- unsigned long addr = (unsigned long)(this);
- ce_map.insert(long_map::value_type(addr,v));
- }
- 
- void DataItem::do_dealloc() {
- unsigned long addr = (unsigned long)(this);
- long_map::iterator it = ce_map.find(addr);
- if ( it == ce_map.end() ) {
- *Logger::log << Log::error << Log::LI << "Error. ce was already deleted."  << Log::LO << Log::blockend;	
- } else {
- ce_map.erase(it);
- }
- }
- */
-
 DataItem::~DataItem() {}
 DataItem::DataItem() {}
 
@@ -83,7 +64,7 @@ DataItem* DataItem::autoItem(const std::string& s) {
 	if ( s.empty() ) {
 		retval=NULL;
 	} else {
-		if (XMLChar::isutf8(s)) {
+		if (!Environment::service()->auto_utf8() || XMLChar::isutf8(s)) {
 			string::size_type b = s.find_first_not_of(" \r\n\t" ); //Test for first non-ws is a '<'
 			if(s[b] != '<') {  
 				retval=new StrObject(s);
@@ -184,7 +165,7 @@ DataItem* DataItem::autoItem(const u_str& s) {
 DataItem* DataItem::factory(std::string& s,kind_type kind_it_is) {
 	DataItem* retval = NULL;
 	if ( !s.empty() ) {
-		if (XMLChar::isutf8(s)) {
+		if ((kind_it_is != di_raw) && (!Environment::service()->auto_utf8() || XMLChar::isutf8(s))) {
 			switch (kind_it_is) {
 				case di_auto: {
 					retval= autoItem(s);
@@ -218,7 +199,7 @@ DataItem* DataItem::factory(std::string& s,kind_type kind_it_is) {
 DataItem* DataItem::factory(const string& s,kind_type kind_it_is) {
 	DataItem* retval = NULL;
 	if ( !s.empty() ) {
-		if (XMLChar::isutf8(s)) {
+		if ((kind_it_is != di_raw) && (!Environment::service()->auto_utf8() || XMLChar::isutf8(s))) {
 			switch (kind_it_is) {
 				case di_auto: {
 					retval= autoItem(s);
@@ -421,14 +402,12 @@ DataItem* DataItem::factory(u_str s,kind_type kind_it_is) {
 		switch (kind_it_is) {
 			case di_auto: {			
 				if (! s.empty() ) {
-					retval= autoItem(s);
-
-//					retval= new UStrItem(s); //why are we not doing xml detection here?
+					retval= autoItem(s); //we know that this is utf-16
 				} else {
 					retval=NULL;
 				}
 			} break;
-			case di_raw: { //we don't want to lose the utf-8
+			case di_raw: { //we don't want to lose the utf-16
 				retval= new StrObject(s);
 			} break;
 			case di_utext: {
@@ -462,14 +441,6 @@ void DataItem::init() {
 	FragmentObject::init();
 }
 void DataItem::finalise() {
-	/*	
-	 if ( ! ce_map.empty() ) {
-	 *Logger::log << Log::error << Log::LI << "Error. Not all ObyxElements were deleted."  << Log::LO << Log::blockend;	
-	 for( long_map::iterator imt = ce_map.begin(); imt != ce_map.end(); imt++) {
-	 *Logger::log << Log::info << imt->second << Log::LO << Log::blockend;				
-	 }
-	 }
-	 */	
 	FragmentObject::finalise();
 }
 

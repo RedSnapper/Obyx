@@ -1240,6 +1240,7 @@ void IKO::startup() {
 	current_types.insert(current_type_map::value_type(UCS2(L"COOKIES"),c_cookies));
 	
 	kind_types.insert(kind_type_map::value_type(UCS2(L"auto"), di_auto));
+	kind_types.insert(kind_type_map::value_type(UCS2(L"raw"), di_raw));
 	kind_types.insert(kind_type_map::value_type(UCS2(L"text"), di_text));
 	kind_types.insert(kind_type_map::value_type(UCS2(L"object"), di_object));
 	

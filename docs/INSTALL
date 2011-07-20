@@ -201,6 +201,7 @@ FcgidInitialEnv OBYX_CONFIG_FILE=/WWW_ROOT/include/obyx.cf
 FcgidInitialEnv OBYX_SQLSERVICE=mysql
 FcgidInitialEnv OBYX_DEVELOPMENT=true
 FcgidInitialEnv OBYX_VALIDATE_ALWAYS=true
+FcgidInitialEnv OBYX_AUTO_UTF8_CHECK=true
 
 #The following are only necessary if they are dylibs or on custom paths.
 FcgidInitialEnv OBYX_LIBCURLSO=libcurl.dylib
@@ -227,6 +228,7 @@ FcgidInitialEnv OBYX_CONFIG_FILE=/Library/WebServer/include/obyx.fcf
 FcgidInitialEnv OBYX_SQLSERVICE=mysql
 FcgidInitialEnv OBYX_DEVELOPMENT=true
 FcgidInitialEnv OBYX_VALIDATE_ALWAYS=true
+FcgidInitialEnv OBYX_AUTO_UTF8_CHECK=true
 FcgidInitialEnv OBYX_LIBCURLSO=libcurl.dylib
 FcgidInitialEnv OBYX_LIBPCRESO=/usr/local/lib/libpcre.dylib
 FcgidInitialEnv OBYX_LIBMYSQLCRSO=/usr/local/mysql/lib/libmysqlclient_r.dylib
