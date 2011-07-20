@@ -136,6 +136,7 @@ namespace String {
 					delete i->second; i->second = NULL;
 				};
 			}
+			lut.clear();
 		}
 		
 		//public stuff
@@ -515,9 +516,12 @@ namespace String {
 		}
 		
 		bool GMP::shutdown() {											 //necessary IFF script uses pcre.
+			loadattempted = false;
+			loaded = false;
 			if ( lib_handle != NULL ) {
 				mpz_clear(zero);
 				dlclose(lib_handle);
+				lib_handle=NULL;
 			}
 			return true;
 		}

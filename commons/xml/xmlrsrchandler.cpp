@@ -34,7 +34,7 @@ namespace XML {
 	inp(NULL),mem(NULL),key(n),gra(f),grx(NULL),typ(t),use(false) {
 		XMLByte* xmlraw = (XMLByte*)(gra.c_str());
 		inp = ((DOMImplementationLS*)Manager::parser()->impl)->createLSInput();	
-		mem = new MemBufInputSource(xmlraw,gra.size(),key.c_str());
+		mem = new MemBufInputSource(xmlraw,gra.size(),key.c_str(),false);
 		mem->setCopyBufToStream(false);
 		inp->setByteStream(mem);
 		if (t == Grammar::DTDGrammarType) {
@@ -46,19 +46,31 @@ namespace XML {
 		inp->setEncoding(XMLUni::fgUTF8EncodingString); //This must be done.
 	}
 	GrammarRecord::~GrammarRecord() {
-		inp->release();
-		delete mem;
+		if (grx != NULL) {
+			grx = NULL; //don't delete it! it appears to be dealt with by grammarpool
+		}
+		if (inp != NULL) {
+			inp->release(); 
+			delete mem; 
+		}
+		mem=NULL; inp=NULL;
 		key.clear();
 		gra.clear();
 	}
 	XMLResourceHandler::XMLResourceHandler() : DOMLSResourceResolver(),the_grammar_map() {}
 	XMLResourceHandler::~XMLResourceHandler() {
+		for(grammar_map_type::iterator i = the_grammar_map.begin(); i != the_grammar_map.end(); i++) {
+			if (!i->second.first && i->second.second != NULL) {
+				delete i->second.second; 
+				i->second.second=NULL;
+			}
+		}
 		the_grammar_map.clear();
 	}
 	void XMLResourceHandler::installGrammar(const u_str& name) {	
 		grammar_map_type::iterator it = the_grammar_map.find(name);
 		if (it != the_grammar_map.end()) {
-			GrammarRecord* grec =  it->second;
+			GrammarRecord* grec =  it->second.second;
 			if (! grec->used()) {
 				Manager::parser()->grammar_reading_on();
 				grec->grx = Manager::parser()->parser->loadGrammar(grec->inp, grec->typ, true); 
@@ -71,9 +83,6 @@ namespace XML {
 					Manager::parser()->errorHandler->resetErrors();
 				} else {
 					grec->setused();
-					grammar_map_type::iterator it = the_grammar_map.find(name); //because of grammar interdependence the iterator may be lost.
-					the_grammar_map.erase(it); //and if there is any item then insert it.
-					pair<grammar_map_type::iterator, bool> ins = the_grammar_map.insert(grammar_map_type::value_type(name,grec));
 				}
 			}
 		}
@@ -84,7 +93,7 @@ namespace XML {
 			if (it == the_grammar_map.end() ) {
 				u_str sysIDstr,pubIDstr;
 				if( type == Grammar::DTDGrammarType) { // Ideally, we would access the SystemID / PublicID here using grx.
-					if ( String::Regex::available() ) {
+					if ( String::Regex::available() ) { // && Logger::logging_available()
 						size_t s = String::Regex::after("\\s+SYSTEM\\s*=?\\s*[\"']",grammar);
 						if ( s == string::npos ) {
 							string err_name; Manager::transcode(name.c_str(),err_name);
@@ -107,7 +116,6 @@ namespace XML {
 							string pubIdDecl=grammar.substr(p,q-p);
 							Manager::transcode(pubIdDecl,pubIDstr);
 						}
-						
 					} 
 				}
 				GrammarRecord* record = new GrammarRecord(name,sysIDstr,pubIDstr,grammar,type);
@@ -123,15 +131,15 @@ namespace XML {
 						*Logger::log << Log::blockend;
 						Manager::parser()->errorHandler->resetErrors();
 					} else {
-						pair<grammar_map_type::iterator, bool> ins = the_grammar_map.insert(grammar_map_type::value_type(name,record));
+						pair<grammar_map_type::iterator, bool> ins = the_grammar_map.insert(grammar_map_type::value_type(name,gmap_entry_type(false,record)));
 						if( type == Grammar::DTDGrammarType) { 
-							pair<grammar_map_type::iterator, bool> ins = the_grammar_map.insert(grammar_map_type::value_type(sysIDstr,record));
+							pair<grammar_map_type::iterator, bool> ins = the_grammar_map.insert(grammar_map_type::value_type(sysIDstr,gmap_entry_type(true,record)));
 						}
 					}
 				} else {
-					pair<grammar_map_type::iterator, bool> ins = the_grammar_map.insert(grammar_map_type::value_type(name,record));
+					pair<grammar_map_type::iterator, bool> ins = the_grammar_map.insert(grammar_map_type::value_type(name,gmap_entry_type(false,record)));
 					if( type == Grammar::DTDGrammarType) { 
-						pair<grammar_map_type::iterator, bool> ins = the_grammar_map.insert(grammar_map_type::value_type(sysIDstr,record));
+						pair<grammar_map_type::iterator, bool> ins = the_grammar_map.insert(grammar_map_type::value_type(sysIDstr,gmap_entry_type(true,record)));
 					}
 				}
 			} 
@@ -142,10 +150,14 @@ namespace XML {
 			u_str gname; Manager::transcode(name,gname);
 			grammar_map_type::iterator it = the_grammar_map.find(gname);
 			if (it != the_grammar_map.end() ) {
-				GrammarRecord* gr =  it->second;
+				GrammarRecord* gr =  it->second.second;
 				grammarfile = gr->gra;
-				if (release) {
-					delete gr; gr= NULL;
+				if (release ) {
+					if (!it->second.first) {
+						delete it->second.second;
+						it->second.second= NULL;	
+						//					type == Grammar::DTDGrammarType
+					}
 					the_grammar_map.erase(it);
 				}
 			} 
@@ -159,8 +171,11 @@ namespace XML {
 			if (it != the_grammar_map.end()) {
 				retval = true;
 				if (release) {
-					GrammarRecord* gr =  it->second;
-					delete gr; gr= NULL;				
+					if (!it->second.first) {
+						delete it->second.second;
+						it->second.second= NULL;	
+						//					type == Grammar::DTDGrammarType
+					}
 					the_grammar_map.erase(it);
 				}
 			}
@@ -195,13 +210,11 @@ namespace XML {
 			*Logger::log << Log::LI << a_nsu << Log::LO << Log::LI << a_pid << Log::LO << Log::LI << a_sid << Log::LO; 
 			*Logger::log << Log::blockend << Log::LO << Log::blockend;
 		} else {
-			GrammarRecord* grec =  it->second;
+			GrammarRecord* grec =  it->second.second;
 			if (! grec->used()) {
 				grec->setused();
-				the_grammar_map.erase(it); //and if there is any item then insert it.
-				pair<grammar_map_type::iterator, bool> ins = the_grammar_map.insert(grammar_map_type::value_type(grammarkey,grec));
 				retval = grec->inp;
-			}
+			} 
 		}
 		return retval; // DOMLSInput* 
 	}

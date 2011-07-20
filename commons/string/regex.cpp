@@ -94,17 +94,21 @@ namespace String {
 	
 	
 	bool Regex::shutdown() {											 //necessary IFF script uses pcre.
+		loadattempted=false;
+		loaded = false;
 		if (! regex_cache.empty() ) {
 			type_regex_cache::iterator it = regex_cache.begin();
 			while ( it != regex_cache.end()) {
-				string x = (*it).first; 
+//				string x = (*it).first; 
 				free((*it).second.first);
 				free((*it).second.second);
 				it++;
 			}
+			regex_cache.clear();
 		}
 		if ( pcre_lib_handle != NULL ) {
 			dlclose(pcre_lib_handle);
+			pcre_lib_handle = NULL;
 		}
 		return true;
 	}
@@ -369,25 +373,27 @@ namespace String {
 	}
 	
 	void Regex::reporterror(int errnum) {
-		string msg;
-		switch(errnum) {
-			case  0: msg="Internal Error: ovector is too small"; break;
-			case -2: msg="Internal Error: Either 'code' or 'subject' was passed as NULL, or ovector was NULL and ovecsize was not zero."; break;
-			case -3: msg="Internal Error: An unrecognized bit was set in the options argument."; break;
-			case -4: msg="Internal Error: Endian test magic number was missing. Probably a junk pointer was passed."; break;
-			case -5: msg="Internal Error: An unknown item in the compiled pattern was encountered during match."; break;
-			case -6: msg="Internal Error: Internal library malloc failed."; break;
-			case -8: msg="The backtracking limit (as specified by the default match_limit field) was reached."; break;
-			case -10: msg="A domain that contains an invalid UTF-8 byte sequence was passed."; break;
-			case -11: msg="Internal Error: The UTF-8 domain was valid, but the value of startoffset did not point to the beginning of a UTF-8 character."; break;
-			case -12: msg="The domain did not match, but it did match partially"; break;
-			case -13: msg="Internal Error: The PARTIAL option was used with a pattern containing items that are not supported for partial matching."; break;
-			case -14: msg="Internal Error: An unexpected internal error has occurred."; break;
-			case -15: msg="Internal Error: The value of the ovecsize argument was negative."; break;
-			case -21: msg="Recursion Limit reached. The internal recursion vector of size 1000 was not enough"; break;
-			default: msg="Unknown Error"; break;		
+		if (Logger::logging_available()) {
+			string msg;
+			switch(errnum) {
+				case  0: msg="Internal Error: ovector is too small"; break;
+				case -2: msg="Internal Error: Either 'code' or 'subject' was passed as NULL, or ovector was NULL and ovecsize was not zero."; break;
+				case -3: msg="Internal Error: An unrecognized bit was set in the options argument."; break;
+				case -4: msg="Internal Error: Endian test magic number was missing. Probably a junk pointer was passed."; break;
+				case -5: msg="Internal Error: An unknown item in the compiled pattern was encountered during match."; break;
+				case -6: msg="Internal Error: Internal library malloc failed."; break;
+				case -8: msg="The backtracking limit (as specified by the default match_limit field) was reached."; break;
+				case -10: msg="A domain that contains an invalid UTF-8 byte sequence was passed."; break;
+				case -11: msg="Internal Error: The UTF-8 domain was valid, but the value of startoffset did not point to the beginning of a UTF-8 character."; break;
+				case -12: msg="The domain did not match, but it did match partially"; break;
+				case -13: msg="Internal Error: The PARTIAL option was used with a pattern containing items that are not supported for partial matching."; break;
+				case -14: msg="Internal Error: An unexpected internal error has occurred."; break;
+				case -15: msg="Internal Error: The value of the ovecsize argument was negative."; break;
+				case -21: msg="Recursion Limit reached. The internal recursion vector of size 1000 was not enough"; break;
+				default: msg="Unknown Error"; break;		
+			}
+			*Logger::log << Log::error << Log::LI << "Regex::match() error. Error " << errnum << ". " << msg << Log::LO << Log::blockend;
 		}
-		*Logger::log << Log::error << Log::LI << "Regex::match() error. Error " << errnum << ". " << msg << Log::LO << Log::blockend; 
 	}
 	
 	//• --------------------------------------------------------------------------

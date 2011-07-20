@@ -62,8 +62,6 @@ void Document::init() {
 void Document::finalise() {
 	prefix_length = 0;
 	curr_http_req.clear();
-//	type_store_map::iterator it = docstores.find(signature_str);
-	
 	while (! prefix_stack.empty()) {
 		prefix_stack.pop();
 	}
@@ -77,6 +75,8 @@ void Document::finalise() {
 }
 void Document::shutdown() {
 	delete xmlmanager;
+	xmlmanager=NULL;
+	root = NULL; //This is the opening document.
 }
 const std::string Document::currentname() {
 	Environment* env = Environment::service();
@@ -591,8 +591,10 @@ Document::~Document() {
 		type_parm_map::iterator it = parm_map->begin();
 		while ( it != parm_map->end()) {
 			delete (*it).second;
+			(*it).second = NULL;
 			it++;
 		}
+		parm_map->clear();
 		delete parm_map;
 	}
 	if (xdoc != NULL) {

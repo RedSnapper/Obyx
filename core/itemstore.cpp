@@ -49,6 +49,12 @@ ItemStore::ItemStore(const ItemStore* orig) : the_item_map() {
 	} 
 }
 ItemStore::~ItemStore() {
+	item_map_type::iterator it = the_item_map.begin();
+	while ( it != the_item_map.end()) {
+		delete (*it).second; 
+		(*it).second = NULL;
+		it++;
+	}
 	the_item_map.clear();
 }
 

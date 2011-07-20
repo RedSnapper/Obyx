@@ -51,8 +51,8 @@ namespace XML {
 		~GrammarRecord();
 	};
 	
-	typedef map<const u_str,GrammarRecord*> grammar_map_type;
-
+	typedef pair<bool,GrammarRecord*> gmap_entry_type;
+	typedef map<const u_str,gmap_entry_type > grammar_map_type;
 	
 	class XMLResourceHandler : public DOMLSResourceResolver {
 	private:

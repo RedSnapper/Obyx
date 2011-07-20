@@ -33,7 +33,7 @@ using namespace std;
 namespace Log {
 	typedef enum {logger,headline,subhead,debug,info,notify,fatal,error,syntax,warn,thrown,timing,even,redirect,blockend} msgtype;	// Alternative list of msgtypes
 	typedef enum {rule,urli,urlt,urlo,br} extratype;	// Alternative list of msgtypes
-	typedef enum {LI,LO,RI,RO,II,IO,LIXP,LIFP,LIPP,LOXP,LOFP,LOPP,} bracketing;	// Brackets/Lines
+	typedef enum {LI,LO,RI,RO,II,IO,LIXP,LIFP,LIPP,LOXP,LOFP,LOPP} bracketing;	// Brackets/Lines
 }
 
 class Logger {
@@ -101,7 +101,7 @@ public:
 	static bool opened() { return (log != NULL && log->isopened);}
 	static bool wasfatal() { return log->hadfatal;}
 	static bool debugging() {return log->debugflag;}
-	static bool logging_available() {return log->logging_on;}
+	static bool logging_available() {return log!= NULL && log->logging_on;}
 	static void set_syslogging(bool t) { log->syslogging = t; }
 	
 	string errline();

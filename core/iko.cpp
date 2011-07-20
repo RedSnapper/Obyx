@@ -586,36 +586,48 @@ void IKO::evaltype(inp_space the_space, bool release, bool eval,bool is_context,
 		}
 	}
 	if (eval) {
-		if (container != NULL ) {
-			string filestring,dirstring;
-			if (! name_v.empty() ) { 
-				Manager::transcode(name_v.c_str(),filestring);
-				dirstring = filestring;
-			}
-			if (the_space == file) { //push working directory.
-				if ( dirstring.rfind('/') != string::npos ) {
-					dirstring = dirstring.substr(0,dirstring.rfind('/'));
-					if ( !dirstring.empty() ) {
-						FileUtils::Path::push_wd(dirstring);
+		if (exists) {
+			if (container != NULL ) {
+				string filestring,dirstring;
+				if (! name_v.empty() ) { 
+					Manager::transcode(name_v.c_str(),filestring);
+					dirstring = filestring;
+				}
+				if (the_space == file) { //push working directory.
+					if ( dirstring.rfind('/') != string::npos ) {
+						dirstring = dirstring.substr(0,dirstring.rfind('/'));
+						if ( !dirstring.empty() ) {
+							FileUtils::Path::push_wd(dirstring);
+						}
 					}
 				}
-			}
-			DataItem* doc_to_eval = container; //We don't want to write over ourselves!
-			container = NULL;
-			Document eval_doc(doc_to_eval,Document::File,filestring,this); //evaluate immediately!
-			if (eval_doc.results.final()) { 
-				if (exist_test == ut_significant && !is_context ) {
-					exists = ! eval_doc.results.empty();
+				DataItem* doc_to_eval = container; //We don't want to write over ourselves!
+				container = NULL;
+				Document eval_doc(doc_to_eval,Document::File,filestring,this); //evaluate immediately!
+				if (eval_doc.results.final()) { 
+					if (exist_test == ut_significant && !is_context ) {
+						exists = ! eval_doc.results.empty();
+					}
+					eval_doc.results.takeresult(container); //
+				} else {
+					*Logger::log << Log::error << Log::LI << "Error. File " << filestring << " was not evaluated " << Log::LO;
+					trace();
+					*Logger::log << Log::blockend;
 				}
-				eval_doc.results.takeresult(container); //
+				if (the_space == file && !dirstring.empty() ) { FileUtils::Path::pop_wd(); }
 			} else {
-				*Logger::log << Log::error << Log::LI << "Error. File " << filestring << " was not evaluated " << Log::LO;
-				trace();
-				*Logger::log << Log::blockend;
+				if (exist_test != ut_significant) {
+					log(Log::error,"Error. eval cannot be applied to an empty value.");
+				}
 			}
-			if (the_space == file && !dirstring.empty() ) { FileUtils::Path::pop_wd(); }
 		} else {
-			log(Log::error,"Error. eval cannot be applied to an empty value.");
+			if (exist_test != ut_significant) {
+				if (exist_test == ut_existence) {
+					log(Log::error,"Error. eval cannot be applied to a non-existent value.");
+				} else {
+					log(Log::error,"Error. eval cannot be applied within the context of an existence test.  Use significant for conditional eval.");
+				}
+			}
 		}
 	}
 	if (name_item != NULL) {
@@ -732,7 +744,6 @@ bool IKO::existsinspace(u_str& input_name,const inp_space the_space,const bool i
 			if ( input_name.empty() ) {
 				log(Log::error,"Error. Field name missing.");
 			} else {
-//				const ObyxElement* cur = this;
 				const ObyxElement* par = p;
 				const Iteration* ite = dynamic_cast<const Iteration *>(par);
 				const Mapping* mpp = dynamic_cast<const Mapping *>(par);
@@ -744,7 +755,6 @@ bool IKO::existsinspace(u_str& input_name,const inp_space the_space,const bool i
 						exists = mpp->field(input_name,discarded_result); 
 					}
 					if (par != NULL && !exists) {
-//						cur = par;
 						par = par->p;
 						ite = dynamic_cast<const Iteration *>(par);
 						mpp = dynamic_cast<const Mapping *>(par);
@@ -830,7 +840,7 @@ bool IKO::existsinspace(u_str& input_name,const inp_space the_space,const bool i
 bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool is_context,const bool release,const kind_type ikind, DataItem*& container) {
 	Environment* env = Environment::service();
 	exists = false;
-	string fresult;	//used to hold result for most spaces.
+	string ikoname,fresult;	//used to hold result for most spaces.
 /* Adding xpath facility to all spaces */	
 	//now this is odd re. xpaths. If there is no xpath, then we throw a non-existence error..
 	//however, if there is an xpath which doen't exist, we return nothing and don't throw an error.
@@ -886,17 +896,17 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 			}
 		} break;
 		case xmlnamespace: { 
-			string xns_n; XML::Manager::transcode(namepath.first,xns_n);		
-			exists = ItemStore::getns(xns_n,container,release);
+			XML::Manager::transcode(namepath.first,ikoname);		
+			exists = ItemStore::getns(ikoname,container,release);
 			if (!exists)  {
-				log(Log::error,"Error. Namespace " + xns_n + " does not exist");
+				log(Log::error,"Error. Namespace " + ikoname + " does not exist");
 			}
 		} break;
 		case xmlgrammar: {
-			string xg_n; XML::Manager::transcode(namepath.first,xg_n);		
-			exists = ItemStore::getgrammar(xg_n,container,ikind,release);
+			XML::Manager::transcode(namepath.first,ikoname);		
+			exists = ItemStore::getgrammar(ikoname,container,ikind,release);
 			if (!exists)  {
-				log(Log::error,"Error. Grammar " + xg_n + " does not exist");
+				log(Log::error,"Error. Grammar " + ikoname + " does not exist");
 			}
 		} break;
 		case store: {
@@ -921,8 +931,8 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 			} 
 		} break;					
 		case file: {
-			string fpath; XML::Manager::transcode(namepath.first,fpath);		
-			string file_path; setfilepath(fpath,file_path);
+			XML::Manager::transcode(namepath.first,ikoname);		
+			string file_path; setfilepath(ikoname,file_path);
 			string orig_wd(FileUtils::Path::wd());
 			FileUtils::Path destination; 
 			destination.cd(file_path);
@@ -939,37 +949,37 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 					wd.erase(0,root.length());
 					if ( wd.empty() ) wd = "/";
 				}
-				log(Log::error,"Error. File '" + fpath + "' glossed to '" + dest_out + "' does not exist. wd: " + wd );
+				log(Log::error,"Error. File '" + ikoname + "' glossed to '" + dest_out + "' does not exist. wd: " + wd );
 			}
 			destination.cd(orig_wd);
 		} break;
 		case url: {
 			if (httpready()) {
-				string req_url; XML::Manager::transcode(namepath.first,req_url);		
+				XML::Manager::transcode(namepath.first,ikoname);		
 				string redirect_val,timeout_val,errstr;				
 				unsigned long long max_redirects = ULLONG_MAX,timeout_secs = ULLONG_MAX;
 				owner->metastore("REDIRECT_BREAK_COUNT",max_redirects);
 				owner->metastore("URL_TIMEOUT_SECS",timeout_secs);
 				string req_errors,body,response_head;
-				HTTPFetch my_req(req_url,"GET","HTTP/1.0",body,(int)max_redirects,(int)timeout_secs,req_errors);
+				HTTPFetch my_req(ikoname,"GET","HTTP/1.0",body,(int)max_redirects,(int)timeout_secs,req_errors);
 				exists  = my_req.doRequest(response_head,fresult,(int)max_redirects,(int)timeout_secs,req_errors);
 				if (!req_errors.empty()) {
-					log(Log::error,"Error. url '" + req_url + "' had error '" + req_errors + "'");
+					log(Log::error,"Error. url '" + ikoname + "' had error '" + req_errors + "'");
 				}
 			}
 		} break;
 		case cookie: {
-			string cookie_n; XML::Manager::transcode(namepath.first,cookie_n);		
-			exists = env->getcookie_req(cookie_n,fresult);
+			XML::Manager::transcode(namepath.first,ikoname);		
+			exists = env->getcookie_req(ikoname,fresult);
 			if( !exists ) {
-				log(Log::error,"Error. Cookie " + cookie_n + " does not exist.");
+				log(Log::error,"Error. Cookie " + ikoname + " does not exist.");
 			}
 		} break;
 		case sysparm: {
-			string sysp_n; XML::Manager::transcode(namepath.first,sysp_n);		
-			exists = env->getparm(sysp_n,fresult);
+			XML::Manager::transcode(namepath.first,ikoname);		
+			exists = env->getparm(ikoname,fresult);
 			if (!exists) {
-				log(Log::error,"Error. Sysparm " + sysp_n + " does not exist.");
+				log(Log::error,"Error. Sysparm " + ikoname + " does not exist.");
 			}
 		} break;
 		case sysenv: {
@@ -978,12 +988,12 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 				if ( namepath.first.find(UCS2(L"CURRENT_"),0,8) == !string::npos) {
 					exists = currentenv(namepath.first.substr(8,string::npos),ut_value,this,container);
 				} else { //it's not a CURRENT_
-					string syse_n; XML::Manager::transcode(namepath.first,syse_n);		
-					exists = env->getenv(syse_n,fresult);
+					XML::Manager::transcode(namepath.first,ikoname);		
+					exists = env->getenv(ikoname,fresult);
 				}
 				if (!exists) { 
-					string syse_n; XML::Manager::transcode(namepath.first,syse_n);		
-					log(Log::error,"Error. Sysenv " + syse_n + errmsg);
+					XML::Manager::transcode(namepath.first,ikoname);		
+					log(Log::error,"Error. Sysenv " + ikoname + errmsg);
 				}				
 			}
 		} break;
@@ -995,6 +1005,10 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 	if ( exists && container == NULL ) {
 		if (!fresult.empty()) {
 			container = DataItem::factory(fresult,ikind); //test for xml if needs be.
+			if (container->empty()) {
+				log(Log::error,"IKO value composition error with: " + ikoname);
+			}
+			//if there was an error, we have ikoname here.
 		}
 	} 
 	return exists;

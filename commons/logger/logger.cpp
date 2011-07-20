@@ -117,6 +117,8 @@ void Logger::startup(string& t) {
 	title = t;
 }
 void Logger::shutdown() {
+	log = NULL;
+	lstore=NULL;
 }
 
 ostream* Logger::init(ostream*& final_out) {

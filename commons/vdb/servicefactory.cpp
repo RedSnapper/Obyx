@@ -72,6 +72,7 @@ namespace Vdb {
 		instances--;
 		if (instances == 0) {
 			delete singleton;
+			singleton = NULL;
 		}
 	}
 	

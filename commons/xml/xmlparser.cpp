@@ -137,13 +137,13 @@ namespace XML {
 	}
 	
 	Parser::~Parser() {
+		delete resourceHandler;
+		delete errorHandler;
 		parser->resetDocumentPool();
 		parser->resetCachedGrammarPool();
 		parser->release();
 		writer->release();
 		delete xfmt;			
-		delete errorHandler;
-		delete resourceHandler;
 	}
 	
 	void Parser::makeWriter() {

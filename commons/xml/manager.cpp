@@ -156,8 +156,7 @@ namespace XML {
 	}
 	
 	Manager::~Manager() {
-		xparser->parser->resetCachedGrammarPool();
-		xparser->parser->release();
+		delete xparser; xparser=NULL;
 //		XMLPlatformUtils::Terminate();
 		XQillaPlatformUtils::terminate();
 	}

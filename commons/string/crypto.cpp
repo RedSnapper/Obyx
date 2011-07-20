@@ -212,8 +212,11 @@ namespace String {
 		if (loaded) {
 // do any teardown functions here.
 		}
+		loaded=false;
+		loadattempted = false;
 		if ( lib_handle != NULL ) {
 			dlclose(lib_handle);
+			lib_handle=NULL;
 		}
 		return true;
 	}

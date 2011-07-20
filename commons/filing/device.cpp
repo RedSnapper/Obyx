@@ -23,22 +23,21 @@
 #include "device.h"
 
 	namespace FileUtils {
-
 		//-------------------------------------------------------------------------
 		// Basic constructor
 		//-------------------------------------------------------------------------
-		Device::Device() { init(); }
+		Device::Device() :  device(),root_separator("/") { init(); }
 
 		//-------------------------------------------------------------------------
 		// Constructs a new device with the specified device name
 		// e.g. "C:", "/"
 		//-------------------------------------------------------------------------
-		Device::Device(const string &newdevice) : device(newdevice) { init(); }
+		Device::Device(const string &newdevice) : device(newdevice),root_separator("/") { init(); }
 
 		//-------------------------------------------------------------------------
 		// Constructs a new device using a specified device
 		//-------------------------------------------------------------------------
-		Device::Device(const Device &newdevice) {
+		Device::Device(const Device &newdevice) : device(),root_separator() {
 			init();
 			device = newdevice.device;
 			root_separator = newdevice.root_separator;
