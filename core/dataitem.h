@@ -49,14 +49,8 @@ private:
 	static DataItem* autoItem(const std::string&);
 	static DataItem* autoItem(const u_str&);
 	
-	//	typedef std::map<unsigned long, std::string > long_map; 
-	//	static long_map ce_map;
-	//	void do_alloc(const std::string);
-	//	void do_dealloc();
-	
 protected:
 	DataItem();
-//	DataItem(const DataItem&);	
 	
 public:	
 	static void init();
