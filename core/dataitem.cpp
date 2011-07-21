@@ -33,10 +33,22 @@
 
 #ifdef PROFILING
 	DataItem::long_map DataItem::ce_map;
- 	void DataItem::do_alloc() {
+
+void DataItem::do_alloc() {
+		string val("");
 		unsigned long addr = (unsigned long)(this);
 		unsigned long bpt = ObyxElement::eval_count;
-		string val("");
+//
+		if (
+			(bpt ==  491 ) || 
+			(bpt ==  168 ) ||
+			(bpt == 1170 ) || 
+			(bpt ==  506 ) ||
+			(bpt ==  601 ) 
+		) {
+//			ObyxElement::trace();
+			val="x"; //known issues..
+		}
 		ce_map.insert(long_map::value_type(addr,pair<unsigned long,string>(bpt,val)));
 //		*Logger::log << Log::info << "inserting " << (unsigned int)addr << "; " << (unsigned int)bpt << "; " << val << Log::LO << Log::blockend;				
 	}
@@ -47,7 +59,6 @@
 			unsigned long bpt = ObyxElement::eval_count;
 			*Logger::log << Log::error << Log::LI  << "Error." << (unsigned int)bpt << "; ce was already deleted."  << Log::LO << Log::blockend;	
 		} else {
-//			*Logger::log << Log::info << "deleting " << (unsigned int)it->first << "; " << (unsigned int)it->second.first << "; " << it->second.second << Log::LO << Log::blockend;				
 			ce_map.erase(it);
 		}
 	}
@@ -479,7 +490,7 @@ void DataItem::finalise() {
 	 if ( ! ce_map.empty() ) {
 		 *Logger::log << Log::error << Log::LI << "Error. Not all DataItems were deleted."  << Log::LO << Log::blockend;	
 		 for( long_map::iterator imt = ce_map.begin(); imt != ce_map.end(); imt++) {
-			 *Logger::log << Log::info << (unsigned int)imt->first << "; " << (unsigned int)imt->second.first << "; " << imt->second.second << Log::LO << Log::blockend;				
+			 *Logger::log << Log::info << Log::LI << (unsigned int)imt->first << "; " << (unsigned int)imt->second.first << "; " << imt->second.second << Log::LO << Log::blockend;				
 		 }
 	 }
 #endif
