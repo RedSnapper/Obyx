@@ -17,6 +17,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.110721
+	BUG			multiple errors regarding undeleted memory.
+	Enh.		Internal support for profiling.
 v1.1107202
 	unstable. 	Testing various memory modifications. 
 v1.1107201
