@@ -261,6 +261,7 @@ bool Mapping::evaluate_this() {
 										case m_substitute: { // m_substitute uses partial-matching and changes the domain.
 											sdom = *the_domain;
 											if ( String::Regex::match( skey, sdom ) ) {
+												matched = true;
 												delete the_domain;
 												std::string insert("");
 												bool the_scope = match->k_scope;
@@ -278,7 +279,6 @@ bool Mapping::evaluate_this() {
 													}
 												}									
 												if (key->results.result() == NULL) {
-													matched = true;
 													sdom = insert;
 												} else {
 													String::Regex::replace(skey,insert,sdom,the_scope);
