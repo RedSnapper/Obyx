@@ -1386,21 +1386,25 @@ bool Environment::getparm(string const name,string& container) {
 					container = result.first;
 					retval = true;
 				} else {
+					if (it != parm_map.end()) {
+						vector<string> parmvals = it->second;
+						string::const_iterator numit = result.second.begin()+2;
+						index = String::natural(numit);
+						if (index < parmvals.size()) {
+							retval = true;
+							container = parmvals[index];
+						}
+					}
+				}
+			} else {
+				if (it != parm_map.end()) {
 					vector<string> parmvals = it->second;
-					string::const_iterator numit = result.second.begin()+2;
+					string::const_iterator numit = result.second.begin();
 					index = String::natural(numit);
 					if (index < parmvals.size()) {
 						retval = true;
 						container = parmvals[index];
 					}
-				}
-			} else {
-				vector<string> parmvals = it->second;
-				string::const_iterator numit = result.second.begin();
-				index = String::natural(numit);
-				if (index < parmvals.size()) {
-					retval = true;
-					container = parmvals[index];
 				}
 			}
 		}
