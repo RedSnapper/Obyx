@@ -164,7 +164,7 @@ IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : ObyxElement
 	}
 	if ( has_val_attr ) {	//wsstrip is ignored when value attribute is used.
 		wsstrip = false;
-		DataItem* attrval = DataItem::factory(svalue,di_utext); //CONTENDER 8
+		DataItem* attrval = DataItem::factory(svalue,di_utext);
 		results.setresult(attrval, wsstrip);
 	}
 }

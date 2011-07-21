@@ -281,7 +281,7 @@ bool Mapping::evaluate_this() {
 													matched = true;
 													sdom = insert;
 												} else {
-													matched = String::fandr(sdom,skey,insert,the_scope);
+													String::Regex::replace(skey,insert,sdom,the_scope);
 												}
 												the_domain = DataItem::factory(sdom,dom_kind);
 											}
@@ -325,10 +325,6 @@ bool Mapping::evaluate_this() {
 			definputs[0]->results.setresult(the_domain);
 		} else {
 			mat_evaluated = true;
-//			for ( unsigned int k = 0; k < definputs.size(); k++ ) { 
-//				delete definputs[k]; 
-//			}
-//			definputs.clear(); dealt with by ~Function
 			if (operation == m_switch) { 
 				delete the_domain;
 				the_domain = NULL;
