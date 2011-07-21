@@ -571,7 +571,7 @@ void IKO::evaltype(inp_space the_space, bool release, bool eval,bool is_context,
 			}
 		}
 		switch (exist_test) {
-			case ut_value: {
+			case ut_value: { //container is now a new object.
 				exists = valuefromspace(input_name,the_space,is_context,release,ikind,container);
 			} break;
 			case ut_existence: {
@@ -1008,7 +1008,7 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 	}	
 	if ( exists && container == NULL ) {
 		if (!fresult.empty()) {
-			container = DataItem::factory(fresult,ikind); //test for xml if needs be.
+			container = DataItem::factory(fresult,ikind); //test for xml if needs be. This is not being deleted.
 			if (container->empty()) {
 				log(Log::error,"IKO value composition error with: " + ikoname);
 			}

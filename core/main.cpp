@@ -106,6 +106,7 @@ int main(int argc, char *argv[]) {
 							delete result;
 						}
 						delete obyxdoc;
+						obyxdoc = NULL;
 					}
 					Filer::output(out_str,kind);
 					delete sfile;

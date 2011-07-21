@@ -167,14 +167,14 @@ void Instruction::do_function() {
 			FileUtils::Path::push_wd(dirstring);
 		}
 	}
-	Document eval_doc(document,Document::File,fn_filename,this,false);
-	eval_doc.setparms(function_instance);
-	eval_doc.doc_par = owner;
-	eval_doc.owner = &eval_doc;
-	eval_doc.eval();
-	if ( ! eval_doc.results.final()  ) {
-		eval_doc.results.normalise();	
-		if ( ! eval_doc.results.final()  ) { //if it is STILL not final..
+	Document* eval_doc = new Document(document,Document::File,fn_filename,this,false);
+	eval_doc->setparms(function_instance);
+	eval_doc->doc_par = owner;
+	eval_doc->owner = eval_doc;
+	eval_doc->eval();
+	if ( ! eval_doc->results.final()  ) {
+		eval_doc->results.normalise();	
+		if ( ! eval_doc->results.final()  ) { //if it is STILL not final..
 			*Logger::log << Log::error << Log::LI << "Error. Function was not fully evaluated." << Log::LO ;
 			trace();
 			//			string troubled_doc;
@@ -187,11 +187,12 @@ void Instruction::do_function() {
 		DataItem* nowt = NULL;
 		results.setresult(nowt);
 	} else {
-		results.setresult(eval_doc.results);
+		results.setresult(eval_doc->results);
 	}
 	if(has_own_directory) {
 		FileUtils::Path::pop_wd();
 	}	
+	delete eval_doc;
 	delete document;
 }
 bool Instruction::evaluate_this() {
@@ -235,9 +236,7 @@ bool Instruction::evaluate_this() {
 					*Logger::log << Log::blockend;
 				}
 				if ( n > 0 ) {	
-					DataItem* srr = NULL;
-					inputs[0]->results.takeresult(srr);
-					results.setresult(srr);
+					results.setresult(inputs[0]->results);
 				}
 			} break;
 			case kind: {
@@ -619,7 +618,6 @@ bool Instruction::evaluate_this() {
 						*Logger::log << Log::blockend;
 					}
 				}
-				delete first_value; first_value=NULL;
 				switch ( operation ) {
 					case obyx::append:
 					case function:
@@ -766,6 +764,7 @@ bool Instruction::evaluate_this() {
 						results.setresult(first_value,false);
 					} break;
 				}
+				delete first_value; first_value=NULL;
 			} break;
 		}
 	}

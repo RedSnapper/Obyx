@@ -577,8 +577,11 @@ bool XMLObject::sort(const u_str& path,const u_str& sortpath,bool ascending,bool
 								}
 							}
 						}
+						while (!lex_results_for_sorting.empty()) {
+							delete lex_results_for_sorting.front().second;
+							lex_results_for_sorting.pop_front(); 
+						}
 						lex_results_for_sorting.clear();
-
 					} else {
 						num_results_for_sorting.sort();
 						if (ascending) {						
@@ -600,7 +603,10 @@ bool XMLObject::sort(const u_str& path,const u_str& sortpath,bool ascending,bool
 								}
 							}
 						}
-						num_results_for_sorting.clear();
+						while (!num_results_for_sorting.empty()) {
+							delete num_results_for_sorting.front().second;
+							num_results_for_sorting.pop_front(); 
+						}
 					}
 					delete result; result = NULL;
 				} else {

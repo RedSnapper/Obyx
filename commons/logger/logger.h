@@ -109,6 +109,7 @@ public:
 	Logger& operator<< (const double);
 	Logger& operator<< (const int);
 	Logger& operator<< (const unsigned int);
+	Logger& operator<< (const unsigned long int);
 	Logger& operator<< (const char*);
 	Logger& operator<< (const string);
 	Logger& operator<< (const Log::msgtype);

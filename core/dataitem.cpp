@@ -38,19 +38,17 @@ void DataItem::do_alloc() {
 		string val("");
 		unsigned long addr = (unsigned long)(this);
 		unsigned long bpt = ObyxElement::eval_count;
-//
 		if (
+/*			(bpt ==  168 ) ||
 			(bpt ==  491 ) || 
-			(bpt ==  168 ) ||
-			(bpt == 1170 ) || 
+			(bpt == 1170 ) || */
 			(bpt ==  506 ) ||
-			(bpt ==  601 ) 
+			(bpt ==  601 )
 		) {
-//			ObyxElement::trace();
+			*Logger::log << Log::info << Log::LI  << "inserting " << (unsigned long)addr << "; " << (unsigned long)bpt << "; " << val << Log::LO << Log::blockend;				
 			val="x"; //known issues..
 		}
 		ce_map.insert(long_map::value_type(addr,pair<unsigned long,string>(bpt,val)));
-//		*Logger::log << Log::info << "inserting " << (unsigned int)addr << "; " << (unsigned int)bpt << "; " << val << Log::LO << Log::blockend;				
 	}
 	void DataItem::do_dealloc() {
 		unsigned long addr = (unsigned long)(this);
@@ -490,7 +488,7 @@ void DataItem::finalise() {
 	 if ( ! ce_map.empty() ) {
 		 *Logger::log << Log::error << Log::LI << "Error. Not all DataItems were deleted."  << Log::LO << Log::blockend;	
 		 for( long_map::iterator imt = ce_map.begin(); imt != ce_map.end(); imt++) {
-			 *Logger::log << Log::info << Log::LI << (unsigned int)imt->first << "; " << (unsigned int)imt->second.first << "; " << imt->second.second << Log::LO << Log::blockend;				
+			 *Logger::log << Log::info << Log::LI << (unsigned long)imt->first << "; " << (unsigned long)imt->second.first << "; " << imt->second.second << Log::LO << Log::blockend;				
 		 }
 	 }
 #endif

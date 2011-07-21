@@ -71,12 +71,12 @@ void Document::finalise() {
 	for(type_store_map::iterator i = docstores.begin(); i != docstores.end(); i++) {
 		delete i->second;
 	}
+	root = NULL; //This a copy of the opening document, it's deleted in main.
 	xmlmanager->resetDocPool(); //This resets the cache of the entire set of all docs
 }
 void Document::shutdown() {
 	delete xmlmanager;
 	xmlmanager=NULL;
-	root = NULL; //This is the opening document.
 }
 const std::string Document::currentname() {
 	Environment* env = Environment::service();
@@ -391,7 +391,6 @@ bool Document::getparm(const string& parmkey,const DataItem*& container) const {
 	}
 	return retval; //if we are outside of a function there is no parm.
 }
-
 bool Document::getparm(const u_str& parmkey,const DataItem*& container) const {
 	bool retval = false;
 	if (parm_map != NULL) {
@@ -585,7 +584,6 @@ ObyxElement(par,xmldocument,other,NULL), xdoc(NULL),root_node(NULL),filepath(fp)
 		}
 	}
 }
-
 Document::~Document() {
 	if (parm_map != NULL) {	
 		type_parm_map::iterator it = parm_map->begin();
@@ -597,10 +595,10 @@ Document::~Document() {
 		parm_map->clear();
 		delete parm_map;
 	}
-//	store; SHOULD be deleted.
 	if (xdoc != NULL) {
-		xdoc->release();
+		xdoc->release(); xdoc=NULL;
 	}
+	//	store values SHOULD be deleted when we go out of scope.
 }
 std::string const Document::currenthttpreq() {
 	if ( curr_http_req.empty() ) {

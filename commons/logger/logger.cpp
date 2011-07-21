@@ -227,6 +227,13 @@ Logger& Logger::operator<< (const bool val ) {
 	}
 	return *this;
 }
+Logger& Logger::operator<< (const unsigned long int val) { 
+    if (msgdepth-1 == fataldepth && infatal && log->top_line) { log->syslogbuffer << val;}
+	if ( should_report() || debugging() )  {
+		*o << static_cast<int>(val); 
+	}
+	return *this;
+}	
 
 Logger& Logger::operator<< (const int val ) { 
     if (msgdepth-1 == fataldepth && infatal && log->top_line) { log->syslogbuffer << val;}

@@ -311,11 +311,11 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 						if (!xpath.empty()) {
 							u_str name= *name_part;
 							if(owner->setstore(name,xpath,value_comp,kind,scope,errstring)) {
-								value_comp = NULL; //taken by object. 
+								value_comp = NULL; //taken by object - should already be null. 
 							}
 						} else {
 							if(owner->setstore(name_part,value_comp,kind,scope,errstring)) {
-								value_comp = NULL; //taken by object. 
+								value_comp = NULL; //taken by object - should already be null. 
 							}
 						}
 						if (!errstring.empty()) {

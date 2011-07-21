@@ -178,7 +178,7 @@ void Function::evaluate(size_t,size_t) {
 					//Find if there is an output..
 					bool err_caught = false;
 					size_t os = outputs.size();
-					DataItem* imm_result = NULL; //need to keep immediate results.
+//					DataItem* imm_result = NULL; //need to keep immediate results.
 					for (size_t s = 0; s < os; s++) { //see if we are catching errors.
 						if (outputs[s] != NULL && outputs[s]->gettype() == out_error) {
 							if (stream_is_set) {
@@ -187,7 +187,6 @@ void Function::evaluate(size_t,size_t) {
 							} 
 							outputs[s]->evaluate(s,string::npos); //We only want a copy here...
 							err_caught = outputs[s]->caughterr();
-							delete outputs[s]; outputs[s] = NULL;
 							if (s == os -1) { os--; }
 							break;
 						}
@@ -198,19 +197,18 @@ void Function::evaluate(size_t,size_t) {
 							if ( !err_caught) {
 								theoutput->evaluate(s+1,os);
 								if ( theoutput->gettype() == out_immediate ) {
-									theoutput->results.takeresult(imm_result);
+									results.setresult(theoutput->results); //now encoded and what-have-you - or may be null.
+//									theoutput->results.takeresult(imm_result);
 								}
 							}
-							delete theoutput;
-							outputs[s] = NULL;
 						}
 					}
-					outputs.clear();			  //all will be set to NULL...
-					results.setresult(imm_result); //now encoded and what-have-you - or may be null.
 				} else {
 					finalised=false;
 					results.clearresult();
 				}
+			} else {
+				//results are taken by pairqueue of parent.
 			}
 		} 
 	} else {

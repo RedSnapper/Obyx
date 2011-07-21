@@ -51,8 +51,14 @@ ItemStore::ItemStore(const ItemStore* orig) : the_item_map() {
 ItemStore::~ItemStore() {
 	item_map_type::iterator it = the_item_map.begin();
 	while ( it != the_item_map.end()) {
+#ifdef PROFILING
+		string x= it->first;
+		DataItem*& y=it->second;
+		delete y; y=NULL;
+#else
 		delete (*it).second; 
 		(*it).second = NULL;
+#endif
 		it++;
 	}
 	the_item_map.clear();
@@ -153,6 +159,7 @@ bool ItemStore::exists(const u_str& namepath,bool release,std::string& errorstr)
 		if (it != the_item_map.end()) {
 			retval = true;
 			if (release) {
+				delete it->second;
 				the_item_map.erase(it);
 			}
 		}
@@ -178,7 +185,10 @@ bool ItemStore::find(const string& pattern,bool release,std::string& errorstr) {
 			Logger::set_stream(suppressor);
 			for(item_map_type::iterator imt = the_item_map.begin(); !retval && imt != the_item_map.end(); imt++) {
 				retval= String::Regex::match(pattern,imt->first);
-				if (retval && release) { the_item_map.erase(imt); }
+				if (retval && release) { 
+					delete imt->second;
+					the_item_map.erase(imt); 
+				}
 			}
 			Logger::unset_stream();
 			if (!suppressor->str().empty()) {
@@ -189,7 +199,10 @@ bool ItemStore::find(const string& pattern,bool release,std::string& errorstr) {
 		} else {
 			item_map_type::iterator it = the_item_map.find(pattern);
 			retval = (it != the_item_map.end());
-			if (retval && release) { the_item_map.erase(it); }
+			if (retval && release) { 
+				delete it->second;
+				the_item_map.erase(it); 
+			}
 		}
 	}
 	return retval;
@@ -215,7 +228,10 @@ bool ItemStore::find(const u_str& pattern,bool release,std::string& errorstr) {
 			Logger::set_stream(suppressor);
 			for(item_map_type::iterator imt = the_item_map.begin(); !retval && imt != the_item_map.end(); imt++) {
 				retval= String::Regex::match(rxpr,imt->first);
-				if (retval && release) { the_item_map.erase(imt); }
+				if (retval && release) { 
+					delete imt->second;
+					the_item_map.erase(imt);
+				}
 			}
 			Logger::unset_stream();
 			if (!suppressor->str().empty()) {
@@ -226,7 +242,10 @@ bool ItemStore::find(const u_str& pattern,bool release,std::string& errorstr) {
 		} else {
 			item_map_type::iterator it = the_item_map.find(rxpr);
 			retval = (it != the_item_map.end());
-			if (retval && release) { the_item_map.erase(it); }
+			if (retval && release) { 
+				delete it->second;
+				the_item_map.erase(it); 
+			}
 		}
 	}
 	return retval;
@@ -256,7 +275,7 @@ bool ItemStore::release(const u_str& obj_name) {
 	std::string name; XML::Manager::transcode(obj_name,name); //Our keys are actually std::strings	
 	item_map_type::iterator it = the_item_map.find(name);
 	if (it != the_item_map.end()) {
-		it->second = NULL;
+		delete it->second;
 		the_item_map.erase(it);
 		retval = true;
 	} 
