@@ -143,19 +143,12 @@ bool Iteration::evaluate_this() { //This can be run as an evaluated iteration wi
 		}
 //		definputs.clear();
 	}
-/*	Dealt with by ~Function
 	if ( ctlevaluated && evaluated  && expanded ) {
 		size_t n = definputs.size();
 		for ( size_t i = 0; i < n; i++ ) {
-			DataItem* di = NULL; 
-			definputs[i]->results.takeresult(di);
-			results.append(di);
-			delete definputs[i];
-			definputs[i] = NULL;
+			results.append(definputs[i]->results,this);
 		}
-		definputs.clear();
 	}
-*/ 
 	return evaluated;
 }
 bool Iteration::fieldfind(const u_str& pattern) const { //regex..
