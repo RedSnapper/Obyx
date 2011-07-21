@@ -31,7 +31,7 @@
 
 class StrObject : public DataItem {
 private:
-	StrObject() : o_str("") {}
+	StrObject() : DataItem(),o_str("") {}
 
 protected:
 	friend class DataItem;

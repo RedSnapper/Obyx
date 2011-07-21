@@ -43,7 +43,7 @@ class XMLObject : public DataItem {
 private:
 	typedef hash_map<const u_str,xercesc::DOMXPathExpression*, hash<const u_str&> > xpe_map_type;
 	
-	XMLObject() {}
+	XMLObject() : DataItem() {}
 	bool xp_result(const u_str&,DOMXPathResult*&,std::string&);
 	void set_pnsr(); // Set the pnsr with the latest list of namespaces.
 	void del_pnsr(); // Delete the pnsr and release the xpe cache.

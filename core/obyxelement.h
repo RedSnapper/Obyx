@@ -82,6 +82,7 @@ private:
 	void do_dealloc();
 	
 protected:
+	friend class DataItem;
 	friend class Document;
 	friend class Environment;
 	friend class Function;

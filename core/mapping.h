@@ -58,7 +58,7 @@ public:
 	Mapping(xercesc::DOMNode* const&,ObyxElement*); //done by factory
 	virtual void addInputType(InputType*);
 	virtual void addDefInpType(DefInpType*);	
-	virtual ~Mapping() {}
+	virtual ~Mapping();
 	
 private:
 	static void init();

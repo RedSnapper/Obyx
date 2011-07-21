@@ -247,18 +247,16 @@ bool Comparison::evaluate_this() {
 						}
 						
 					}
+					delete inpval;
 				}
 			}
 		}
+		delete acc;		
 		if (invert && operation != greater_than && operation !=less_than ) compare_bool = !compare_bool;
 		if (compare_bool) {
 			operation_result = 'T';
 		} else {
 			operation_result = 'F';
-		}
-		while ( inputs.size() > 0) {
-			delete inputs.front();
-			inputs.pop_front(); 
 		}
 	}
 	if (cmp_evaluated && operation_result!='X' && !def_evaluated ) { 
@@ -274,10 +272,6 @@ bool Comparison::evaluate_this() {
 			}
 		}	
 		if ( def_evaluated) {
-			while ( definputs.size() > 0) {
-				delete definputs.front();
-				definputs.pop_front(); 
-			}
 			if ( ! eval_found ) {
 				results.clearresult();
 			}
@@ -341,6 +335,9 @@ void Comparison::addDefInpType(DefInpType* i) {
 			} break;
 		}
 	}
+}
+Comparison::~Comparison() {
+	//outputs/inputs are deleted by Function.
 }
 void Comparison::init() {
 }

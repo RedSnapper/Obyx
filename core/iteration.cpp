@@ -135,13 +135,15 @@ bool Iteration::evaluate_this() { //This can be run as an evaluated iteration wi
 					*Logger::log << Log::blockend;
 				}
 			}
-			for ( size_t i = 0; i < n; i++ ) {
-				delete definputs[i];
-			}
+//deleted by ~Function			
+//			for ( size_t i = 0; i < n; i++ ) {
+//				delete definputs[i];
+//			}
 			evaluated = true;
 		}
-		definputs.clear();
+//		definputs.clear();
 	}
+/*	Dealt with by ~Function
 	if ( ctlevaluated && evaluated  && expanded ) {
 		size_t n = definputs.size();
 		for ( size_t i = 0; i < n; i++ ) {
@@ -153,6 +155,7 @@ bool Iteration::evaluate_this() { //This can be run as an evaluated iteration wi
 		}
 		definputs.clear();
 	}
+*/ 
 	return evaluated;
 }
 bool Iteration::fieldfind(const u_str& pattern) const { //regex..
@@ -296,9 +299,8 @@ bool Iteration::operation_each() {
 	std::set<std::string,less<std::string> > spacekeys;
 	if ( ! inputs.empty() ) { 
 		inputs[0]->evalfind(spacekeys);			//now we have the search string	
-		delete inputs[0]; inputs.clear();
-		if (definputs.size() > 0) {
-			DefInpType* base_template = definputs[0]; definputs.clear();
+		if (definputs.size() > 0) {				//body.
+			DefInpType* base_template = definputs[0]; definputs.clear(); //We are about to re-construct the list. 
 			numreps = spacekeys.size();
 			unsigned long long forced_break = DEFAULT_MAX_ITERATIONS;
 			if(!owner->metastore("ITERATION_BREAK_COUNT",forced_break)) {
@@ -310,8 +312,6 @@ bool Iteration::operation_each() {
 			if ( numreps == 0 ) {
 				delete base_template; //just let it be deleted.
 			} else {
-				// sort should already be sorted
-				// std::sort(spacekeys.begin(),spacekeys.end()); 
 				DefInpType* iter_input = NULL;
 				set<string>::const_iterator ski = spacekeys.begin();
 				for (currentrow = 1; currentrow <= numreps; currentrow++) {
@@ -364,7 +364,7 @@ bool Iteration::operation_repeat() {
 	}
 	if (definputs.size() > 0) {
 		DefInpType* base_template = definputs[0];
-		definputs.clear();
+		definputs.clear();		 //we are going to recomposit this.
 		if ( numreps == 0 ) {
 			delete base_template; //just let it be deleted.
 		} else {
@@ -398,7 +398,7 @@ bool Iteration::operation_sql() {
 				if ( query->execute() ) {
 					if (definputs.size() > 0) {
 						DefInpType* base_template = definputs[0];
-						definputs.clear();
+						definputs.clear();		//because we are recompositing this list.
 						long long queryrows = query->getnumrows();
 						numreps = queryrows < 1 ? 0 :  queryrows;
 						unsigned long long forced_break = DEFAULT_MAX_ITERATIONS;
@@ -497,6 +497,7 @@ bool Iteration::operation_while(bool existence) {
 	return inputsfinal;
 }
 Iteration::~Iteration() { 
+	//outputs/inputs are deleted by Function.
 }
 void Iteration::addInputType(InputType* i) {
 	if (inputs.size() > 0) {

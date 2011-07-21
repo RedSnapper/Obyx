@@ -132,14 +132,10 @@ void Instruction::do_function() {
 					trace();
 					*Logger::log << Log::blockend;
 				} else {
-					if (inputs[i]->results.result() != NULL) {
-						inputs[i]->results.result()->copy(rslt);
-					}
+					inputs[i]->results.takeresult(rslt);
 				}
 			} else {
-				if (inputs[i]->results.result() != NULL) {
-					inputs[i]->results.result()->copy(rslt);
-				}
+				inputs[i]->results.takeresult(rslt);
 			}
 			pair<Document::type_parm_map::iterator, bool> ins = function_instance->insert(Document::type_parm_map::value_type(parm_key,rslt));
 			if (!ins.second) {
@@ -191,13 +187,12 @@ void Instruction::do_function() {
 		DataItem* nowt = NULL;
 		results.setresult(nowt);
 	} else {
-		DataItem* doc_result = NULL;
-		eval_doc.results.takeresult(doc_result);
-		results.setresult(doc_result);
+		results.setresult(eval_doc.results);
 	}
 	if(has_own_directory) {
 		FileUtils::Path::pop_wd();
 	}	
+	delete document;
 }
 bool Instruction::evaluate_this() {
 	size_t n = inputs.size();
@@ -256,10 +251,14 @@ bool Instruction::evaluate_this() {
 					string value;
 					inputs[0]->results.takeresult(srr);
 					if (srr != NULL) {
-						if (srr->kind() == di_text || srr->kind() == di_utext || srr->kind() == di_raw ) {
-							value="text";
-						} else {
-							value="object";
+						switch(srr->kind()) {
+							case di_null: 		{ value="empty"; } break;
+							case di_object:
+							case di_fragment: 	{ value="object"; } break;
+							case di_raw: 		{ value="raw"; } break;
+							case di_auto:
+							case di_text:
+							case di_utext: 		{ value="text"; } break;	
 						}
 						delete srr;
 						srr=NULL;
@@ -612,6 +611,7 @@ bool Instruction::evaluate_this() {
 									}
 								} break;
 							}
+							delete srcval; srcval=NULL;
 						}
 					} else {
 						*Logger::log << Log::error << Log::LI << "Error. Instructions may only use Inputs." << Log::LO;
@@ -619,7 +619,7 @@ bool Instruction::evaluate_this() {
 						*Logger::log << Log::blockend;
 					}
 				}
-				
+				delete first_value; first_value=NULL;
 				switch ( operation ) {
 					case obyx::append:
 					case function:
@@ -933,9 +933,14 @@ void Instruction::addDefInpType(DefInpType*) {
 	trace();
 	*Logger::log << Log::blockend;
 }
+Instruction::~Instruction() {
+	//outputs/inputs are deleted by Function.
+}
+
 void Instruction::init() {
 	//static methods - once only (either per main doc, or per process) thank-you very much..
 }
+
 void Instruction::finalise() {
 }
 void Instruction::startup() {

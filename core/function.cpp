@@ -222,22 +222,19 @@ bool Function::final() {
 	return finalised;
 }
 Function::~Function() {
-	for ( unsigned int i = 0; i < inputs.size(); i++ ) {
-		delete inputs[i];
-		inputs[i] = NULL;
+	//results is deleted by ~ObyxElement
+	while ( inputs.size() > 0) {
+		delete inputs.front();
+		inputs.pop_front(); 
 	}
-	inputs.clear();
-	for ( unsigned int i = 0; i < definputs.size(); i++ ) {
-		delete definputs[i];
-		definputs[i] = NULL;
+	while ( definputs.size() > 0) {
+		delete definputs.front();
+		definputs.pop_front(); 
 	}
-	definputs.clear();
-	for ( unsigned int i = 0; i < outputs.size(); i++ ) {
-		delete outputs[i];
-		outputs[i] = NULL;
+	while ( outputs.size() > 0) {
+		delete outputs.front();
+		outputs.pop_front(); 
 	}
-	outputs.clear();
-	results.clear();
 }
 void Function::init() {
 	//init once per main document..

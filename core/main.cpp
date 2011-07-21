@@ -43,6 +43,8 @@
 #include "osimessage.h"
 #include "dataitem.h"
 
+#include "ustritem.h"
+
 using namespace std;
 using namespace Vdb;
 using namespace Log;
@@ -54,7 +56,7 @@ void finalise();
 void shutdown();
 
 int main(int argc, char *argv[]) {
-	string v_number = "1.1107201"; //Do NOT put the v here!
+	string v_number = "1.1107202"; //Do NOT put the v here!
 #ifdef FAST
 #ifdef PROFILING
 	int  profilecount = 100;
@@ -172,9 +174,9 @@ void init(ostream*& f_out,int argc,char** argv,char** env) {
 }
 void finalise() {
 	ItemStore::finalise();
-	DataItem::finalise();
 	OsiMessage::finalise();
 	Document::finalise();		
+	DataItem::finalise();
 	Logger::finalise();
 	Httphead::finalise();
 #ifndef FAST

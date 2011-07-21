@@ -85,7 +85,7 @@ FragmentObject::FragmentObject(const xercesc::DOMNode* n) : DataItem(),fragment(
 		fragment->appendChild(newnode);
 	}
 }
-FragmentObject::FragmentObject(const DataItem& s): DataItem(),fragment(NULL) {
+FragmentObject::FragmentObject(const DataItem& s):DataItem(),fragment(NULL) {
 	fragment = frag_doc->createDocumentFragment();
 	DOMNode* n = s;
 	fragment->appendChild(n);

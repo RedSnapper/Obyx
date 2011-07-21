@@ -587,7 +587,7 @@ ObyxElement(par,xmldocument,other,NULL), xdoc(NULL),root_node(NULL),filepath(fp)
 }
 
 Document::~Document() {
-	if (parm_map != NULL) {
+	if (parm_map != NULL) {	
 		type_parm_map::iterator it = parm_map->begin();
 		while ( it != parm_map->end()) {
 			delete (*it).second;
@@ -597,6 +597,7 @@ Document::~Document() {
 		parm_map->clear();
 		delete parm_map;
 	}
+//	store; SHOULD be deleted.
 	if (xdoc != NULL) {
 		xdoc->release();
 	}

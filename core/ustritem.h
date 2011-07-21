@@ -31,7 +31,8 @@
 
 class UStrItem : public DataItem {
 private:
-	UStrItem() : o_str(UCS2(L"")){}
+	UStrItem() : DataItem(),o_str(UCS2(L"")) {}
+	static char bar[2];
 	
 protected:
 	friend class DataItem;

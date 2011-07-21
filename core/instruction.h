@@ -54,7 +54,7 @@ public:
 	Instruction(xercesc::DOMNode* const&,ObyxElement*); //done by factory
 	virtual void addInputType(InputType*);
 	virtual void addDefInpType(DefInpType*);	
-	virtual ~Instruction() {}
+	virtual ~Instruction();
 	
 private:
 	friend class Function;

@@ -55,7 +55,7 @@ public:
 	void evalfind(set<string>&); 
 	InputType(ObyxElement*,const InputType*);
 	InputType(xercesc::DOMNode* const&,ObyxElement* = NULL, elemtype = input);
-	virtual ~InputType() {}
+	virtual ~InputType(); 
 	static void startup(); 
 	static void shutdown();	
 };

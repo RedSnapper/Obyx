@@ -57,7 +57,7 @@ public:
 	virtual void addInputType(InputType*);
 	virtual void addDefInpType(DefInpType*);	
 	const cmp_type op() const {return operation;}
-	virtual ~Comparison() {}
+	virtual ~Comparison();
 	
 };
 

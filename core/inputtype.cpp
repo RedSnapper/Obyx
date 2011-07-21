@@ -213,6 +213,10 @@ IKO(n,par,el),eval(false),release(false),ascending(true),type(immediate),parm_na
 InputType::InputType(ObyxElement* par,const InputType* orig) : IKO(par,orig),
 eval(orig->eval),release(orig->release),ascending(orig->ascending),type(orig->type),parm_name(orig->parm_name) {
 }
+InputType::~InputType() {
+	//higher stuff is deleted by ~IKO
+}
+
 void InputType::evalfind(std::set<std::string>& keylist) {
 	if (type != error && type != none) {
 		inp_space space = type;		//we need to evaluate this as immediate.

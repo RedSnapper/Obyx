@@ -155,31 +155,37 @@ bool Mapping::evaluate_this() {
 				} else {
 					if ( the_domain != NULL ) {
 						kind_type dom_kind = the_domain->kind();
-						DefInpType* tmp_input = NULL;
 						switch (match->k_format) { 
 							case 'l': { //literal
 								switch (operation) {
 									case m_switch: { // m_switch uses full-matches without changing the domain (repeat illegal).
 										if ( the_domain->same( key->results.result()) ) {
-											tmp_input = match;
-											tmp_input->evaluate();
 											matched = true;
-											DataItem* tmp = NULL;
-											tmp_input->results.takeresult(tmp);
-											results.setresult(tmp,match->wsstrip);
+											if (repeated) {
+												DefInpType* tmp_input = new DefInpType(this,match);
+												tmp_input->evaluate();
+												results.setresult(tmp_input->results);
+												delete tmp_input;
+											} else {
+												match->evaluate();
+												results.setresult(match->results);
+											}									
 										}
 									} break;
 									case m_state: { // m_switch uses full-matches and changes the domain.
 										if ( the_domain->same( key->results.result()) ) {
-											if (repeated) {
-												tmp_input = new DefInpType(this,match);
-											} else {
-												tmp_input = match;
-											}									
-											tmp_input->evaluate();
 											matched = true;
-											delete the_domain;
-											tmp_input->results.takeresult(the_domain);
+											if (repeated) {
+												DefInpType* tmp_input = new DefInpType(this,match);
+												tmp_input->evaluate();
+												delete the_domain;
+												tmp_input->results.takeresult(the_domain);
+												delete tmp_input;
+											} else {
+												match->evaluate();
+												delete the_domain;
+												match->results.takeresult(the_domain);
+											}									
 										}
 									} break;
 									case m_substitute: { // m_substitute uses partial-matching and changes the domain.
@@ -188,23 +194,28 @@ bool Mapping::evaluate_this() {
 											skey = *key->results.result();
 										}
 										if ( (key->results.result() == NULL) || (sdom.find(skey) != string::npos) ) { // do the match
+											delete the_domain;
+											std::string insert("");
+											bool the_scope = match->k_scope;
 											if (repeated) {
-												tmp_input = new DefInpType(this,match);
+												DefInpType* tmp_input = new DefInpType(this,match);
+												tmp_input->evaluate();
+												if (tmp_input->results.result() != NULL) {
+													insert = *tmp_input->results.result();
+												}
+												delete tmp_input;
 											} else {
-												tmp_input = match;
+												match->evaluate();
+												if (match->results.result() != NULL) {
+													insert = *match->results.result();
+												}
 											}									
-											tmp_input->evaluate();
-											std::string insert="";
-											if (tmp_input->results.result() != NULL) {
-												insert = *tmp_input->results.result();
-											}
 											if (key->results.result() == NULL) {
 												matched = true;
 												sdom = insert;
 											} else {
-												matched = String::fandr(sdom,skey,insert,tmp_input->k_scope);
+												matched = String::fandr(sdom,skey,insert,the_scope);
 											}
-											the_domain->clear();											
 											the_domain = DataItem::factory(sdom,dom_kind);
 										}
 									} break;
@@ -219,42 +230,59 @@ bool Mapping::evaluate_this() {
 									switch (operation) {
 										case m_switch: { // m_switch uses full-matches without changing the domain (repeat illegal).
 											if ( String::Regex::fullmatch(skey, sdom) ) {
-												tmp_input = match;
-												tmp_input->evaluate();
 												matched = true;
-												DataItem* tmp = NULL;
-												tmp_input->results.takeresult(tmp);
-												results.setresult(tmp,match->wsstrip);
+												if (repeated) {
+													DefInpType* tmp_input = new DefInpType(this,match);
+													tmp_input->evaluate();
+													results.setresult(tmp_input->results);
+													delete tmp_input;
+												} else {
+													match->evaluate();
+													results.setresult(match->results);
+												}									
 											}
 										} break;
 										case m_state: { // m_switch uses full-matches and changes the domain.
 											if ( String::Regex::fullmatch(skey, sdom) ) {
-												if (repeated) {
-													tmp_input = new DefInpType(this,match);
-												} else {
-													tmp_input = match;
-												}									
-												tmp_input->evaluate();
 												matched = true;
-												tmp_input->results.takeresult(the_domain);
+												if (repeated) {
+													DefInpType* tmp_input = new DefInpType(this,match);
+													tmp_input->evaluate();
+													delete the_domain;
+													tmp_input->results.takeresult(the_domain);
+													delete tmp_input;
+												} else {
+													match->evaluate();
+													delete the_domain;
+													match->results.takeresult(the_domain);
+												}									
 											}
 										} break;
 										case m_substitute: { // m_substitute uses partial-matching and changes the domain.
 											sdom = *the_domain;
 											if ( String::Regex::match( skey, sdom ) ) {
+												delete the_domain;
+												std::string insert("");
+												bool the_scope = match->k_scope;
 												if (repeated) {
-													tmp_input = new DefInpType(this,match);
+													DefInpType* tmp_input = new DefInpType(this,match);
+													tmp_input->evaluate();
+													if (tmp_input->results.result() != NULL) {
+														insert = *tmp_input->results.result();
+													}
+													delete tmp_input;
 												} else {
-													tmp_input = match;
-												}											
-												tmp_input->evaluate();
-												matched = true;
-												string matchresult="";
-												if (tmp_input->results.result() != NULL) {
-													matchresult = *(tmp_input->results.result());
+													match->evaluate();
+													if (match->results.result() != NULL) {
+														insert = *match->results.result();
+													}
+												}									
+												if (key->results.result() == NULL) {
+													matched = true;
+													sdom = insert;
+												} else {
+													matched = String::fandr(sdom,skey,insert,the_scope);
 												}
-												String::Regex::replace( skey,matchresult, sdom, tmp_input->k_scope);
-												the_domain->clear();											
 												the_domain = DataItem::factory(sdom,dom_kind);
 											}
 										} break;
@@ -271,10 +299,6 @@ bool Mapping::evaluate_this() {
 								*Logger::log << Log::blockend;
 							}
 						} //end switch
-						if (repeated && tmp_input != NULL) {
-							delete tmp_input; 
-							tmp_input =NULL;
-						}						
 					} else { //the format doesn't really matter for NULL matching.
 						if ( key->results.result() == NULL ) {
 							match->evaluate();
@@ -301,10 +325,10 @@ bool Mapping::evaluate_this() {
 			definputs[0]->results.setresult(the_domain);
 		} else {
 			mat_evaluated = true;
-			for ( unsigned int k = 0; k < definputs.size(); k++ ) { 
-				delete definputs[k]; 
-			}
-			definputs.clear();
+//			for ( unsigned int k = 0; k < definputs.size(); k++ ) { 
+//				delete definputs[k]; 
+//			}
+//			definputs.clear(); dealt with by ~Function
 			if (operation == m_switch) { 
 				delete the_domain;
 				the_domain = NULL;
@@ -346,6 +370,9 @@ bool Mapping::field(const u_str& field_name,string& container) const {
 		retval = String::Regex::field(skey,sdom,(int)i_res.first,container);
 	}
 	return retval;
+}
+Mapping::~Mapping() {
+	//outputs/inputs are deleted by Function.
 }
 void Mapping::init() {
 	//static methods - once only (either per main doc, or per process) thank-you very much..

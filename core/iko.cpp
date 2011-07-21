@@ -164,15 +164,19 @@ IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : ObyxElement
 	}
 	if ( has_val_attr ) {	//wsstrip is ignored when value attribute is used.
 		wsstrip = false;
-	}
-	if ( has_val_attr ) {
-		DataItem* attrval = DataItem::factory(svalue,di_utext);
+		DataItem* attrval = DataItem::factory(svalue,di_utext); //CONTENDER 8
 		results.setresult(attrval, wsstrip);
 	}
 }
-IKO::~IKO() {}
-IKO::IKO(ObyxElement* par,const IKO* orig) : ObyxElement(par,orig),kind(orig->kind),encoder(orig->encoder),context(orig->context), process(orig->process),wsstrip(orig->wsstrip),exists(orig->exists),name_v(orig->name_v),xpath(orig->xpath) {
+IKO::~IKO() { 
+//results deleted by ~ObyxElement.
 }
+
+IKO::IKO(ObyxElement* par,const IKO* orig) : ObyxElement(par,orig),
+	kind(orig->kind),encoder(orig->encoder),context(orig->context), 
+	process(orig->process),wsstrip(orig->wsstrip),exists(orig->exists),
+	name_v(orig->name_v),xpath(orig->xpath) {}
+
 bool IKO::currentenv(const u_str& req,const usage_tests exist_test, const IKO* iko,DataItem*& container) {
 	Environment* env = Environment::service();
 	bool exists = false;

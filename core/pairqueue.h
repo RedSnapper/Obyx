@@ -81,6 +81,7 @@ public:
 
 	void clear(bool reset=true); //set up an endthing.
 	void setresult(DataItem*&, bool = false); 
+	void setresult(PairQueue&); 
 	void clearresult();// { if (theresult != NULL) theresult->clear(); finalised=true; }	
 	void append(PairQueue&,ObyxElement *par);	
 	void append(pqpair&,ObyxElement *);

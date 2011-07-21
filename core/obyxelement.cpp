@@ -52,10 +52,12 @@ unsigned long long int	ObyxElement::break_point =0;
 std::stack<elemtype>	ObyxElement::eval_type; 
 
 bool					ObyxElement::break_happened = false;
-//long_map				ObyxElement::ce_map;
 nametype_map			ObyxElement::ntmap;
 Vdb::Service*			ObyxElement::dbs = NULL;				
 Vdb::Connection*		ObyxElement::dbc = NULL;
+#ifdef PROFILING
+long_map				ObyxElement::ce_map;
+#endif
 
 //------------------- XMLNode -----------------------
 XMLNode::XMLNode(DOMNode* const& n,ObyxElement *par) : ObyxElement(par,xmlnode,other,n),doneit(false) {
@@ -100,82 +102,86 @@ XMLNode::~XMLNode() {}
  }
  */
 //------------------- ObyxElement -----------------------
-/*
- void ObyxElement::do_alloc() {
- //----------------for testing allocation ---
- if (wotzit != obyx::endqueue) {
- ostringstream oss;
- const ObyxElement* t_node = this;
- string el_name;
- switch ( wotzit ) {
- case comment:		el_name= "[comment]"; break;
- case xmlnode:		el_name= "[xmlnode]"; break;
- case xmldocument:	el_name= "[xmldocument]"; break;
- case iteration:		el_name= "[iteration]"; break;
- case instruction:	el_name= "[instruction]"; break;
- case comparison:	el_name= "[comparison]"; break;
- case mapping:		el_name= "[mapping]"; break;
- case endqueue:		el_name= "[endqueue]"; break;
- case output:		el_name= "[output]"; break;
- case control:		el_name= "[control]"; break;
- case body:			el_name= "[body]"; break;
- case input:			el_name= "[input]"; break;
- case comparate:		el_name= "[comparate]"; break;
- case ontrue:		el_name= "[ontrue]"; break;
- case onfalse:		el_name= "[onfalse]"; break;
- case key:			el_name= "[key]"; break;
- case match:			el_name= "[match]"; break;
- case domain:		el_name= "[domain]"; break;
- case shortsequence:	el_name= "[s]"; break;
- }
- oss << el_name;
- t_node = t_node->p;		
- while (t_node != NULL) {
- oss << "[" << t_node->name();
- if (t_node->wotspace == flowfunction) { //grab note, if there is one..
- const Function* i = dynamic_cast<const Function *>(t_node);
- const string note =  i->note();
- if (!note.empty())	oss << " '" << i->note() << "' "; 
- }
- oss << "]";
- if (t_node->p == NULL) {
- if (t_node->wotzit == xmldocument) {
- const Document* i = dynamic_cast<const Document *>(t_node);
- t_node = i->doc_par;
- } else {
- t_node = t_node->p;
- }
- } else {
- t_node = t_node->p;
- }
- }
- string mytrace = oss.str();
- unsigned long addr = (unsigned long)(this);
- ce_map.insert(long_map::value_type(addr,mytrace));
- }
- }
- void ObyxElement::do_dealloc() {
- if (wotzit != obyx::endqueue) {
- unsigned long addr = (unsigned long)(this);
- long_map::iterator it = ce_map.find(addr);
- if ( it == ce_map.end() ) {
- *Logger::log << Log::error << Log::LI << "Error. ce was already deleted."  << Log::LO << Log::blockend;	
- trace();
- } else {
- ce_map.erase(it);
- }
- }
- }
- */
+#ifdef PROFILING
+void ObyxElement::do_alloc() {
+	if (wotzit != obyx::endqueue) {
+		ostringstream oss;
+		const ObyxElement* t_node = this;
+		string el_name;
+		switch ( wotzit ) {
+			case comment:		el_name= "[comment]"; break;
+			case xmlnode:		el_name= "[xmlnode]"; break;
+			case xmldocument:	el_name= "[xmldocument]"; break;
+			case iteration:		el_name= "[iteration]"; break;
+			case instruction:	el_name= "[instruction]"; break;
+			case comparison:	el_name= "[comparison]"; break;
+			case mapping:		el_name= "[mapping]"; break;
+			case endqueue:		el_name= "[endqueue]"; break;
+			case output:		el_name= "[output]"; break;
+			case control:		el_name= "[control]"; break;
+			case body:			el_name= "[body]"; break;
+			case input:			el_name= "[input]"; break;
+			case comparate:		el_name= "[comparate]"; break;
+			case ontrue:		el_name= "[ontrue]"; break;
+			case onfalse:		el_name= "[onfalse]"; break;
+			case key:			el_name= "[key]"; break;
+			case match:			el_name= "[match]"; break;
+			case domain:		el_name= "[domain]"; break;
+			case shortsequence:	el_name= "[s]"; break;
+		}
+		oss << el_name;
+		t_node = t_node->p;		
+		while (t_node != NULL) {
+			oss << "[" << t_node->name();
+			if (t_node->wotspace == flowfunction) { //grab note, if there is one..
+				const Function* i = dynamic_cast<const Function *>(t_node);
+				const string note =  i->note();
+				if (!note.empty())	oss << " '" << i->note() << "' "; 
+			}
+			oss << "]";
+			if (t_node->p == NULL) {
+				if (t_node->wotzit == xmldocument) {
+					const Document* i = dynamic_cast<const Document *>(t_node);
+					t_node = i->doc_par;
+				} else {
+					t_node = t_node->p;
+				}
+			} else {
+				t_node = t_node->p;
+			}
+		}
+		string mytrace = oss.str();
+		unsigned long addr = (unsigned long)(this);
+		ce_map.insert(long_map::value_type(addr,mytrace));
+	}
+}
+void ObyxElement::do_dealloc() {
+	if (wotzit != obyx::endqueue) {
+		unsigned long addr = (unsigned long)(this);
+		long_map::iterator it = ce_map.find(addr);
+		if ( it == ce_map.end() ) {
+			*Logger::log << Log::error << Log::LI << "Error. ce was already deleted."  << Log::LO << Log::blockend;	
+			trace();
+		} else {
+			ce_map.erase(it);
+		}
+	}
+}
+#endif
+
 ObyxElement::ObyxElement(ObyxElement* par,const ObyxElement* orig) : 
 owner(orig->owner),p(par),node(orig->node),results(false),wotspace(orig->wotspace),wotzit(orig->wotzit) { 
 	results.copy(this,orig->results);
-	//	do_alloc(); 
+#ifdef PROFILING
+	do_alloc(); 
+#endif
 }
 ObyxElement::ObyxElement(ObyxElement* parent,const obyx::elemtype et,const obyx::elemclass tp,DOMNode* n) : 
 owner(NULL),p(parent),node(n),results(),wotspace(tp),wotzit(et) {
 	if ( p != NULL ) { owner = p->owner; }
-	//	do_alloc(); 
+#ifdef PROFILING
+	do_alloc(); 
+#endif
 }
 void ObyxElement::do_breakpoint() {
 	eval_count++;		//global..
@@ -438,7 +444,10 @@ ObyxElement* ObyxElement::Factory(DOMNode* const& n,ObyxElement* parent) {
 	return result;
 }
 ObyxElement::~ObyxElement() {
-	//	do_dealloc();
+//results are deleted when going out of scope.
+#ifdef PROFILING
+	do_dealloc();
+#endif
 }
 
 void ObyxElement::get_sql_service() {
@@ -570,12 +579,12 @@ void ObyxElement::finalise() {
 		drop_sql_connection();
 	}
 #endif
-	/*	
-	 if ( ! ce_map.empty() ) {
-	 *Logger::log << Log::error << Log::LI << "Error. Not all ObyxElements were deleted."  << Log::LO << Log::blockend;	
-	 for( long_map::iterator imt = ce_map.begin(); imt != ce_map.end(); imt++) {
-	 *Logger::log << Log::info << imt->second << Log::LO << Log::blockend;				
-	 }
-	 }
-	 */
+#ifdef PROFILING
+	if ( ! ce_map.empty() ) {
+		*Logger::log << Log::error << Log::LI << "Error. Not all ObyxElements were deleted."  << Log::LO << Log::blockend;	
+		for( long_map::iterator imt = ce_map.begin(); imt != ce_map.end(); imt++) {
+			*Logger::log << Log::info << imt->second << Log::LO << Log::blockend;				
+		}
+	}
+#endif
 }

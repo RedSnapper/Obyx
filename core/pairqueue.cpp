@@ -62,24 +62,47 @@ PairQueue::~PairQueue() {
 }
 void PairQueue::clear(bool add_endthing) { 
 	size_t n = queue.size();
-	for ( size_t i = 0; i < n; i++) {
-		DataItem* di = queue[i].first;	
-		queue[i].first = NULL;
+	if (n == 1 && queue[0].second == pqendthing) {
+		DataItem*& di = queue[0].first;	
 		if ( di != NULL ) {
 			delete di;
+			di = NULL;
 		}
-		Function* qic = queue[i].second;
-		queue[i].second = NULL;
-		if ( qic != pqendthing) {
-			delete qic; //should get here when paths aren't followed...
+		if (!add_endthing) {
+			queue.clear(); 
 		}
-	}
-	queue.clear(); 
-	if (add_endthing) {
-		queue.push_back(pqpair(NULL,pqendthing));
-//		finalised = false; //DID CAUSE TROUBLE
+	} else {
+		for ( size_t i = 0; i < n; i++) {
+			DataItem* di = queue[i].first;	
+			queue[i].first = NULL;
+			if ( di != NULL ) {
+				delete di;
+			}
+			Function* qic = queue[i].second;
+			queue[i].second = NULL;
+			if ( qic != pqendthing) {
+				delete qic; //should get here when paths aren't followed...
+			}
+		}
+		queue.clear(); 
+		if (add_endthing) {
+			queue.push_back(pqpair(NULL,pqendthing));
+	//		finalised = false; //DID CAUSE TROUBLE
+		}
 	}
 }
+
+void PairQueue::setresult(PairQueue& other) {
+	if (theresult != NULL) {
+		delete theresult;
+		theresult = NULL;
+	}
+	theresult=other.theresult;
+	other.theresult = NULL;
+	finalised=true; 
+	clear(true);
+}
+
 void PairQueue::setresult(DataItem*& res, bool wsstrip) { 
 	if (theresult != NULL) {
 		delete theresult;

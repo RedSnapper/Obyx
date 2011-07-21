@@ -38,7 +38,7 @@ namespace {
 
 class FragmentObject : public DataItem {
 private:
-	FragmentObject() {}
+	FragmentObject() : DataItem() {}
 	
 protected:
 	friend class DataItem;

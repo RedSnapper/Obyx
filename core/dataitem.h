@@ -48,6 +48,13 @@ class DataItem {
 private:
 	static DataItem* autoItem(const std::string&);
 	static DataItem* autoItem(const u_str&);
+
+#ifdef PROFILING
+	typedef std::map<unsigned long, pair<unsigned long,string> > long_map; 
+	static long_map ce_map;
+	void do_alloc();
+	void do_dealloc();
+#endif
 	
 protected:
 	DataItem();

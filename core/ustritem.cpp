@@ -32,12 +32,11 @@ UStrItem::UStrItem(const std::string& s) : DataItem(),o_str() {
 	XML::Manager::transcode(s,o_str);
 }
 UStrItem::UStrItem(u_str s) : DataItem(),o_str(s) {
+	return;
 }
-//UStrItem::UStrItem(const u_str& s) : DataItem(),o_str(s) {}
 UStrItem::UStrItem(std::string& s) : DataItem() {
 	XML::Manager::transcode(s,o_str);
 }
-
 UStrItem::UStrItem(const char* s) : DataItem(),o_str() {
 	if (s!=NULL) {
 		string tmp(s);	
@@ -95,6 +94,7 @@ bool UStrItem::empty() const {
 void UStrItem::append(DataItem*& s) {
 	o_str.append(*s);
 	delete s;
+	s = NULL;
 }
 
 bool UStrItem::find(const DataItem* o,std::string&)  {

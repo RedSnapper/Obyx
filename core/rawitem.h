@@ -32,7 +32,7 @@
 //raw items may not be NOT utf-8, and may not be transcodable
 class RawItem : public DataItem {
 private:
-	RawItem() : o_str("") {}
+	RawItem() : DataItem(),o_str("") {}
 	
 protected:
 	friend class DataItem;

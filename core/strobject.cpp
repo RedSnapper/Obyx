@@ -51,7 +51,6 @@ StrObject::StrObject(const xercesc::DOMNode* s) : DataItem(),o_str() {
 }
 
 StrObject::~StrObject() {
-	//	do_dealloc();
 	o_str.clear();
 }
 
