@@ -239,8 +239,7 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 				trace();
 				*Logger::log << Log::blockend;
 			}		
-			
-			if ( p->results.result() != NULL ) { // &&  p->results.final() surely this is tested already?
+			if ( p->results.result() != NULL ) { //we may need to copy this, cos only the final one gets to keep the original.
 				DataItem* pe = NULL;
 				if (out_num == out_count) {
 					p->results.takeresult(pe);
@@ -259,7 +258,7 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 						process_encoding(pe);
 					}
 				} 
-				results.setresult(pe);	//This is right, because we may not want to strip or encode every output!!
+				results.setresult(pe); //because other outputs use the parent.results, we cannot overwrite them here.
 			}
 		} break;
 		case out_none: {

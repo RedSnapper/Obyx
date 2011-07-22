@@ -178,7 +178,6 @@ void Function::evaluate(size_t,size_t) {
 					//Find if there is an output..
 					bool err_caught = false;
 					size_t os = outputs.size();
-//					DataItem* imm_result = NULL; //need to keep immediate results.
 					for (size_t s = 0; s < os; s++) { //see if we are catching errors.
 						if (outputs[s] != NULL && outputs[s]->gettype() == out_error) {
 							if (stream_is_set) {
@@ -191,18 +190,17 @@ void Function::evaluate(size_t,size_t) {
 							break;
 						}
 					}
+					DataItem* imm_result = NULL; //need to keep immediate results.
 					for (size_t s = 0; s < os; s++) { //if there was an error, and nothing was caught, then do any output.
 						Output* theoutput = outputs[s];
-						if (theoutput != NULL) { //evaluate what we can.
-							if ( !err_caught) {
-								theoutput->evaluate(s+1,os);
-								if ( theoutput->gettype() == out_immediate ) {
-									results.setresult(theoutput->results); //now encoded and what-have-you - or may be null.
-//									theoutput->results.takeresult(imm_result);
-								}
+						if (theoutput != NULL && !err_caught) { //evaluate what we can.
+							theoutput->evaluate(s+1,os);
+							if ( theoutput->gettype() == out_immediate ) {
+								theoutput->results.takeresult(imm_result);
 							}
 						}
 					}
+					results.setresult(imm_result); //now encoded and what-have-you - or may be null.					
 				} else {
 					finalised=false;
 					results.clearresult();
