@@ -268,7 +268,7 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 				trace();
 				*Logger::log << Log::blockend;
 			}		
-			results.takeresult(value_part); 
+			p->results.takeresult(value_part); 
 			if (value_part != NULL) {
 				delete value_part;
 				value_part = NULL;
