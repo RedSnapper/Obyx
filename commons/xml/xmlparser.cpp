@@ -183,7 +183,7 @@ namespace XML {
 //If we are using an xml config file, we need to choose if this is on or off by default. 
 //I think that false is probably the correct move here.
 		string dummy;
-		if (Environment::getbenv("OBYX_VALIDATE_ALWAYS",dummy)) {
+		if (Environment::getbenv("OBYX_VALIDATE_ALWAYS",dummy) && (dummy.compare("true") == 0)) {
 			if (dc->canSetParameter(XMLUni::fgDOMValidate, true)) {
 				dc->setParameter(XMLUni::fgDOMValidate, true);
 				validation = true;
