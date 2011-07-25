@@ -511,14 +511,14 @@ void ObyxElement::shutdown() {
 	if (! (Environment::getbenv("OBYX_SQLPER_REQUEST",tmp) && (tmp.compare("true") == 0 ))) { 
 		drop_sql_connection();
 	}	
-	drop_sql_service();
 #endif
+	drop_sql_service();
 	ntmap.clear();
 }
 void ObyxElement::startup() {
+	get_sql_service();
 #ifdef FAST
 	string tmp;
-	get_sql_service();
 	if (! (Environment::getbenv("OBYX_SQLPER_REQUEST",tmp) && (tmp.compare("true") == 0 ))) { 
 		get_sql_connection();
 	}
@@ -545,11 +545,11 @@ void ObyxElement::startup() {
 }
 void ObyxElement::init() {
 #ifndef FAST
-	get_sql_service();
 	get_sql_connection();
 #else
 	string tmp;
 	if (Environment::getbenv("OBYX_SQLPER_REQUEST",tmp) && (tmp.compare("true") == 0)) { //connect per request
+		get_sql_service();
 		get_sql_connection();
 	}
 #endif
@@ -576,7 +576,6 @@ void ObyxElement::finalise() {
 	while (!eval_type.empty()) { eval_type.pop();}
 #ifndef FAST
 	drop_sql_connection();
-	drop_sql_service();
 #else
 	string tmp;
 	if (Environment::getbenv("OBYX_SQLPER_REQUEST",tmp) && (tmp.compare("true") == 0)) { //connect per request
