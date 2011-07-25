@@ -17,6 +17,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.110725
+	BUG			META store variables not being set.
+	Enh.		Non-obyx/osi XML eval now to itself.
 v1.110724
 	BUG/Enh		OBYX_SYSLOG_OFF,OBYX_DEVELOPMENT,OBYX_DEBUG,OBYX_LOGGING_OFF recognise true/false.
 v1.110723

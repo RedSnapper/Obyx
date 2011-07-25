@@ -240,14 +240,19 @@ bool Document::setstore(u_str& name,u_str& path, DataItem*& item,kind_type kind,
 
 bool Document::metastore(const string key,unsigned long long& container) {
 	bool retval = false;
+	pair<bool,unsigned long long> mres(false,0);
 	Document* doc = this;
-	while (doc != NULL && !retval) {
-		retval = doc->store.meta(key,container);
-		if (!retval) {
+	while (doc != NULL && !mres.first) {
+		retval = doc->store.meta(key,mres);
+		if (!mres.first) {
 			if (doc->p != NULL) {
 				doc = doc->p->owner;
 			} else {
 				doc = NULL;
+			}
+		} else {
+			if (retval) {
+				container=mres.second;
 			}
 		}
 	}
@@ -559,7 +564,7 @@ ObyxElement(par,xmldocument,other,NULL), xdoc(NULL),root_node(NULL),filepath(fp)
 				if (evaluate_it) {
 					if (par != NULL) {
 						doc_par = par->owner;
-					}
+					} 
 					owner = this;
 					eval();
 				}
@@ -653,14 +658,14 @@ bool Document::eval() {
  					process(root_node,this);
 				}
 			} else { //NOT obyx...
+				owner = doc_par->owner;
 				if ( doc_ns.compare(UCS2(L"http://www.obyx.org/osi-application-layer")) == 0 ) {
 					OsiAPP do_osi;
 					DataItem* osi_result = NULL;
 					unsigned long long max_redirects = 33, timeout_secs = 30; //GRAB FROM STORE!!
 					metastore("REDIRECT_BREAK_COUNT",max_redirects);
 					metastore("URL_TIMEOUT_SECS",timeout_secs);				
-					
-					if ( do_osi.request(root_node,max_redirects,timeout_secs,osi_result)) {
+					if ( do_osi.request(root_node,(unsigned int)max_redirects,(unsigned int)timeout_secs,osi_result)) {
 						results.setresult(osi_result);
 					} else {
 						*Logger::log << Log::error << Log::LI << "Error. eval of osi-application-layer object failed." << Log::LO;	
@@ -676,11 +681,15 @@ bool Document::eval() {
 						*Logger::log << Log::blockend; //Error
 					}
 				} else {
-					process(root_node,this);
-				}
+					DataItem* result = DataItem::factory(xdoc,di_object);
+					results.setresult(result); 
+					xdoc=NULL; root_node=NULL;
+				} 
 			}
 		} else {
-			process(root_node,this);
+			DataItem* result = DataItem::factory(xdoc,di_object);
+			results.setresult(result); 
+			xdoc=NULL; root_node=NULL;
 		}
 	} else {
 		*Logger::log << Log::error << Log::LI << "Error. eval of non-object failed." << Log::LO;	

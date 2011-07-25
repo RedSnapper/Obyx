@@ -83,7 +83,6 @@ namespace Fetch {
 		HTTPFetch(string&);
 		HTTPFetch(const string&,const string&,const string&,string&,unsigned long long,unsigned long long,string&);
 		~HTTPFetch();
-//		bool fetchPage(std::string, HTTPFetchHeader&, Redirects&, std::string&,int,int, std::string&);
 		void addHeader(std::string&);
 		bool doRequest(string&,string&,unsigned long long,unsigned long long, string&);
 		static bool startup();

@@ -560,7 +560,7 @@ bool ItemStore::sget(const u_str& sname,const u_str& path,bool node_expected, Da
 }
 
 //This returns true if there is NO value set, but false if the value is NOT a number!
-bool ItemStore::meta(const string& name,unsigned long long& result) { //used for meta settings.
+bool ItemStore::meta(const string& name,pair<bool,unsigned long long>& result) { //used for meta settings.
 	bool retval = true;
 	if (! the_item_map.empty() ) { //this happens when eg. using an OSI as root document
 		item_map_type::iterator it = the_item_map.find(name);
@@ -569,7 +569,8 @@ bool ItemStore::meta(const string& name,unsigned long long& result) { //used for
 			pair<unsigned long long,bool> my_ull = 	XMLObject::znatural(stored);
 			retval = my_ull.second;
 			if ( retval ) {  //Otherwise don't touch it!!
-				result = my_ull.first;
+				result.first = my_ull.second;
+				result.second = my_ull.first;
 			}
 		} 
 	}
