@@ -141,7 +141,6 @@ void startup(std::string& version,std::string& v_number) {
 	String::Deflate::startup(errs);						//need to start up for mysql etc.	
 #ifdef FAST
 	Fast::startup();
-	Vdb::ServiceFactory::startup();
 #endif
 	String::Infix::Evaluate::startup();
 #ifndef DISALLOW_GMP
@@ -153,6 +152,7 @@ void startup(std::string& version,std::string& v_number) {
 	Logger::startup(version);								//Logger
 	OsiMessage::startup();
 	Document::startup();
+	Vdb::ServiceFactory::startup();
 	ObyxElement::startup();
 	DataItem::startup();
 	ItemStore::startup();
@@ -161,9 +161,6 @@ void startup(std::string& version,std::string& v_number) {
 }
 void init(ostream*& f_out,int argc,char** argv,char** env) {
 	Environment::init(argc,argv,env);	//
-#ifndef FAST
-	Vdb::ServiceFactory::startup();
-#endif
 	Environment* e = Environment::service();
 	ostream* os = Logger::init(f_out);	//Instance Logger
 	Httphead::init(os);					//Instance head
@@ -180,9 +177,6 @@ void finalise() {
 	DataItem::finalise();
 	Logger::finalise();
 	Httphead::finalise();
-#ifndef FAST
-	Vdb::ServiceFactory::shutdown();	//Remove the database service
-#endif
 	Environment::finalise();
 }
 void shutdown() {
@@ -202,8 +196,8 @@ void shutdown() {
 #endif
 	String::Digest::shutdown();
 	String::Deflate::shutdown();
-#ifdef FAST
 	Vdb::ServiceFactory::shutdown();	//Remove the database service
+#ifdef FAST
 	Fast::shutdown();
 #endif
 	Environment::shutdown();
