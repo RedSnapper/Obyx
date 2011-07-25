@@ -139,6 +139,7 @@ void startup(std::string& version,std::string& v_number) {
 	string errs;
 	Environment::startup(version,v_number);				//unchanging environment stuff.
 	String::Deflate::startup(errs);						//need to start up for mysql etc.	
+	Vdb::ServiceFactory::startup();
 #ifdef FAST
 	Fast::startup();
 #endif
@@ -152,7 +153,6 @@ void startup(std::string& version,std::string& v_number) {
 	Logger::startup(version);								//Logger
 	OsiMessage::startup();
 	Document::startup();
-	Vdb::ServiceFactory::startup();
 	ObyxElement::startup();
 	DataItem::startup();
 	ItemStore::startup();
@@ -195,10 +195,10 @@ void shutdown() {
 	String::Bit::GMP::shutdown();
 #endif
 	String::Digest::shutdown();
-	String::Deflate::shutdown();
-	Vdb::ServiceFactory::shutdown();	//Remove the database service
 #ifdef FAST
 	Fast::shutdown();
 #endif
+	Vdb::ServiceFactory::shutdown();	//Remove the database service
+	String::Deflate::shutdown();
 	Environment::shutdown();
 }

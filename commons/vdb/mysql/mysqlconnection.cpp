@@ -38,7 +38,7 @@ namespace Vdb {
 	MySQLConnection::MySQLConnection(MySQLService* service) : s(service),connectionHandle(NULL),conn_open(false),db_open(false) {
 		s->library_init(0,NULL,NULL);
 		connectionHandle = s->init(NULL);
-		if (connectionHandle == NULL) {
+		if (connectionHandle == NULL && Logger::log != NULL) {
 			*Logger::log <<  Log::fatal << Log::LI << "MySQLConnection error:: Failed to initialise a MySQL client connection handle" << Log::LO << Log::blockend; 
 		}
 	};
@@ -61,7 +61,7 @@ namespace Vdb {
 			if (!password.empty()) tpasswd = password.c_str();
 			if (s->real_connect(connectionHandle, thost, tuser, tpasswd, NULL, port, tsocket, 0) == NULL) {
 				string errorMessage = s->error(connectionHandle);
-				if (Logger::debugging()) {
+				if (Logger::debugging() && Logger::log != NULL) {
 					*Logger::log << Log::info << Log::LI << "MySQLConnection error:: Connection failed with '" << errorMessage << "'" << Log::LO << Log::blockend; 
 				}
 				conn_open = false;
@@ -71,7 +71,7 @@ namespace Vdb {
 				string charset="unknown";
 				if (charset_c != NULL) {
 					charset = charset_c;
-					if (Logger::debugging()) {
+					if (Logger::debugging() && Logger::log != NULL) {
 						*Logger::log << Log::info << Log::LI << "MySQLConnection:: Connection default charset:'" << charset_c << "'" << Log::LO << Log::blockend; 
 					}
 				}
@@ -79,18 +79,20 @@ namespace Vdb {
 					int scs_result = s->set_character_set(connectionHandle,"utf8");
 					if (scs_result != 0 )  {
 						string errorMessage = s->error(connectionHandle);
-						if (Logger::debugging()) {
+						if (Logger::debugging()  && Logger::log != NULL) {
 							*Logger::log << Log::info << Log::LI << "MySQLConnection:: Connection failed to set utf-8 charset. Error:" << scs_result << " Msg:" << errorMessage << Log::LO << Log::blockend;  
 						}
 					} else {
-						if (Logger::debugging()) {
+						if (Logger::debugging()  && Logger::log != NULL) {
 							*Logger::log << Log::info << Log::LI << "MySQLConnection:: Connection set to charset utf-8." << Log::LO << Log::blockend;  
 						}
 					}
 				}
 			}
 		} else {
-			*Logger::log << Log::fatal << Log::LI << "MySQLConnection error: Each connection can only be opened once. Instantiate a new connection." << Log::LO << Log::blockend; 
+			if (Logger::log != NULL) {
+				*Logger::log << Log::fatal << Log::LI << "MySQLConnection error: Each connection can only be opened once. Instantiate a new connection." << Log::LO << Log::blockend; 
+			}
 		}
 		return isopen();
 	}
@@ -103,16 +105,20 @@ namespace Vdb {
 				if (error == CR_SERVER_GONE_ERROR || error == CR_SERVER_LOST) {
 					close();
 				}
-				string errstr = s->error(connectionHandle);
-				*Logger::log << Log::fatal << Log::LI << "MySQLConnection error: While attempting to open database: " << errstr <<  Log::LO << Log::blockend; 
+				if (Logger::log != NULL) {
+					string errstr = s->error(connectionHandle);
+					*Logger::log << Log::fatal << Log::LI << "MySQLConnection error: While attempting to open database: " << errstr <<  Log::LO << Log::blockend; 
+				}
 				return false;
 			} else {
 				db_open = true;
 				return true;
 			}
 		} else {
-			*Logger::log << Log::fatal << Log::LI << "MySQLConnection error: Open a connection before selecting a database!" << Log::LO << Log::blockend; 
-			return false;
+			if (Logger::log != NULL) {
+				*Logger::log << Log::fatal << Log::LI << "MySQLConnection error: Open a connection before selecting a database!" << Log::LO << Log::blockend; 
+				return false;
+			}
 		}
 	}
 	
@@ -125,12 +131,16 @@ namespace Vdb {
 					retval = true;
 				}
 			} else {
-				*Logger::log << Log::fatal << Log::LI << "MySQLConnection error: select a database before creating a query!" << Log::LO << Log::blockend; 
-				q = NULL;
+				if (Logger::log != NULL) {
+					*Logger::log << Log::fatal << Log::LI << "MySQLConnection error: select a database before creating a query!" << Log::LO << Log::blockend; 
+					q = NULL;
+				}
 			}
 		} else {
-			*Logger::log << Log::fatal << Log::LI << "MySQLConnection error: Open a connection before creating a query!" << Log::LO << Log::blockend; 
-			q = NULL;
+			if (Logger::log != NULL) {
+				*Logger::log << Log::fatal << Log::LI << "MySQLConnection error: Open a connection before creating a query!" << Log::LO << Log::blockend; 
+				q = NULL;
+			}
 		}
 		return retval;
 	}
@@ -140,12 +150,16 @@ namespace Vdb {
 			if ( db_open ) {
 				return new MySQLQuery(s, this, connectionHandle, query_str);
 			} else {
-				*Logger::log << Log::fatal << Log::LI << "MySQLConnection error: select a database before creating a query!" << Log::LO << Log::blockend; 
-				return NULL;
+				if (Logger::log != NULL) {
+					*Logger::log << Log::fatal << Log::LI << "MySQLConnection error: select a database before creating a query!" << Log::LO << Log::blockend; 
+					return NULL;
+				}
 			}
 		} else {
-			*Logger::log << Log::fatal << Log::LI << "MySQLConnection error: Open a connection before creating a query!" << Log::LO << Log::blockend; 
-			return NULL;
+			if (Logger::log != NULL) {
+				*Logger::log << Log::fatal << Log::LI << "MySQLConnection error: Open a connection before creating a query!" << Log::LO << Log::blockend; 
+				return NULL;
+			}
 		}
 	}
 	
