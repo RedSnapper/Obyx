@@ -191,7 +191,7 @@ void Function::evaluate(size_t,size_t) {
 						}
 					}
 					DataItem* imm_result = NULL; //need to keep immediate results.
-					for (size_t s = 0; s < os; s++) { //if there was an error, and nothing was caught, then do any output.
+					for (size_t s = 0; s < os; s++) { //if nothing was caught, then do non-error outputs.
 						Output* theoutput = outputs[s];
 						if (!err_caught && theoutput->gettype() != out_error) { //evaluate what we can.
 							theoutput->evaluate(s+1,os);
