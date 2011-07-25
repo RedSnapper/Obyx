@@ -1180,7 +1180,7 @@ void Environment::getenvvars_base() {
 		tmp = String::znatural(envtmp);
 		if (tmp.second) gSQLport = (unsigned int)tmp.first;
 	}
-	gDevelop = getenv("OBYX_DEVELOPMENT",envtmp);
+	gDevelop = (getenv("OBYX_DEVELOPMENT",envtmp) && (envtmp.compare("true") == 0));
 	if (getenv("OBYX_SCRIPTS_DIR",gScriptsDir)) { //defaults to nothing.
 		if ( gScriptsDir[gScriptsDir.size()-1] != '/') gScriptsDir+='/';
 	}

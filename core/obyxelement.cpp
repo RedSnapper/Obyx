@@ -507,7 +507,8 @@ void ObyxElement::shutdown() {
 	Function::shutdown();
 	IKO::shutdown();
 #ifdef FAST
-	if (!Environment::benvexists("OBYX_SQLPER_REQUEST")) { 
+	string tmp;
+	if (! (Environment::getbenv("OBYX_SQLPER_REQUEST",tmp) && (tmp.compare("true") == 0 ))) { 
 		drop_sql_connection();
 	}	
 	drop_sql_service();
@@ -516,8 +517,9 @@ void ObyxElement::shutdown() {
 }
 void ObyxElement::startup() {
 #ifdef FAST
+	string tmp;
 	get_sql_service();
-	if (!Environment::benvexists("OBYX_SQLPER_REQUEST")) { //connect per process
+	if (! (Environment::getbenv("OBYX_SQLPER_REQUEST",tmp) && (tmp.compare("true") == 0 ))) { 
 		get_sql_connection();
 	}
 #endif
@@ -546,7 +548,8 @@ void ObyxElement::init() {
 	get_sql_service();
 	get_sql_connection();
 #else
-	if (Environment::benvexists("OBYX_SQLPER_REQUEST")) { //connect per request
+	string tmp;
+	if (Environment::getbenv("OBYX_SQLPER_REQUEST",tmp) && (tmp.compare("true") == 0)) { //connect per request
 		get_sql_connection();
 	}
 #endif
@@ -555,8 +558,8 @@ void ObyxElement::init() {
 	eval_count = 0;
 	break_point = 0;
 	break_happened = false;
-	bool ok_to_break= env->envexists("OBYX_DEVELOPMENT");
-	string BREAK_COUNT_val;
+	string envtmp,BREAK_COUNT_val;
+	bool ok_to_break= (env->getenv("OBYX_DEVELOPMENT",envtmp) && (envtmp.compare("true") == 0));
 	env->getcookie_req("BREAK_COUNT",BREAK_COUNT_val);
 	if (!BREAK_COUNT_val.empty() && ok_to_break ) {
 		pair<unsigned long long,bool> bp_value = String::znatural(BREAK_COUNT_val);
@@ -575,7 +578,8 @@ void ObyxElement::finalise() {
 	drop_sql_connection();
 	drop_sql_service();
 #else
-	if (Environment::benvexists("OBYX_SQLPER_REQUEST")) { //connect per request
+	string tmp;
+	if (Environment::getbenv("OBYX_SQLPER_REQUEST",tmp) && (tmp.compare("true") == 0)) { //connect per request
 		drop_sql_connection();
 	}
 #endif
