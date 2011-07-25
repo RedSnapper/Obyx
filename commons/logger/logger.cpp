@@ -144,17 +144,17 @@ ostream* Logger::init(ostream*& final_out) {
 	 off			on			off				off			[no syslog]   (syslog not opened)		
 	 off			off			off				off			[no syslog]   (syslog not opened)	
 	 */
-	log->syslogging = ! env->getenv("OBYX_SYSLOG_OFF",tmp_env);
-	log->logging_on =   env->getenv("OBYX_DEVELOPMENT",tmp_env);
+	log->syslogging = ! (env->getenv("OBYX_SYSLOG_OFF",tmp_env) && tmp_env.compare("true") == 0);
+	log->logging_on =   (env->getenv("OBYX_DEVELOPMENT",tmp_env) && tmp_env.compare("true") == 0);
 	if (log->logging_on) {
-		log->debugflag = env->getenv("OBYX_DEBUG", tmp_env);
+		log->debugflag = (env->getenv("OBYX_DEBUG", tmp_env) && tmp_env.compare("true") == 0);
 		if (log->debugflag) {
 			if (log->syslogging) {
 				setlogmask(LOG_UPTO (LOG_DEBUG ));
 			}
 			openlog("Obyx",0,LOG_USER);
 		} else {
-			if (!env->getenv("OBYX_LOGGING_OFF",tmp_env)) {
+			if (!(env->getenv("OBYX_LOGGING_OFF",tmp_env) && tmp_env.compare("true") == 0)) {
 				if (log->syslogging) {
 					setlogmask(LOG_UPTO (LOG_WARNING));
 				}
@@ -162,7 +162,7 @@ ostream* Logger::init(ostream*& final_out) {
 			}
 		}
 	} else {
-		if (! env->getenv("OBYX_LOGGING_OFF",tmp_env)) {
+		if (! (env->getenv("OBYX_LOGGING_OFF",tmp_env) && tmp_env.compare("true") == 0 )) {
 			if (log->syslogging) {
 				setlogmask(LOG_UPTO (LOG_WARNING));
 			}
