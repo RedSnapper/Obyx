@@ -565,7 +565,9 @@ ObyxElement(par,xmldocument,other,NULL), xdoc(NULL),root_node(NULL),filepath(fp)
 				}
 			}
 		}  else {
-			*Logger::log << Log::debug << Log::LI << "Parser returned XML First Node as a NULL." << Log::LO << Log::blockend;	
+			if (Logger::debugging()) {
+				*Logger::log << Log::info << Log::LI << "Parser returned XML First Node as a NULL." << Log::LO << Log::blockend;
+			}
 			results.append(inputfile);
 		}
 		filepath_stack.pop();

@@ -42,66 +42,74 @@ Info::Info(  istream& ist ) : fileReader( ist ), img( 0 ) {
 }
 
 bool Info::check() {
-	*Logger::log << Log::debug << Log::LI << "Checking to identify if file is an image we recognise." << Log::LO << Log::blockend;	
+	if (Logger::debugging()) {
+		*Logger::log << Log::info << Log::LI << "Checking to identify if file is an image we recognise." << Log::LO << Log::blockend;
+	}
   try {
 	int b1 = fileReader.readOne();
 	int b2 = fileReader.readOne();
 	int b3 = fileReader.readOne();
 
 	if ( b1 == 0x47 && b2 == 0x49 && b3 == 0x46 ) { 
-		*Logger::log << Log::debug << Log::LI << "Looks like Gif" << Log::LO << Log::blockend;	
+		if (Logger::debugging()) {
+			*Logger::log << Log::info << Log::LI << "Looks like Gif" << Log::LO << Log::blockend;
+		}
 		AUTO_PTR_ASSIGN( ImageBase, img, new ImageGif( &fileReader) );
 	} else if ( b1 == 0x89 && b2 == 0x50 && b3 == 0x4e ) { 
-		*Logger::log << Log::debug << Log::LI << "Looks like Png" << Log::LO << Log::blockend;	
+		if (Logger::debugging()) {*Logger::log << Log::info << Log::LI << "Looks like Png" << Log::LO << Log::blockend;	}
 		AUTO_PTR_ASSIGN( ImageBase, img, new ImagePng( &fileReader) );
     } else if ( b1 == 0x8a && b2 == 0x4d && b3 == 0x4e ) {
-		*Logger::log << Log::debug << Log::LI << "Looks like Mng" << Log::LO << Log::blockend;	
+		if (Logger::debugging()) {*Logger::log << Log::info << Log::LI << "Looks like Mng" << Log::LO << Log::blockend;	}
 		AUTO_PTR_ASSIGN( ImageBase, img, new ImageMng( &fileReader) );
     } else if ( b1 == 0x8B && b2 == 0x4a && b3 == 0x4e ) {
-		*Logger::log << Log::debug << Log::LI << "Looks like Jng" << Log::LO << Log::blockend;	
+		if (Logger::debugging()) {*Logger::log << Log::info << Log::LI << "Looks like Jng" << Log::LO << Log::blockend;	}
 		AUTO_PTR_ASSIGN( ImageBase, img, new ImageJng( &fileReader) );
     } else if ( b1 == 0xff && b2 == 0xd8 ) {
-		*Logger::log << Log::debug << Log::LI << "Looks like Jpeg" << Log::LO << Log::blockend;	
+		if (Logger::debugging()) {*Logger::log << Log::info << Log::LI << "Looks like Jpeg" << Log::LO << Log::blockend;}
 		AUTO_PTR_ASSIGN( ImageBase, img, new ImageJpeg( &fileReader) );
     } else if ( b1 == 0x42 && b2 == 0x4d ) {
-		*Logger::log << Log::debug << Log::LI << "Looks like Bmp" << Log::LO << Log::blockend;	
+		if (Logger::debugging()) {*Logger::log << Log::info << Log::LI << "Looks like Bmp" << Log::LO << Log::blockend;	}
 		AUTO_PTR_ASSIGN( ImageBase, img, new ImageBmp( &fileReader) );
     } else if ( b1 == 0x0a && b2 <  0x06 && b3 == 0x01 ) {
-		*Logger::log << Log::debug << Log::LI << "Looks like Pcx" << Log::LO << Log::blockend;	
+		if (Logger::debugging()) {*Logger::log << Log::info << Log::LI << "Looks like Pcx" << Log::LO << Log::blockend;	}
 		AUTO_PTR_ASSIGN( ImageBase, img, new ImagePcx( &fileReader) );
     } else if ( b1 == 0x46 && b2 == 0x4f && b3 == 0x52 ) {
-		*Logger::log << Log::debug << Log::LI << "Looks like Iff" << Log::LO << Log::blockend;	
+		if (Logger::debugging()) {*Logger::log << Log::info << Log::LI << "Looks like Iff" << Log::LO << Log::blockend;}	
 		AUTO_PTR_ASSIGN( ImageBase, img, new ImageIff( &fileReader) );
     } else if ( b1 == 0x59 && b2 == 0xa6 && b3 == 0x6a ) {
-		*Logger::log << Log::debug << Log::LI << "Looks like Ras" << Log::LO << Log::blockend;	
+		if (Logger::debugging()) {*Logger::log << Log::info << Log::LI << "Looks like Ras" << Log::LO << Log::blockend;}	
 		AUTO_PTR_ASSIGN( ImageBase, img, new ImageRas( &fileReader) );
     } else if ( b1 == 0x50 && b2 >= 0x31 && b2 <= 0x36 ) {
-		*Logger::log << Log::debug << Log::LI << "Looks like Pnm" << Log::LO << Log::blockend;	
+		if (Logger::debugging()) {*Logger::log << Log::info << Log::LI << "Looks like Pnm" << Log::LO << Log::blockend;}	
 		AUTO_PTR_ASSIGN( ImageBase, img, new ImagePnm( &fileReader) );
     } else if ( b1 == 0x38 && b2 == 0x42 && b3 == 0x50 ) {
-		*Logger::log << Log::debug << Log::LI << "Looks like Psd" << Log::LO << Log::blockend;	
+		if (Logger::debugging()) {*Logger::log << Log::info << Log::LI << "Looks like Psd" << Log::LO << Log::blockend;}	
 		AUTO_PTR_ASSIGN( ImageBase, img, new ImagePsd( &fileReader) );
     } else if ( b1 == 0x46 && b2 == 0x57 ) {
-		*Logger::log << Log::debug << Log::LI << "Looks like Swf" << Log::LO << Log::blockend;	
+		if (Logger::debugging()) {*Logger::log << Log::info << Log::LI << "Looks like Swf" << Log::LO << Log::blockend;}	
 		AUTO_PTR_ASSIGN( ImageBase, img, new ImageSwf( &fileReader) );
     } else if ( b1 == 0x00 && b2 == 0x00 && ( b3 == 0x01 || b3 == 0x02 ) ) {
-		*Logger::log << Log::debug << Log::LI << "Looks like Ico" << Log::LO << Log::blockend;	
+		if (Logger::debugging()) {*Logger::log << Log::info << Log::LI << "Looks like Ico" << Log::LO << Log::blockend;}	
 		AUTO_PTR_ASSIGN( ImageBase, img, new ImageIco( &fileReader) );
     } else if ( ( b2 == 0x01 && ( b3 == 0x01 || b3 == 0x09 || b3 == 0x20 || b3 == 0x21 ) ) ||
                 ( b2 == 0x00 && ( b3 == 0x02 || b3 == 0x03 || b3 == 0x0A || b3 == 0x0B ) ) ) {
-		*Logger::log << Log::debug << Log::LI << "Looks like Tga" << Log::LO << Log::blockend;	
+		if (Logger::debugging()) {*Logger::log << Log::info << Log::LI << "Looks like Tga" << Log::LO << Log::blockend;}	
 		AUTO_PTR_ASSIGN( ImageBase, img, new ImageTga( &fileReader) );
     } else {
-	 *Logger::log << Log::debug << Log::LI << "It's not a media file that we can recognise." << Log::LO << Log::blockend;	
+		if (Logger::debugging()) {*Logger::log << Log::info << Log::LI << "It's not a media file that we can recognise." << Log::LO << Log::blockend;}	
       return false;
     }
     img->setCollectComments( collectComments ); //these are both false by default.
     img->setCountNumberOfImages( countNumberOfImages );
-	*Logger::log << Log::debug << Log::LI << "Turned off comment collection and image counting. (default)" << Log::LO << Log::blockend;	
-	*Logger::log << Log::debug << Log::LI << "Now about to look deeper into the image." << Log::LO << Log::blockend;	
+	if (Logger::debugging()) {
+		*Logger::log << Log::info << Log::LI << "Turned off comment collection and image counting. (default)" << Log::LO << Log::blockend;	
+		*Logger::log << Log::info << Log::LI << "Now about to look deeper into the image." << Log::LO << Log::blockend;	
+	}
     return img->check();
   } catch ( std::exception e ) {
-	*Logger::log << Log::debug << Log::LI << "General image check - exception happened: " << e.what() << Log::LO << Log::blockend;	
+	if (Logger::debugging()) {
+		*Logger::log << Log::info << Log::LI << "General image check - exception happened: " << e.what() << Log::LO << Log::blockend;
+	}
 	return false;
   }
 }

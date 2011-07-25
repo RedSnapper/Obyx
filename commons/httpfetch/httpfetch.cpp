@@ -147,11 +147,11 @@ namespace Fetch {
 					}
 				} else {
 					//					string msg = err;
-					//					*Logger::log << Log::debug << Log::LI << "HTTPFetch::startup() dlsym reported '" << err << "'." << Log::LO << Log::blockend;
+					//					*Logger::log << Log::info << Log::LI << "HTTPFetch::startup() dlsym reported '" << err << "'." << Log::LO << Log::blockend;
 				}
 			} else {
 				//				string msg = err;
-				//				*Logger::log << Log::debug << Log::LI << "HTTPFetch::startup() dlopen reported '" << err << "'." << Log::LO << Log::blockend;
+				//				*Logger::log << Log::info << Log::LI << "HTTPFetch::startup() dlopen reported '" << err << "'." << Log::LO << Log::blockend;
 			}
 		}
 		return loaded;
@@ -257,9 +257,11 @@ namespace Fetch {
 		if ( Logger::debugging() ) {
 			curl_version_info_data* info = curl_version_info(CURLVERSION_NOW);
 			if (info != NULL) {
-				*Logger::log << Log::debug << Log::LI << "libcurl/";
-				*Logger::log << info->version << " " << info->ssl_version << " libz/" << info->libz_version; //<< " " << info->libssh_version;
-				*Logger::log << Log::LO;
+				if (Logger::debugging()) {
+					*Logger::log << Log::info << Log::LI << "libcurl/";
+					*Logger::log << info->version << " " << info->ssl_version << " libz/" << info->libz_version; //<< " " << info->libssh_version;
+					*Logger::log << Log::LO;
+				}
 			}
 		}
 		if (redirects != ULLONG_MAX) { maxRedirects = redirects; }

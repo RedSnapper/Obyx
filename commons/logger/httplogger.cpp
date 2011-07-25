@@ -186,7 +186,7 @@ void HTTPLogger::extra(extratype t) {
 				} break;
 				case Log::warn: { *o << " class=\"warning\""; } break;
 				case Log::timing: { *o << " class=\"timing\""; } break;  
-				case Log::debug: 
+//				case Log::debug: 
 				case Log::info:  { *o << " class=\"info\""; } break;
 				case Log::fatal: { *o << " class=\"error\""; } break;
 				case Log::error: { *o << " class=\"error\""; } break;
@@ -289,7 +289,7 @@ void HTTPLogger::wrap(bool io) {
 				minititle = true;
 			} break;
 			case thrown:
-			case debug: 
+//			case debug: 
 			case info:  { 
 				*o << "<ol class=\"info\" >";
 			} break;

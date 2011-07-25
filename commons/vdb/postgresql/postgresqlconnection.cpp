@@ -71,7 +71,9 @@ namespace Vdb {
 				if (status == CONNECTION_OK) {
 					int result = s->PQsetClientEncoding(connectionHandle,"UTF8");
 					if (result != 0) {
-					   *Logger::log << Log::debug << Log::LI << "PostgreSQL:: Connection failed to set utf-8 charset." << Log::LO << Log::blockend; 
+						if (Logger::debugging()) {
+						   *Logger::log << Log::info << Log::LI << "PostgreSQL:: Connection failed to set utf-8 charset." << Log::LO << Log::blockend; 
+						}
 					} else {
 						db_open = true;
 					}

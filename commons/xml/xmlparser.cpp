@@ -164,7 +164,7 @@ namespace XML {
 	}
 	
 	void Parser::makeReader() {
-//		Xerces-c v3.0 and up.	Val_Auto 
+// Xerces-c v3.0 and up. Val_Auto 
 		parser = ((DOMImplementationLS*)impl)->createLSParser(DOMImplementationLS::MODE_SYNCHRONOUS, NULL);
 		DOMConfiguration* dc = parser->getDomConfig();
 		dc->setParameter(XMLUni::fgDOMErrorHandler,errorHandler);
@@ -180,8 +180,8 @@ namespace XML {
 		dc->setParameter(XMLUni::fgXercesLoadExternalDTD, false);
 		dc->setParameter(XMLUni::fgXercesIgnoreCachedDTD, false);
 		dc->setParameter(XMLUni::fgXercesIdentityConstraintChecking,true);
-//If we are using an xml config file, we need to choose if this is on or off by default. 
-//I think that false is probably the correct move here.
+// If we are using an xml config file, we need to choose if this is on or off by default. 
+// I think that false is probably the correct move here.
 		string dummy;
 		if (Environment::getbenv("OBYX_VALIDATE_ALWAYS",dummy) && (dummy.compare("true") == 0)) {
 			if (dc->canSetParameter(XMLUni::fgDOMValidate, true)) {

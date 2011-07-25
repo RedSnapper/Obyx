@@ -341,9 +341,9 @@ Logger& Logger::operator<< (const bracketing bkt) {
 				unsigned int bp = (unsigned int)ObyxElement::breakpoint(); 
 				switch ( type_stack.top() ) {
 					case thrown:
-					case debug : { 
-						syslog(LOG_DEBUG,"[%s]: %s ;%u (%s)",title.c_str(),path.c_str(),bp,log->syslogbuffer.str().c_str());
-					} break;
+//					case debug : { 
+//						syslog(LOG_DEBUG,"[%s]: %s ;%u (%s)",title.c_str(),path.c_str(),bp,log->syslogbuffer.str().c_str());
+//					} break;
 					case warn : { 
 						syslog(LOG_WARNING,"[%s]: %s ;%u (%s)",title.c_str(),path.c_str(),bp,log->syslogbuffer.str().c_str());
 					} break;
@@ -373,10 +373,10 @@ Logger& Logger::operator<< (const bracketing bkt) {
 			if ( debugging() ) {
 				bracket(bkt);  
 			} else {
-				const msgtype tst = type_stack.top();
-				if ( tst != debug  ) {
+//				const msgtype tst = type_stack.top();
+//				if ( tst != debug  ) {
 					bracket(bkt);  
-				} 
+//				} 
 			}
 		}
 		if ( bdepth < 0 ) bdepth = 0;

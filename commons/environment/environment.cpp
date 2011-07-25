@@ -615,7 +615,7 @@ void Environment::dopostparms() {
 					} 
 					if (! postfinished ) {
 						string block = input.substr(blockstart + startboundary.length() + 2, blockend - blockstart - startboundary.length() - 4);
-						//						*Logger::log << Log::debug << Log::LI << "Input block" << Log::LO;
+						//						*Logger::log << Log::info << Log::LI << "Input block" << Log::LO;
 						//A typical block is below.
 						/*
 						 --#312999087#multipart#boundary#1049282996#
@@ -824,7 +824,7 @@ void Environment::dopostparms() {
 					setparm("#count",String::tostring(numparms)); 
 				}
 				if ( Logger::debugging() ) {
-					*Logger::log << Log::debug << Log::LI << "POST Processing Completed" << Log::LO << Log::blockend; //
+					*Logger::log << Log::info << Log::LI << "POST Processing Completed" << Log::LO << Log::blockend; //
 				}
 			} //if CONTENT_TYPE
 		} 
@@ -1582,8 +1582,8 @@ void  Environment::list(string& result) {
 	}
 	std::sort(vme.begin(), vme.end(), sortvps); 
 	for(vector<pair<string,string> >::iterator vmei = vme.begin(); vmei != vme.end(); vmei++) {
-		if ( gDevelop || vmei->first.find("OBYX_",0,5) != 0) {
-			buffer << Log::debug << Log::LI << "Environment " << Log::II << vmei->first << Log::IO << Log::II << vmei->second << Log::IO << LO << blockend;
+		if ( (gDevelop || vmei->first.find("OBYX_",0,5) != 0)) {
+			buffer << Log::info << Log::LI << "Environment " << Log::II << vmei->first << Log::IO << Log::II << vmei->second << Log::IO << LO << blockend;
 		}
 	}
 	vector<pair<string,string> >vmp;

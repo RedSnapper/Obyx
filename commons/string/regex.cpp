@@ -75,7 +75,9 @@ namespace String {
 						int locr = 0;
 						int dobo = pcre_config(PCRE_CONFIG_UTF8, &locr);
 						if (locr != 1 || dobo != 0) { //dobo means that the flag is not supported...
-							//							*Logger::log << Log::debug << "Regex::startup() The pcre library was loaded, but utf-8 appears not to be supported." << Log::LO << Log::blockend;
+							if (Logger::debugging()) {
+								*Logger::log << Log::info << "Regex::startup() The pcre library was loaded, but utf-8 appears not to be supported." << Log::LO << Log::blockend;
+							}
 						}
 						loaded = true;
 					}

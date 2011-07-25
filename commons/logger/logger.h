@@ -31,7 +31,7 @@
 using namespace std;
 
 namespace Log {
-	typedef enum {logger,headline,subhead,debug,info,notify,fatal,error,syntax,warn,thrown,timing,even,redirect,blockend} msgtype;	// Alternative list of msgtypes
+	typedef enum {logger,headline,subhead,info,notify,fatal,error,syntax,warn,thrown,timing,even,redirect,blockend} msgtype;	// Alternative list of msgtypes
 	typedef enum {rule,urli,urlt,urlo,br} extratype;	// Alternative list of msgtypes
 	typedef enum {LI,LO,RI,RO,II,IO,LIXP,LIFP,LIPP,LOXP,LOFP,LOPP} bracketing;	// Brackets/Lines
 }

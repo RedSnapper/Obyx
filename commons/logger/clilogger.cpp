@@ -70,9 +70,9 @@ void CLILogger::bracket(bracketing bkt) {
 			margin.assign( type_stack.size() - 1,'.');
 			*o << "|" << margin;
 			switch ( type_stack.top()  ) {
-				case debug: { 
-					*o << "D:";
-				} break;
+//				case debug: { 
+//					*o << "D:";
+//				} break;
 				case thrown:
 				case info: { 
 					*o << "+:";
@@ -159,9 +159,9 @@ void CLILogger::wrap(bool io) {
 			case notify:  { 
 				*o <<			"+----------------------------------- NOTIFY -------------------------------------+\n";
 			} break;
-			case debug:  { 
-				*o <<			"+----------------------------------- DEBUG --------------------------------------+\n";
-			} break;
+//			case debug:  { 
+//				*o <<			"+----------------------------------- DEBUG --------------------------------------+\n";
+//			} break;
 			case info:  { 
 				*o <<			"+----------------------------------- INFO ---------------------------------------+\n";
 			} break;
@@ -204,9 +204,9 @@ void CLILogger::wrap(bool io) {
 			case notify:  { 
 				*o <<			"+------------------------------- FIN NOTIFY -------------------------------------+\n";
 			} break;
-			case debug:  { 
-				*o <<			"+------------------------------- FIN DEBUG --------------------------------------+\n";
-			} break;
+//			case debug:  { 
+//				*o <<			"+------------------------------- FIN DEBUG --------------------------------------+\n";
+//			} break;
 			case info:  { 
 				*o <<			"+------------------------------- FIN INFO ---------------------------------------+\n";
 			} break;

@@ -53,7 +53,9 @@ bool ImageJpeg::check() throw ( exception ) {
     int marker = getShortBigEndian( data, 0 );
     int size   = getShortBigEndian( data, 2 );
     if ( ( marker & 0xff00 ) != 0xff00 ) return false; // not a valid marker
-	  *Logger::log << Log::debug << Log::LI << "Looks like deeply like Jpeg" << Log::LO << Log::blockend;	
+	  if (Logger::debugging()) {
+		  *Logger::log << Log::info << Log::LI << "Looks like deeply like Jpeg" << Log::LO << Log::blockend;	
+	  }
     if ( marker == 0xffe0 ) { // APPx
       // APPx header must be larger than 14 bytes
       if ( size < 14 )              return false;

@@ -61,7 +61,9 @@ namespace Vdb {
 			if (!password.empty()) tpasswd = password.c_str();
 			if (s->real_connect(connectionHandle, thost, tuser, tpasswd, NULL, port, tsocket, 0) == NULL) {
 				string errorMessage = s->error(connectionHandle);
-//				*Logger::log << Log::debug << Log::LI << "MySQLConnection error:: Connection failed with '" << errorMessage << "'" << Log::LO << Log::blockend; 
+				if (Logger::debugging()) {
+					*Logger::log << Log::info << Log::LI << "MySQLConnection error:: Connection failed with '" << errorMessage << "'" << Log::LO << Log::blockend; 
+				}
 				conn_open = false;
 			} else {
 				conn_open = true;
@@ -69,20 +71,26 @@ namespace Vdb {
 				string charset="unknown";
 				if (charset_c != NULL) {
 					charset = charset_c;
-//					*Logger::log << Log::debug << Log::LI << "MySQLConnection:: Connection default charset:'" << charset_c << "'" << Log::LO << Log::blockend; 
+					if (Logger::debugging()) {
+						*Logger::log << Log::info << Log::LI << "MySQLConnection:: Connection default charset:'" << charset_c << "'" << Log::LO << Log::blockend; 
+					}
 				}
 				if ( charset.compare("utf8") != 0 && (void *)(s->set_character_set) != NULL ) { // set_character_set only available from mysql 5.07
 					int scs_result = s->set_character_set(connectionHandle,"utf8");
 					if (scs_result != 0 )  {
 						string errorMessage = s->error(connectionHandle);
-//						*Logger::log << Log::debug << Log::LI << "MySQLConnection:: Connection failed to set utf-8 charset. Error:" << scs_result << " Msg:" << errorMessage << Log::LO << Log::blockend;  
+						if (Logger::debugging()) {
+							*Logger::log << Log::info << Log::LI << "MySQLConnection:: Connection failed to set utf-8 charset. Error:" << scs_result << " Msg:" << errorMessage << Log::LO << Log::blockend;  
+						}
 					} else {
-//						*Logger::log << Log::debug << Log::LI << "MySQLConnection:: Connection set to charset utf-8." << Log::LO << Log::blockend;  
+						if (Logger::debugging()) {
+							*Logger::log << Log::info << Log::LI << "MySQLConnection:: Connection set to charset utf-8." << Log::LO << Log::blockend;  
+						}
 					}
 				}
 			}
 		} else {
-			*Logger::log <<  Log::fatal << Log::LI << "MySQLConnection error: Each connection can only be opened once. Instantiate a new connection." << Log::LO << Log::blockend; 
+			*Logger::log << Log::fatal << Log::LI << "MySQLConnection error: Each connection can only be opened once. Instantiate a new connection." << Log::LO << Log::blockend; 
 		}
 		return isopen();
 	}
