@@ -49,7 +49,6 @@ std::string OsiAPP::last_response	= "";	//
 
 //int max_redirects = 33, timeout_secs = 30
 bool OsiAPP::request(const xercesc::DOMNode* n,int max_redirects,int timeout_secs,DataItem*& the_result) {
-	
 	Environment* env = Environment::service();
 	std::string elname = "";
 	bool request_result = true;
@@ -103,14 +102,6 @@ bool OsiAPP::request(const xercesc::DOMNode* n,int max_redirects,int timeout_sec
 						String::fandr(heads[i],crlf,crlft);		//crlf in heads need a tab after them to indicate that they are not heads.
 						my_req.addHeader(heads[i]);
 					}
-/*					
- //Content-Length is being added elsewhere somehow.
-					if (!body.empty()) {
-						string cl="Content-Length: ";
-						cl.append(String::tostring((unsigned long long)body.size()));
-						my_req.addHeader(cl);
-					}
- */
 					last_response.clear();
 					string response_head,response_body;	//what was returned by remote server...
 					if (! my_req.doRequest(response_head,response_body, max_redirects, timeout_secs, req_errors) ) {

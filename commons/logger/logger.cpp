@@ -370,14 +370,7 @@ Logger& Logger::operator<< (const bracketing bkt) {
 			top_line=false;
 		}
 		if ( should_report() || debugging() )  {
-			if ( debugging() ) {
-				bracket(bkt);  
-			} else {
-//				const msgtype tst = type_stack.top();
-//				if ( tst != debug  ) {
-					bracket(bkt);  
-//				} 
-			}
+			bracket(bkt);  
 		}
 		if ( bdepth < 0 ) bdepth = 0;
 	}

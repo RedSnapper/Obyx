@@ -656,7 +656,9 @@ bool Document::eval() {
 				if ( doc_ns.compare(UCS2(L"http://www.obyx.org/osi-application-layer")) == 0 ) {
 					OsiAPP do_osi;
 					DataItem* osi_result = NULL;
-					int max_redirects = 33, timeout_secs = 30; //GRAB FROM STORE!!
+					unsigned long long max_redirects = 33, timeout_secs = 30; //GRAB FROM STORE!!
+					metastore("REDIRECT_BREAK_COUNT",max_redirects);
+					metastore("URL_TIMEOUT_SECS",timeout_secs);				
 					
 					if ( do_osi.request(root_node,max_redirects,timeout_secs,osi_result)) {
 						results.setresult(osi_result);
