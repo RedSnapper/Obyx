@@ -117,8 +117,8 @@ namespace Vdb {
 		} else {
 			if (Logger::log != NULL) {
 				*Logger::log << Log::fatal << Log::LI << "MySQLConnection error: Open a connection before selecting a database!" << Log::LO << Log::blockend; 
-				return false;
 			}
+			return false;
 		}
 	}
 	
@@ -133,14 +133,14 @@ namespace Vdb {
 			} else {
 				if (Logger::log != NULL) {
 					*Logger::log << Log::fatal << Log::LI << "MySQLConnection error: select a database before creating a query!" << Log::LO << Log::blockend; 
-					q = NULL;
 				}
+				q = NULL;
 			}
 		} else {
 			if (Logger::log != NULL) {
 				*Logger::log << Log::fatal << Log::LI << "MySQLConnection error: Open a connection before creating a query!" << Log::LO << Log::blockend; 
-				q = NULL;
 			}
+			q = NULL;
 		}
 		return retval;
 	}
@@ -152,14 +152,14 @@ namespace Vdb {
 			} else {
 				if (Logger::log != NULL) {
 					*Logger::log << Log::fatal << Log::LI << "MySQLConnection error: select a database before creating a query!" << Log::LO << Log::blockend; 
-					return NULL;
 				}
+				return NULL;
 			}
 		} else {
 			if (Logger::log != NULL) {
 				*Logger::log << Log::fatal << Log::LI << "MySQLConnection error: Open a connection before creating a query!" << Log::LO << Log::blockend; 
-				return NULL;
 			}
+			return NULL;
 		}
 	}
 	
