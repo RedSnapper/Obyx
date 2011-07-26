@@ -17,6 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.110726
+	BUG			undeleted memory with eval.
 v1.110725
 	BUG			META store variables not being set.
 	Enh.		Non-obyx/osi XML eval now to itself.

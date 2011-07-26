@@ -605,7 +605,7 @@ void IKO::evaltype(inp_space the_space, bool release, bool eval,bool is_context,
 						}
 					}
 				}
-				DataItem* doc_to_eval = container; //We don't want to write over ourselves!
+				DataItem* doc_to_eval = container; //This is just a ptr copy.
 				container = NULL;
 				Document eval_doc(doc_to_eval,Document::File,filestring,this); //evaluate immediately!
 				if (eval_doc.results.final()) { 
@@ -618,6 +618,7 @@ void IKO::evaltype(inp_space the_space, bool release, bool eval,bool is_context,
 					trace();
 					*Logger::log << Log::blockend;
 				}
+				delete doc_to_eval; doc_to_eval = NULL;
 				if (the_space == file && !dirstring.empty() ) { FileUtils::Path::pop_wd(); }
 			} else {
 				if (exist_test != ut_significant) {
