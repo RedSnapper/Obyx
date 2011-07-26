@@ -1067,11 +1067,11 @@ void Environment::setbenvmap() {//per box/process environment
 		if (split != string::npos && split > 0 ) {
 			string n = parmstring.substr(0,split);
 			string v = parmstring.substr(split+1,string::npos);
-			if(v.size() > 0 && v[v.size()-1] == '=') { //weird fastcgi name_mangle
+#ifdef FAST
+			if(v.size() > 0 && v[v.size()-1] == '=') { //weird fastcgi shite.
 				v.resize(v.size()-1);
-				//	string problem="fastcgi_name_mangle_"+n;
-				//	setbenv(problem,v);
 			}
+#endif
 			setbenv(n,v);
 			if (n.compare("OBYX_CONFIG_FILE") == 0) { //for virtual hosts shouldn't be set here.
 				do_config_file(v);
@@ -1151,9 +1151,11 @@ void Environment::setienvmap(char ** environment) {
 		if (split != string::npos && split > 0 ) {
 			string n = parmstring.substr(0,split);
 			string v = parmstring.substr(split+1,string::npos);
+#ifdef FAST
 			if(v.size() > 0 && v[v.size()-1] == '=') { //weird fastcgi shite.
 				v.resize(v.size()-1);
 			}
+#endif
 			setienv(n,v);
 			var_map_type::iterator it = cgi_rfc_map.find(n);
 			if (it != cgi_rfc_map.end()) {
