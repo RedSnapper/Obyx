@@ -1083,7 +1083,7 @@ string Environment::Database() {
 	string result("");
 	if (instance != NULL) {
 		if (!instance->getenv("OBYX_SQLDATABASE",result)) {
-			instance->getenv("OBYX_DATABASE",result);
+			instance->getenv("OBYX_SQLDATABASE",result);
 		}
 	} else {
 		getbenv("OBYX_SQLDATABASE",result);
