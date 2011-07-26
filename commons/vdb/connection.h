@@ -45,6 +45,7 @@ public:
 		virtual bool database(const std::string&) = 0;
 		virtual bool dbselected()=0; //if the database is selected we can instantiate queries.
 		virtual bool isopen()=0;
+		virtual void list()=0;
 		virtual void close()=0;
 		virtual Query* query(std::string = "")=0;
 		virtual bool query(Query*&,std::string = "")=0;

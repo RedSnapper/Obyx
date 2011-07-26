@@ -55,6 +55,7 @@ namespace Vdb {
 		virtual Query* query(std::string = "");
 		virtual bool query(Query*&,std::string = "");
 		virtual void escape(std::string&);
+		virtual void list();                            
 		virtual void close();                            
 		PostgreSQLConnection(PostgreSQLService*);
 		virtual ~PostgreSQLConnection();

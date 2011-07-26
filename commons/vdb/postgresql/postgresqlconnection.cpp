@@ -134,7 +134,11 @@ namespace Vdb {
 			free(buffer);
 		}
 	}
-	
+	void PostgreSQLConnection::list() {
+		if (Logger::log != NULL) {
+			*Logger::log << Log::info << Log::LI << "PostgreSQL;" << pghost << ";" << login << ";" << pgport << ";" << dbName << ";" << Log::LO << Log::blockend; 
+		}
+	}
 	void PostgreSQLConnection::close() {
 		if (connectionHandle != NULL) { 
 			s->PQfinish(connectionHandle);

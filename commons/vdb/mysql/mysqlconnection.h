@@ -40,6 +40,13 @@ private:
 		bool conn_open;
 		bool db_open;
 		MySQLConnection();
+		
+		std::string thost;
+		std::string tuser;
+		std::string tpasswd;
+		unsigned int tport;
+		std::string tdbase;
+		
 
 public:
 		virtual bool dbselected() { return db_open && conn_open && connectionHandle != NULL; }
@@ -50,6 +57,7 @@ public:
 		virtual bool query(Query*&,std::string = "");
 		virtual void escape(std::string&);
 		virtual void close();                            
+		virtual void list();                            
 		MySQLConnection(MySQLService*);
 		virtual ~MySQLConnection();
 	};

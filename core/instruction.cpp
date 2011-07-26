@@ -784,6 +784,7 @@ void Instruction::call_sql(std::string& querystring) {
 			} else {
 				*Logger::log << Log::error << Log::LI << "Error. Instruction operation query needs a database selected. An sql service was found, but the sql connection failed." << Log::LO;
 				trace();
+				dbc->list();
 				*Logger::log << Log::blockend;
 			}
 		} else {
