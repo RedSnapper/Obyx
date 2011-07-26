@@ -41,6 +41,7 @@ using namespace Log;
 Logger*				Logger::log = NULL;
 string				Logger::title="Logger";
 std::ostringstream* Logger::lstore = NULL;
+bool 				Logger::debugflag = false;
 
 //startup identifies if we are outputting as a cgi script or as a commandline utility.
 //console is set to false if we are running in cgi mode, and true if we are in commandline mode.
@@ -87,7 +88,6 @@ void Logger::unset_stream() {
 Logger::Logger(int i) : syslogging(true),bdepth(i) {
 	fo = NULL;		//final output stream
 	o = NULL;		//current output stream
-	debugflag=false;
 	storageused=false;
 	isopened=false;
 	hadfatal=false;
@@ -113,6 +113,8 @@ Logger::~Logger() {
 }
 
 void Logger::startup(string& t) {
+	string tmp;
+	debugflag = (Environment::getbenv("OBYX_DEBUG", tmp) && tmp.compare("true") == 0);
 	setlocale(LC_CTYPE,"UTF-8");
 	title = t;
 }
@@ -147,8 +149,7 @@ ostream* Logger::init(ostream*& final_out) {
 	log->syslogging = ! (env->getenv("OBYX_SYSLOG_OFF",tmp_env) && tmp_env.compare("true") == 0);
 	log->logging_on =   (env->getenv("OBYX_DEVELOPMENT",tmp_env) && tmp_env.compare("true") == 0);
 	if (log->logging_on) {
-		log->debugflag = (env->getenv("OBYX_DEBUG", tmp_env) && tmp_env.compare("true") == 0);
-		if (log->debugflag) {
+		if (debugflag) {
 			if (log->syslogging) {
 				setlogmask(LOG_UPTO (LOG_DEBUG ));
 			}

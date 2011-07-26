@@ -55,7 +55,7 @@ protected:
 	std::stack<Log::msgtype> type_stack;    //current log type was static Log::msgtype itype;
 	bool syslogging;	//boolean representing syslog alerts (default is on)
 	bool storageused;
-	bool debugflag;
+	static bool debugflag;
 	bool logging_on;
 	bool isopened;
 	bool hadfatal;
@@ -100,7 +100,7 @@ public:
 	static void stripcontainer(string& contents) { log->strip(contents); }
 	static bool opened() { return (log != NULL && log->isopened);}
 	static bool wasfatal() { return log->hadfatal;}
-	static bool debugging() {return log->debugflag;}
+	static bool debugging() {return debugflag;}
 	static bool logging_available() {return log!= NULL && log->logging_on;}
 	static void set_syslogging(bool t) { log->syslogging = t; }
 	

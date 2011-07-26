@@ -56,7 +56,7 @@ void finalise();
 void shutdown();
 
 int main(int argc, char *argv[]) {
-	string v_number = "1.110725"; //Do NOT put the v here!
+	string v_number = "1.110726"; //Do NOT put the v here!
 #ifdef FAST
 #ifdef PROFILING
 	int  profilecount = 100;
@@ -138,6 +138,7 @@ int main(int argc, char *argv[]) {
 void startup(std::string& version,std::string& v_number) {
 	string errs;
 	Environment::startup(version,v_number);				//unchanging environment stuff.
+	Logger::startup(version);							//Logger
 	String::Deflate::startup(errs);						//need to start up for mysql etc.	
 	Vdb::ServiceFactory::startup();
 #ifdef FAST
@@ -150,7 +151,6 @@ void startup(std::string& version,std::string& v_number) {
 #endif
 	String::Regex::startup();
 	Httphead::startup();
-	Logger::startup(version);								//Logger
 	OsiMessage::startup();
 	Document::startup();
 	ObyxElement::startup();
