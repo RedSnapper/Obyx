@@ -1080,7 +1080,7 @@ void Environment::setbenvmap() {//per box/process environment
 	}
 }
 string Environment::Database() {
-	string result("");
+	string result("[OBYX_SQLDATABASE not set in environment]");
 	if (instance != NULL) {
 		if (!instance->getenv("OBYX_SQLDATABASE",result)) {
 			instance->getenv("OBYX_SQLDATABASE",result);
