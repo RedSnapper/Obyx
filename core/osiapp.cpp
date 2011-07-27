@@ -152,7 +152,7 @@ bool OsiAPP::request(const xercesc::DOMNode* n,int max_redirects,int timeout_sec
 					ostringstream cmd;
 					cmd << "cat " << mfil << " | " << send_path;
 					if (! env_sender.empty() ) {
-						cmd << " -r \"" << env_sender << "\"";
+						cmd << " -f \"" << env_sender << "\""; //-r is now deprecated by sendmail.org
 					}
 					cmd << " -t > " << resf;  
 					system(cmd.str().c_str());
