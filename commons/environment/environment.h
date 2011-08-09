@@ -57,7 +57,6 @@ private:
 	Environment();
 	~Environment();
 	static Environment* instance;
-	
 	static var_map_type cgi_rfc_map;			//CGI_NAME rfc Header map (ro)
 	static var_map_type benv_map;				//Base     System environment (ro)
 	static double runtime_version;
@@ -97,7 +96,7 @@ private:
 	void dodocument();
 	void doparms(int argc, char *argv[]);
 	void dopostparms();
-	void setnamedparm(string,unsigned long long);
+	void setqsparm(string,unsigned long long);
 	
 //	buildarea_type do_area();
 	void do_request_cookies();
@@ -137,6 +136,8 @@ public:
 	static double version();
 	
 	static Environment* service(); 
+	 
+	static bool getbenvtf(string const,const bool=false);
 	static bool getbenv(string const,string&);
 	static bool benvexists(const string&);
 	
@@ -171,6 +172,7 @@ public:
 	string getpathforroot();
 	bool getparm(string const,string&);
 	bool getcookie_req(string const,string&);	//only pre-existing cookies
+	bool getenvtf(const string&,const bool=false);
 	bool envexists(const string&);
 	bool parmexists(const string&);
 	bool cookieexists(const string&);

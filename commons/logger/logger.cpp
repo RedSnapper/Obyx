@@ -114,7 +114,7 @@ Logger::~Logger() {
 
 void Logger::startup(string& t) {
 	string tmp;
-	debugflag = (Environment::getbenv("OBYX_DEBUG", tmp) && tmp.compare("true") == 0);
+	debugflag = Environment::getbenvtf("OBYX_DEBUG");
 	setlocale(LC_CTYPE,"UTF-8");
 	title = t;
 }
@@ -146,8 +146,8 @@ ostream* Logger::init(ostream*& final_out) {
 	 off			on			off				off			[no syslog]   (syslog not opened)		
 	 off			off			off				off			[no syslog]   (syslog not opened)	
 	 */
-	log->syslogging = ! (env->getenv("OBYX_SYSLOG_OFF",tmp_env) && tmp_env.compare("true") == 0);
-	log->logging_on =   (env->getenv("OBYX_DEVELOPMENT",tmp_env) && tmp_env.compare("true") == 0);
+	log->syslogging = ! env->getenvtf("OBYX_SYSLOG_OFF");
+	log->logging_on =   env->getenvtf("OBYX_DEVELOPMENT");
 	if (log->logging_on) {
 		if (debugflag) {
 			if (log->syslogging) {
@@ -155,7 +155,7 @@ ostream* Logger::init(ostream*& final_out) {
 			}
 			openlog("Obyx",0,LOG_USER);
 		} else {
-			if (!(env->getenv("OBYX_LOGGING_OFF",tmp_env) && tmp_env.compare("true") == 0)) {
+			if (!env->getenvtf("OBYX_LOGGING_OFF")) {
 				if (log->syslogging) {
 					setlogmask(LOG_UPTO (LOG_WARNING));
 				}
@@ -163,7 +163,7 @@ ostream* Logger::init(ostream*& final_out) {
 			}
 		}
 	} else {
-		if (! (env->getenv("OBYX_LOGGING_OFF",tmp_env) && tmp_env.compare("true") == 0 )) {
+		if (!env->getenvtf("OBYX_LOGGING_OFF")) {
 			if (log->syslogging) {
 				setlogmask(LOG_UPTO (LOG_WARNING));
 			}
@@ -205,8 +205,6 @@ void Logger::tail(string& container) {
 bool Logger::should_report() { //always report to stacked errors. 
 	size_t ssize = estrm_stack.size();
 	return (logging_on || ssize > 1);
-//	msgtype& cur = type_stack.top();
-//	return ((cur == fatal || cur == syntax || cur == Log::error) || (ssize > 1));
 }
 
 Logger& Logger::operator<< (const double val ) { 
@@ -342,9 +340,6 @@ Logger& Logger::operator<< (const bracketing bkt) {
 				unsigned int bp = (unsigned int)ObyxElement::breakpoint(); 
 				switch ( type_stack.top() ) {
 					case thrown:
-//					case debug : { 
-//						syslog(LOG_DEBUG,"[%s]: %s ;%u (%s)",title.c_str(),path.c_str(),bp,log->syslogbuffer.str().c_str());
-//					} break;
 					case warn : { 
 						syslog(LOG_WARNING,"[%s]: %s ;%u (%s)",title.c_str(),path.c_str(),bp,log->syslogbuffer.str().c_str());
 					} break;

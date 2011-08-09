@@ -142,6 +142,7 @@ namespace XML {
 		xparser->parser->resetDocumentPool();
 	}
 	
+	//instantiated by Document.startup().
 	Manager::Manager() {
 		try {
 //			XMLPlatformUtils::Initialize(); 

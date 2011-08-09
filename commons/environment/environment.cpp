@@ -86,6 +86,8 @@ void Environment::startup(string& v,string& vn) {					//everything that doesn't 
 	runtime_version = String::real(vn);
 	setbenv("OBYX_VERSION",v);			//Let coders know what version we are in!
 	setbenv("OBYX_VERSION_NUMBER",vn);	//Let coders know what version number we are in!
+	string tmp("");						//The following settings only have an effect at startup!
+	getbenv("OBYX_NO_EXTERNAL_GRAMMARS",tmp);
 }
 
 void Environment::shutdown() {
@@ -542,8 +544,7 @@ void Environment::dopostparms() {
 							setparm("_n[1]","XML_DOCUMENT"); 
 							setparm("_v[1]",input); 
 						} else {
-							setparm("#n[1]","XML_DOCUMENT"); 
-							setparm("#v[1]",input); 
+							setparm("","XML_DOCUMENT"); 
 						}
 						setparm("XML_DOCUMENT",input);
 						return;
@@ -554,6 +555,7 @@ void Environment::dopostparms() {
 							return;
 						} else { // unknown or empty
 							setparm("POST_MIME",contenttype);
+							setparm("THIS_REQ_BODY",input);
 							if (version() < 1.110503 ) {
 								setparm("_n[1]","POST_MIME"); 
 								setparm("_v[1]",contenttype); 
@@ -561,19 +563,16 @@ void Environment::dopostparms() {
 								setparm("_v[2]",input); 
 								setparm("_count","2");
 							} else {
-								setparm("#n[1]","POST_MIME"); 
-								setparm("#v[1]",contenttype); 
-								setparm("#n[2]","THIS_REQ_BODY"); 
-								setparm("#v[2]",input); 
-								setparm("#count","2");
+								setparm("","POST_MIME"); 
+								setparm("","THIS_REQ_BODY"); 
 							}
 							return;
 						}
 					}
 				}
-				//multipart/form-data mime follows
-				// text/xml; charset="utf-8"
-				//				CONTENT_TYPE]=[multipart/form-data; boundary=Message_Boundary_000002]
+				//  multipart/form-data mime follows
+				//  text/xml; charset="utf-8"
+				//	CONTENT_TYPE]=[multipart/form-data; boundary=Message_Boundary_000002]
 				string boundary;
 				string startboundary;
 				string endboundary;
@@ -684,8 +683,7 @@ void Environment::dopostparms() {
 											setparm("_n["+String::tostring(numparms+1)+"]",name); 
 											setparm("_v["+String::tostring(numparms+1)+"]",value); 
 										} else {
-											setparm("#n["+String::tostring(numparms+1)+"]",name); 
-											setparm("#v["+String::tostring(numparms+1)+"]",value); 
+											setparm("",name); 
 										}
 										setparm(name,value);
 										numparms++;
@@ -708,22 +706,27 @@ void Environment::dopostparms() {
 											string fext(name+"_ext");
 											string fname(name+"_name");
 											//										*Logger::log << Log::LI << "Posting parm:[" << fname << "]=[" << fbase << "." << fext << "] file:[" << filename << "]=[" << base << "].[" << ext << "]" << Log::LO;
-											string metadelim="#";
 											if (version() < 1.110503 ) {
 												string metadelim="_";
+												setparm(metadelim+"n["+String::tostring(numparms+1)+"]",fname); 
+												setparm(metadelim+"v["+String::tostring(numparms+1)+"]",filename); 
+												setparm(fname,filename);
+												setparm(metadelim+"n["+String::tostring(numparms+1)+"]",fbase); 
+												setparm(metadelim+"v["+String::tostring(numparms+1)+"]",base); 
+												setparm(fbase,base);
+												setparm(metadelim+"n["+String::tostring(numparms+1)+"]",fext); 
+												setparm(metadelim+"v["+String::tostring(numparms+1)+"]",ext); 
+												setparm(fext,ext);
+												numparms+=3;
+											} else {
+												setparm("",fname);
+												setparm("",fbase);
+												setparm("",fext);
+												setparm(fname,filename);
+												setparm(fbase,base);
+												setparm(fext,ext);
+												numparms+=3;
 											}
-											setparm(metadelim+"n["+String::tostring(numparms+1)+"]",fname); 
-											setparm(metadelim+"v["+String::tostring(numparms+1)+"]",filename); 
-											setparm(fname,filename);
-											numparms++;
-											setparm(metadelim+"n["+String::tostring(numparms+1)+"]",fbase); 
-											setparm(metadelim+"v["+String::tostring(numparms+1)+"]",base); 
-											setparm(fbase,base);
-											numparms++;
-											setparm(metadelim+"n["+String::tostring(numparms+1)+"]",fext); 
-											setparm(metadelim+"v["+String::tostring(numparms+1)+"]",ext); 
-											setparm(fext,ext);
-											numparms++;
 										}
 										if (! mimetype.empty() ) {
 											string lenval = String::tostring(static_cast<long long>(value.length()));
@@ -733,19 +736,16 @@ void Environment::dopostparms() {
 												setparm("_n["+String::tostring(numparms+1)+"]",flength); 
 												setparm("_v["+String::tostring(numparms+1)+"]",lenval); 
 											} else {
-												setparm("#n["+String::tostring(numparms+1)+"]",flength); 
-												setparm("#v["+String::tostring(numparms+1)+"]",lenval); 
+												setparm("",flength); 
 											}
 											setparm(flength,lenval);
 											numparms++;
-											
 											string fmime(name+"_mime");
 											if (version() < 1.110503 ) {
 												setparm("_n["+String::tostring(numparms+1)+"]",fmime); 
 												setparm("_v["+String::tostring(numparms+1)+"]",mimetype); 
 											} else {
-												setparm("#n["+String::tostring(numparms+1)+"]",fmime); 
-												setparm("#v["+String::tostring(numparms+1)+"]",mimetype); 
+												setparm("",fmime); 
 											}
 											setparm(fmime,mimetype);
 											numparms++;
@@ -770,8 +770,7 @@ void Environment::dopostparms() {
 														setparm("_n["+String::tostring(numparms+1)+"]",fwidth); 
 														setparm("_v["+String::tostring(numparms+1)+"]",swidth); 
 													} else {
-														setparm("#n["+String::tostring(numparms+1)+"]",fwidth); 
-														setparm("#v["+String::tostring(numparms+1)+"]",swidth); 
+														setparm("",fwidth); 
 													}
 													setparm(fwidth,swidth);
 													numparms++;
@@ -780,8 +779,7 @@ void Environment::dopostparms() {
 														setparm("_n["+String::tostring(numparms+1)+"]",fheight); 
 														setparm("_v["+String::tostring(numparms+1)+"]",sheight); 
 													} else {
-														setparm("#n["+String::tostring(numparms+1)+"]",fheight); 
-														setparm("#v["+String::tostring(numparms+1)+"]",sheight); 
+														setparm("",fheight); 
 													}
 													setparm(fheight,sheight);
 													numparms++;
@@ -803,8 +801,7 @@ void Environment::dopostparms() {
 												setparm("_n["+String::tostring(numparms+1)+"]",name); 
 												setparm("_v["+String::tostring(numparms+1)+"]",value); 
 											} else {
-												setparm("#n["+String::tostring(numparms+1)+"]",name); 
-												setparm("#v["+String::tostring(numparms+1)+"]",value); 
+												setparm("",name); 
 											}
 											setparm(name,value);
 											numparms++;
@@ -820,8 +817,6 @@ void Environment::dopostparms() {
 				} // end of while
 				if (version() < 1.110503 ) {
 					setparm("_count",String::tostring(numparms)); 
-				} else {
-					setparm("#count",String::tostring(numparms)); 
 				}
 				if ( Logger::debugging() ) {
 					*Logger::log << Log::info << Log::LI << "POST Processing Completed" << Log::LO << Log::blockend; //
@@ -830,30 +825,28 @@ void Environment::dopostparms() {
 		} 
 	} 
 }
-void Environment::setnamedparm(string parmstring,unsigned long long pnum) {
-	ostringstream numparm;
-	numparm << pnum+1 << flush;
-	char meta_delim('#');
-	if (version() < 1.110503 ) {
-		meta_delim='_';
-	}
+//ok so here it can either be a 'name=value' or just 'value'
+void Environment::setqsparm(string parmstring,unsigned long long pnum) {
 	size_t split =  parmstring.find('=');
-	if (split != string::npos) {
-		ostringstream nameparm;
-		if (split > 0) {
-			string splitparm = parmstring.substr(0,split);
-			nameparm << splitparm << flush;
-			ostringstream parmnstr,parmvstr;
-			parmnstr << meta_delim << "n[" << numparm.str() << "]";
-			parmvstr << meta_delim << "v[" << numparm.str() << "]";
-			setparm(parmnstr.str(),nameparm.str()); 							//foo=bar
-			setparm(nameparm.str(),parmstring.substr(split+1,string::npos));	//#n[1]=foo
-			setparm(parmvstr.str(),parmstring.substr(split+1,string::npos)); 	//#n[1]=bar
-		} 
- 	} else {
-		setparm(parmstring,"");
-		setparm(meta_delim+"n["+numparm.str()+"]",parmstring); 
-		setparm(meta_delim+"v["+numparm.str()+"]",""); 
+	ostringstream parmnv;
+	string parmn,parmv;
+	if (split != string::npos && split > 0) {
+		parmn = parmstring.substr(0,split);
+		parmv = parmstring.substr(split+1,string::npos);
+	} else {
+		parmn = parmstring;
+		parmv = "";
+	}
+	if (version() < 1.110503 ) {
+		ostringstream parmnstr,parmvstr;
+		parmnstr << "_n[" << pnum+1 << "]";
+		parmvstr << "_v[" << pnum+1 << "]";
+		setparm(parmn,parmv); 			//foo=bar
+		setparm(parmnstr.str(),parmn);	//foo#n[1]=foo
+		setparm(parmvstr.str(),parmv); 	//foo#v[1]=bar
+	} else {
+		setparm(parmn,parmv); 			//foo=bar
+		setparm("",parmn);	//foo#n[1]=foo
 	}
 }
 void Environment::doparms(int argc, char *argv[]) {
@@ -911,20 +904,18 @@ void Environment::do_query_string(string& qstr) {
 	while((find = qstr.find('&',start)) != string::npos) {
 		raw = qstr.substr(start, find - start);
 		String::urldecode(raw);
-		setnamedparm(raw,count); //lets see if it is a named parameter
+		setqsparm(raw,count); //lets see if it is a named parameter
 		count++;
 		start = find + 1;
 	}
 	if (start != qstr.length()) {
 		raw = qstr.substr(start, qstr.length() - start);
 		String::urldecode(raw);
-		setnamedparm(raw,count);
+		setqsparm(raw,count);
 		count++;
 	}
 	if (version() < 1.110503 ) {
 		setparm("_count",String::tostring(count)); //This is correct for query_String
-	} else {
-		setparm("#count",String::tostring(count)); //This is correct for query_String
 	}
 }
 void Environment::setparm(string name,string value) {
@@ -991,7 +982,9 @@ void Environment::init_cgi_rfc_map() {
 	cgi_rfc_map.insert(var_map_type::value_type("HTTP_USER_AGENT","User-Agent"));				//precise
 }
 void Environment::initwlogger() {
-	setparm("_count","0");	//Just in case there are none.
+	if (version() < 1.110503 ) {
+		setparm("_count",0);
+	}
 	doparms(gArgc,gArgv);
 	string fn;
 	if (getenv("PATH_TRANSLATED",fn)) {
@@ -1080,7 +1073,7 @@ void Environment::setbenvmap() {//per box/process environment
 	}
 }
 string Environment::Database() {
-	string result("[OBYX_SQLDATABASE not set in environment]");
+	string result("OBYX_SQLDATABASE");
 	if (instance != NULL) {
 		if (!instance->getenv("OBYX_SQLDATABASE",result)) {
 			instance->getenv("OBYX_SQLDATABASE",result);
@@ -1182,7 +1175,8 @@ void Environment::getenvvars_base() {
 		tmp = String::znatural(envtmp);
 		if (tmp.second) gSQLport = (unsigned int)tmp.first;
 	}
-	gDevelop = (getenv("OBYX_DEVELOPMENT",envtmp) && (envtmp.compare("true") == 0));
+	
+	gDevelop = getenvtf("OBYX_DEVELOPMENT");
 	if (getenv("OBYX_SCRIPTS_DIR",gScriptsDir)) { //defaults to nothing.
 		if ( gScriptsDir[gScriptsDir.size()-1] != '/') gScriptsDir+='/';
 	}
@@ -1229,6 +1223,14 @@ bool Environment::getbenv(string const name,string& container) {	//used for base
 	if (it != benv_map.end()) {
 		container = ((*it).second);
 		retval = true;
+	} 
+	return retval;
+}
+bool Environment::getbenvtf(string const name,const bool undef) {	//used for base configuration settings.
+	bool retval = undef;
+	var_map_type::iterator it = benv_map.find(name);
+	if (it != benv_map.end()) {
+		retval= (*it).second.compare("true") == 0;
 	} 
 	return retval;
 }
@@ -1342,6 +1344,16 @@ bool Environment::cookieexists(const string& name) { //request cookies...
 	var_map_type::iterator it = cke_map.find(name);
 	return (it != cke_map.end());
 }
+bool Environment::getenvtf(const string& name,const bool undef) {	//used for base configuration settings.
+	bool retval = undef;
+	var_map_type::iterator it = ienv_map.find(name);
+	if (it != ienv_map.end()) {
+		retval = (*it).second.compare("true") == 0;
+	} else {
+		retval = getbenvtf(name,undef);
+	}
+	return retval;
+}
 bool Environment::envexists(const string& name) {
 	bool retval = false;
 	var_map_type::iterator it = ienv_map.find(name);
@@ -1373,7 +1385,8 @@ bool Environment::getparm(string const name,string& container) {
 	bool retval = false;
 	pair<string,string> result;
 	container.clear();
-	if (version() >= 1.110503 && String::rsplit('#',name,result) && (!result.second.empty()) && (!result.first.empty())) {
+	//#n[1] = sysparm value. foo#n[1] = name of foo[1]
+	if (version() >= 1.110503 && String::rsplit('#',name,result) && (!result.second.empty()) ) {
 		size_t index = 0;
 		vec_map_type::iterator it = parm_map.find(result.first);
 		if (result.second.compare("count") == 0) {
@@ -1384,14 +1397,14 @@ bool Environment::getparm(string const name,string& container) {
 			retval = true;
 		} else {
 			if ((result.second[1] == '[') &&(result.second[0] == 'n' || result.second[0] == 'v')) {
-				if (result.second[0] == 'n') {
+				if (result.second[0] == 'n' && !result.first.empty()) {
 					container = result.first;
 					retval = true;
 				} else {
 					if (it != parm_map.end()) {
 						vector<string> parmvals = it->second;
 						string::const_iterator numit = result.second.begin()+2;
-						index = String::natural(numit);
+						index = String::natural(numit) - 1;
 						if (index < parmvals.size()) {
 							retval = true;
 							container = parmvals[index];

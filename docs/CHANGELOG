@@ -17,6 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.110809        
+	BUG			v1.110504 Sysparms not working properly.
 v1.110726
 	BUG			undeleted memory with eval.
 v1.110725
@@ -80,6 +82,7 @@ v1.110510       <----- From this version on, stores may have scope 'document' fo
 v1.110504       <----- From this version on, meta sysparms are accessed via # rather than _ 
 	Enh.		Sysparms are now available as vectors, not just values. Accessed via eg myparm#2  myparm#count myparm#v[3]
 				For index 0, myparm, myparm#0, myparm#v[0] are all synonyms.
+				Likewise, #v[1],#n[1] are available for sysparms.
 v1.110414
 	BUG.		DataItem virtual method append() should delete suffix.
 	BUG.		MemBufFormatTarget.getLen() is size of buffer, not of result

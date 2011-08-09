@@ -560,9 +560,9 @@
 		B54933FB105A697D00CE818F /* mysql */ = {
 			isa = PBXGroup;
 			children = (
+				B54933FE105A697D00CE818F /* mysqlquery.cpp */,
 				B54933FD105A697D00CE818F /* mysqlconnection.h */,
 				B54933FC105A697D00CE818F /* mysqlconnection.cpp */,
-				B54933FE105A697D00CE818F /* mysqlquery.cpp */,
 				B54933FF105A697D00CE818F /* mysqlquery.h */,
 				B5493401105A697D00CE818F /* mysqlservice.h */,
 				B5493400105A697D00CE818F /* mysqlservice.cpp */,
@@ -991,7 +991,6 @@
 				OTHER_CFLAGS = (
 					"-DFAST",
 					"-DALLOW_MYSQL",
-					"-D_X_ALLOW_POSTGRESQL",
 					"-fshort-wchar",
 				);
 				PRODUCT_NAME = obyx.fcgi;
@@ -1004,7 +1003,7 @@
 			buildSettings = {
 				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
 				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEPLOYMENT_LOCATION = YES;
 				DEPLOYMENT_POSTPROCESSING = YES;
 				DSTROOT = /;
@@ -1064,7 +1063,7 @@
 					/usr/local/lib,
 				);
 				LINK_WITH_STANDARD_LIBRARIES = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				MACOSX_DEPLOYMENT_TARGET = "";
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "";
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
@@ -1080,7 +1079,7 @@
 		B5E3209809BC598C00F7FC96 /* General */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_VERSION = "";
 				OTHER_CFLAGS = (
 					"-DALLOW_MYSQL",
 					"-D_X_ALLOW_POSTGRESQL",
