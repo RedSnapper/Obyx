@@ -983,7 +983,7 @@ void Environment::init_cgi_rfc_map() {
 }
 void Environment::initwlogger() {
 	if (version() < 1.110503 ) {
-		setparm("_count",0);
+		setparm("_count","0");
 	}
 	doparms(gArgc,gArgv);
 	string fn;
