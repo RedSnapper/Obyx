@@ -473,7 +473,7 @@ void ObyxElement::get_sql_connection() {
 			if (dbc->isopen())  {
 				dbc->database(Environment::Database());
 			} else {
-				if (Logger::log != NULL) {
+				if (Environment::getbenvtf("OBYX_SQLSERVICE_REQ") && Logger::log != NULL) {
 					*Logger::log << Log::error << Log::LI << "SQL Service. Service library was loaded but the host connection failed." << Log::LO;
 					*Logger::log << Log::LI << Log::notify << Log::LI;
 					*Logger::log << "If the host is on another box, check the database client configuration or host that networking is enabled. " << Log::LO;
