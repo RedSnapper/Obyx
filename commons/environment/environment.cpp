@@ -989,6 +989,7 @@ void Environment::initwlogger() {
 	string fn;
 	if (getenv("PATH_TRANSLATED",fn)) {
 		Logger::set_path(fn);
+		Logger::set_rpath(getpathforroot());
 	}
 	if (getenv("OBYX_AUTO_UTF8_CHECK",fn)) {
 		do_auto_utf8check = (fn.compare("false") != 0); //ie, if it's not false then it's true.

@@ -31,9 +31,13 @@ bool HTTPLogger::minititle = true;
 void HTTPLogger::dofatal(std::string message) {
 	Httphead* http = Httphead::service();
 	if (! http->done() ) {
+		string xpath=path;
+		if ( xpath.find(rpath) == 0 ) {
+			xpath.erase(0,rpath.length());
+		}
 		http->addcustom("X-Obyx-Status","Fatal");
-		http->addcustom("X-Obyx-Signature",title.c_str());
-		http->addcustom("X-Obyx-File",path.c_str());
+		http->addcustom("X-Obyx-Signature",title);
+		http->addcustom("X-Obyx-File",xpath);
 		http->addcustom("X-Obyx-Breakpoint",ObyxElement::breakpoint_str());
 		http->addcustom("X-Obyx-Message",message);
 		if ( logging_on	) {	

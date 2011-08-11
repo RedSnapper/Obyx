@@ -50,6 +50,7 @@ private:
 	
 protected:
 	string		  path;
+	string		  rpath;
 	static		  string title;
 	std::stack<std::ostream*> estrm_stack; //error stream
 	std::stack<Log::msgtype> type_stack;    //current log type was static Log::msgtype itype;
@@ -85,6 +86,7 @@ public:
 	static void startup(string&);
 	static void shutdown();
 	static void set_path(const string& newpath) { log->path = newpath; } 
+	static void set_rpath(const string& newpath) { log->rpath = newpath; } 
 	static void set_title(const string& newtitle) { title = newtitle; } 
 	static void get_title(string& container) { container = title; } 
 	static void set_stream(ostream*&); 
