@@ -56,7 +56,7 @@ void finalise();
 void shutdown();
 
 int main(int argc, char *argv[]) {
-	string v_number = "1.110809"; //Do NOT put the v here!
+	string v_number = "1.110811"; //Do NOT put the v here!
 #ifdef FAST
 #ifdef PROFILING
 	int  profilecount = 100;
