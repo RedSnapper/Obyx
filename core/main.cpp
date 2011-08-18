@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
 	string v_number = "1.110811"; //Do NOT put the v here!
 #ifdef FAST
 #ifdef PROFILING
-	int  profilecount = 100;
+	int  profilecount = 1;
 #endif
 	string version  = "Obyx v"+v_number+"F Supported";
 #else
