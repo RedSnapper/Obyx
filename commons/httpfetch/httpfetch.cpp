@@ -204,6 +204,8 @@ namespace Fetch {
 //			processErrorCode(curl_easy_setopt(handle, CURLOPT_DEBUGDATA, &body), errstr); //
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_DEBUGFUNCTION, debugCallback), errstr);
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_VERBOSE, 1), errstr);
+		} else {
+			processErrorCode(curl_easy_setopt(handle, CURLOPT_VERBOSE, 0), errstr);
 		}
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_READFUNCTION, readMemoryCallback), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_READDATA, &body), errstr);
