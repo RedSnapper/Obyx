@@ -17,6 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.110912        
+	Enh.		xml declaration may now be turned on using cf value OBYX_XMLDECL=true
 v1.110811        
 	CHG			Fatal headers now correctly prefixed with X-
 v1.110809        
