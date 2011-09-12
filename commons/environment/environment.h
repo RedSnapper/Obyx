@@ -126,6 +126,7 @@ private:
 	static void setbenvmap();
 	static void init_cgi_rfc_map();
 	static bool sortvps(pair<string,string>,pair<string,string>);
+	static bool sortvvps(pair<string,vector<string>* >,pair<string,vector<string>* >);
 	static void do_config_file(string&);
 public:
 	//statics

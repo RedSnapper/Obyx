@@ -846,7 +846,8 @@ void Environment::setqsparm(string parmstring,unsigned long long pnum) {
 		setparm(parmvstr.str(),parmv); 	//foo#v[1]=bar
 	} else {
 		setparm(parmn,parmv); 			//foo=bar
-		setparm("",parmn);	//foo#n[1]=foo
+		setparm("࿅",parmn);	// #n[1]=foo
+		setparm("࿄",parmv);	// #v[1]=bar
 	}
 }
 void Environment::doparms(int argc, char *argv[]) {
@@ -1031,6 +1032,10 @@ void Environment::do_config_file(string& filepathstring) {
 	}
 }
 bool Environment::sortvps(pair<string,string> n1,pair<string,string> n2) {
+	return (n1.first.compare(n2.first) < 0) ? true : false;
+}
+
+bool Environment::sortvvps(pair<string,vector<string>* > n1,pair<string,vector<string>* > n2) {
 	return (n1.first.compare(n2.first) < 0) ? true : false;
 }
 void Environment::setbasetime() {
@@ -1338,8 +1343,39 @@ void Environment::cookiekeys(const string& pattern,set<string>& keylist) {
 	}
 }
 bool Environment::parmexists(const string& name) { //regex..
-	vec_map_type::iterator it = parm_map.find(name);
-	return (it != parm_map.end());
+	bool retval=false;
+	if (version() >= 1.110503) {
+		size_t veclen = 0;
+		pair<string,string> result;		
+		if ( String::rsplit('#',name,result) && (!result.second.empty()) ) {
+			if (!result.first.empty()) {
+				vec_map_type::iterator it = parm_map.find(result.first);
+				if (it != parm_map.end()) {
+					veclen = it->second.size();
+				}
+				string::const_iterator numit = result.second.begin()+2;
+				size_t index = String::natural(numit);
+				if (index <= veclen) {
+					retval = true;
+				}
+			} else {
+				vec_map_type::iterator it = parm_map.find("࿅");
+				if (it != parm_map.end()) {
+					veclen = it->second.size();
+				}
+				string::const_iterator numit = result.second.begin()+2;
+				size_t index = String::natural(numit);
+				if (index <= veclen) {
+					retval = true;
+				}
+			}
+		} else {
+			retval = (parm_map.find(name) != parm_map.end()) ;		
+		}
+	} else {
+		retval = (parm_map.find(name) != parm_map.end()) ;		
+	}
+	return retval;
 }
 bool Environment::cookieexists(const string& name) { //request cookies...
 	var_map_type::iterator it = cke_map.find(name);
@@ -1386,51 +1422,84 @@ bool Environment::getparm(string const name,string& container) {
 	bool retval = false;
 	pair<string,string> result;
 	container.clear();
-	//#n[1] = sysparm value. foo#n[1] = name of foo[1]
-	if (version() >= 1.110503 && String::rsplit('#',name,result) && (!result.second.empty()) ) {
-		size_t index = 0;
-		vec_map_type::iterator it = parm_map.find(result.first);
-		if (result.second.compare("count") == 0) {
-			if (it != parm_map.end()) {
-				 index = it->second.size();
-			}
-			String::tostring(container,(unsigned long long)index);
-			retval = true;
-		} else {
-			if ((result.second[1] == '[') &&(result.second[0] == 'n' || result.second[0] == 'v')) {
-				if (result.second[0] == 'n' && !result.first.empty()) {
-					container = result.first;
+	vec_map_type::iterator it = parm_map.find(name);
+	if (it != parm_map.end()) {
+		vector<string> parmvals = it->second;
+		container = parmvals[0];
+		retval = true;
+	} else {
+		if (version() >= 1.110503 && String::rsplit('#',name,result) && (!result.second.empty())) {
+			size_t index = 0;
+			if (!result.first.empty()) { // ie, a named parameter.
+				vec_map_type::iterator it = parm_map.find(result.first);
+				if (result.second.compare("count") == 0) {
+					if (it != parm_map.end()) {
+						index = it->second.size();
+					}
+					String::tostring(container,(unsigned long long)index);
 					retval = true;
 				} else {
-					if (it != parm_map.end()) {
-						vector<string> parmvals = it->second;
-						string::const_iterator numit = result.second.begin()+2;
-						index = String::natural(numit) - 1;
-						if (index < parmvals.size()) {
+					//a value may be accessed via eg myparm#2  myparm#v[2]				
+					if (result.second.size() >= 4 && (result.second[1] == '[') &&(result.second[0] == 'n' || result.second[0] == 'v')) {
+						if (result.second[0] == 'n') {
+							container = result.first;
 							retval = true;
-							container = parmvals[index];
+						} else { //value.
+							string::const_iterator numit = result.second.begin()+2;
+							index = String::natural(numit);
+							if (index - 1 < it->second.size()) {
+								retval = true;
+								container = it->second[index-1];
+							} //else false.
 						}
-					}
+					} else { // a direct number?
+						pair<unsigned long long,bool> idx = String::znatural(result.second);
+						if (idx.second && (size_t)(idx.first - 1) < it->second.size()) {
+							retval = true;
+							container = it->second[(size_t)idx.first - 1];
+						}
+					} //else false.
 				}
-			} else {
-				if (it != parm_map.end()) {
-					vector<string> parmvals = it->second;
-					string::const_iterator numit = result.second.begin();
-					index = String::natural(numit);
-					if (index < parmvals.size()) {
+			} else { //This starts with a #
+				if (!result.second.empty()) {
+					if (result.second.compare("count") == 0) {
+						vec_map_type::iterator it = parm_map.find("࿅"); //get the names list.
+						if (it != parm_map.end()) {
+							index = it->second.size();
+						}
+						String::tostring(container,(unsigned long long)index);
 						retval = true;
-						container = parmvals[index];
+					} else { //not count. either with the 
+						if (result.second.size() >= 4 && (result.second[1] == '[') &&(result.second[0] == 'n' || result.second[0] == 'v')) {
+							if (result.second[0] == 'n') {
+								vec_map_type::iterator it = parm_map.find("࿅"); //get the names list.
+								string::const_iterator numit = result.second.begin()+2;
+								index = String::natural(numit);
+								if (index - 1 < it->second.size()) {
+									retval = true;
+									container = it->second[index-1];
+								} //else false.
+							} else { //value.
+								vec_map_type::iterator it = parm_map.find("࿄"); //get the values list.
+								string::const_iterator numit = result.second.begin()+2;
+								index = String::natural(numit);
+								if (index - 1 < it->second.size()) {
+									retval = true;
+									container = it->second[index-1];
+								} //else false.
+							}
+						} else { // a direct number?
+							vec_map_type::iterator it = parm_map.find("࿅"); //get the names list.
+							pair<unsigned long long,bool> idx = String::znatural(result.second);
+							if (idx.second && (size_t)(idx.first - 1) < it->second.size()) {
+								retval = true;
+								container = it->second[(size_t)idx.first - 1];
+							} 
+						} 
 					}
 				}
 			}
-		}
-	} else {
-		vec_map_type::iterator it = parm_map.find(name);
-		if (it != parm_map.end()) {
-			vector<string> parmvals = it->second;
-			container = parmvals[0];
-			retval = true;
-		}
+		} 
 	}
 	return retval;
 }
@@ -1490,20 +1559,31 @@ void Environment::getrequesthttp(string& head,string& body) {
 }
 #pragma mark Debugging/Disclosure
 void Environment::listParms() {
-	vector<pair<string,string> >vmp;
+	vector<pair<string,vector<string>* > >vmp;
 	for(vec_map_type::iterator imt = parm_map.begin(); imt != parm_map.end(); imt++) {
-		vector<string> vals=imt->second;
-		for(vector<string>::iterator ivt = vals.begin(); ivt != vals.end(); ivt++) {
-			vmp.push_back(pair<string,string>(imt->first,*ivt));
-		}
+		vmp.push_back(pair<string,vector<string>* >(imt->first,&(imt->second)));
 	}
 	if (!vmp.empty()) {
 		*Logger::log << Log::subhead << Log::LI << "List of sysparms" << Log::LO;
 		*Logger::log << Log::LI << Log::even ;
-		std::sort(vmp.begin(),vmp.end(), sortvps); 
-		for(vector<pair<string,string> >::iterator vmpi = vmp.begin(); vmpi != vmp.end(); vmpi++) {
-			*Logger::log << Log::LI << Log::II << vmpi->first << Log::IO << Log::II << vmpi->second << Log::IO << Log::LO;
+		std::sort(vmp.begin(),vmp.end(),sortvvps);
+		for(vector<pair<string,vector<string>* > >::iterator vmpi = vmp.begin(); vmpi != vmp.end(); vmpi++) {
+			string name=vmpi->first;
+			if (name.compare("࿅") == 0) { name = "#n[]";
+			} else {if (name.compare("࿄") == 0) { name = "#v[]"; }	}
+			*Logger::log << Log::LI << Log::II << name << Log::IO << Log::II;
+			vector<string>* vals = vmpi->second;
+			unsigned int i=0;
+			if (vals->size() == 1) {
+				*Logger::log << (*vals)[0];
+			} else {
+				for(vector<string>::iterator vmpv = vals->begin(); vmpv != vals->end(); vmpv++) {
+					*Logger::log << 1+i++ << ":[" << *vmpv << "] ";
+				}
+			}
+			*Logger::log << Log::IO << Log::LO;
 		}
+
 		*Logger::log << Log::blockend << Log::LO << Log::blockend ; //even .. subhead.
 	}
 }
