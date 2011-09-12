@@ -71,7 +71,8 @@ void Document::finalise() {
 	for(type_store_map::iterator i = docstores.begin(); i != docstores.end(); i++) {
 		delete i->second;
 	}
-	root = NULL; //This a copy of the opening document, it's deleted in main.
+	docstores.clear();	//on eg fastcgi, we don't want the map to empty stores left behind!
+	root = NULL; 		//This a copy of the opening document, it's deleted in main.
 	xmlmanager->resetDocPool(); //This resets the cache of the entire set of all docs
 }
 void Document::shutdown() {
