@@ -58,13 +58,10 @@
                 </xsd:restriction>
             </xsd:simpleType>
         </xsd:attribute>
-        <xsd:attribute name="contextmenu" />
-    	<xsd:attribute name="data-xp" />
-    	<xsd:attribute name="data-js" />
-    	<xsd:attribute name="data-ref" />
-    	<xsd:attribute name="data-FolderName" />
-        <xsd:attribute name="data-MsgId" />
-        <xsd:attribute name="dir" default="ltr">
+		<xsd:attribute name="contextmenu" />
+		<xsd:attribute name="data-xp" />
+		<xsd:attribute name="data-obyx" />
+		<xsd:attribute name="dir" default="ltr">
             <xsd:simpleType>
                 <xsd:restriction base="xsd:NMTOKEN">
                     <xsd:enumeration value="ltr" />
