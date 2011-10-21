@@ -159,9 +159,7 @@ namespace XML {
 //		} else {
 			dc->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint,false);
 //		}
-		bool xml_declaration_flag;
-		Environment::getbenvtf("OBYX_XMLDECL",xml_declaration_flag);
-		dc->setParameter(XMLUni::fgDOMXMLDeclaration,xml_declaration_flag);
+		dc->setParameter(XMLUni::fgDOMXMLDeclaration,Environment::getbenvtf("OBYX_XMLDECL"));
 		dc->setParameter(XMLUni::fgDOMWRTBOM,false);
 	}
 	
@@ -184,7 +182,7 @@ namespace XML {
 		dc->setParameter(XMLUni::fgXercesIdentityConstraintChecking,true);
 // If we are using an xml config file, we need to choose if this is on or off by default. 
 // I think that false is probably the correct move here.
-		Environment::getbenvtf("OBYX_VALIDATE_ALWAYS",validation);
+		validation=Environment::getbenvtf("OBYX_VALIDATE_ALWAYS");
 		if (validation) {
 			if (dc->canSetParameter(XMLUni::fgDOMValidate, true)) {
 				dc->setParameter(XMLUni::fgDOMValidate, true);
@@ -200,9 +198,7 @@ namespace XML {
 		//See http://xerces.apache.org/xerces-c/program-dom-3.html for full list of parameters/features
 		//the 'SystemId' values must be the namespace urls.
 	
-		bool xhtml5=false;
-		Environment::getbenvtf("OBYX_USING_XHTML5",xhtml5);
-		if (xhtml5) {
+		if (Environment::getbenvtf("OBYX_USING_XHTML5")) {
 			resourceHandler->setGrammar(xhtml5xsd,UCS2(L"http://www.w3.org/1999/xhtml"),Grammar::SchemaGrammarType,true);
 		} else {
 			resourceHandler->setGrammar(xhtml1dtd,UCS2(L"http://www.w3.org/1999/xhtml"),Grammar::DTDGrammarType,true);      //XERCESC-1927: DTDs must be loaded before xml documents.
