@@ -269,6 +269,7 @@
 		B599F9230F583DEA00AD3D2C /* libxqilla.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxqilla.dylib; path = /usr/local/lib/libxqilla.dylib; sourceTree = "<absolute>"; };
 		B5A68B3B09CEF76B00D69316 /* pairqueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pairqueue.h; sourceTree = "<group>"; };
 		B5A68E9109CF266B00D69316 /* pairqueue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = pairqueue.cpp; sourceTree = "<group>"; };
+		B5A913DD1451C8FC00845A52 /* xhtml5.xsd */ = {isa = PBXFileReference; explicitFileType = text.xml; fileEncoding = 4; path = xhtml5.xsd; sourceTree = "<group>"; };
 		B5C208CB0FB982F7000BD08A /* wsdl.xsd */ = {isa = PBXFileReference; explicitFileType = text.xml; fileEncoding = 4; name = wsdl.xsd; path = grammars/wsdl.xsd; sourceTree = SOURCE_ROOT; };
 		B5C208E90FB983C9000BD08A /* wsdlmime.xsd */ = {isa = PBXFileReference; explicitFileType = text.xml; fileEncoding = 4; name = wsdlmime.xsd; path = grammars/wsdlmime.xsd; sourceTree = SOURCE_ROOT; };
 		B5C208F60FB984EF000BD08A /* wsdlmimexsd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wsdlmimexsd.h; path = grammars/wsdlmimexsd.h; sourceTree = "<group>"; };
@@ -660,6 +661,7 @@
 			children = (
 				B555971C0F8A04B4003C3BE0 /* xhtml1-strict.dtd */,
 				B55597200F8A04B4003C3BE0 /* xml.xsd */,
+				B5A913DD1451C8FC00845A52 /* xhtml5.xsd */,
 				B555971F0F8A04B4003C3BE0 /* xlink.xsd */,
 				B55597190F8A04B4003C3BE0 /* obyx.xsd */,
 				B55597170F8A04B4003C3BE0 /* message.xsd */,
@@ -992,6 +994,7 @@
 					"-DFAST",
 					"-DALLOW_MYSQL",
 					"-fshort-wchar",
+					"-DPROFILING",
 				);
 				PRODUCT_NAME = obyx.fcgi;
 				SKIP_INSTALL = NO;
@@ -1068,7 +1071,7 @@
 				OTHER_CFLAGS = "";
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
 				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = YES;
-				SDKROOT = macosx;
+				SDKROOT = "";
 				SKIP_INSTALL = NO;
 				STANDARD_C_PLUS_PLUS_LIBRARY_TYPE = dynamic;
 				STRIP_INSTALLED_PRODUCT = NO;
