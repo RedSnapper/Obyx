@@ -42,6 +42,7 @@ namespace XML {
 #include "grammars/soapencodingxsd.h"
 #include "grammars/xlinkxsd.h"
 #include "grammars/xhtml1dtd.h"
+#include "grammars/xhtml5.h"
 #include "grammars/wsdlxsd.h"
 #include "grammars/wsdlmimexsd.h"
 
@@ -183,16 +184,14 @@ namespace XML {
 		dc->setParameter(XMLUni::fgXercesIdentityConstraintChecking,true);
 // If we are using an xml config file, we need to choose if this is on or off by default. 
 // I think that false is probably the correct move here.
-		string dummy;
-		if (Environment::getbenv("OBYX_VALIDATE_ALWAYS",dummy) && (dummy.compare("true") == 0)) {
+		Environment::getbenvtf("OBYX_VALIDATE_ALWAYS",validation);
+		if (validation) {
 			if (dc->canSetParameter(XMLUni::fgDOMValidate, true)) {
 				dc->setParameter(XMLUni::fgDOMValidate, true);
-				validation = true;
 			}
 		} else {
 			if (dc->canSetParameter(XMLUni::fgDOMValidateIfSchema, true)) {
 				dc->setParameter(XMLUni::fgDOMValidateIfSchema, true);
-				validation = false;
 			}
 		}
 		dc->setParameter(XMLUni::fgDOMDatatypeNormalization, true); //Add in datatypes..
@@ -200,9 +199,14 @@ namespace XML {
 		
 		//See http://xerces.apache.org/xerces-c/program-dom-3.html for full list of parameters/features
 		//the 'SystemId' values must be the namespace urls.
-		
-		resourceHandler->setGrammar(xhtml1dtd,UCS2(L"http://www.w3.org/1999/xhtml"),Grammar::DTDGrammarType,true);   //XERCESC-1927: DTDs must be loaded before xml documents.
-
+	
+		bool xhtml5=false;
+		Environment::getbenvtf("OBYX_USING_XHTML5",xhtml5);
+		if (xhtml5) {
+			resourceHandler->setGrammar(xhtml5xsd,UCS2(L"http://www.w3.org/1999/xhtml"),Grammar::SchemaGrammarType,true);
+		} else {
+			resourceHandler->setGrammar(xhtml1dtd,UCS2(L"http://www.w3.org/1999/xhtml"),Grammar::DTDGrammarType,true);      //XERCESC-1927: DTDs must be loaded before xml documents.
+		}
 		resourceHandler->setGrammar(obyxxsd,UCS2(L"http://www.obyx.org"),Grammar::SchemaGrammarType);      //I don't really know why this has to be preloaded..
 		resourceHandler->setGrammar(messagexsd,UCS2(L"http://www.obyx.org/message"),Grammar::SchemaGrammarType);
 		resourceHandler->setGrammar(oalxsd,UCS2(L"http://www.obyx.org/osi-application-layer"),Grammar::SchemaGrammarType);
