@@ -80,7 +80,11 @@ void HTTPLogger::strip(string& basis) {
 //top-tail are used to compose external log-reports as well.
 void HTTPLogger::ltop(string& container,bool do_bits) {		//top log document
 	container.clear();
-	container.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n");
+	if (Environment::getbenvtf("OBYX_USING_XHTML5")) {
+		container.append("<!DOCTYPE html>\n");
+	} else {
+		container.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n");
+	}
 	container.append("<html xmlns=\"http://www.w3.org/1999/xhtml\" ><head><title>");
 	container.append(title);
 	container.append("</title><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />");
