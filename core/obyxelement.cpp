@@ -227,6 +227,7 @@ void ObyxElement::do_breakpoint() {
 		owner->list();
 		owner->liststore();
 		Iteration::list(this);		
+//		Mapping::list(this);		
 		*Logger::log << Log::LO << Log::blockend;
 		while (! tmp_stack.empty()) {
 			Logger::set_stream(tmp_stack.top());

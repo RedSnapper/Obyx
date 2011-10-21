@@ -87,16 +87,17 @@ protected:
 	friend class Environment;
 	friend class Function;
 	friend class Iteration;
+//	friend class Mapping;
 	friend class IKO;
 	static bool break_happened;
-	static unsigned long long int eval_count;
-	static std::stack<elemtype> eval_type; 
-	static unsigned long long int break_point;
-	static Vdb::Service*		dbs;		//this is managed by the factory.
-	static Vdb::Connection*		dbc;		//this is generated at startup.
-	Document* owner;						//so we can find stuff out about the document, and access it's store.
-	ObyxElement* p;							//not const, as we append to it's results!
-	xercesc::DOMNode* node;					//should be a const (but we manipulate it in breakpoint)
+	static unsigned long long int 	eval_count;
+	static std::stack<elemtype> 	eval_type; 
+	static unsigned long long int 	break_point;
+	static Vdb::Service*			dbs;		//this is managed by the factory.
+	static Vdb::Connection*			dbc;		//this is generated at startup.
+	Document* owner;							//so we can find stuff out about the document, and access it's store.
+	ObyxElement* p;								//not const, as we append to it's results!
+	xercesc::DOMNode* node;						//should be a const (but we manipulate it in breakpoint)
 	void do_breakpoint();
 	void prep_breakpoint(); 
 	

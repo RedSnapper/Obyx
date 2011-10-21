@@ -37,7 +37,7 @@ private:
 	friend class Function;
 	
 	static map_type_map  map_types;
-	map_type operation;				// instruction operation
+	map_type operation;				//mapping operation
 	
 	bool repeated;					//whether or not to repeat the loop.
 	bool keys_evaluated;			//have we evaluated the keys yet?
@@ -59,6 +59,7 @@ public:
 	virtual void addInputType(InputType*);
 	virtual void addDefInpType(DefInpType*);	
 	virtual ~Mapping();
+//	static void list(const ObyxElement*);
 	
 private:
 	static void init();

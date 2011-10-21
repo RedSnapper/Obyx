@@ -78,9 +78,9 @@ void PairQueue::clear(bool add_endthing) {
 			if ( di != NULL ) {
 				delete di;
 			}
-			Function* qic = queue[i].second;
+			Function* qic = queue[i].second; 
 			queue[i].second = NULL;
-			if ( qic != pqendthing) {
+			if (qic != NULL && qic != pqendthing) { //Not really sure why this is NULL sometimes.
 				delete qic; //should get here when paths aren't followed...
 			}
 		}

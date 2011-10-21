@@ -768,7 +768,7 @@ bool Instruction::evaluate_this() {
 			} break;
 		}
 	}
-	return inputsfinal;
+	return (inputsfinal);
 }
 void Instruction::call_sql(std::string& querystring) {
 	if ( ! querystring.empty() ) {

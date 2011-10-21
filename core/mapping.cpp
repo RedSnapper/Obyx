@@ -367,6 +367,18 @@ bool Mapping::field(const u_str& field_name,string& container) const {
 	}
 	return retval;
 }
+/*
+void Mapping::list(const ObyxElement* base) { //static.
+	*Logger::log << Log::subhead << Log::LI << "Current Substitution Domains" << Log::LO;
+	for (ObyxElement* curr = base->p; curr != NULL; curr = curr->p) {
+		const Mapping* m = dynamic_cast<const Mapping *>(curr);
+		if ( (m != NULL) && ! m->sdom.empty() && (m->operation == m_substitute) ) {
+			*Logger::log << Log::LI << m->sdom << Log::LO;   //even
+		}
+	}
+	*Logger::log << Log::blockend; //subhead
+}
+*/
 Mapping::~Mapping() {
 	//outputs/inputs are deleted by Function.
 }
