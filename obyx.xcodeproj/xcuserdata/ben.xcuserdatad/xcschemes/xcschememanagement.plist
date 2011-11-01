@@ -7,7 +7,7 @@
 		<key>obyx.cgi.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>1</integer>
+			<integer>2</integer>
 		</dict>
 		<key>obyx.fcgi.xcscheme</key>
 		<dict>
@@ -17,10 +17,16 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>obyx.cgi</key>
-		<true/>
-		<key>obyx.fcgi</key>
-		<true/>
+		<key>B541F1E611941E1E0099F07C</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>B5E31FFE09BC596000F7FC96</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 	</dict>
 </dict>
 </plist>
