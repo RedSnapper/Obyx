@@ -42,7 +42,11 @@ namespace XML {
 			fSawErrors = true;
 			string err_message; 
 			Manager::transcode(domError.getMessage(),err_message);
-			*Logger::log << Log::error << Log::LI << "DOM Error:" << err_message << Log::LO;
+			if (Logger::log != NULL) { //This can happen before the Logger is loaded.
+				*Logger::log << Log::error << Log::LI << "DOM Error:" << err_message << Log::LO;
+			} else {
+				cerr << err_message;
+			}
 			DOMLocator* loc = domError.getLocation(); //
 			if (loc != NULL) {
 				DOMNode* errnode = loc->getRelatedNode();
@@ -54,15 +58,25 @@ namespace XML {
 						DOMDocument* errdoc = errnode->getOwnerDocument();
 						Manager::parser()->writedoc(errdoc,info_string);
 						if (!info_string.empty()) {
-							*Logger::log << Log::LI << "The parser managed to get" << Log::LO ;
-							*Logger::log << Log::LI << Log::info << Log::LI << info_string << Log::LO << Log::blockend << Log::LO;
+							if (Logger::log != NULL) { //This can happen before the Logger is loaded.
+								*Logger::log << Log::LI << "The parser managed to get" << Log::LO ;
+								*Logger::log << Log::LI << Log::info << Log::LI << info_string << Log::LO << Log::blockend << Log::LO;
+							} else {
+								cerr << info_string;
+							}
 						}
 					} else {
-						*Logger::log << Log::LI << "XPath: " << info_string << Log::LO ;
+						if (Logger::log != NULL) { //This can happen before the Logger is loaded.
+							*Logger::log << Log::LI << "XPath: " << info_string << Log::LO ;
+						} else {
+							cerr << info_string;
+						}
 					}
 				}
 			}
-			*Logger::log << Log::blockend;
+			if (Logger::log != NULL) { //This can happen before the Logger is loaded.
+				*Logger::log << Log::blockend;
+			}
 		}
 		return true;
 	}

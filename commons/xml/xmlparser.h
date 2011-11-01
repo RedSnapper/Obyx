@@ -50,6 +50,7 @@ namespace XML {
 		static std::string  xlinkxsd;
 		static std::string	xhtml1dtd;
 		static std::string	xhtml1xsd;
+		static std::string	svgxsd;
 		static std::string	xhtml5xsd;
 		static std::string	wsdlmimexsd;
 		static std::string	wsdlxsd;

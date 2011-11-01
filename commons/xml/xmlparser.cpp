@@ -41,6 +41,7 @@ namespace XML {
 #include "grammars/soapxsd.h"
 #include "grammars/soapencodingxsd.h"
 #include "grammars/xlinkxsd.h"
+#include "grammars/svg.h"
 #include "grammars/xhtml1dtd.h"
 #include "grammars/xhtml5.h"
 #include "grammars/wsdlxsd.h"
@@ -199,17 +200,21 @@ namespace XML {
 		//the 'SystemId' values must be the namespace urls.
 	
 		if (Environment::getbenvtf("OBYX_USING_XHTML5")) {
+			resourceHandler->setGrammar(xmlxsd,UCS2(L"http://www.w3.org/XML/1998/namespace"),Grammar::SchemaGrammarType);
+			resourceHandler->setGrammar(xlinkxsd,UCS2(L"http://www.w3.org/1999/xlink"),Grammar::SchemaGrammarType);
+			resourceHandler->setGrammar(svgxsd,UCS2(L"http://www.w3.org/2000/svg"),Grammar::SchemaGrammarType,true);
 			resourceHandler->setGrammar(xhtml5xsd,UCS2(L"http://www.w3.org/1999/xhtml"),Grammar::SchemaGrammarType,true);
 		} else {
 			resourceHandler->setGrammar(xhtml1dtd,UCS2(L"http://www.w3.org/1999/xhtml"),Grammar::DTDGrammarType,true);      //XERCESC-1927: DTDs must be loaded before xml documents.
+			resourceHandler->setGrammar(xmlxsd,UCS2(L"http://www.w3.org/XML/1998/namespace"),Grammar::SchemaGrammarType);
+			resourceHandler->setGrammar(xlinkxsd,UCS2(L"http://www.w3.org/1999/xlink"),Grammar::SchemaGrammarType);
+			resourceHandler->setGrammar(svgxsd,UCS2(L"http://www.w3.org/2000/svg"),Grammar::SchemaGrammarType,true);
 		}
 		resourceHandler->setGrammar(obyxxsd,UCS2(L"http://www.obyx.org"),Grammar::SchemaGrammarType);      //I don't really know why this has to be preloaded..
 		resourceHandler->setGrammar(messagexsd,UCS2(L"http://www.obyx.org/message"),Grammar::SchemaGrammarType);
 		resourceHandler->setGrammar(oalxsd,UCS2(L"http://www.obyx.org/osi-application-layer"),Grammar::SchemaGrammarType);
 
 		//These are all better handled at runtime. The performance hit of preloading them against every request is not so good
-		resourceHandler->setGrammar(xmlxsd,UCS2(L"http://www.w3.org/XML/1998/namespace"),Grammar::SchemaGrammarType);
-		resourceHandler->setGrammar(xlinkxsd,UCS2(L"http://www.w3.org/1999/xlink"),Grammar::SchemaGrammarType);
 		resourceHandler->setGrammar(soapxsd,UCS2(L"http://schemas.xmlsoap.org/soap/envelope/"),Grammar::SchemaGrammarType);
 		resourceHandler->setGrammar(soapencodingxsd,UCS2(L"http://schemas.xmlsoap.org/soap/encoding/"),Grammar::SchemaGrammarType);
 		resourceHandler->setGrammar(wsdlxsd,UCS2(L"http://schemas.xmlsoap.org/wsdl/"),Grammar::SchemaGrammarType);

@@ -97,9 +97,13 @@ namespace XML {
 						size_t s = String::Regex::after("\\s+SYSTEM\\s*=?\\s*[\"']",grammar);
 						if ( s == string::npos ) {
 							string err_name; Manager::transcode(name.c_str(),err_name);
-							*Logger::log << Log::error << Log::LI << "When loading the DTD:" << err_name << " there was no xml comment found " <<  Log::LO;
-							*Logger::log << Log::LI << " at the beginning of the document indicating the SYSTEM ID." << Log::LO;
-							*Logger::log << Log::blockend;
+							if (Logger::log != NULL) {
+								*Logger::log << Log::error << Log::LI << "When loading the DTD:" << err_name << " there was no xml comment found " <<  Log::LO;
+								*Logger::log << Log::LI << " at the beginning of the document indicating the SYSTEM ID." << Log::LO;
+								*Logger::log << Log::blockend;
+							} else {
+								cerr << "No namespace xml comment found in " << err_name << " indicating the PUBLIC ID" ;
+							}
 						} else {
 							string::size_type q = grammar.find(grammar[s-1],s); //Get the end of the trick.
 							string sysIdDecl=grammar.substr(s,q-s);
@@ -108,9 +112,13 @@ namespace XML {
 						size_t p = String::Regex::after("\\s+PUBLIC\\s*=?\\s*[\"']",grammar);
 						if ( p == string::npos ) {
 							string err_name; Manager::transcode(name.c_str(),err_name);
-							*Logger::log << Log::error << Log::LI << "When loading the DTD:" << err_name << " there was no xml comment found " <<  Log::LO;
-							*Logger::log << Log::LI << " at the beginning of the document indicating the PUBLIC ID." << Log::LO;
-							*Logger::log << Log::blockend;
+							if (Logger::log != NULL) {
+								*Logger::log << Log::error << Log::LI << "When loading the DTD:" << err_name << " there was no xml comment found " <<  Log::LO;
+								*Logger::log << Log::LI << " at the beginning of the document indicating the PUBLIC ID." << Log::LO;
+								*Logger::log << Log::blockend;
+							} else {
+								cerr << "No namespace xml comment found in " << err_name << " indicating the PUBLIC ID" ;
+							}
 						} else {
 							string::size_type q = grammar.find(grammar[p-1],p); //Get the end of the trick.
 							string pubIdDecl=grammar.substr(p,q-p);
@@ -126,9 +134,13 @@ namespace XML {
 					Manager::parser()->grammar_reading_off();
 					if ( Manager::parser()->errorHandler->hadErrors() ) {
 						string err_name; Manager::transcode(name.c_str(),err_name);
-						*Logger::log << Log::error << Log::LI << "loading grammar:" << err_name << " with contents:" << Log::LO;
-						*Logger::log << Log::LI << grammar << Log::LO;
-						*Logger::log << Log::blockend;
+						if (Logger::log != NULL) {					
+							*Logger::log << Log::error << Log::LI << "loading grammar:" << err_name << " with contents:" << Log::LO;
+							*Logger::log << Log::LI << grammar << Log::LO;
+							*Logger::log << Log::blockend;
+						} else {
+							cerr << "Errors were found while loading Grammar " << err_name;							
+						}
 						Manager::parser()->errorHandler->resetErrors();
 					} else {
 						pair<grammar_map_type::iterator, bool> ins = the_grammar_map.insert(grammar_map_type::value_type(name,gmap_entry_type(false,record)));
@@ -205,10 +217,14 @@ namespace XML {
 			if (namespaceUri != NULL) Manager::transcode(namespaceUri,a_nsu); 
 			if (publicId != NULL ) Manager::transcode(publicId,a_pid);  //Currently we only bind on publicID.
 			if (systemId != NULL ) Manager::transcode(systemId,a_sid);
-			*Logger::log << Log::error << Log::LI << "Remote Grammar Required. Ensure that you have a local grammar file for this." << Log::LO;
-			*Logger::log << Log::LI << Log::subhead << Log::LI << "Grammar details follow:" << Log::LO; 
-			*Logger::log << Log::LI << a_nsu << Log::LO << Log::LI << a_pid << Log::LO << Log::LI << a_sid << Log::LO; 
-			*Logger::log << Log::blockend << Log::LO << Log::blockend;
+			if (Logger::log != NULL) {					
+				*Logger::log << Log::error << Log::LI << "Remote Grammar Required. Ensure that you have a local grammar file for this." << Log::LO;
+				*Logger::log << Log::LI << Log::subhead << Log::LI << "Grammar details follow:" << Log::LO; 
+				*Logger::log << Log::LI << a_nsu << Log::LO << Log::LI << a_pid << Log::LO << Log::LI << a_sid << Log::LO; 
+				*Logger::log << Log::blockend << Log::LO << Log::blockend;
+			} else {
+				cerr << "Remote Grammar Required. Grammar details: " << a_nsu << " " << a_pid << " " << a_sid ;							
+			}			
 		} else {
 			GrammarRecord* grec =  it->second.second;
 			if (! grec->used()) {
