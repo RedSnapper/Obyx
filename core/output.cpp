@@ -95,11 +95,16 @@ Output::Output(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el): IKO(n,
 				part = k->second; 
 			} else {
 				string err_msg; Manager::transcode(str_part.c_str(),err_msg);
-				*Logger::log << Log::syntax << Log::LI << "Syntax Error. Output: scope '" << err_msg << "'  can only belong to store spaces." << Log::LO;
+				*Logger::log << Log::syntax << Log::LI << "Syntax Error. Output: part '" << err_msg << "'  must be one of: value,path,domain,expires" << Log::LO;
 				trace();
 				*Logger::log  << Log::blockend;
 			}
-		}
+		} /*else xml canonisation allows for default attribute value to be set. {
+				string err_msg; Manager::transcode(str_part.c_str(),err_msg);
+				*Logger::log << Log::syntax << Log::LI << "Syntax Error. Output: part '" << err_msg << "'  can only belong to cookie spaces." << Log::LO;
+				trace();
+				*Logger::log  << Log::blockend;
+		}*/
 	}
 	
 	if ((type == out_immediate || type == out_none) && context != immediate) {
