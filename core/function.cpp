@@ -132,7 +132,7 @@ Function* Function::FnFactory(ObyxElement* par,const Function* orig) {
 	return retval;
 }
 Function::Function(ObyxElement* par,const Function* orig) : 
-ObyxElement(par,orig),deferred(orig->deferred),finalised(orig->finalised),
+ObyxElement(par,orig),deferred(orig->deferred),finalised(orig->finalised),catcher(NULL),
 fnnote(orig->fnnote),outputs(),inputs(),definputs() { 
 	if (wotzit != endqueue) {
 		for ( unsigned int i = 0; i < orig->inputs.size(); i++ )
@@ -146,7 +146,7 @@ fnnote(orig->fnnote),outputs(),inputs(),definputs() {
 			}
 			outputs.push_back(ot);
 		}
-	} 
+	}
 }
 void Function::do_catch(Output* out_error) { 			// set catcher to this.
 	if (catcher != NULL) {
@@ -182,6 +182,7 @@ void Function::evaluate(size_t,size_t) {
 							}
 						}
 					}
+					catcher = NULL;
 					results.setresult(imm_result); //now encoded and what-have-you - or may be null.					
 				} else {
 					finalised=false;

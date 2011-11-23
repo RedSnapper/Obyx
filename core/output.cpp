@@ -131,7 +131,12 @@ Output::Output(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el): IKO(n,
 	}
 }
 
-Output::Output(ObyxElement* par,const Output* orig) : IKO(par,orig),type(orig->type),scope(orig->scope),part(orig->part),haderror(orig->haderror),errowner(false),errs(orig->errs) { 
+Output::Output(ObyxElement* par,const Output* orig) : 
+	IKO(par,orig),type(orig->type),scope(orig->scope),
+	part(orig->part),haderror(orig->haderror),errowner(false) { 
+	errs = new ostringstream();
+	*errs << orig->errs->rdbuf();
+		
 }
 Output::~Output() {
 	if (errowner) { //this is why actual body has to be the last iteration.
