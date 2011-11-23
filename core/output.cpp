@@ -59,7 +59,7 @@ Output::Output(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el): IKO(n,
 	if ( XML::Manager::attribute(n,UCS2(L"space"),str_type)  ) {
 		output_type_map::const_iterator j = output_types.find(str_type);
 		if( j != output_types.end() ) {
-			type = j->second; 
+			type = j->second;
 		} else {
 			string err_type; Manager::transcode(str_type.c_str(),err_type);
 			*Logger::log << Log::syntax << Log::LI << "Syntax Error. Output: space '" << err_type << "'  not recognised needs to be one of:";
@@ -120,12 +120,17 @@ Output::Output(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el): IKO(n,
 	Function* i = dynamic_cast<Function *>(p);	
 	if ( i != NULL ) {
 		i->outputs.push_back(this);
+		if (type==out_error) {
+			i->do_catch(this);
+			Logger::set_stream(errs); //This has to be set before it's parent or siblings are evaluated!
+		}
 	} else {
 		*Logger::log << Log::syntax << Log::LI << "Syntax Error. Output: outputs can only belong to flow-functions." << Log::LO ;
 		trace();
 		*Logger::log << Log::blockend;
 	}
 }
+
 Output::Output(ObyxElement* par,const Output* orig) : IKO(par,orig),type(orig->type),scope(orig->scope),part(orig->part),haderror(orig->haderror),errowner(false),errs(orig->errs) { 
 }
 Output::~Output() {
@@ -358,9 +363,7 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 								trace();
 								*Logger::log << Log::blockend;
 							}
-							//									cout << "-----------------\n";
-							//									cout << err_result;
-							//									cout << "-----------------\n";
+							Logger::unset_stream(); //This was set at initialisation.						
 						}
 					} break;
 					case out_file: {

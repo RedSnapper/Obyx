@@ -55,7 +55,7 @@ using namespace obyx;
  */
 Function::Function(xercesc::DOMNode* const& n,elemtype el,ObyxElement* par) : 
 ObyxElement(par,el,flowfunction,n),deferred(false),finalised(false),
-stream_is_set(false),fnnote(),outputs(),inputs(),definputs() {
+catcher(NULL),fnnote(),outputs(),inputs(),definputs() {
 	ObyxElement* ft = par; 
 	while (ft != NULL && ft->wotzit != xmldocument ) {
 		if (ft->wotspace == defparm || ft->wotzit == output) {
@@ -133,70 +133,52 @@ Function* Function::FnFactory(ObyxElement* par,const Function* orig) {
 }
 Function::Function(ObyxElement* par,const Function* orig) : 
 ObyxElement(par,orig),deferred(orig->deferred),finalised(orig->finalised),
-stream_is_set(orig->stream_is_set),fnnote(orig->fnnote),outputs(),inputs(),definputs() { 
+fnnote(orig->fnnote),outputs(),inputs(),definputs() { 
 	if (wotzit != endqueue) {
 		for ( unsigned int i = 0; i < orig->inputs.size(); i++ )
 			inputs.push_back(new InputType(this,orig->inputs[i]));
 		for ( unsigned int i = 0; i < orig->definputs.size(); i++ )
 			definputs.push_back(new DefInpType(this,orig->definputs[i]));
-		for ( unsigned int i = 0; i < orig->outputs.size(); i++ )
-			outputs.push_back(new Output(this,orig->outputs[i]));
+		for ( unsigned int i = 0; i < orig->outputs.size(); i++ ) {
+			Output *ot = new Output(this,orig->outputs[i]);
+			if (ot->type == out_error) {
+				catcher=ot;
+			}
+			outputs.push_back(ot);
+		}
 	} 
+}
+void Function::do_catch(Output* out_error) { 			// set catcher to this.
+	if (catcher != NULL) {
+		*Logger::log << Log::syntax << Log::LI << "Syntax Error. Only one output with space='error' allowed per function." << Log::LO << Log::blockend;
+	} else {
+		catcher = out_error;							//if this has an output/space.error, it will be set here.
+	}
 }
 void Function::evaluate(size_t,size_t) {
 	finalised = false;
 	if (!deferred) {
 		prep_breakpoint();
-		if (wotzit != endqueue) {
-			if (!stream_is_set) {
-				for (unsigned int s = 0; s < outputs.size(); s++) {
-					Output* theoutput = outputs[s];
-					if (theoutput != NULL && theoutput->gettype() == out_error) {
-						Logger::set_stream(theoutput->geterrs());
-						stream_is_set = true; //see if i can get rid of this.. need to semaphore, esp. when multiple evaluations are called for this.
-					} 
-				}
-			}
+		if (wotzit != endqueue) {		
 			if ( ! results.final() ) {
 				finalised = evaluate_this();
 				if (finalised) results.normalise();		//need to keep inputs on partial evaluation.
 			}
 			if (results.final() && !outputs.empty()) {
 				if ( may_eval_outputs() ) {	
-					/* Now evaluate the outputs for this function.
-					 There are zero or more outputs, so we will need to have as many copies of the results as there are outputs.
-					 However, when one of the outputs is a caught error, then the other outputs are not evaluated, and the current results are discarded.
-					 When the error is not caught, everything is as normal.
-					 
-					 if (there is an error to catch && it is caught) {
-					 discard the other outputs and the result
-					 } else {
-					 evaluate the other outputs
-					 }
-					 
-					 */
-					//Find if there is an output..
-					bool err_caught = false;
-					size_t os = outputs.size();
-					for (size_t s = 0; s < os; s++) { //see if we are catching errors.
-						if (outputs[s] != NULL && outputs[s]->gettype() == out_error) {
-							if (stream_is_set) {
-								Logger::unset_stream();
-								stream_is_set = false; //see if I can get rid of this.. need to semaphore, esp. when multiple evaluations are called for this.
-							} 
-							outputs[s]->evaluate(s,string::npos); //We only want a copy here...
-							err_caught = outputs[s]->caughterr();
-							if (s == os -1) { os--; }
-							break;
-						}
-					}
 					DataItem* imm_result = NULL; //need to keep immediate results.
-					for (size_t s = 0; s < os; s++) { //if nothing was caught, then do non-error outputs.
-						Output* theoutput = outputs[s];
-						if (!err_caught && theoutput->gettype() != out_error) { //evaluate what we can.
-							theoutput->evaluate(s+1,os);
-							if ( theoutput->gettype() == out_immediate ) {
-								theoutput->results.takeresult(imm_result);
+					if (catcher != NULL) {
+						catcher->evaluate();
+					}
+					if (catcher == NULL || !(catcher->caughterr())) {
+						size_t os = outputs.size();
+						for (size_t s = 0; s < os; s++) { //if nothing was caught, then do non-error outputs.
+							Output* theoutput = outputs[s];
+							if (theoutput->gettype() != out_error) { //evaluate what we can.
+								theoutput->evaluate(s+1,os);
+								if ( theoutput->gettype() == out_immediate ) {
+									theoutput->results.takeresult(imm_result);
+								}
 							}
 						}
 					}

@@ -49,7 +49,7 @@ private:
 	bool pre_evaluate(string&);
 	bool deferred;										//
 	bool finalised;
-	bool stream_is_set;									//semaphore for catching errors.
+	Output* catcher;									//if this has an output/space.error, it will be set here.
 	string fnnote;
 	
 protected:
@@ -76,6 +76,7 @@ public:
 	const string note() const { return fnnote; }
 	
 	void evaluate(size_t=0,size_t=0);		// new context one..
+	void do_catch(Output*); 			// set catcher to this.
 	
 };
 
