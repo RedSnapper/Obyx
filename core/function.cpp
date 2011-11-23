@@ -140,11 +140,10 @@ fnnote(orig->fnnote),outputs(),inputs(),definputs() {
 		for ( unsigned int i = 0; i < orig->definputs.size(); i++ )
 			definputs.push_back(new DefInpType(this,orig->definputs[i]));
 		for ( unsigned int i = 0; i < orig->outputs.size(); i++ ) {
-			Output *ot = new Output(this,orig->outputs[i]);
-			if (ot->type == out_error) {
-				catcher=ot;
-			}
-			outputs.push_back(ot);
+			outputs.push_back(new Output(this,orig->outputs[i]));
+		}
+		if (orig->catcher) {
+			catcher=new Output(this,orig->catcher);
 		}
 	}
 }
@@ -164,33 +163,28 @@ void Function::evaluate(size_t,size_t) {
 				finalised = evaluate_this();
 				if (finalised) results.normalise();		//need to keep inputs on partial evaluation.
 			}
+			if (catcher != NULL) { //We must always evaluate this, as it has increased the logstack.
+				catcher->evaluate();
+			}
 			if (results.final() && !outputs.empty()) {
-				if ( may_eval_outputs() ) {	
+				if ( may_eval_outputs() && (catcher == NULL || !(catcher->caughterr())) ) {	
 					DataItem* imm_result = NULL; //need to keep immediate results.
-					if (catcher != NULL) {
-						catcher->evaluate();
-					}
-					if (catcher == NULL || !(catcher->caughterr())) {
-						size_t os = outputs.size();
-						for (size_t s = 0; s < os; s++) { //if nothing was caught, then do non-error outputs.
-							Output* theoutput = outputs[s];
-							if (theoutput->gettype() != out_error) { //evaluate what we can.
-								theoutput->evaluate(s+1,os);
-								if ( theoutput->gettype() == out_immediate ) {
-									theoutput->results.takeresult(imm_result);
-								}
-							}
+					size_t os = outputs.size();
+					for (size_t s = 0; s < os; s++) { //if nothing was caught, then do non-error outputs.
+						Output* theoutput = outputs[s];
+						theoutput->evaluate(s+1,os);
+						if ( theoutput->gettype() == out_immediate ) {
+							theoutput->results.takeresult(imm_result);
 						}
 					}
-					catcher = NULL;
 					results.setresult(imm_result); //now encoded and what-have-you - or may be null.					
 				} else {
 					finalised=false;
 					results.clearresult();
 				}
-			} else {
-				//results are taken by pairqueue of parent.
-			}
+			} 
+			delete catcher; 
+			catcher = NULL;
 		} 
 	} else {
 		finalised=true; 
@@ -213,6 +207,9 @@ Function::~Function() {
 	while ( outputs.size() > 0) {
 		delete outputs.front();
 		outputs.pop_front(); 
+	}
+	if (catcher) {
+		delete catcher;
 	}
 }
 void Function::init() {

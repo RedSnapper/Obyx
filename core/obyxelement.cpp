@@ -588,6 +588,7 @@ void ObyxElement::finalise() {
 		for( long_map::iterator imt = ce_map.begin(); imt != ce_map.end(); imt++) {
 			*Logger::log << Log::info << imt->second << Log::LO << Log::blockend;				
 		}
+		ce_map.clear();
 	}
 #endif
 }

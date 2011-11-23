@@ -61,7 +61,7 @@ private:
 public:
 	output_type gettype() const { return type; }
 	bool caughterr() {return haderror; }
-	void evaluate(size_t=0,size_t=0);
+	void evaluate(size_t=0,size_t=1);
 	Output(xercesc::DOMNode* const&,ObyxElement* = NULL,elemtype = output);
 	Output(ObyxElement*,const Output*); //
 	static void startup(); 

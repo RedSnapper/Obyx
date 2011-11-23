@@ -119,10 +119,11 @@ Output::Output(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el): IKO(n,
 	}
 	Function* i = dynamic_cast<Function *>(p);	
 	if ( i != NULL ) {
-		i->outputs.push_back(this);
 		if (type==out_error) {
 			i->do_catch(this);
 			Logger::set_stream(errs); //This has to be set before it's parent or siblings are evaluated!
+		} else {
+			i->outputs.push_back(this);
 		}
 	} else {
 		*Logger::log << Log::syntax << Log::LI << "Syntax Error. Output: outputs can only belong to flow-functions." << Log::LO ;
@@ -368,8 +369,8 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 								trace();
 								*Logger::log << Log::blockend;
 							}
-							Logger::unset_stream(); //This was set at initialisation.						
 						}
+						Logger::unset_stream(); //This was set at initialisation and must always be unset.						
 					} break;
 					case out_file: {
 						Environment* env = Environment::service();
