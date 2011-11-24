@@ -42,6 +42,7 @@ void DataItem::do_alloc() {
 			*Logger::log << Log::info << Log::LI  << "inserting " << (unsigned long)addr << "; " << (unsigned long)bpt << "; " << val << Log::LO << Log::blockend;				
 			val="x"; //known issues. 100 is a placholder
 		}
+//		val = *this;
 		ce_map.insert(long_map::value_type(addr,pair<unsigned long,string>(bpt,val)));
 	}
 	void DataItem::do_dealloc() {
@@ -485,6 +486,7 @@ void DataItem::finalise() {
 			 *Logger::log << Log::info << Log::LI << (unsigned long)imt->first << "; " << (unsigned long)imt->second.first << "; " << imt->second.second << Log::LO << Log::blockend;				
 		 }
 	 }
+	ce_map.clear();
 #endif
 }
 

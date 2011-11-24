@@ -189,7 +189,7 @@ void Logger::finalise() {
 	if (! log->hadfatal) {
 		unset_stream();			//remove.
 	}
-	log->fo = NULL;	//set final output.
+	log->fo = NULL;				//set final output.
 	delete log;					// tidying up
 	log = NULL;
 }
@@ -262,13 +262,15 @@ Logger& Logger::operator << (const msgtype mtype) {
 		if (infatal && !hadfatal && fataldepth == msgdepth) {
 			hadfatal = true;
 			dofatal(syslogbuffer.str());
-			ostream* msgs = NULL;
-			get_stream(msgs);
-			ostringstream* txt = dynamic_cast<ostringstream*>(msgs);
-			if (txt!=NULL) {
-				*(log->fo) << txt->str();
+			while (!estrm_stack.empty()) {
+				ostream* msgs = NULL;
+				get_stream(msgs);
+				ostringstream* txt = dynamic_cast<ostringstream*>(msgs);
+				if (txt!=NULL) {
+					*(log->fo) << txt->str();
+				}
+				unset_stream();
 			}
-			unset_stream();
 		}
 		if ( should_report() || debugging() )  {  wrap(false); }
 		type_stack.pop();

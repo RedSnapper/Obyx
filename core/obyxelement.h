@@ -87,7 +87,6 @@ protected:
 	friend class Environment;
 	friend class Function;
 	friend class Iteration;
-//	friend class Mapping;
 	friend class IKO;
 	static bool break_happened;
 	static unsigned long long int 	eval_count;

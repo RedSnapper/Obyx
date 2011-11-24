@@ -99,12 +99,7 @@ Output::Output(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el): IKO(n,
 				trace();
 				*Logger::log  << Log::blockend;
 			}
-		} /*else xml canonisation allows for default attribute value to be set. {
-				string err_msg; Manager::transcode(str_part.c_str(),err_msg);
-				*Logger::log << Log::syntax << Log::LI << "Syntax Error. Output: part '" << err_msg << "'  can only belong to cookie spaces." << Log::LO;
-				trace();
-				*Logger::log  << Log::blockend;
-		}*/
+		}
 	}
 	
 	if ((type == out_immediate || type == out_none) && context != immediate) {
@@ -137,9 +132,20 @@ Output::Output(ObyxElement* par,const Output* orig) :
 	part(orig->part),haderror(orig->haderror),errowner(false) { 
 	errs = new ostringstream();
 	*errs << orig->errs->rdbuf();
-		
+	Function* i = dynamic_cast<Function *>(par);	
+	if ( i != NULL ) {
+		if (type==out_error) {
+			i->do_catch(this);
+			Logger::set_stream(errs); //This has to be set before it's parent or siblings are evaluated!
+		} else {
+			i->outputs.push_back(this);
+		}
+	}
 }
 Output::~Output() {
+	if (type==out_error) {
+		Logger::unset_stream(); //This has to be set before it's parent or siblings are evaluated!
+	}
 	if (errowner) { //this is why actual body has to be the last iteration.
 		delete errs;	
 	}
@@ -294,8 +300,9 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 				name_part->trim();
 			}
 			if ( name_part!= NULL && ! name_part->empty() ) { //are we in the right scope
-				DataItem* value_comp= NULL;
-				if (out_num == out_count) {
+				Function* f = dynamic_cast<Function *>(p);	
+ 				DataItem* value_comp= NULL;
+				if ((out_num == out_count) || ( f != NULL && type == out_error && !(f->outputs.empty()))) {
 					p->results.takeresult(value_comp);
 				} else {
 					if ( p->results.result() != NULL) {
@@ -314,6 +321,7 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 							*Logger::log << Log::error << "Signature " << err_msg << " for namespace " << val_value << " cannot use colons!" << Log::LO;	
 							trace();
 							*Logger::log << Log::blockend;
+							delete value_comp; value_comp=NULL;
 						} else {
 							ItemStore::setns(name_part,value_comp);
 						}
@@ -325,13 +333,9 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 						string errstring;
 						if (!xpath.empty()) {
 							u_str name= *name_part;
-							if(owner->setstore(name,xpath,value_comp,kind,scope,errstring)) {
-								value_comp = NULL; //taken by object - should already be null. 
-							}
+							owner->setstore(name,xpath,value_comp,kind,scope,errstring);
 						} else {
-							if(owner->setstore(name_part,value_comp,kind,scope,errstring)) {
-								value_comp = NULL; //taken by object - should already be null. 
-							}
+							owner->setstore(name_part,value_comp,kind,scope,errstring);
 						}
 						if (!errstring.empty()) {
 							string err_msg; Manager::transcode(name_v.c_str(),err_msg);
@@ -343,7 +347,11 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 							}
 							trace();
 							*Logger::log << Log::blockend;
-						}								
+							if (value_comp != NULL) {
+								delete value_comp;
+							}
+						} 
+						value_comp=NULL;
 					} break;
 					case out_error: { 
 						string error_stuff;
@@ -368,9 +376,10 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 								*Logger::log << Log::LI << errstring << Log::LO;	
 								trace();
 								*Logger::log << Log::blockend;
+								if (err_doc != NULL) { delete err_doc; }
 							}
+							err_doc = NULL;
 						}
-						Logger::unset_stream(); //This was set at initialisation and must always be unset.						
 					} break;
 					case out_file: {
 						Environment* env = Environment::service();
@@ -495,8 +504,7 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 					delete value_comp;
 					value_comp = NULL;
 				}
-				delete name_part;
-				name_part = NULL;
+				delete name_part; name_part = NULL;
 			} else {
 				*Logger::log << Log::error << Log::LI << "Error. Output: non-immediate, value-holding outputs must have a name!" << Log::LO;							
 				trace();

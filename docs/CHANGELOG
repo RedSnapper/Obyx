@@ -17,6 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.111124
+	BUG.		Continuing fix yesterday, removed mild leak thrown during storage errors.
 v1.111123
 	BUG.		Output.error not catching propagated throws.
 v1.111115

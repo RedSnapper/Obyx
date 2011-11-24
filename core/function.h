@@ -28,6 +28,7 @@
 #include <string>
 #include <set>
 #include <vector>
+#include <stack>
 
 #include <xercesc/dom/DOMNode.hpp>
 
@@ -49,7 +50,7 @@ private:
 	bool pre_evaluate(string&);
 	bool deferred;										//
 	bool finalised;
-	Output* catcher;									//if this has an output/space.error, it will be set here.
+
 	string fnnote;
 	
 protected:
@@ -58,7 +59,8 @@ protected:
 	deque< DefInpType* > definputs;  //These are the inputs that need to wait until other inputs are evaluated. 
 	
 public:
-	deque< Output* > outputs;		 //set by ~Output
+	deque< Output* > outputs;		//set by ~Output
+	deque< Output* > catcher; 		//error stream stack.
 	
 	static Function* FnFactory(ObyxElement*,const Function*);
 	Function(xercesc::DOMNode* const&,elemtype,ObyxElement* = NULL);
@@ -75,8 +77,9 @@ public:
 	bool final();
 	const string note() const { return fnnote; }
 	
-	void evaluate(size_t=0,size_t=0);		// new context one..
+	void evaluate(size_t=0,size_t=0);	// new context one..
 	void do_catch(Output*); 			// set catcher to this.
+	void done_catch(); 					// unset catcher from this.
 	
 };
 
