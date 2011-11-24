@@ -38,10 +38,10 @@ void DataItem::do_alloc() {
 		string val("");
 		unsigned long addr = (unsigned long)(this);
 		unsigned long bpt = ObyxElement::eval_count;
-		if (bpt ==  100) { //use this for breakpointing reported errors.
-			*Logger::log << Log::info << Log::LI  << "inserting " << (unsigned long)addr << "; " << (unsigned long)bpt << "; " << val << Log::LO << Log::blockend;				
-			val="x"; //known issues. 100 is a placholder
-		}
+//		if (bpt ==  100) { //use this for breakpointing reported errors.
+//			*Logger::log << Log::info << Log::LI  << "inserting " << (unsigned long)addr << "; " << (unsigned long)bpt << "; " << val << Log::LO << Log::blockend;				
+//			val="x"; //known issues. 100 is a placholder
+//		}
 //		val = *this;
 		ce_map.insert(long_map::value_type(addr,pair<unsigned long,string>(bpt,val)));
 	}
