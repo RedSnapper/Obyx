@@ -283,6 +283,36 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 				results.setresult(pe); //because other outputs use the parent.results, we cannot overwrite them here.
 			}
 		} break;
+			
+		case out_error: { 
+			string error_stuff;
+			error_stuff = errs->str();
+			haderror = ! error_stuff.empty();
+			if (haderror) {
+				ostringstream err_report;
+				string top_s,tail_s,tmptitle,errstring;
+				Logger::get_title(tmptitle);
+				Logger::set_title("Caught Error");
+				Logger::top(top_s,false);
+				Logger::tail(tail_s);
+				err_report << top_s << error_stuff << tail_s;
+				string err_result = err_report.str();
+				String::normalise(err_result);
+				Logger::set_title(tmptitle);
+				DataItem* err_doc = new XMLObject(err_result);
+				owner->setstore(name_part,err_doc,di_object,scope,errstring);
+				if (!errstring.empty()) {
+					string err_msg; Manager::transcode(name_v.c_str(),err_msg);
+					*Logger::log << Log::error << Log::LI << "Error while outputting an error space to store with " << err_msg << Log::LO;	
+					*Logger::log << Log::LI << errstring << Log::LO;	
+					trace();
+					*Logger::log << Log::blockend;
+					if (err_doc != NULL) { delete err_doc; }
+				}
+				err_doc = NULL;
+			}
+		} break;
+			
 		case out_none: {
 			if ( name_part != NULL && ! name_part->empty() ) {
 				*Logger::log << Log::syntax << Log::LI << "Syntax Error. Output space none cannot have a value!" << Log::LO; 
@@ -352,34 +382,6 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 							}
 						} 
 						value_comp=NULL;
-					} break;
-					case out_error: { 
-						string error_stuff;
-						error_stuff = errs->str();
-						haderror = ! error_stuff.empty();
-						if (haderror) {
-							ostringstream err_report;
-							string top_s,tail_s,tmptitle,errstring;
-							Logger::get_title(tmptitle);
-							Logger::set_title("Caught Error");
-							Logger::top(top_s,false);
-							Logger::tail(tail_s);
-							err_report << top_s << error_stuff << tail_s;
-							string err_result = err_report.str();
-							String::normalise(err_result);
-							Logger::set_title(tmptitle);
-							DataItem* err_doc = new XMLObject(err_result);
-							owner->setstore(name_part,err_doc,di_object,scope,errstring);
-							if (!errstring.empty()) {
-								string err_msg; Manager::transcode(name_v.c_str(),err_msg);
-								*Logger::log << Log::error << Log::LI << "Error while outputting an error space to store with " << err_msg << Log::LO;	
-								*Logger::log << Log::LI << errstring << Log::LO;	
-								trace();
-								*Logger::log << Log::blockend;
-								if (err_doc != NULL) { delete err_doc; }
-							}
-							err_doc = NULL;
-						}
 					} break;
 					case out_file: {
 						Environment* env = Environment::service();
