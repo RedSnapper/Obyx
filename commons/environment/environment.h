@@ -72,7 +72,13 @@ private:
 	string gScriptsDir;
 	string gScratchDir;
 	pid_t pid;
+#ifdef __MACH__
+    static struct mach_timebase_info time_info;
+	static long double nano;
+	uint64_t basetime;	
+#else
 	long double basetime;	//used for timing.
+#endif
 	std::string empty;
 //	std::string parmprefix;
 	//-- The following are RESPONSE cookies

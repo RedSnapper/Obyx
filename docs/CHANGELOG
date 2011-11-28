@@ -17,6 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.111128
+	Enh.		Modified fine timing for MACH (mac os x) computers.
 v1.111125
 	BUG.		Continuing output fix; on non-failure catch is absorbing results .
 v1.111124

@@ -24,6 +24,9 @@
 #include <sys/times.h>
 #include <termios.h>
 #include <unistd.h>
+#ifdef __MACH__
+#import <mach/mach_time.h>
+#endif
 
 #include <string>
 #include <sstream>
@@ -59,6 +62,10 @@ var_map_type Environment::benv_map;
 var_map_type Environment::cgi_rfc_map;
 Environment* Environment::instance;
 double Environment::runtime_version = 999999.99999;
+#ifdef __MACH__
+	struct mach_timebase_info Environment::time_info;
+	long double Environment::nano;
+#endif
 
 Environment::Environment()  : gDevelop(false),do_auto_utf8check(true),gSQLport(0),gRootDir(""),gScriptsDir(""),gScratchDir("/tmp/"),basetime(0)  {
 	pid = getpid();
@@ -1040,10 +1047,9 @@ bool Environment::sortvvps(pair<string,vector<string>* > n1,pair<string,vector<s
 }
 void Environment::setbasetime() {
 #ifdef __MACH__
-	struct tms tb;
-	times(&tb);
-	unsigned long long clocktime = tb.tms_utime + tb.tms_stime + tb.tms_cutime + tb.tms_cstime;;
-	basetime = static_cast<long double>(clocktime) / sysconf(_SC_CLK_TCK);	
+	basetime = mach_absolute_time();
+    mach_timebase_info(&time_info);
+	nano = 1e-9 * ( (long double) time_info.numer) / ((long double) time_info.denom);	
 #else
 	clockid_t clock_id; clock_getcpuclockid(pid,&clock_id);	
 	timespec tb; clock_gettime(clock_id,&tb);
@@ -1515,16 +1521,14 @@ void Environment::gettiming(string& result) {
 	ostringstream ost;
 	long double timing = 0;
 #ifdef __MACH__
-	struct tms tb;
-	times(&tb);
-	unsigned long long clocktime = tb.tms_utime + tb.tms_stime + tb.tms_cutime + tb.tms_cstime;
-	timing = (clocktime / sysconf(_SC_CLK_TCK)) - basetime;
+	uint64_t delta = mach_absolute_time() - basetime;
+	timing = ((double) delta) * nano;
 #else
 	clockid_t clock_id; clock_getcpuclockid(pid,&clock_id);	
 	timespec tb; clock_gettime(clock_id,&tb);
 	timing = ((unsigned)tb.tv_sec + (0.000000001 * (unsigned)tb.tv_nsec)) - basetime;
 #endif
-	ost << fixed << setprecision(12L) << timing;
+	ost << fixed << setprecision(16L) << timing;
 	result = ost.str();
 }
 void Environment::getresponsehttp(string& result) {
