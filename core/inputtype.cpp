@@ -228,6 +228,7 @@ void InputType::evalfind(std::set<std::string>& keylist) {
 		if (!key.empty()) {
 			keysinspace(key,space,keylist);	//gather them keys.
 		}
+		delete iresult; 
 	} else {
 		evaluate(); 
 		keylist.clear();

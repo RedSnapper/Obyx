@@ -17,6 +17,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.111129
+	Enh.		Content-Location Added, 
+	BUG.		Memory leak during "found" operation.
 v1.111128
 	Enh.		Modified fine timing for MACH (mac os x) computers.
 v1.111125

@@ -157,6 +157,7 @@ void Output::sethttp(const http_line_type line_type,const string& value) {
 		case code:					http->setcode(String::natural(value)); break;
 		case connection:			http->setconnection(value); break;
 		case content_disposition:	http->setdisposition(value); break;
+		case content_location:		http->setclocation(value); break;
 		case content_length:		http->setlength(String::natural(value)); break; 
 		case content_type:			http->setmime(value); break;
 		case date:					http->setdate(value); break;
@@ -549,6 +550,7 @@ void Output::startup() {
 	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"Location"), location));
 	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"Content-Length"), content_length));
 	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"Content-Disposition"), content_disposition));
+	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"Content-Location"), content_location));
 	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"Connection"), connection));
 	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"P3P"), p3p));
 	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"nocache"), nocache));

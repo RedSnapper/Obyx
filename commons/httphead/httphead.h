@@ -41,7 +41,7 @@ class Httphead {
 	
 private:
 	typedef hash_map<const string, string, hash<const string&> > type_nv_map;	//hashmap of name-values
-	typedef enum { httpdate, server, cookie, cookie2, expires, cache, pragma, modified, range, mime, location, contentlength, disposition, p3p, connection, custom, transencoding } http_msg;	
+	typedef enum { httpdate, server, cookie, cookie2, expires, cache, pragma, modified, range, mime, location ,contentlocation, contentlength, disposition, p3p, connection, custom, transencoding } http_msg;	
 	typedef map<string, http_msg > http_msg_map; 
 	
 	Httphead(ostream*);
@@ -59,6 +59,7 @@ private:
 	static const string	rangesig;
 	static const string	mimesig;
 	static const string	locasig; 
+	static const string	clocasig; 
 	static const string	lengthsig; 
 	static const string	disposig; 
 	static const string	p3psig; 
@@ -91,6 +92,7 @@ private:
 	string			mimevalue;
 	string			dispvalue;
 	string			locavalue;
+	string			clocavalue;
 	string			content;
 	string			connectionvalue;
 	string			p3pline;
@@ -156,6 +158,7 @@ public:
 	void setdate(string dl);			
 	void setexpires(string dl);			
 	void setlocation(string loc);		
+	void setclocation(string loc);		
 	void setmoddate(string dl);			
 	void setserver(string srv);			
 	void setrange(string rng);			

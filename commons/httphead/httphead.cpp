@@ -41,6 +41,7 @@ const string	Httphead::modsig	= "Last-Modified";
 const string	Httphead::rangesig	= "Accept-Ranges";
 const string	Httphead::mimesig	= "Content-Type";
 const string	Httphead::locasig   = "Location"; 
+const string	Httphead::clocasig  = "Content-Location"; 
 const string	Httphead::lengthsig = "Content-Length"; 
 const string	Httphead::disposig	= "Content-Disposition"; 
 const string	Httphead::p3psig	= "P3P";
@@ -219,6 +220,7 @@ void Httphead::startup() { //note sure how this is used anymore.
 	http_msgs.insert(http_msg_map::value_type("content-type", mime));
 	http_msgs.insert(http_msg_map::value_type("Location", location));
 	http_msgs.insert(http_msg_map::value_type("Content-Length", contentlength));
+	http_msgs.insert(http_msg_map::value_type("Content-Location", contentlocation));
 	http_msgs.insert(http_msg_map::value_type("Content-Disposition", disposition));
 	http_msgs.insert(http_msg_map::value_type("content-disposition", disposition));
 	http_msgs.insert(http_msg_map::value_type("P3P", p3p ));
@@ -331,6 +333,7 @@ void Httphead::setcontent(string c)			{ content=c; content_length = c.length(); 
 void Httphead::setcontentlength(size_t l)     { content_length = l;}						//Use to drive content for 5xx and 4xx
 void Httphead::setdate(string dl)				{ datevalue = dl; }
 void Httphead::setexpires(string dl)			{ expiresline = dl; }
+void Httphead::setclocation(string loc)		{ clocavalue = loc; }
 void Httphead::setlocation(string loc)		{ locavalue = loc; }
 void Httphead::setmoddate(string dl)			{ moddatevalue = dl; }
 void Httphead::setserver(string srv)			{ servervalue = srv; }
@@ -392,6 +395,9 @@ void Httphead::doheader(ostream* x,bool explaining,const response_format& f) {
 				}
 				if ( ! dispvalue.empty() ) { 
 					*x << f.header_i << f.name_i << disposig << f.name_o << f.value_i << dispvalue << f.value_o << f.header_o;			// Content-Disposition: inline; filename='xxx'
+				}
+				if ( ! clocavalue.empty() ) { 
+					*x << f.header_i << f.name_i << clocasig << f.name_o << f.value_i << clocavalue << f.value_o << f.header_o;			// Content-Location: a url
 				}
 				if ( nocaching ) {
 					if (expiresline.empty()) { 
@@ -589,6 +595,7 @@ void Httphead::objectparse(xercesc::DOMNode* const& n) {
 				case range : setrange(value_attr_val); break;
 				case mime : setmime(value_attr_val); break;
 				case location : setlocation(value_attr_val); break;
+				case contentlocation : setclocation(value_attr_val); break;
 				case contentlength : { 
 					pair<unsigned long long,bool> len = String::znatural(value_attr_val);
 					if (len.first) setlength(len.second);
