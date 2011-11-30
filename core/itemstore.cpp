@@ -284,7 +284,7 @@ bool ItemStore::release(const u_str& obj_name) {
 void ItemStore::list() {
 	if ( ! the_item_map.empty() ) {
 		item_map_type::iterator it = the_item_map.begin();
-		*Logger::log << Log::subhead << Log::LI << "Stores (" << owner << ")" << Log::LO;
+		*Logger::log << Log::subhead << Log::LI << "Stores (" << Log::II << owner << Log::IO << ")" << Log::LO;
 		*Logger::log << Log::LI << Log::even;
 		while (it != the_item_map.end() ) {
 			if ( ! it->first.empty() ) {
