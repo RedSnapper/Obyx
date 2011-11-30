@@ -134,29 +134,33 @@ bool Document::setstore(const DataItem* namepath_di, DataItem*& item,kind_type k
 					if ( np.second.empty()) {
 						retval = store.sset(np.first,np.second,node_expected,item,kind,errorstr);
 					} else {
-						bool found = false;
-						Document* doc = this;
-						while (doc != NULL && !found) {
-							found = doc->store.exists(np.first,false,errorstr);
-							if (!found) {
-								if (doc->p != NULL) {
-									doc = doc->p->owner;
-								} else {
-									doc = NULL;
+						if (doc_store != NULL && doc_store->exists(np.first,false,errorstr)) {
+							retval = doc_store->sset(np.first,np.second,node_expected,item,kind,errorstr);
+						} else { //not branch(self/ancestor/global) or document..
+							bool found = false;
+							Document* doc = this;
+							while (doc != NULL && !found) {
+								found = doc->store.exists(np.first,false,errorstr);
+								if (!found) {
+									if (doc->p != NULL) {
+										doc = doc->p->owner;
+									} else {
+										doc = NULL;
+									}
 								}
 							}
-						}
-						if (found && doc!=NULL) {
-							retval = doc->store.sset(np.first,np.second,node_expected,item,kind,errorstr);
-						} else {
-							//not in branch, but maybe document. (remember, we have an xpath here!)
-							if (doc_store != NULL && doc_store->exists(np.first,false,errorstr)) {
-								retval = doc_store->sset(np.first,np.second,node_expected,item,kind,errorstr);
-							} else { //not branch(self/ancestor/global) or document..
-								string ervn,ervp; 
-								XML::Manager::transcode(np.first,ervn); 
-								XML::Manager::transcode(np.second,ervp);	
-								errorstr = "There was no existing store " + ervn + " for the path " + ervp;
+							if (found && doc!=NULL) {
+								retval = doc->store.sset(np.first,np.second,node_expected,item,kind,errorstr);
+							} else {
+								//not in branch, but maybe document. (remember, we have an xpath here!)
+								if (doc_store != NULL && doc_store->exists(np.first,false,errorstr)) {
+									retval = doc_store->sset(np.first,np.second,node_expected,item,kind,errorstr);
+								} else { //not branch(self/ancestor/global) or document..
+									string ervn,ervp; 
+									XML::Manager::transcode(np.first,ervn); 
+									XML::Manager::transcode(np.second,ervp);	
+									errorstr = "There was no existing store " + ervn + " for the path " + ervp;
+								}
 							}
 						}
 					}
@@ -203,29 +207,38 @@ bool Document::setstore(u_str& name,u_str& path, DataItem*& item,kind_type kind,
 					errorstr.append("Ancestor was not found for output.");
 				}
 			} break;
-			case Output::branch: {
+			case Output::branch: { //branch isn't always branch! It can also be set by default.
 				if ( path.empty()) {
 					retval = store.sset(name,path,node_expected,item,kind,errorstr);
 				} else {
-					bool found = false;
-					Document* doc = this;
-					while (doc != NULL && !found) {
-						found = doc->store.exists(name,false,errorstr);
-						if (!found) {
-							if (doc->p != NULL) {
-								doc = doc->p->owner;
-							} else {
-								doc = NULL;
+					if (doc_store != NULL && doc_store->exists(name,false,errorstr)) {
+						retval = doc_store->sset(name,path,node_expected,item,kind,errorstr);
+					} else { //not branch(self/ancestor/global) or document..
+						bool found = false;
+						Document* doc = this;
+						while (doc != NULL && !found) {
+							found = doc->store.exists(name,false,errorstr);
+							if (!found) {
+								if (doc->p != NULL) {
+									doc = doc->p->owner;
+								} else {
+									doc = NULL;
+								}
 							}
 						}
-					}
-					if (found && doc!=NULL) {
-						retval = doc->store.sset(name,path,node_expected,item,kind,errorstr);
-					} else {
-						string ervn,ervp; 
-						XML::Manager::transcode(name,ervn); 
-						XML::Manager::transcode(name,ervp);		
-						errorstr = "There was no existing store " + ervn + " for the path " + ervp;
+						if (found && doc!=NULL) {
+							retval = doc->store.sset(name,path,node_expected,item,kind,errorstr);
+						} else {
+							//not in branch, but maybe document. (remember, we have an xpath here!)
+							if (doc_store != NULL && doc_store->exists(name,false,errorstr)) {
+								retval = doc_store->sset(name,path,node_expected,item,kind,errorstr);
+							} else { //not branch(self/ancestor/global) or document..
+								string ervn,ervp; 
+								XML::Manager::transcode(name,ervn); 
+								XML::Manager::transcode(path,ervp);	
+								errorstr = "There was no existing store " + ervn + " for the path " + ervp;
+							}
+						}
 					}
 				}
 			} break;
@@ -296,6 +309,7 @@ bool Document::storeexists(const u_str& obj_id,bool release,std::string& errorst
 	}
 	return retval;
 }
+
 bool Document::storefind(const string& pattern,bool release,std::string& errorstr) {
 	bool retval = false;
 	Document* doc = this;
