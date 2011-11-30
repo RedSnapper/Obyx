@@ -66,7 +66,6 @@ namespace obyx {
 		~ItemStore();
 		ItemStore(const ItemStore*);
 		
-		void list();									//list all current items to debugger.	
 //internal api, as keys are actually held as strings..
 		bool exists(const u_str&,bool,string&);	//name#path
 		bool exists(const u_str&,const u_str&,bool,string&); //name,path.
@@ -90,6 +89,7 @@ namespace obyx {
 		static bool grammarexists(const string&,bool);			//grammar existence
 		static bool grammarfind(const DataItem*,bool);	
 		
+		void list() const;										//list all current items to debugger, managed by Document.	
 	};
 	
 }

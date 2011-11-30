@@ -281,10 +281,10 @@ bool ItemStore::release(const u_str& obj_name) {
 	} 
 	return retval;
 }
-void ItemStore::list() {
+void ItemStore::list() const {
 	if ( ! the_item_map.empty() ) {
-		item_map_type::iterator it = the_item_map.begin();
-		*Logger::log << Log::subhead << Log::LI << "Stores (" << Log::II << owner << Log::IO << ")" << Log::LO;
+		item_map_type::const_iterator it = the_item_map.begin();
+//		*Logger::log << Log::subhead << Log::LI << "Stores (" << Log::II << owner << Log::IO << ")" << Log::LO;
 		*Logger::log << Log::LI << Log::even;
 		while (it != the_item_map.end() ) {
 			if ( ! it->first.empty() ) {
@@ -301,7 +301,7 @@ void ItemStore::list() {
 			it++;
 		}
 		*Logger::log << Log::blockend << Log::LO ; 	//even
-		*Logger::log << Log::blockend; //subhead
+//		*Logger::log << Log::blockend; //subhead
 	}
 }
 bool ItemStore::sset(const u_str& sname,const u_str& tpath,bool node_expected, DataItem*& item,kind_type kind,std::string& errorstr) {

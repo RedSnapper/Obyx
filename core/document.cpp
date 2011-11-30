@@ -376,16 +376,6 @@ bool Document::getstore(const u_str& name,const u_str& path,DataItem*& item,bool
 	return retval;
 }
 
-void Document::liststore() {
-	store.list();
-	if (doc_store != NULL) {
-		doc_store->list();
-	}
-	if (p != NULL) {
-		p->owner->liststore(); //now get the stuff above me.
-	}
-}
-
 //private, reached when going through higher owners.
 bool Document::getparm(const string& parmkey,const DataItem*& container) const {
 	bool retval = false;
@@ -467,6 +457,20 @@ void Document::parmkeys(const u_str& pattern,set<string>& keylist) const {
 		p->owner->parmkeys(pattern,keylist); //now get the stuff above me.
 	}
 }
+void Document::innerstore_list() const {
+	*Logger::log << Log::LI << Log::II << "Branch " << name() << Log::IO << Log::LO;
+	store.list();
+	*Logger::log << Log::blockend << Log::LO;
+	if (doc_store != NULL) {
+		*Logger::log << Log::LI << Log::II << "Document " << name() << Log::IO << Log::LO;
+		doc_store->list();
+		*Logger::log << Log::blockend << Log::LO;
+	}
+	if (p != NULL) {
+		p->owner->liststore(); //now get the stuff above me.
+	}
+}
+
 void Document::inner_list() const {
  	if (parm_map != NULL && ! parm_map->empty() ) {
         *Logger::log << Log::LI << Log::II << name() << Log::IO << Log::LO;
@@ -496,6 +500,12 @@ void Document::list() const {
     inner_list();
     *Logger::log << Log::blockend ; //subhead.
 }
+void Document::liststore() const {
+    *Logger::log << Log::subhead << Log::LI << Log::II << "Stores" << Log::IO << Log::LO;
+    innerstore_list();
+    *Logger::log << Log::blockend ; //subhead.
+}
+
 Document::Document(ObyxElement* par,const Document* orig) :
 ObyxElement(par,orig), xdoc(NULL),root_node(NULL),filepath(),signature(orig->signature),doc_version(HUGE_VALF),ownprefix(),parm_map(NULL),store(orig->store),doc_store(orig->doc_store),doc_par(NULL) { 
 	xdoc = XML::Manager::parser()->newDoc(orig->xdoc);

@@ -115,7 +115,8 @@ public:
 
 	void storekeys(const u_str&,set<string>&,string&);
 	bool getstore(const u_str&,const u_str&,DataItem*&, bool, bool, std::string&);	//name,path, container, expected? release?, errstr
-	void liststore();
+	void liststore() const;
+	void innerstore_list() const;
 	
 	bool getparm(const u_str&,const DataItem*&) const;
 	bool parmexists(const u_str&) const;
