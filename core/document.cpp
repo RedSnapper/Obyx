@@ -458,16 +458,17 @@ void Document::parmkeys(const u_str& pattern,set<string>& keylist) const {
 	}
 }
 void Document::innerstore_list() const {
-	*Logger::log << Log::LI << Log::II << "Branch " << name() << Log::IO << Log::LO;
-	store.list();
-	*Logger::log << Log::blockend << Log::LO;
+	//li. ol. 
+		*Logger::log << Log::LI << Log::info << Log::LI << "Branch " << name() << Log::LO;
+		store.list();
+		*Logger::log << Log::blockend << Log::LO;
 	if (doc_store != NULL) {
-		*Logger::log << Log::LI << Log::II << "Document " << name() << Log::IO << Log::LO;
+		*Logger::log << Log::LI << Log::info << Log::LI << "Document " << name() << Log::LO;
 		doc_store->list();
 		*Logger::log << Log::blockend << Log::LO;
 	}
 	if (p != NULL) {
-		p->owner->liststore(); //now get the stuff above me.
+		p->owner->innerstore_list(); //now get the stuff above me.
 	}
 }
 
@@ -501,7 +502,7 @@ void Document::list() const {
     *Logger::log << Log::blockend ; //subhead.
 }
 void Document::liststore() const {
-    *Logger::log << Log::subhead << Log::LI << Log::II << "Stores" << Log::IO << Log::LO;
+    *Logger::log << Log::subhead << Log::LI << "Stores" << Log::LO;
     innerstore_list();
     *Logger::log << Log::blockend ; //subhead.
 }
