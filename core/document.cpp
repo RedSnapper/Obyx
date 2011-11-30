@@ -459,11 +459,11 @@ void Document::parmkeys(const u_str& pattern,set<string>& keylist) const {
 }
 void Document::innerstore_list() const {
 	//li. ol. 
-		*Logger::log << Log::LI << Log::info << Log::LI << "Branch " << name() << Log::LO;
+		*Logger::log << Log::LI << Log::info << Log::LI << Log::II << "Branch " << name() << Log::IO << Log::LO;
 		store.list();
 		*Logger::log << Log::blockend << Log::LO;
 	if (doc_store != NULL) {
-		*Logger::log << Log::LI << Log::info << Log::LI << "Document " << name() << Log::LO;
+		*Logger::log << Log::LI << Log::info << Log::LI << Log::II << "Document " << name() << Log::IO << Log::LO;
 		doc_store->list();
 		*Logger::log << Log::blockend << Log::LO;
 	}
