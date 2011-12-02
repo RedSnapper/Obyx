@@ -1431,7 +1431,7 @@ bool Environment::getparm(string const name,string& container) {
 	vec_map_type::iterator it = parm_map.find(name);
 	if (it != parm_map.end()) {
 		vector<string> parmvals = it->second;
-		container = parmvals[0];
+		container = parmvals.back();
 		retval = true;
 	} else {
 		if (version() >= 1.110503 && String::rsplit('#',name,result) && (!result.second.empty())) {
