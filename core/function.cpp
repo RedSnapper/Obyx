@@ -132,7 +132,7 @@ Function* Function::FnFactory(ObyxElement* par,const Function* orig) {
 }
 Function::Function(ObyxElement* par,const Function* orig) : 
 ObyxElement(par,orig),deferred(orig->deferred),finalised(orig->finalised),
-fnnote(orig->fnnote),outputs(),inputs(),definputs() { 
+fnnote(orig->fnnote),outputs(),catcher(),inputs(),definputs() { 
 	if (wotzit != endqueue) {
 		for ( unsigned int i = 0; i < orig->inputs.size(); i++ )
 			inputs.push_back(new InputType(this,orig->inputs[i]));
@@ -167,23 +167,26 @@ void Function::evaluate(size_t,size_t) {
 			}
 			if (!catcher.empty()) { //We must always evaluate this, as it has increased the logstack.
 				catcher.back()->evaluate();
-				delete catcher.back();
-				catcher.pop_back(); 
 			}
 			if (results.final() && !outputs.empty()) {
-				if ( may_eval_outputs() && (catcher.empty() || !(catcher.back()->caughterr())) ) {	
-					DataItem* imm_result = NULL; //need to keep immediate results.
-					size_t os = outputs.size();
-					for (size_t s = 0; s < os; s++) { //if nothing was caught, then do non-error outputs.
-						Output* theoutput = outputs[s];
-						theoutput->evaluate(s+1,os);
-						if ( theoutput->gettype() == out_immediate ) {
-							theoutput->results.takeresult(imm_result);
+				if (catcher.empty() || !(catcher.back()->caughterr())) {
+					if ( may_eval_outputs()) {	
+						DataItem* imm_result = NULL; //need to keep immediate results.
+						size_t os = outputs.size();
+						for (size_t s = 0; s < os; s++) { //if nothing was caught, then do non-error outputs.
+							Output* theoutput = outputs[s];
+							theoutput->evaluate(s+1,os);
+							if ( theoutput->gettype() == out_immediate ) {
+								theoutput->results.takeresult(imm_result);
+							}
 						}
+						results.setresult(imm_result); //now encoded and what-have-you - or may be null.					
+					} else {
+						finalised=false;
+						results.clearresult();
 					}
-					results.setresult(imm_result); //now encoded and what-have-you - or may be null.					
-				} else {
-					finalised=false;
+				} else { //it was caught, discard the outputs.
+					finalised=true;
 					results.clearresult();
 				}
 			} 

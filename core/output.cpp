@@ -312,6 +312,7 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 				}
 				err_doc = NULL;
 			}
+			delete name_part; name_part = NULL;
 		} break;
 			
 		case out_none: {

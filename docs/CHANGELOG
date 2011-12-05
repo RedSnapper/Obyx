@@ -17,6 +17,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.111205
+	BUG.		Memory leak in output error (catch).
+	BUG.		Memory leak in output set to xpath.
 v1.111130
 	Enh.		Store Debug lists are more inline with other lists 
 v1.111129
