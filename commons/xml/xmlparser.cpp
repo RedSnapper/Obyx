@@ -867,6 +867,7 @@ namespace XML {
 		if (! v.empty() ) {
 			DOMText* vt = doc->createTextNode(v.c_str());
 			pt->appendChild(vt);
+			doc->normalize();
 		}
  	}
 	
@@ -874,6 +875,7 @@ namespace XML {
 		if (! v.empty() ) {
 			DOMText* vt = doc->createTextNode(v.c_str());
 			pt->getParentNode()->insertBefore(vt,pt); 
+			doc->normalize();
 		}
 	}
 	
@@ -886,6 +888,7 @@ namespace XML {
 			} else {
 				ptf->getParentNode()->insertBefore(vt,ptf); //check if pt is a descendant of doc, rather than a child.
 			}
+			doc->normalize();
 		}
 	}
 	
@@ -900,6 +903,7 @@ namespace XML {
 			DOMNode *xn = xr->removeChild(pt);	
 			xn->release();
 		}
+		doc->normalize();
 	}
 	
 	//now DOMDocument ones..
@@ -978,9 +982,11 @@ namespace XML {
 				DOMNode *xn = xr->removeChild(pt);	
 				xn->release();
 			}
+			doc->normalize();
 		} else {
 			DOMNode *xn = xr->removeChild(pt);	
 			xn->release();
+			doc->normalize();
 		}
 	}
 	
