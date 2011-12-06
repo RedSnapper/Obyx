@@ -17,6 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.111206
+	BUG.		non-normalized document after xpath amend leads to unexpected results.
 v1.111205
 	BUG.		Memory leak in output error (catch).
 	BUG.		Memory leak in output set to xpath.
