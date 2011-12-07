@@ -781,9 +781,37 @@ bool IKO::existsinspace(u_str& input_name,const inp_space the_space,const bool i
 		} break;
 		case store: {
             if (!is_context && !xpath.empty()) {
-                exists = owner->storeexists(input_name,xpath,release,errstring);
+				if (owner->doc_store != NULL) {
+					exists = owner->doc_store->exists(input_name,xpath,false,errstring);
+				} else {
+					Document* doc = owner;
+					while (doc != NULL && !exists) {
+						exists = doc->store.exists(input_name,xpath,false,errstring);
+						if (!exists) {
+							if (doc->p != NULL) {
+								doc = doc->p->owner;
+							} else {
+								doc = NULL;
+							}
+						}
+					}
+				}
             } else {
-                exists = owner->storeexists(input_name,release,errstring);
+				if (owner->doc_store != NULL) {
+					exists = owner->doc_store->exists(input_name,false,errstring);
+				} else {
+					Document* doc = owner;
+					while (doc != NULL && !exists) {
+						exists = doc->store.exists(input_name,false,errstring);
+						if (!exists) {
+							if (doc->p != NULL) {
+								doc = doc->p->owner;
+							} else {
+								doc = NULL;
+							}
+						}
+					}
+				}
             }
             if (!errstring.empty()) {
                 log(Log::error,"Error. Store error: " + errstring);
