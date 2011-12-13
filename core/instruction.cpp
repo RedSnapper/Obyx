@@ -880,7 +880,7 @@ void Instruction::call_system(std::string& cmd) {
 							sourcefile.append("obyx_srce");
 							FileUtils::File srce(sourcefile);
 							srce.writeFile(command_parms.second);
-							cmd << "cat " << sourcefile << " | " << command << " > " << resultfile;
+							cmd << command << "<" << sourcefile << " > " << resultfile;
 							command = cmd.str();
 							res = system(command.c_str());
 							if (res != 0) { errmsg = strerror(errno); }
