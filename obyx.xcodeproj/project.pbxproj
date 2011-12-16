@@ -1004,7 +1004,7 @@
 					"-DFAST",
 					"-DALLOW_MYSQL",
 					"-fshort-wchar",
-					"-DPROFILING",
+					"-DX_PROFILING",
 				);
 				PRODUCT_NAME = obyx.fcgi;
 				SKIP_INSTALL = NO;
@@ -1095,7 +1095,7 @@
 				GCC_VERSION = "";
 				OTHER_CFLAGS = (
 					"-DALLOW_MYSQL",
-					"-D_X_ALLOW_POSTGRESQL",
+					"-DX_ALLOW_POSTGRESQL",
 					"-fshort-wchar",
 				);
 				PRODUCT_NAME = obyx.cgi;
