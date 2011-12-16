@@ -1019,7 +1019,30 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 	}	
 	if ( exists && container == NULL ) {
 		if (!fresult.empty()) {
-			container = DataItem::factory(fresult,ikind); //test for xml if needs be. This is not being deleted.
+			kind_type fkind = ikind;
+			switch ( encoder ) {
+				case e_message: {
+					if ( process == encode) {
+						fkind = di_text;
+					} else {
+						fkind = di_object;
+					}
+				} break;
+				case e_sha1: 
+				case e_sha512: 
+				case e_md5: 
+				case e_name: 
+				case e_digits:
+				case e_hex:
+				case e_base64:
+				case e_xml:
+				case e_url: {
+					if (process == encode) {fkind = di_text;} 
+					}  break;
+				default: break;
+			}
+			
+			container = DataItem::factory(fresult,fkind); //test for xml if needs be. This is not being deleted.
 			if (container->empty()) {
 				log(Log::error,"IKO value composition error with: " + ikoname);
 			}
