@@ -27,6 +27,7 @@
 #include <xercesc/dom/DOMNode.hpp>
 #include "commons/logger/logger.h"
 #include "obyxelement.h"
+#include "json.h"
 
 using namespace obyx;
 
@@ -53,6 +54,7 @@ protected:
 	friend class Document;
 	friend class ObyxElement;
 	void process_encoding(DataItem*&);
+	static Json					json;
 	static kind_type_map		kind_types;
 	static enc_type_map			enc_types;
 	static inp_space_map		ctx_types; //subset of input types.

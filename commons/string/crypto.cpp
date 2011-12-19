@@ -317,6 +317,8 @@ namespace String {
 						}
 						strm.avail_out = (uInt)destiny; //this is what we are deflating
 						strm.next_out = obuff;
+					} else {
+						err = Z_STREAM_END;						
 					}
 				} while (err != Z_STREAM_END );
 				if (noerrs(obyx_inflateEnd(&strm),Z_OK,errstr)) {

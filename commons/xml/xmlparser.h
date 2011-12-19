@@ -54,6 +54,7 @@ namespace XML {
 		static std::string	xhtml5xsd;
 		static std::string	wsdlmimexsd;
 		static std::string	wsdlxsd;
+		static std::string	jsonxsd;
 
 		XML::XMLErrorHandler*	errorHandler;
 		DOMImplementation*		impl;

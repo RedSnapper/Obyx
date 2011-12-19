@@ -56,6 +56,8 @@ enc_type_map IKO::enc_types;
 IKO::inp_space_map IKO::ctx_types;
 IKO::current_type_map IKO::current_types;
 kind_type_map IKO::kind_types;
+Json	IKO::json;
+
 
 void IKO::log(const Log::msgtype mtype,const std::string msg) const {
 	*Logger::log << mtype << Log::LI << msg << Log::LO;
@@ -121,6 +123,7 @@ IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : ObyxElement
 					trace();
 					*Logger::log << Log::blockend;
 				} break;
+				case e_json:
 				case e_message:
 				case e_qp: 
 				case e_xml:
@@ -387,7 +390,7 @@ void IKO::doerrspace(const u_str& input_name) const {
 void IKO::process_encoding(DataItem*& basis) {
 	if (basis != NULL && encoder != e_none) {
 		string errs,encoded;
-		if (!(encoder == e_message && process == encode)) {
+		if (!((encoder == e_message && process == encode) || (encoder == e_json && process == decode) )) {
 			encoded = *basis;		//xml cannot survive an encoding.
 			delete basis;					//now it is no longer.
 			basis = NULL;					//default for non-implemented encodings.
@@ -429,6 +432,23 @@ void IKO::process_encoding(DataItem*& basis) {
 					basis = DataItem::factory(encoded,kind); //MAY be XML - maybe not.
 				}
 			} break;
+			case e_json: {
+				string errstr;
+				bool ok = false;
+				if ( process == encode) { //ie to native format.
+					ok = json.encode(&basis,di_text,errstr);
+				} else {
+					ok = json.decode(&basis,di_object,errstr);
+				}
+				if (!ok) {
+					*Logger::log << Log::error << Log::LI << "Error. In '" << name() << "', json failed. " << errstr << Log::LO;
+					trace();
+					*Logger::log << Log::blockend;
+					if (basis != NULL) { 
+						delete basis; basis = NULL;
+					}
+				}
+			} break;			
 			case e_xml: {
 				if ( process == encode) {
 					XMLChar::encode(encoded);
@@ -500,10 +520,24 @@ void IKO::process_encoding(DataItem*& basis) {
 				if (String::Deflate::available(errs)) {
 					if ( process == encode) {
 						String::Deflate::deflate(encoded,errs);
-						basis = DataItem::factory(encoded,di_raw); //cannot be xml.
+						if (errs.empty()) {
+							basis = DataItem::factory(encoded,di_raw); //cannot be xml.
+						} else {
+							*Logger::log << Log::error << Log::LI << "Error. In '" << name() << "', deflate failed. " << errs << Log::LO;
+							trace();
+							*Logger::log << Log::blockend;
+							basis = NULL;
+						}
 					} else {
 						String::Deflate::inflate(encoded,errs);
-						basis = DataItem::factory(encoded,kind); //MAY be XML - maybe not.
+						if (errs.empty()) {
+							basis = DataItem::factory(encoded,kind); //MAY be XML - maybe not.
+						} else {
+							*Logger::log << Log::error << Log::LI << "Error. In '" << name() << "', inflate failed. " << errs << Log::LO;
+							trace();
+							*Logger::log << Log::blockend;
+							basis = NULL;
+						}
 					}
 				}
 			} break;
@@ -1021,13 +1055,6 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 		if (!fresult.empty()) {
 			kind_type fkind = ikind;
 			switch ( encoder ) {
-				case e_message: {
-					if ( process == encode) {
-						fkind = di_text;
-					} else {
-						fkind = di_object;
-					}
-				} break;
 				case e_sha1: 
 				case e_sha512: 
 				case e_md5: 
@@ -1038,7 +1065,7 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 				case e_xml:
 				case e_url: {
 					if (process == encode) {fkind = di_text;} 
-					}  break;
+				}  break;
 				default: break;
 			}
 			
@@ -1296,6 +1323,7 @@ void IKO::startup() {
 	enc_types.insert(enc_type_map::value_type(UCS2(L"sha1"), e_sha1));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"sha512"), e_sha512));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"deflate"), e_deflate));
+	enc_types.insert(enc_type_map::value_type(UCS2(L"json"), e_json));
 	
 	ctx_types.insert(inp_space_map::value_type(UCS2(L"none"), immediate));
 	ctx_types.insert(inp_space_map::value_type(UCS2(L"field"), field ));

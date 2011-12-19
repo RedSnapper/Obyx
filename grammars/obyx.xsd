@@ -308,6 +308,7 @@
 					<xs:enumeration value="sha1"/>
 					<xs:enumeration value="sha512"/>
 					<xs:enumeration value="deflate"/>
+					<xs:enumeration value="json"/>
 				</xs:restriction>
 			</xs:simpleType>
 		</xs:attribute>		

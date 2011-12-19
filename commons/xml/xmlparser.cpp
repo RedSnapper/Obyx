@@ -46,6 +46,8 @@ namespace XML {
 #include "grammars/xhtml5.h"
 #include "grammars/wsdlxsd.h"
 #include "grammars/wsdlmimexsd.h"
+#include "grammars/jsonxsd.h"
+
 
 	//#define u_str u_str
 	//#define UCS2(x) (const XMLCh*)(x)
@@ -213,6 +215,7 @@ namespace XML {
 		resourceHandler->setGrammar(obyxxsd,UCS2(L"http://www.obyx.org"),Grammar::SchemaGrammarType);      //I don't really know why this has to be preloaded..
 		resourceHandler->setGrammar(messagexsd,UCS2(L"http://www.obyx.org/message"),Grammar::SchemaGrammarType);
 		resourceHandler->setGrammar(oalxsd,UCS2(L"http://www.obyx.org/osi-application-layer"),Grammar::SchemaGrammarType);
+		resourceHandler->setGrammar(jsonxsd,UCS2(L"http://www.obyx.org/json"),Grammar::SchemaGrammarType);
 
 		//These are all better handled at runtime. The performance hit of preloading them against every request is not so good
 		resourceHandler->setGrammar(soapxsd,UCS2(L"http://schemas.xmlsoap.org/soap/envelope/"),Grammar::SchemaGrammarType);

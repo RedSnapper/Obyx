@@ -67,7 +67,7 @@ OBYX_LIBS =
 OBYX_SRCS = \
      fragmentobject.cpp rawitem.cpp ustritem.cpp strobject.cpp xmlobject.cpp dataitem.cpp itemstore.cpp  \
      pairqueue.cpp obyxelement.cpp function.cpp comparison.cpp instruction.cpp mapping.cpp iteration.cpp \
-     iko.cpp output.cpp inputtype.cpp osiapp.cpp osimessage.cpp document.cpp filer.cpp main.cpp 
+     iko.cpp json.cpp output.cpp inputtype.cpp osiapp.cpp osimessage.cpp document.cpp filer.cpp main.cpp 
 
 FOBYX_USES =${BASE_SRCS} ${FAST_SRCS}
 FOBYX_LIBS =-lfcgi -lfcgi++
