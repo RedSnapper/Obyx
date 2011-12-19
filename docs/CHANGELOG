@@ -19,6 +19,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 CHANGELOG file
 v1.111216
 	Enh.		encoder that uses enforces string constructs as kind string.
+	Enh. 		JSON encoder/decoder.
+	BUG. 		inflate errors cause crash.
 v1.111206
 	BUG.		non-normalized document after xpath amend leads to unexpected results.
 v1.111205
