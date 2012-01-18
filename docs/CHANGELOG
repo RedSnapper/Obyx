@@ -17,6 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.120118
+	Enh.		precision="bool" returns 'true/false' where false=0. Also arithmetic reads 'true' as 1, 'false' as 0
 v1.111216
 	Enh.		encoder that uses enforces string constructs as kind string.
 	Enh. 		JSON encoder/decoder.

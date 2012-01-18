@@ -35,6 +35,7 @@ private:
 	unsigned int precision;				// for floating point output
 	unsigned int bitpadding;
 	bool base_convert;
+	bool bool_convert;
 	bool inputsfinal;
 	
 	//necessary fulfilment of abstract virtual functions..	

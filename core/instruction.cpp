@@ -52,7 +52,7 @@ using namespace obyx;
 op_type_map Instruction::op_types;
 
 Instruction::Instruction(xercesc::DOMNode* const& n,ObyxElement* par) :
-Function(n,instruction,par),operation(move),precision(0),bitpadding(0),base_convert(false),inputsfinal(false) {
+Function(n,instruction,par),operation(move),precision(0),bitpadding(0),bool_convert(false),base_convert(false),inputsfinal(false) {
 	u_str op_string;
 	Manager::attribute(n,UCS2(L"operation"),op_string);
 	op_type_map::const_iterator i = op_types.find(op_string);
@@ -85,23 +85,28 @@ Function(n,instruction,par),operation(move),precision(0),bitpadding(0),base_conv
 		std::string str_prec;
 		Manager::attribute(n,UCS2(L"precision"),str_prec);
 		if ( ! str_prec.empty() ) {
-			if (str_prec[0] == 'B' || str_prec[0] == 'b') { //2,8,10,16 (B is for base)
-				base_convert = true;
-				str_prec.erase(0,1);
-				size_t bcpt = str_prec.find('.');
-				if (bcpt != string::npos) {
-					string bits=str_prec.substr(bcpt+1,string::npos);
-					pair<unsigned long long,bool> bits_value = String::znatural(bits);
-					if  ( bits_value.second && bits_value.first <= 64) {
-						bitpadding = (unsigned int)bits_value.first;
-					} else {
-						*Logger::log << Log::syntax << Log::LI << "Syntax Error. Instruction: bits component of precision must be a number between 1 and 64." << Log::LO;
-						trace();
-						*Logger::log << Log::blockend;
+			if (str_prec[0] == 'B' || str_prec[0] == 'b') { //2,8,10,16 (B is for base), t = truth
+				if (!str_prec.compare("bool")) {
+					bool_convert = true;
+					str_prec="0";
+				} else {
+					base_convert = true;
+					str_prec.erase(0,1);
+					size_t bcpt = str_prec.find('.');
+					if (bcpt != string::npos) {
+						string bits=str_prec.substr(bcpt+1,string::npos);
+						pair<unsigned long long,bool> bits_value = String::znatural(bits);
+						if  ( bits_value.second && bits_value.first <= 64) {
+							bitpadding = (unsigned int)bits_value.first;
+						} else {
+							*Logger::log << Log::syntax << Log::LI << "Syntax Error. Instruction: bits component of precision must be a number between 1 and 64." << Log::LO;
+							trace();
+							*Logger::log << Log::blockend;
+						}
+						str_prec.erase(bcpt,string::npos);
 					}
-					str_prec.erase(bcpt,string::npos);
 				}
-			} 
+			}
 			pair<unsigned long long,bool> prec_value = String::znatural(str_prec);
 			if  ( prec_value.second && prec_value.first < 17) {
 				precision = (unsigned int)prec_value.first;
@@ -114,7 +119,7 @@ Function(n,instruction,par),operation(move),precision(0),bitpadding(0),base_conv
 	}
 }
 Instruction::Instruction(ObyxElement* par,const Instruction* orig) : Function(par,orig),
-operation(orig->operation),precision(orig->precision),bitpadding(orig->bitpadding),base_convert(orig->base_convert),inputsfinal(orig->inputsfinal) {
+operation(orig->operation),precision(orig->precision),bitpadding(orig->bitpadding),bool_convert(orig->bool_convert),base_convert(orig->base_convert),inputsfinal(orig->inputsfinal) {
 }
 void Instruction::do_function() {
 	DataItem* document = NULL;
@@ -630,7 +635,16 @@ bool Instruction::evaluate_this() {
 						if (base_convert) {
 							expr_result = expr_bit_eval->process(errs,precision);
 						} else {
-							expr_result = expr_bit_eval->process(errs,16);
+							if (bool_convert) {
+								expr_result = expr_bit_eval->process(errs,16);
+								if (!expr_result.compare("0")) {
+									expr_result="false";
+								} else {
+									expr_result="true";
+								}
+							} else {
+								expr_result = expr_bit_eval->process(errs,16);
+							}
 						}
 						if (!errs.empty()) {
 							*Logger::log << Log::error << Log::LI << errs << Log::LO;
@@ -652,7 +666,15 @@ bool Instruction::evaluate_this() {
 						if (base_convert) {
 							String::tobasestring(retval,precision,bitpadding,expr_result);
 						} else {
-							expr_result = String::tostring(retval,precision);
+							if (bool_convert) {
+								if (retval == 0) {
+									expr_result="false";
+								} else {
+									expr_result="true";
+								}
+							} else {
+								expr_result = String::tostring(retval,precision);
+							}
 						}
 						results.append(expr_result,di_text);
 						delete expr_eval;

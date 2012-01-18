@@ -333,9 +333,19 @@ namespace String {
 				if (rsp.second) {
 					retval = rsp.first;
 				}
-			} else {
-				string::const_iterator i = s.begin();
-				retval = real( i );
+			} else { //true / false
+				if (s[0] == 't' || s[0] == 'f') {
+					if (!s.compare("true")) {
+						retval = 1;
+					} else {
+						if (!s.compare("false")) {
+							retval = 0;
+						}
+					}
+				} else {
+					string::const_iterator i = s.begin();
+					retval = real( i );
+				}
 			}
 		}
 		return retval;

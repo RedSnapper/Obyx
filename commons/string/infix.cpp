@@ -252,16 +252,20 @@ namespace String {
 			return p < q ? p : q;
 		}
 		long double bandfn::evaluate(const long double,const long double p,const long double q) const {
-			return ((long long)p & (long long)q);
+			return ((long long)p & (long long)q) == 0 ? 0: 1;
+//			return ((long long)p & (long long)q);
 		}
 		long double bxorfn::evaluate(const long double,const long double p,const long double q) const {
-			return ((long long)p ^ (long long)q);
+			return ((long long)p ^ (long long)q) == 0 ? 0: 1;
+//			return ((long long)p ^ (long long)q);
 		}
 		long double bnotfn::evaluate(const long double,const long double,const long double q) const {
-			return ~(long long)q;
+			return (long long)q == 0 ? 1: 0;
+//			return ~(long long)q;
 		}
 		long double borfn::evaluate(const long double,const long double p,const long double q) const {
-			return ((long long)p | (long long)q);
+			return ((long long)p | (long long)q) == 0 ? 0: 1;
+//			return ((long long)p | (long long)q);
 		}
 		long double roundfn::evaluate(const long double,const long double,const long double q) const {
 			return round(q);
