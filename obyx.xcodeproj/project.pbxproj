@@ -269,6 +269,7 @@
 		B58DA8C01104B05E00C34661 /* fragmentobject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fragmentobject.h; sourceTree = "<group>"; };
 		B58DA8C11104B05E00C34661 /* fragmentobject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fragmentobject.cpp; sourceTree = "<group>"; };
 		B599F9230F583DEA00AD3D2C /* libxqilla.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxqilla.dylib; path = /usr/local/lib/libxqilla.dylib; sourceTree = "<absolute>"; };
+		B59D65FD14D6EE3200859276 /* xhtml1dtd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = xhtml1dtd.h; path = grammars/xhtml1dtd.h; sourceTree = "<group>"; };
 		B5A2AE05149BA5E8001D0266 /* json.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = json.cpp; path = ../commons/string/json.cpp; sourceTree = "<group>"; };
 		B5A2AE08149BA5FB001D0266 /* json.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = json.h; path = ../commons/string/json.h; sourceTree = "<group>"; };
 		B5A2AE09149BA83B001D0266 /* json.xsd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = json.xsd; path = grammars/json.xsd; sourceTree = SOURCE_ROOT; };
@@ -639,6 +640,7 @@
 			isa = PBXGroup;
 			children = (
 				B5A2AE0A149BA917001D0266 /* jsonxsd.h */,
+				B59D65FD14D6EE3200859276 /* xhtml1dtd.h */,
 				B5C208F70FB984EF000BD08A /* wsdlxsd.h */,
 				B5C208F60FB984EF000BD08A /* wsdlmimexsd.h */,
 				B55597230F8A04F4003C3BE0 /* messagexsd.h */,

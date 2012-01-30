@@ -200,18 +200,24 @@ namespace XML {
 	DOMLSInput* XMLResourceHandler::resolveResource(
 		const XMLCh* const,  //resourceType
 		const XMLCh* const namespaceUri , 
-		const XMLCh* const publicId, 
+		const XMLCh* const publicId, //This IS differentiated on a document load.
 		const XMLCh* const systemId, 
 		const XMLCh* const ) { //
 		DOMLSInput* retval = NULL;
 		const XMLCh* grammarkey = NULL;
-		if ( namespaceUri != NULL ) {
-			grammarkey = namespaceUri;
-		} 
-		if ( grammarkey == NULL || XMLString::stringLen(grammarkey) == 0 ) { // test for length!
-			if (systemId != NULL) { grammarkey = systemId; }
+		grammar_map_type::iterator it = the_grammar_map.end();
+		if (publicId != NULL && XMLString::stringLen(publicId) != 0) {
+			it = the_grammar_map.find(publicId); //Pick up eg XHTML1.0
 		}
-		grammar_map_type::iterator it = the_grammar_map.find(grammarkey);
+		if (it == the_grammar_map.end()) {
+			if ( namespaceUri != NULL ) {
+				grammarkey = namespaceUri;
+			} 
+			if ( grammarkey == NULL || XMLString::stringLen(grammarkey) == 0 ) { // test for length!
+				if (systemId != NULL) { grammarkey = systemId; }
+			}
+			it = the_grammar_map.find(grammarkey);
+		}
 		if (it == the_grammar_map.end()) {
 			string a_nsu="-",a_pid="-",a_sid="-";
 			if (namespaceUri != NULL) Manager::transcode(namespaceUri,a_nsu); 
