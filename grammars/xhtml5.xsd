@@ -1,5 +1,9 @@
-<xsd:schema xmlns="http://www.w3.org/1999/xhtml" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:svg="http://www.w3.org/2000/svg" 
-	attributeFormDefault="unqualified" version="1.0" targetNamespace="http://www.w3.org/1999/xhtml"
+<xsd:schema xmlns="http://www.w3.org/1999/xhtml" 
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+	xmlns:svg="http://www.w3.org/2000/svg" 
+	attributeFormDefault="unqualified" 
+	version="1.0" 
+	targetNamespace="http://www.w3.org/1999/xhtml"
 	>
 	<xsd:import namespace="http://www.w3.org/2000/svg" schemaLocation="svg.xsd" />
 	<xsd:attributeGroup name="coreServerAttributeGroup">
@@ -209,7 +213,6 @@
 			<xsd:element ref="embed"/>
 
 			<xsd:element ref="fieldset"/>
-			<xsd:element ref="figure"/>
 			<xsd:element ref="footer"/>
 
 			<xsd:element ref="h1"/>
@@ -225,6 +228,7 @@
 			<xsd:element ref="i"/>
 			<xsd:element ref="iframe"/>
 			<xsd:element ref="img"/>
+			<xsd:element ref="figure"/>
 			<xsd:element ref="input"/>
 			<xsd:element ref="ins"/>
 
@@ -809,9 +813,9 @@
 		<xsd:complexType mixed="true">
 			<xsd:choice>
 				<xsd:sequence>
-					<xsd:element ref="legend" maxOccurs="1"/>
+					<xsd:element ref="figcaption" minOccurs="1" maxOccurs="1"/>
 					<xsd:group ref="flowContent" maxOccurs="unbounded"/>
-					<xsd:element ref="legend" maxOccurs="1" />
+					<xsd:element ref="figcaption" minOccurs="1" maxOccurs="1" />
 				</xsd:sequence>
 			</xsd:choice>
 			<xsd:attributeGroup ref="commonAttributeGroup"/>
@@ -1512,6 +1516,7 @@
 		</xsd:complexType>
 	</xsd:element>
 	<xsd:element name="caption" type="simpleFlowContentElement"/>
+	<xsd:element name="figcaption" type="simpleFlowContentElement"/>
 	<xsd:element name="colgroup">
 		<xsd:complexType>
 			<xsd:choice>
