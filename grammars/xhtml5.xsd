@@ -1107,8 +1107,9 @@
 	<xsd:element name="fieldset">
 		<xsd:complexType mixed="true">
 			<xsd:sequence>
-				<xsd:element ref="legend" minOccurs="1" maxOccurs="1"/>
-				<xsd:group ref="flowContent" maxOccurs="unbounded" />
+				<xsd:element ref="legend" minOccurs="0" maxOccurs="1"/>
+				<xsd:group ref="noForm_flowContent" maxOccurs="unbounded" />
+				<xsd:element ref="legend" minOccurs="0" maxOccurs="1"/>
 			</xsd:sequence>
 			<xsd:attributeGroup ref="commonAttributeGroup"/>
 			<xsd:attribute name="disabled"/>
@@ -1224,7 +1225,7 @@
 	</xsd:element>
 	<xsd:element name="button">
 		<xsd:complexType mixed="true">
-			<xsd:choice maxOccurs="unbounded">
+			<xsd:choice minOccurs="0" maxOccurs="unbounded">
 				<xsd:group ref="phrasingContent"/>
 			</xsd:choice>
 			<xsd:attributeGroup ref="commonAttributeGroup"/>
@@ -1272,7 +1273,6 @@
 				</xsd:simpleType>
 			</xsd:attribute>
 			<xsd:attribute name="formtarget" type="browsingContext"/>
-
 			<xsd:attribute name="name"/>
 			<xsd:attribute name="value"/>
 			<xsd:attribute name="type" default="submit">
