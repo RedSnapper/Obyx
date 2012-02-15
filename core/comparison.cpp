@@ -92,18 +92,18 @@ cmp_evaluated(false),def_evaluated(false),operation_result('X') {
 			}
 		}
 	}
-	if (owner->version() < 1.120101) { // break used to default to false. but it now defaults to true.
+	if (owner->version() < 1.120000) { // break used to default to false. but it now defaults to true.
 		cbreak	= false;
 	} else {
 		cbreak	= true;
 	}	
 	if ( Manager::attribute(n,UCS2(L"break"),break_str) ) {
-		if (invert_str.compare(UCS2(L"true")) == 0) {
+		if (break_str.compare(UCS2(L"true")) == 0) {
 			cbreak = true;
 		} else {
-			if (invert_str.compare(UCS2(L"false")) != 0) {
-				string err_msg; Manager::transcode(invert_str.c_str(),err_msg);
-				*Logger::log << Log::syntax << Log::LI << "Syntax Error. " <<  err_msg << " is not a legal invert. It should be one of: true,false" << Log::LO; 
+			if (break_str.compare(UCS2(L"false")) != 0) {
+				string err_msg; Manager::transcode(break_str.c_str(),err_msg);
+				*Logger::log << Log::syntax << Log::LI << "Syntax Error. " <<  err_msg << " is not a legal break. It should be one of: true,false" << Log::LO; 
 				trace();
 				*Logger::log << Log::blockend;
 			} else {
