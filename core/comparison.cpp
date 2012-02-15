@@ -47,13 +47,14 @@ using namespace obyx;
 cmp_type_map Comparison::cmp_types;
 
 Comparison::Comparison(ObyxElement* par,const Comparison* orig) : Function(par,orig),
-operation(orig->operation),invert(orig->invert),logic(orig->logic),
+operation(orig->operation),cbreak(orig->cbreak),invert(orig->invert),logic(orig->logic),
 eval_found(orig->eval_found),cmp_evaluated(orig->cmp_evaluated),
 def_evaluated(orig->def_evaluated),operation_result(orig->operation_result) {}
+
 Comparison::Comparison(xercesc::DOMNode* const& n,ObyxElement* par) :
-Function(n,comparison,par),operation(equivalent_to),invert(false),logic(obyx::all),eval_found(false),
+Function(n,comparison,par),operation(equivalent_to),cbreak(true),invert(false),logic(obyx::all),eval_found(false),
 cmp_evaluated(false),def_evaluated(false),operation_result('X') {
-	u_str op_string,invert_str,logic_str; 
+	u_str op_string,invert_str,break_str,logic_str; 
 	if ( Manager::attribute(n,UCS2(L"operation"),op_string) ) {
 		cmp_type_map::const_iterator i = cmp_types.find(op_string);
 		if( i != cmp_types.end() ) {
@@ -88,6 +89,25 @@ cmp_evaluated(false),def_evaluated(false),operation_result('X') {
 				*Logger::log << Log::syntax << Log::LI << "Syntax Error. " <<  err_msg << " is not a legal invert. It should be one of: true,false" << Log::LO; 
 				trace();
 				*Logger::log << Log::blockend;
+			}
+		}
+	}
+	if (owner->version() < 1.120101) { // break used to default to false. but it now defaults to true.
+		cbreak	= false;
+	} else {
+		cbreak	= true;
+	}	
+	if ( Manager::attribute(n,UCS2(L"break"),break_str) ) {
+		if (invert_str.compare(UCS2(L"true")) == 0) {
+			cbreak = true;
+		} else {
+			if (invert_str.compare(UCS2(L"false")) != 0) {
+				string err_msg; Manager::transcode(invert_str.c_str(),err_msg);
+				*Logger::log << Log::syntax << Log::LI << "Syntax Error. " <<  err_msg << " is not a legal invert. It should be one of: true,false" << Log::LO; 
+				trace();
+				*Logger::log << Log::blockend;
+			} else {
+				cbreak = false;
 			}
 		}
 	}
@@ -252,7 +272,7 @@ bool Comparison::evaluate_this() {
 					delete inpval;
 				}
 			}
-			if (unary_op || !firstval) {
+			if (cbreak && (unary_op || !firstval)) {
 				if (logic == obyx::all) {
 					if (!invert) {
 						finished = !compare_bool;
