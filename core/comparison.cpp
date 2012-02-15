@@ -122,29 +122,29 @@ cmp_evaluated(false),def_evaluated(false),operation_result('X') {
 }
 bool Comparison::evaluate_this() {
 	bool firstval = true;
+	bool finished = false;
+	bool unary_op = false;
 	std::string saccumulator;
 	double daccumulator = 0;
 	pair<long long,bool> naccumulator;
-	if (!cmp_evaluated ) {			//are all the comparators evaluated?
-		cmp_evaluated = true;
-		for ( size_t i = 0; i < inputs.size(); i++ ) {
-			inputs[i]->evaluate();
-		}
-	}
+	cmp_evaluated = true;
 	if (cmp_evaluated && operation_result=='X') {	//all the comparators are evaluated but the operation is not
 		DataItem* acc = NULL;
 		bool compare_bool = (logic == obyx::all ? true : false);	//if invert, then bool must be false.
-		for ( unsigned int i = 0; i < inputs.size(); i++ ) {
+		for ( unsigned int i = 0; (!finished  && i < inputs.size()); i++ ) {
+			inputs[i]->evaluate();
 			if ( inputs[i]->wotzit == comparate ) {
 				if (firstval) {
 					inputs[i]->results.takeresult(acc);
 					firstval = false;
 					switch(operation) {
 						case found: //same as exists.   
-						case exists: {   
-							compare_bool = inputs[i]->getexists();  
+						case exists: {  
+							unary_op = true;
+							compare_bool = inputs[i]->getexists();
 						} break;	// compare_bool is true if it does exist.
 						case is_empty: { 
+							unary_op = true;
 							compare_bool = (acc == NULL || acc->empty());  
 						} break; 
 						case less_than: {
@@ -156,12 +156,14 @@ bool Comparison::evaluate_this() {
 							daccumulator = String::real(sacc);
 						} break;
 						case significant: {
+							unary_op = true;
 							compare_bool = inputs[i]->getexists();  
 							if (compare_bool) {
 								compare_bool = (acc != NULL && ! acc->empty());
 							}
 						} break;
 						case cmp_true: { 
+							unary_op = true;
 							string sacc; if (acc != NULL) { sacc = *acc; }
 							if (sacc.compare("true") == 0) { 
 								compare_bool = true;
@@ -248,6 +250,21 @@ bool Comparison::evaluate_this() {
 						
 					}
 					delete inpval;
+				}
+			}
+			if (unary_op || !firstval) {
+				if (logic == obyx::all) {
+					if (!invert) {
+						finished = !compare_bool;
+					} else {
+						finished = compare_bool;
+					}
+				} else { //logic = obyx::any
+					if (!invert) {
+						finished = compare_bool;
+					} else {
+						finished = !compare_bool;
+					}
 				}
 			}
 		}

@@ -54,6 +54,7 @@
             		<xs:complexType mixed="true">
             			<xs:choice minOccurs="0">
             				<xs:element ref="m:message" minOccurs="0" maxOccurs="unbounded"/>
+            				<xs:any namespace="##other" processContents="lax" />
             			</xs:choice>
             			<xs:attribute name="mechanism" use="optional" type="xs:string"/>
             			<xs:attribute name="type" use="optional" type="xs:string"/>

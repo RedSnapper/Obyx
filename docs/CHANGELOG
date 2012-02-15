@@ -17,6 +17,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.120214        
+	CHG.		Unnecessary comparates are no longer evaluated.
+	BUG. 		message allows for other xml grammars in m:body.
 v1.120130
 	Enh.		FCGI. Both xhtml1 and html5 can be served - but not together. Errors may throw a wobbler. OBYX_USING_XHTML5 must be set.
 v1.120118
