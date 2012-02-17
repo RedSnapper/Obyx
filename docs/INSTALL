@@ -67,9 +67,13 @@ xercesc 3.01
 http://xerces.apache.org/xerces-c
 http://xerces.apache.org/xerces-c/download.cgi
 
-xqilla 2.2.2
+xqilla 2.2.4
 http://xqilla.sourceforge.net/HomePage
 http://sourceforge.net/project/showfiles.php?group_id=152021
+
+XQilla 2.2.4 fixes a bug concerning orphaned grammars when not using PVSI.
+As Obyx depends upon a common grammar pool, and likewise does not use PVSI, this is the critical minimum version 
+if one is validating.
 
 
 ??libfcgi: Used for fast cgi support.
