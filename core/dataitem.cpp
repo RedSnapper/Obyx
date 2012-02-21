@@ -465,6 +465,8 @@ DataItem* DataItem::factory(u_str s,kind_type kind_it_is) {
 }
 void DataItem::startup() {
 	FragmentObject::startup();
+	XMLObject::startup();
+
 }
 void DataItem::shutdown() {
 	FragmentObject::shutdown();

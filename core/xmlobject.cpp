@@ -174,6 +174,9 @@ bool XMLObject::find(const XMLCh* srch,std::string& error_msg) {
 	return retval;
 }
 
+//AutoRelease<DOMXPathNSResolver> resolver(document->createNSResolver(document->getDocumentElement()));
+//resolver->addNamespaceBinding(X("my"), X("http://example.com/myURI"));
+
 void XMLObject::set_pnsr() { /* Set the pnsr with the latest list of namespaces if it needs it. */
 	if (xpnsr_v != ns_map_version) {
 		if ( xpnsr != NULL ) { 
@@ -181,7 +184,7 @@ void XMLObject::set_pnsr() { /* Set the pnsr with the latest list of namespaces 
 		}		
 	}
 	if ( x_doc != NULL && xpnsr == NULL ) { 
-		xpnsr = x_doc->createNSResolver(NULL); 
+		xpnsr = x_doc->createNSResolver(x_doc->getDocumentElement()); 
 	}
 	if (xpnsr_v != ns_map_version && xpnsr != NULL) {
 		for (XMLObject::u_str_map_type::const_iterator s = object_ns_map.begin(); s != object_ns_map.end(); s++) {
@@ -658,6 +661,11 @@ bool XMLObject::getns(const u_str& code, u_str& result,bool release) {
 	}
 	return retval;
 }
+
+void XMLObject::startup() {
+	setns(UCS2(L"xs"),UCS2(L"http://www.w3.org/2001/XMLSchema"));
+}
+
 XMLObject::~XMLObject() {
 	del_pnsr(); // Delete the pnsr and the xpe cache.
 	if (x_doc != NULL) {

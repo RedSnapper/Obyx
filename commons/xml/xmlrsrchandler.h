@@ -70,5 +70,7 @@ namespace XML {
 		virtual ~XMLResourceHandler();
 	};
 	
+// DOMXPathNSResolver	
+	
 }
 #endif

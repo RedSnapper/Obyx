@@ -106,6 +106,7 @@ public:
 	virtual void clear();
 	virtual void trim();
 	virtual ~XMLObject();
+	static void startup();
 	
 private:
 	unsigned int x;								//Used during debugging to see how a doc was created.
