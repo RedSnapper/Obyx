@@ -69,10 +69,12 @@ void XMLObject::copy(DOMDocument*& container) const {
 	}		
 }
 void XMLObject::take(DOMDocument*& container) {
+	del_pnsr(); // Delete the pnsr and the xpe cache.
 	container = x_doc;
 	x_doc = NULL;
 }
 void XMLObject::take(DOMNode*& container) {
+	del_pnsr(); // Delete the pnsr and the xpe cache.
 	container = x_doc;
 	x_doc = NULL;
 }
