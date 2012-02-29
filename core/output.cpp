@@ -559,6 +559,7 @@ void Output::startup() {
 	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"remove_nocache"), remove_nocache));
 	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"remove_date"), remove_date));
 	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"Custom"), custom));
+	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"custom"), custom));
 	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"object"), http_object));
 }
 void Output::shutdown() {
