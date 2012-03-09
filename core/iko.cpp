@@ -512,7 +512,7 @@ void IKO::process_encoding(DataItem*& basis) {
 			} break;
 			case e_salted: {
 				if (String::Digest::available(errs)) {
-					encoded.append(Environment::SQLuserPW());   //this can work for the time being.
+					encoded.append(Environment::Salt()); 
 					String::Digest::do_digest(String::Digest::sha512,encoded);
 					String::tohex(encoded);
 					basis = DataItem::factory(encoded,di_text); //cannot be xml.

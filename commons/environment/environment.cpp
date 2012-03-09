@@ -1140,6 +1140,19 @@ unsigned int Environment::SQLport() {
 	pair<long long int,bool>port = String::integer(result);
 	return (int)port.first;
 }
+string Environment::Salt() {
+	string result("[s4lt]");
+	if (instance != NULL) {
+		if (!instance->getenv("OBYX_SALT",result)) {
+			instance->getenv("OBYX_SALT",result);
+		}
+	} else {
+		if (!getbenv("OBYX_SALT",result)) {
+			result.append(SQLuserPW());
+		}
+	}
+	return result;
+}
 void Environment::setbenv(string name,string value) {
 	//Called before LOGGER is initialised, once per process.
 	pair<var_map_type::iterator, bool> ins = benv_map.insert(var_map_type::value_type(name, value));
@@ -1663,7 +1676,7 @@ void Environment::listEnv() {
 		*Logger::log << Log::LI << Log::even;
 		std::sort(vme.begin(), vme.end(), sortvps); 
 		for(vector<pair<string,string> >::iterator vmei = vme.begin(); vmei != vme.end(); vmei++) {
-			if ( vmei->first.find("OBYX_SQL",0,8) != 0) {
+			if (( vmei->first.find("OBYX_SQL",0,8) != 0) && (vmei->first.compare("OBYX_SALT") != 0)) {
 //			if ( vmei->first.find("OBYX_",0,5) != 0) {
 				*Logger::log << Log::LI << Log::II << vmei->first << Log::IO << Log::II << vmei->second << Log::IO << Log::LO;
 			}
@@ -1683,7 +1696,7 @@ void  Environment::list(string& result) {
 	}
 	std::sort(vme.begin(), vme.end(), sortvps); 
 	for(vector<pair<string,string> >::iterator vmei = vme.begin(); vmei != vme.end(); vmei++) {
-		if ( (gDevelop || vmei->first.find("OBYX_",0,5) != 0)) {
+		if (( vmei->first.find("OBYX_SQL",0,8) != 0) && (vmei->first.compare("OBYX_SALT") != 0)) {
 			buffer << Log::info << Log::LI << "Environment " << Log::II << vmei->first << Log::IO << Log::II << vmei->second << Log::IO << LO << blockend;
 		}
 	}

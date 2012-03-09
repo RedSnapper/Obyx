@@ -202,6 +202,7 @@ public:
 	static string SQLhost() ;
 	static string SQLuser() ;
 	static string SQLuserPW() ;	
+	static string Salt() ;	
 	static unsigned int SQLport();
 	void list();						//for debugging
 	void listEnv();					//for debugging
