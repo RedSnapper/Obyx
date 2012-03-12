@@ -17,6 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.120312
+	Enh.		New Encoder 'secret' uses config variable 'salt'.
 v1.120229
 	BUG.		Rare crash to do with pnsr deletion order during a fragment append.
 v1.120220        

@@ -313,7 +313,7 @@
 					<xs:enumeration value="md5"/>
 					<xs:enumeration value="sha1"/>
 					<xs:enumeration value="sha512"/>
-					<xs:enumeration value="salted"/>
+					<xs:enumeration value="secret"/>
 					<xs:enumeration value="deflate"/>
 					<xs:enumeration value="json"/>
 				</xs:restriction>

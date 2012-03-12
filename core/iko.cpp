@@ -113,7 +113,7 @@ IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : ObyxElement
 				case e_name:
 				case e_md5:
 				case e_sha1:
-				case e_salted:
+				case e_secret:
 				case e_sha512:
 				case e_digits:
 				case e_none: 
@@ -510,7 +510,7 @@ void IKO::process_encoding(DataItem*& basis) {
 					basis = DataItem::factory(encoded,di_text); //cannot be xml.
 				}
 			} break;
-			case e_salted: {
+			case e_secret: {
 				if (String::Digest::available(errs)) {
 					encoded.append(Environment::Salt()); 
 					String::Digest::do_digest(String::Digest::sha512,encoded);
@@ -1067,7 +1067,7 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 			switch ( encoder ) {
 				case e_sha1: 
 				case e_sha512: 
-				case e_salted:
+				case e_secret:
 				case e_md5: 
 				case e_name: 
 				case e_digits:
@@ -1333,7 +1333,7 @@ void IKO::startup() {
 	enc_types.insert(enc_type_map::value_type(UCS2(L"md5"), e_md5));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"sha1"), e_sha1));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"sha512"), e_sha512));
-	enc_types.insert(enc_type_map::value_type(UCS2(L"salted"), e_salted));
+	enc_types.insert(enc_type_map::value_type(UCS2(L"secret"), e_secret));
 	
 	enc_types.insert(enc_type_map::value_type(UCS2(L"deflate"), e_deflate));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"json"), e_json));
