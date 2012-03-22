@@ -25,6 +25,7 @@
 //-------------------------------------------------------------------
 // System includes
 //-------------------------------------------------------------------
+#include <sys/stat.h>
 #include <string>
 
 //-------------------------------------------------------------------
@@ -67,7 +68,7 @@
 			void setFileName(const string newfilename);
 			const string getFileName() const;
 			virtual const string output(bool abs = false) const;
-			bool exists() const;
+			bool exists(mode_t = S_IFREG) const; //New bool is used for special files such as char_special, etc.
 			bool moveTo(const File file) const;
 			bool moveTo(const Path path) const;
 			bool removeFile() const;
@@ -77,6 +78,7 @@
 			bool copyTo(const File, string&, bool) const;
 			bool copyTo(const Path newpath, bool overwrite = false) const;
 			void readFile(string&) const;
+			void readFile(string&,size_t,mode_t) const;
 			bool writeFile(const string contents) const;
 
 		};

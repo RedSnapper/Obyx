@@ -1274,11 +1274,12 @@ string Environment::ScratchName() {
 void Environment::uniq(string& basis) {
 	string errs;
 	if ( String::Digest::available(errs) ) {
-		String::Digest::random(basis,8);
-		String::tohex(basis);
+		String::Digest::random(basis,16);
 	} else {
-		basis=String::tostring((unsigned long long)getpid());
+		File f("/dev/random");
+		f.readFile(basis,16,S_IFCHR);
 	}
+	String::tohex(basis);
 }
 
 bool Environment::envfind(const string& pattern) { //regex..

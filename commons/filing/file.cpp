@@ -27,7 +27,6 @@
 #include <fstream>
 #include <unistd.h>
 #include <sys/types.h>
-#include <sys/stat.h>
 #include <sys/time.h>
 #include <time.h>
 #include <string.h>
@@ -268,13 +267,14 @@
 		//-------------------------------------------------------------------------
 		// Checks whether the file exists
 		//-------------------------------------------------------------------------
-		bool File::exists() const {
+		bool File::exists(mode_t filter) const {
 			bool existence = false;
 			struct stat buf;
 			string fpath = output(false);
 			int result = stat(fpath.c_str(), &buf);
-			if (result == 0 && (buf.st_mode & S_IFREG))
+			if (result == 0 && (buf.st_mode & filter)) {
 				existence = true;
+			}
 			return existence;
 		}
 
@@ -458,4 +458,26 @@
 				}
 			}
 		}	// namespace FileUtils
+		
+		void File::readFile(string& result,size_t wanted,mode_t filter) const {
+			if (exists(filter)) {
+				char * memblock;
+				std::ifstream in(output().c_str(), std::ios::in | std::ios::binary | std::ios::ate);
+				if (in.is_open()) { // reading a complete binary file
+					std::ifstream::pos_type size = in.tellg();
+					if ( ( (filter & S_IFCHR) != 0 )|| ((unsigned long long)size > wanted) ) {
+						size = wanted;
+					}
+					if (size > 0) {
+						memblock = new char[(unsigned long long)size];
+						in.seekg(0, std::ios::beg);
+						in.read(memblock,(unsigned long)size);
+						in.close();
+						result.assign(memblock,(unsigned long)size);
+						delete[] memblock;
+					}
+				}
+			}
+		}	// namespace FileUtils
+		
 	}
