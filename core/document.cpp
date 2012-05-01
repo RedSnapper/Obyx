@@ -689,7 +689,9 @@ bool Document::eval() {
  					process(root_node,this);
 				}
 			} else { //NOT obyx...
-				owner = doc_par->owner;
+				if (doc_par != NULL) { //maybe main file isn't obyx.
+					owner = doc_par->owner;
+				}
 				if ( doc_ns.compare(UCS2(L"http://www.obyx.org/osi-application-layer")) == 0 ) {
 					OsiAPP do_osi;
 					DataItem* osi_result = NULL;
