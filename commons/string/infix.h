@@ -150,6 +150,12 @@ namespace String {
 			long double evaluate(const long double,const long double,const long double) const;
 			char sig() const { return 'f';}
 		};
+		class log2fn : public Op {
+		public:
+			log2fn() : Op(2,left,1){} //as a function = 2
+			long double evaluate(const long double,const long double,const long double) const;
+			char sig() const { return 'f';}
+		};
 		class roundfn : public Op {
 		public:
 			roundfn() : Op(2,left,1){} //as a function = 2

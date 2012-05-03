@@ -35,6 +35,7 @@ namespace String {
 			lut.insert(lut_t::value_type("and",new bandfn()));
 			lut.insert(lut_t::value_type("or",new borfn()));
 			lut.insert(lut_t::value_type("not",new bnotfn()));
+			lut.insert(lut_t::value_type("log2",new log2fn()));
 			lut.insert(lut_t::value_type("round",new roundfn()));
 			lut.insert(lut_t::value_type("floor",new floorfn()));
 			lut.insert(lut_t::value_type("ceil",new ceilfn()));
@@ -253,19 +254,18 @@ namespace String {
 		}
 		long double bandfn::evaluate(const long double,const long double p,const long double q) const {
 			return ((long long)p & (long long)q) == 0 ? 0: 1;
-//			return ((long long)p & (long long)q);
 		}
 		long double bxorfn::evaluate(const long double,const long double p,const long double q) const {
 			return ((long long)p ^ (long long)q) == 0 ? 0: 1;
-//			return ((long long)p ^ (long long)q);
 		}
 		long double bnotfn::evaluate(const long double,const long double,const long double q) const {
 			return (long long)q == 0 ? 1: 0;
-//			return ~(long long)q;
 		}
 		long double borfn::evaluate(const long double,const long double p,const long double q) const {
 			return ((long long)p | (long long)q) == 0 ? 0: 1;
-//			return ((long long)p | (long long)q);
+		}
+		long double log2fn::evaluate(const long double,const long double,const long double q) const {
+			return log2l(q);
 		}
 		long double roundfn::evaluate(const long double,const long double,const long double q) const {
 			return round(q);
