@@ -486,6 +486,50 @@ namespace String {
 		return s;
 	}
 	//---------------------------------------------------------------------------
+	void UTF8toUCS4(vector<uint32_t>& dest,string& src) {
+		static const char trailingBytesForUTF8[256] = {
+			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+			1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+			2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2, 3,3,3,3,3,3,3,3,4,4,4,4,5,5,5,5
+		};
+		static const uint32_t offsetsFromUTF8[6] = {
+			0x00000000UL, 0x00003080UL, 0x000E2080UL,
+			0x03C82080UL, 0xFA082080UL, 0x82082080UL
+		};	size_t srcsz=src.size();
+		dest.reserve(srcsz+1);
+		uint32_t ch;
+		string::const_iterator i = src.begin();
+		const string::const_iterator se = src.end();
+		char nb;
+		while (i < se) {
+			nb = trailingBytesForUTF8[*i];
+			if (i+nb >= se) {
+				break;
+			} else {
+				ch = 0;
+				switch (nb) {
+					case 3: ch += *i++; ch <<= 6;
+					case 2: ch += *i++; ch <<= 6;
+					case 1: ch += *i++; ch <<= 6;
+					case 0: ch += *i++;
+				}
+				ch -= offsetsFromUTF8[nb];
+				dest.push_back(ch);
+			}
+		}
+	}
+	//---------------------------------------------------------------------------
+	void UCS4toUTF8(vector<uint32_t>& src,string& dest) {
+		for (vector<uint32_t>::const_iterator i = src.begin(); i < src.end(); i++) {
+			dest.append(UCS4toUTF8((unsigned long long)*i));
+		}
+	}
+	//---------------------------------------------------------------------------
 	string UCS4toUTF8(unsigned long long ucs4) {
 		string utf;
 		if (ucs4 <= 0x7fULL) {

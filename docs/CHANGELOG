@@ -18,7 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 ------------------------------------------------------------------------------------
 CHANGELOG file
 v1.120503
-	Enh.		Added log2() to arithmetic.
+	Enh.		Added log2() to arithmetic. Added unique to instruction. (returns a sorted list of unique chars)
 v1.120322
 	Enh.		Modified temporary filenames (when no ssh available) to help prevent fileclash.
 v1.120312

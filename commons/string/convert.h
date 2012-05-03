@@ -39,7 +39,6 @@ namespace String {
 	string tostring(long double,unsigned int=0);
 	void tobase(long long,unsigned int,unsigned int,string&);
 	void tobasestring(long double,unsigned int,unsigned int,string& );
-//	void tobasestring(long double,unsigned int,string&);
 	void tostring(string&,int);				 //Given an integer, return a string. e.g. 3 => "3"
 	void tostring(string&,unsigned long long);	//Given a natural, return a string. e.g. 3 => "3"
 	bool split(char, const string&, pair<string,string>&);	   //Given a string, split it at the first given character (destroy the character)
@@ -48,6 +47,8 @@ namespace String {
 	pair<unsigned long long,bool> hex(const string&);		   //Given a string, returns a natural from any hex that it STARTS with.
 	pair<unsigned long long,bool> znatural(const string&);     //Given a string, returns a natural from any digits that it STARTS with.
 
+	void  			UTF8toUCS4(vector<uint32_t>&,string&);
+	void 			UCS4toUTF8(vector<uint32_t>&,string&);
 	string			UCS4toUTF8(unsigned long long ucs4);
 	void			todigits(string&);							//strip all but digits from a string.
 	unsigned int	natural(const string&);						//Given a const string, returns a natural  1... +BIGINT

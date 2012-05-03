@@ -20,6 +20,7 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <algorithm>
 #include <ctype.h>
 #include <math.h>
 #include <cfloat>
@@ -311,6 +312,11 @@ bool Instruction::evaluate_this() {
 										accumulator.append(*first_value);
 									}
 								} break;
+								case obyx::unique:	{	// just add to accumulator; break;
+									if (first_value != NULL) {
+										uaccumulator.append(*first_value);
+									}
+								} break;
 								case obyx::append: {	//
 									results.append(first_value);
 								} break;
@@ -413,6 +419,11 @@ bool Instruction::evaluate_this() {
 								case shell_command:	{	// call_system(first_value); break;
 									if (srcval != NULL) {
 										accumulator.append(*srcval);
+									}
+								} break;
+								case obyx::unique:	{	// just add to accumulator; break;
+									if (srcval != NULL) {
+										uaccumulator.append(*srcval);
 									}
 								} break;
 								case obyx::sort: {
@@ -678,6 +689,11 @@ bool Instruction::evaluate_this() {
 						}
 						results.append(expr_result,di_text);
 						delete expr_eval;
+					} break;
+					case obyx::unique: {
+						std::sort(uaccumulator.begin(), uaccumulator.end());
+						uaccumulator.erase(std::unique(uaccumulator.begin(), uaccumulator.end()), uaccumulator.end());
+						results.append(uaccumulator,di_utext);
 					} break;
 					case query_command: {
 						call_sql(accumulator);
@@ -991,6 +1007,7 @@ void Instruction::startup() {
 	op_types.insert(op_type_map::value_type(UCS2(L"sort"), obyx::sort));
 	op_types.insert(op_type_map::value_type(UCS2(L"substring"), substring));
 	op_types.insert(op_type_map::value_type(UCS2(L"subtract"), subtract));
+	op_types.insert(op_type_map::value_type(UCS2(L"unique"), obyx::unique));
 	op_types.insert(op_type_map::value_type(UCS2(L"upper"), obyx::upper));	
 }
 void Instruction::shutdown() {

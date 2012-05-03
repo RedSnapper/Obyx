@@ -80,6 +80,7 @@
 								<xs:enumeration value="sort"/>
 								<xs:enumeration value="substring"/>
 								<xs:enumeration value="subtract"/>
+								<xs:enumeration value="unique"/>
 								<xs:enumeration value="upper"/>
 							</xs:restriction>
 						</xs:simpleType>
