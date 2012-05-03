@@ -47,8 +47,8 @@ namespace String {
 	pair<unsigned long long,bool> hex(const string&);		   //Given a string, returns a natural from any hex that it STARTS with.
 	pair<unsigned long long,bool> znatural(const string&);     //Given a string, returns a natural from any digits that it STARTS with.
 
-	void  			UTF8toUCS4(vector<uint32_t>&,string&);
-	void 			UCS4toUTF8(vector<uint32_t>&,string&);
+//	void  			UTF8toUCS4(vector<uint32_t>&,string&);
+//	void 			UCS4toUTF8(vector<uint32_t>&,string&);
 	string			UCS4toUTF8(unsigned long long ucs4);
 	void			todigits(string&);							//strip all but digits from a string.
 	unsigned int	natural(const string&);						//Given a const string, returns a natural  1... +BIGINT

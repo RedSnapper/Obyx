@@ -485,6 +485,7 @@ namespace String {
 		}
 		return s;
 	}
+/*	
 	//---------------------------------------------------------------------------
 	void UTF8toUCS4(vector<uint32_t>& dest,string& src) {
 		static const char trailingBytesForUTF8[256] = {
@@ -529,6 +530,7 @@ namespace String {
 			dest.append(UCS4toUTF8((unsigned long long)*i));
 		}
 	}
+*/	
 	//---------------------------------------------------------------------------
 	string UCS4toUTF8(unsigned long long ucs4) {
 		string utf;
