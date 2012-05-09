@@ -42,6 +42,7 @@
 			string base;
 			char extension_separator;
 			string extension;
+			std::ifstream* ifs;
 
 		protected:
 			void init();
@@ -78,6 +79,7 @@
 			bool copyTo(const File, string&, bool) const;
 			bool copyTo(const Path newpath, bool overwrite = false) const;
 			void readFile(string&) const;
+			void open(std::istream*&);
 			void readFile(string&,size_t,mode_t) const;
 			bool writeFile(const string contents) const;
 

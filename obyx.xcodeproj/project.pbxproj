@@ -1013,12 +1013,13 @@
 		B541F22811941E1E0099F07C /* General */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_USE_STANDARD_INCLUDE_SEARCHING = YES;
 				GCC_VERSION = "";
 				OTHER_CFLAGS = (
 					"-DFAST",
 					"-DALLOW_MYSQL",
 					"-fshort-wchar",
-					"-DX_PROFILING",
+					"-DPRxxxOFILING",
 				);
 				PRODUCT_NAME = obyx.fcgi;
 				SKIP_INSTALL = NO;

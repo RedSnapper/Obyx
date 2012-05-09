@@ -131,17 +131,21 @@
 		void File::init()
 		{
 			setExtensionSeparator('.');
+			ifs = NULL;
 		}
 
 
 		//-------------------------------------------------------------------------
 		// Clears the File
 		//-------------------------------------------------------------------------
-		void File::clear()
-		{
+		void File::clear() {
 			Path::clear();
 			base = "";
 			extension = "";
+			if (ifs != NULL) {
+				delete ifs; 
+				ifs=NULL;
+			}
 		}
 
 
@@ -439,6 +443,16 @@
 		
 		//-------------------------------------------------------------------------
 		// Copies a file into a string
+		void File::open(std::istream*& is) {
+			if (exists()) {
+				ifs = new std::ifstream(output().c_str(), std::ios::in | std::ios::binary | std::ios::ate);
+				if (ifs->is_open() && ifs->tellg() > 0) {
+					ifs->seekg(0, std::ios::beg);
+					is = ifs;
+				}
+			}
+		}
+
 		//-------------------------------------------------------------------------
 		void File::readFile(string& result) const {
 			if (exists()) {

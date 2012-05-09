@@ -623,21 +623,20 @@ void Environment::dopostparms() {
 						string block = input.substr(blockstart + startboundary.length() + 2, blockend - blockstart - startboundary.length() - 4);
 						//						*Logger::log << Log::info << Log::LI << "Input block" << Log::LO;
 						//A typical block is below.
-						/*
-						 --#312999087#multipart#boundary#1049282996#
-						 Content-Disposition: form-data; name="id:2"
-						 
-						 106
-						 */
+						//
+//						 --#312999087#multipart#boundary#1049282996#
+//						Content-Disposition: form-data; name="id:2"
+//						 
+//						 106
+//						 
 						
 						//A typical file block is below.
-						/*
-						 --#312999087#multipart#boundary#1049282996#
-						 Content-Disposition: form-data; name="img:1"; filename="p.gif"
-						 Content-Type: image/gif
-						 
-						 GIF89a\001\000\001\000\304\000\000\u02c7\u02c7\u02c7\000\000\000!\u02d8\004\001\000\000\000\000,\000\000\000\000\001\000\001\000\000\002\002D\001\000;
-						 */
+//						 --#312999087#multipart#boundary#1049282996#
+//						 Content-Disposition: form-data; name="img:1"; filename="p.gif"
+//						 Content-Type: image/gif
+//						 
+//						 GIF89a\001\000\001\000\304\000\000\u02c7\u02c7\u02c7\000\000\000!\u02d8\004\001\000\000\000\000,\000\000\000\000\001\000\001\000\000\002\002D\001\000;
+//						 
 						// FIRST LINE -- The Content-Disposition line  
 						size_t lineend = block.find("\x0d\x0a");
 						if (lineend == string::npos) {
@@ -942,36 +941,39 @@ void Environment::setparm(string name,string value) {
 }
 void Environment::dodocument() { //for POST values
 	string input,inputlen,test_filename;
-	if (getenv("TEST_FILE",test_filename)) {
-		File test_file(test_filename);
-		test_file.readFile(input);
-		setparm("THIS_REQ_BODY",input);	
+	File* test_file = NULL;
+	std::istream *iss = NULL;
+	if (getenv("TEST_FILE",test_filename)) { //This shouldn't be an osi!
+		test_file = new File(test_filename);
+		test_file->open(iss);
 	} else {
-		if (getenv("CONTENT_LENGTH",inputlen)) {
-			pair<unsigned long long,bool> lenpr = String::znatural(inputlen);
-			if (lenpr.second) { //very bad if it weren't a number!!
-				unsigned long long clen = lenpr.first;
-				try {
-					char* content = new char[clen];
-					cin.read(content, clen);
-					clen = cin.gcount();
-					input = string(content,clen);
-					setparm("THIS_REQ_BODY",input);	
-					delete content;
-				} catch (...) { /*mem error*/ }
-			}
-		} else { 
-			if (! envexists("GATEWAY_INTERFACE")) { //not cgi.
-				struct termios tio;
-				if( tcgetattr(0,&tio) < 0) { //basically, if we cannot get the struct for cin, we can read this from the buffer. weird.
-					ostringstream sb;
-					while ( std::cin >> sb.rdbuf() );			
-					input = sb.str();
-					setparm("THIS_REQ_BODY",input);	
-				}
+		iss = &cin;
+	}
+	if (getenv("CONTENT_LENGTH",inputlen)) {
+		pair<unsigned long long,bool> lenpr = String::znatural(inputlen);
+		if (lenpr.second && iss != NULL && iss->good()) { //very bad if it weren't a number!!
+			streamsize cfound=0,clen = lenpr.first;
+			try {
+				char* content = new char[clen];
+				iss->read(content, clen);
+				cfound = iss->gcount();
+				input = string(content,cfound);
+				setparm("THIS_REQ_BODY",input);	
+				delete content;
+			} catch (...) { }
+		}
+	} else { 
+		if (! envexists("GATEWAY_INTERFACE")) { //not cgi.
+			struct termios tio;
+			if( tcgetattr(0,&tio) < 0) { //basically, if we cannot get the struct for cin, we can read this from the buffer. weird.
+				ostringstream sb;
+				while ( *iss >> sb.rdbuf() );			
+				input = sb.str();
+				setparm("THIS_REQ_BODY",input);	
 			}
 		}
 	}
+	if (test_file != NULL) { delete test_file;}
 }
 #pragma mark ENVIRONMENT (UTILITY)
 void Environment::init_cgi_rfc_map() { 
