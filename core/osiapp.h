@@ -59,7 +59,9 @@ private:
 	void compile_http_response(string&, string&, string&); //private - testing. use Environment()
 
 public:
-	static const std::string last_osi_response() { return last_response; }	//	
+	static const std::string last_osi_response() { 
+		return last_response; 
+	}	//	
 	void compile_http_request(string&, string&, string&); 
 	bool request(const xercesc::DOMNode*,int,int,DataItem*&);
 };

@@ -48,6 +48,8 @@ private:
 	typedef std::map<std::string, header_type > header_type_map; 
 	const static std::string crlf;			// "\r\n";
 	const static std::string crlft;			// "\r\n\t";
+	const static std::string needsenc;		// "\x0D\x0A\x09";
+	const static std::string wss;			// "\t\r\n ";
 	
 	string nl;
 	size_t nlsize;

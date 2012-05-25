@@ -47,8 +47,7 @@ Output::scope_type_map		Output::scope_types;
 Output::part_type_map		Output::part_types;
 Output::http_line_type_map	Output::httplinetypes;
 
-Output::Output(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el): IKO(n,par,el),type(out_immediate),part(value),scope(branch),haderror(false),errowner(true),errs(NULL) {
-	errs = new ostringstream();
+Output::Output(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el): IKO(n,par,el),type(out_immediate),part(value),scope(branch),haderror(false),errowner(true),errs(NULL),dupe(false) {
 	u_str str_esc,str_encoder,str_process,str_type,str_value,str_part,str_scope;
 	
 	if ( XML::Manager::attribute(n,UCS2(L"type"),str_type)  ) {
@@ -56,6 +55,7 @@ Output::Output(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el): IKO(n,
 		trace();
 		*Logger::log  << Log::blockend;
 	}
+	
 	if ( XML::Manager::attribute(n,UCS2(L"space"),str_type)  ) {
 		output_type_map::const_iterator j = output_types.find(str_type);
 		if( j != output_types.end() ) {
@@ -88,6 +88,7 @@ Output::Output(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el): IKO(n,
 			}
 		} 
 	}
+	
 	if ( XML::Manager::attribute(n,UCS2(L"part"),str_part)  ) {
 		if (type == out_cookie) {
 			part_type_map::const_iterator k = part_types.find(str_part);
@@ -107,16 +108,34 @@ Output::Output(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el): IKO(n,
 		trace();
 		*Logger::log << Log::blockend;
 	}
+	
 	if ( type == out_none && encoder != e_none ) {
 		*Logger::log << Log::syntax << Log::LI << "Syntax Error. Output: escape attribute cannot be used with discard." << Log::LO ;
 		trace();
 		*Logger::log << Log::blockend;
 	}
+	
 	Function* i = dynamic_cast<Function *>(p);	
 	if ( i != NULL ) {
 		if (type==out_error) {
+			i->do_catch(this); 			//This is going to be a copy-constructed and this one needs to be deleted.
+		} else {
+			i->outputs.push_back(this);
+		}
+	} else {
+		*Logger::log << Log::syntax << Log::LI << "Syntax Error. Output: outputs can only belong to flow-functions." << Log::LO ;
+		trace();
+		*Logger::log << Log::blockend;
+	}
+	
+}
+Output::Output(ObyxElement* par,const Output* orig) : 
+	IKO(par,orig),type(orig->type),scope(orig->scope),
+	part(orig->part),haderror(orig->haderror),errowner(orig->errowner),errs(NULL),dupe(true) { 
+	Function* i = dynamic_cast<Function *>(par);	
+	if ( i != NULL ) {
+		if (type==out_error) {
 			i->do_catch(this);
-			Logger::set_stream(errs); //This has to be set before it's parent or siblings are evaluated!
 		} else {
 			i->outputs.push_back(this);
 		}
@@ -126,28 +145,13 @@ Output::Output(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el): IKO(n,
 		*Logger::log << Log::blockend;
 	}
 }
-
-Output::Output(ObyxElement* par,const Output* orig) : 
-	IKO(par,orig),type(orig->type),scope(orig->scope),
-	part(orig->part),haderror(orig->haderror),errowner(false) { 
-	errs = new ostringstream();
-	*errs << orig->errs->rdbuf();
-	Function* i = dynamic_cast<Function *>(par);	
-	if ( i != NULL ) {
-		if (type==out_error) {
-			i->do_catch(this);
-			Logger::set_stream(errs); //This has to be set before it's parent or siblings are evaluated!
-		} else {
-			i->outputs.push_back(this);
-		}
-	}
-}
 Output::~Output() {
 	if (type==out_error) {
 		Logger::unset_stream(); //This has to be set before it's parent or siblings are evaluated!
-	}
-	if (errowner) { //this is why actual body has to be the last iteration.
-		delete errs;	
+		if ( errs != NULL) { //this is why actual body has to be the last iteration.
+			delete errs; 
+			errs = NULL;	
+		}
 	}
 }
 void Output::sethttp(const http_line_type line_type,const string& value) {
@@ -284,8 +288,10 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 				results.setresult(pe); //because other outputs use the parent.results, we cannot overwrite them here.
 			}
 		} break;
-			
 		case out_error: { 
+			errs = new ostringstream();
+			Logger::set_stream(errs); //This has to be set before it's parent or siblings are evaluated!
+			
 			string error_stuff;
 			error_stuff = errs->str();
 			haderror = ! error_stuff.empty();
@@ -419,58 +425,58 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 						}
 					} break;
 					case out_http: { 
-						u_str oname; 
-						if (name_part != NULL) { oname = *name_part; }							
-						http_line_type line_type;
-						http_line_type_map::const_iterator i = httplinetypes.find(oname);
-						if( i != httplinetypes.end() ) {
-							line_type = i->second;
-							if (line_type == http_object) {
-								if (value_comp != NULL) {
-									xercesc::DOMDocument* doc = *value_comp;
-									if (doc != NULL) {
-										xercesc::DOMNode* obj_node = doc->getDocumentElement();
-										if (obj_node != NULL) {
-											ostringstream* suppressor = new ostringstream();
-											Logger::set_stream(suppressor);
-											Httphead* http = Httphead::service();	
-											http->objectparse(obj_node); //ie remove the date headerlines.
-											Logger::unset_stream();
-											if (!suppressor->str().empty()) {
-												string errdoc; 
-												XML::Manager::parser()->writenode(obj_node,errdoc);
-												*Logger::log << Log::error << Log::LI << "Error. Http object parse failed." << Log::LO;	
+						if (name_part != NULL) { 
+							u_str oname = *name_part;						
+							http_line_type_map::const_iterator i = httplinetypes.find(oname);
+							if( i != httplinetypes.end() ) {
+								http_line_type line_type = i->second;
+								if (line_type == http_object) {
+									if (value_comp != NULL) {
+										xercesc::DOMDocument* doc = *value_comp;
+										if (doc != NULL) {
+											xercesc::DOMNode* obj_node = doc->getDocumentElement();
+											if (obj_node != NULL) {
+												ostringstream* suppressor = new ostringstream();
+												Logger::set_stream(suppressor);
+												Httphead* http = Httphead::service();	
+												http->objectparse(obj_node); //ie remove the date headerlines.
+												Logger::unset_stream();
+												if (!suppressor->str().empty()) {
+													string errdoc; 
+													XML::Manager::parser()->writenode(obj_node,errdoc);
+													*Logger::log << Log::error << Log::LI << "Error. Http object parse failed." << Log::LO;	
+													trace();
+													*Logger::log << Log::LI << "The document that failed is:" << Log::LO;
+													*Logger::log << Log::LI << Log::info << Log::LI << errdoc << Log::LO << Log::blockend << Log::LO; 
+													*Logger::log << Log::blockend; //Error
+												}
+												delete suppressor;
+											} else {
+												*Logger::log << Log::error << Log::LI << "Error. Http object had no root element." << Log::LO;	
 												trace();
-												*Logger::log << Log::LI << "The document that failed is:" << Log::LO;
-												*Logger::log << Log::LI << Log::info << Log::LI << errdoc << Log::LO << Log::blockend << Log::LO; 
-												*Logger::log << Log::blockend; //Error
+												*Logger::log << Log::blockend;
 											}
-											delete suppressor;
 										} else {
-											*Logger::log << Log::error << Log::LI << "Error. Http object had no root element." << Log::LO;	
+											*Logger::log << Log::error << Log::LI << "Error. Http object couldn't be parsed." << Log::LO;	
 											trace();
 											*Logger::log << Log::blockend;
 										}
 									} else {
-										*Logger::log << Log::error << Log::LI << "Error. Http object couldn't be parsed." << Log::LO;	
+										*Logger::log << Log::error << Log::LI << "Error. Http object was NULL." << Log::LO;	
 										trace();
 										*Logger::log << Log::blockend;
 									}
 								} else {
-									*Logger::log << Log::error << Log::LI << "Error. Http object was NULL." << Log::LO;	
-									trace();
-									*Logger::log << Log::blockend;
+									string value=""; 
+									if (value_comp != NULL) { value = *value_comp; }
+									sethttp(line_type,value); 
 								}
 							} else {
-								string value=""; 
-								if (value_comp != NULL) { value = *value_comp; }
-								sethttp(line_type,value); 
+								string err_type; Manager::transcode(oname.c_str(),err_type);
+								*Logger::log << Log::error << Log::LI << "Error. Http line name '" << err_type << "' not recognised." << Log::LO;	
+								trace();
+								*Logger::log << Log::blockend;
 							}
-						} else {
-							string err_type; Manager::transcode(oname.c_str(),err_type);
-							*Logger::log << Log::error << Log::LI << "Error. Http line name '" << err_type << "' not recognised." << Log::LO;	
-							trace();
-							*Logger::log << Log::blockend;
 						}
 					} break;
 					case out_cookie: {

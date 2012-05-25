@@ -77,7 +77,8 @@ public:
 	static void finalise();
 	static void startup(); 
 	static void shutdown();	
-	static bool currentenv(const u_str&,const usage_tests,const IKO*,DataItem*&);
+	static enc_type str_to_encoder(const u_str);
+	bool currentenv(const u_str&,const usage_tests,const IKO*,DataItem*&); ///why was this static?
 	bool getexists() const {return exists;}
 	bool found() const {return exists;}
 	virtual void evaluate(size_t,size_t)=0;

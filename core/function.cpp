@@ -54,7 +54,7 @@ using namespace obyx;
  In the case of a for loop it jumps to its increment-expression.
  */
 Function::Function(xercesc::DOMNode* const& n,elemtype el,ObyxElement* par) : 
-ObyxElement(par,el,flowfunction,n),deferred(false),finalised(false),fnnote(),outputs(),inputs(),definputs() {
+ObyxElement(par,el,flowfunction,n),deferred(false),finalised(false),fnnote(),outputs(),catcher(),inputs(),definputs() {
 	ObyxElement* ft = par; 
 	while (ft != NULL && ft->wotzit != xmldocument ) {
 		if (ft->wotspace == defparm || ft->wotzit == output) {
@@ -71,6 +71,24 @@ ObyxElement(par,el,flowfunction,n),deferred(false),finalised(false),fnnote(),out
 	}
 	if (el != endqueue) {
 		Manager::attribute(n,UCS2(L"note"),fnnote);
+	}
+}
+Function::Function(ObyxElement* par,const Function* orig) : 
+ObyxElement(par,orig),deferred(orig->deferred),finalised(orig->finalised),
+fnnote(orig->fnnote),outputs(),catcher(),inputs(),definputs() { 
+	if (wotzit != endqueue) {
+		for ( size_t i = 0; i < orig->inputs.size(); i++ ) {
+			inputs.push_back(new InputType(this,orig->inputs[i]));
+		}
+		for ( size_t i = 0; i < orig->definputs.size(); i++ ) {
+			definputs.push_back(new DefInpType(this,orig->definputs[i]));
+		}
+		for ( size_t i = 0; i < orig->outputs.size(); i++ ) { 
+			new Output(this,orig->outputs[i]);
+		}
+		for ( size_t i = 0; i < orig->catcher.size(); i++ ) {
+			new Output(this,orig->catcher[i]);
+		}
 	}
 }
 Endqueue::Endqueue(ObyxElement* par,const Endqueue* orig) : Function(par,orig) {
@@ -130,22 +148,6 @@ Function* Function::FnFactory(ObyxElement* par,const Function* orig) {
 	}
 	return retval;
 }
-Function::Function(ObyxElement* par,const Function* orig) : 
-ObyxElement(par,orig),deferred(orig->deferred),finalised(orig->finalised),
-fnnote(orig->fnnote),outputs(),catcher(),inputs(),definputs() { 
-	if (wotzit != endqueue) {
-		for ( unsigned int i = 0; i < orig->inputs.size(); i++ )
-			inputs.push_back(new InputType(this,orig->inputs[i]));
-		for ( unsigned int i = 0; i < orig->definputs.size(); i++ )
-			definputs.push_back(new DefInpType(this,orig->definputs[i]));
-		for ( unsigned int i = 0; i < orig->outputs.size(); i++ ) { 
-			new Output(this,orig->outputs[i]); //pushback is done by constructor.
-		}
-		for ( unsigned int i = 0; i < orig->catcher.size(); i++ ) {
-			new Output(this,orig->catcher[i]); //pushback is done by copy constructor.
-		}
-	}
-}
 void Function::do_catch(Output* out_error) { 			// set catcher to this.
 	catcher.push_back(out_error);
 }
@@ -160,13 +162,13 @@ void Function::evaluate(size_t,size_t) {
 	finalised = false;
 	if (!deferred) {
 		prep_breakpoint();
-		if (wotzit != endqueue) {		
+		if (wotzit != endqueue) {
+			if (!catcher.empty()) { //We must always evaluate this, as it has increased the logstack.
+				catcher.back()->evaluate();
+			}
 			if ( ! results.final() ) {
 				finalised = evaluate_this();
 				if (finalised) results.normalise();		//need to keep inputs on partial evaluation.
-			}
-			if (!catcher.empty()) { //We must always evaluate this, as it has increased the logstack.
-				catcher.back()->evaluate();
 			}
 			if (results.final() && !outputs.empty()) {
 				if (catcher.empty() || !(catcher.back()->caughterr())) {

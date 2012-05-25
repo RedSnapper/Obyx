@@ -42,24 +42,29 @@ Logger*				Logger::log = NULL;
 string				Logger::title="Logger";
 std::ostringstream* Logger::lstore = NULL;
 bool 				Logger::debugflag = false;
+//size_t				Logger::logdepth = 0;
 
 //startup identifies if we are outputting as a cgi script or as a commandline utility.
 //console is set to false if we are running in cgi mode, and true if we are in commandline mode.
 
 //should be the only way to set log->o
 void Logger::set_stream(std::ostringstream*& errstr) { 
-	if (errstr != NULL ) { 
+	if (log != NULL && errstr != NULL ) { 
 		log->storageused=true; //not always true.. if cout is set here...
+//		cerr << "L   set_stream. Was: " << log->o;
 		log->estrm_stack.push(errstr);
 		log->o = log->estrm_stack.top();
+//		cerr << " Now: " << log->o << endl;
 	}
 }	
 
 void Logger::set_stream(std::ostream*& errstr) {
-	if (errstr != NULL ) { 
+	if (log != NULL && errstr != NULL ) { 
 		log->storageused=true; //not always true.. if cout is set here...
+//		cerr << "L   set_stream. Was: " << log->o;
 		log->estrm_stack.push(errstr);
 		log->o = log->estrm_stack.top();
+//		cerr << " Now: " << log->o << endl;
 	}
 }	
 
@@ -69,10 +74,12 @@ void Logger::get_stream(ostream*& container) {
 
 //should always be paired with a set_stream..
 void Logger::unset_stream() {
-	if (log->storageused) {
+	if (log != NULL) {
 		if (!log->estrm_stack.empty()) {
+//			cerr << "L unset_stream. Was: " << log->estrm_stack.top();
 			log->estrm_stack.pop();
 		} else {
+//			cerr << "L unset_stream failed. estrm_stack was empty.";
 			log->storageused=false;
 			log->o = log->fo;
 		}
@@ -82,6 +89,7 @@ void Logger::unset_stream() {
 		} else {
 			log->o = log->estrm_stack.top();
 		}
+//		cerr << " Now: " << log->o << endl;
 	}
 }	
 

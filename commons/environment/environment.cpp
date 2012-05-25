@@ -664,7 +664,7 @@ void Environment::dopostparms() {
 								}
 								// SECOND LINE The mime-type line. (May be empty)
 								size_t linestart = lineend + 2;
-								lineend = block.find("\x00d\x00a", linestart);
+								lineend = block.find("\x0d\x0a", linestart);
 								if (lineend == string::npos) {
 									*Logger::log << Log::error << Log::LI << "Error. Surprising end of post inside block" << Log::LO << Log::blockend;
 									return;

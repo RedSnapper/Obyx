@@ -330,7 +330,7 @@ ObyxElement* ObyxElement::Factory(DOMNode* const& n,ObyxElement* parent) {
 					if(i != ntmap.end()) {
 						elemtype cetype = i->second;
 						switch ( cetype ) {
-							case output:		result=new Output(n,parent,output);					break; //parmtype
+							case output: { result=new Output(n,parent,output); } break; //parmtype
 								
 							case iteration:		result=new Iteration(n,parent);						break; //instructiontype
 							case control:		result=new InputType(n,parent,control);				break; //inputtype - parmtype

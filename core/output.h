@@ -49,13 +49,14 @@ private:
 	static output_type_map output_types;
 	static http_line_type_map httplinetypes;
 	static part_type_map part_types;
-	friend class Function;
+	friend class Function; 
 	output_type		type;			//derived from type attribute
 	scope_type		scope;
 	part_type		part;
 	bool haderror;				//.
 	bool errowner;				//so we can delete the stream just once.
 	ostringstream* errs;		//error holder - used for type=error
+	bool dupe;
 	void sethttp(const http_line_type,const string&);
 	
 public:

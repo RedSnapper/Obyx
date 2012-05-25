@@ -710,8 +710,10 @@ bool Document::eval() {
 						troubled_doc = OsiAPP::last_osi_response();
 						*Logger::log << Log::LI << "The response was:" << Log::LO;
 						*Logger::log << Log::LI << Log::info << Log::LI << troubled_doc << Log::LO << Log::blockend << Log::LO; 
-						
 						*Logger::log << Log::blockend; //Error
+						
+//						DataItem* result = DataItem::factory(troubled_doc,di_object);
+//						results.setresult(result);
 					}
 				} else {
 					DataItem* result = DataItem::factory(xdoc,di_object);

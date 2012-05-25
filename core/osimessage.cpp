@@ -32,6 +32,10 @@ using namespace std;
 
 const std::string OsiMessage::crlf		= "\x0D\x0A";
 const std::string OsiMessage::crlft		= "\x0D\x0A\x09";
+//const std::string OsiMessage::needsenc("\x00\x09\x0A\x0D\x20\x22\x26\x3C\x3E",9); // without the 9, due to the null the assignment fails.
+const std::string OsiMessage::needsenc("\x00\x22\x26\x3C\x3E",5); // without the 5, due to the null the assignment fails.
+const std::string OsiMessage::wss		= "\x0D\x0A\x09\x20";
+
 const std::string OsiMessage::boundary	= "Message_Boundary_";
 OsiMessage::header_type_map OsiMessage::header_types;
 unsigned int OsiMessage::counter = 1;
@@ -115,10 +119,10 @@ bool OsiMessage::do_angled(string& v) {
 }
 bool OsiMessage::do_encoding(string& v) {
 	bool retval = false;
-	if ( v.find_first_of("\"><&\x00") != string::npos ) {
+	if ( v.find_first_of(needsenc) != string::npos ) {
 		String::urlencode(v);
 		retval = true;
-	}
+	} 
 	return retval;
 }
 void OsiMessage::do_comments(string& str,vector< comment >& comments) {
@@ -746,9 +750,15 @@ void OsiMessage::compile(string& msg_str, ostringstream& res, bool do_namespace)
 			res << " charset=\"UTF-8\"";
 		}
 		if ( isnt_multipart ) {
-			if ( (!body_type.empty() && (body_type.compare("text")!=0)) || (body.find_first_of("<&\x00") != string::npos)) {
-				String::urlencode(body);
-				res << " urlencoded=\"true\"";
+			if ( !body.empty()) {
+				if ( !body_type.empty() && (body_type.compare("text")!=0)) {
+					String::urlencode(body);
+					res << " urlencoded=\"true\"";
+				} else {
+					if (do_encoding(body)) {
+						res << " urlencoded=\"true\"";
+					}
+				}
 			}
 		}
 		res << ">";

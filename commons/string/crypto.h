@@ -79,6 +79,8 @@ namespace String {
 		static int (*RAND_bytes)(unsigned char*,int);
 		static int (*RAND_pseudo_bytes)(unsigned char*,int);
 		
+		static unsigned char* (*HMAC)(const EVP_MD *,const void *,int,const unsigned char *,int,unsigned char *,unsigned int *);
+		
 		static EVP_MD_CTX* context;
 		static const EVP_MD* md[16];	//the different digests
 		
@@ -89,6 +91,7 @@ namespace String {
 		static bool startup(string&);
 		static bool available(string&);
 		static bool shutdown();
+		static void hmac(const digest,const string,const string,string&);
 		static void do_digest(const digest,string&);
 		static void random(string&,unsigned short);
 

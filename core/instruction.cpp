@@ -216,7 +216,7 @@ bool Instruction::evaluate_this() {
 	}
 	if (inputsfinal) {
 #ifndef DISALLOW_GMP		
-		String::Bit::Evaluate* expr_bit_eval = NULL;		//use this only if op = arithmetic.
+		String::Bit::Evaluate* expr_bit_eval = NULL;	//use this only if op = arithmetic.
 #endif
 		String::Infix::Evaluate* expr_eval = NULL;		//use this only if op = arithmetic.
 		if (operation == arithmetic) {
@@ -280,7 +280,8 @@ bool Instruction::evaluate_this() {
 				DataItem* first_value = NULL;	//used by eg left to hold the initial parameter, against which everything else is evaluated.
 				DataItem* srcval = NULL;
 				long long iaccumulator = 0;
-				std::string accumulator;
+				std::string accumulator,special;
+				enc_type hmac_enc= e_none;
 				u_str uaccumulator;
 				unsigned long long naccumulator = 0;
 				long double daccumulator = 0;
@@ -301,6 +302,9 @@ bool Instruction::evaluate_this() {
 									string fv; if (first_value != NULL) { fv = *first_value; }
 									expr_bit_eval->set_expression(fv);
 #endif
+								} break;
+								case hmac: {
+									hmac_enc = IKO::str_to_encoder(*first_value);
 								} break;
 								case arithmetic: {
 									string fv; if (first_value != NULL) { fv = *first_value; }
@@ -406,6 +410,15 @@ bool Instruction::evaluate_this() {
 										expr_bit_eval->add_parm(parm_key,fv);
 									}
 #endif
+								} break;
+								case hmac: {
+									if (srcval != NULL) {
+										if (i == 1) { //this is the key
+											special = *srcval;
+										} else {
+											accumulator.append(*srcval);
+										}
+									}
 								} break;
 								case arithmetic: {
 									string parm_key=inputs[i]->parm_name;
@@ -711,6 +724,32 @@ bool Instruction::evaluate_this() {
 							results.append(accumulator,di_text);
 						}
 					} break;
+					case hmac: {
+						string result,errs;
+						if (String::Digest::available(errs)) {
+							switch (hmac_enc) {
+								case e_sha1: String::Digest::hmac(String::Digest::sha1,special,accumulator,result); break;
+								case e_sha224: String::Digest::hmac(String::Digest::sha224,special,accumulator,result); break;
+								case e_sha256: String::Digest::hmac(String::Digest::sha256,special,accumulator,result); break;
+								case e_sha384: String::Digest::hmac(String::Digest::sha384,special,accumulator,result); break;
+								case e_sha512:  String::Digest::hmac(String::Digest::sha512,special,accumulator,result); break;
+								case e_dss1:  String::Digest::hmac(String::Digest::dss1,special,accumulator,result); break;
+								case e_mdc2:  String::Digest::hmac(String::Digest::mdc2,special,accumulator,result); break;
+								case e_ripemd160:  String::Digest::hmac(String::Digest::ripemd160,special,accumulator,result); break;
+								case e_md5:  String::Digest::hmac(String::Digest::md5,special,accumulator,result); break;
+								default: {
+									*Logger::log << Log::error << Log::LI << "Error. Operation 'hmac' expects sha1,sha224,sha256,sha384,sha512,dss1,mdc2,ripemd160 or md5 in it's first parameter." << Log::LO;
+									trace();
+									*Logger::log << Log::blockend;
+								} break;
+							}
+							results.append(result,di_text);						
+						} else {
+							*Logger::log << Log::error << Log::LI << "Error. Operation 'hmac' relies upon openssl which wasn't found." << Log::LO;
+							trace();
+							*Logger::log << Log::blockend;
+						}
+					} break;
 					case obyx::substring:
 					case obyx::reverse:
 					case obyx::left:
@@ -989,6 +1028,7 @@ void Instruction::startup() {
 	op_types.insert(op_type_map::value_type(UCS2(L"bitwise"), bitwise));
 	op_types.insert(op_type_map::value_type(UCS2(L"divide"), divide));
 	op_types.insert(op_type_map::value_type(UCS2(L"function"), function));
+	op_types.insert(op_type_map::value_type(UCS2(L"hmac"), hmac));
 	op_types.insert(op_type_map::value_type(UCS2(L"kind"), obyx::kind));
 	op_types.insert(op_type_map::value_type(UCS2(L"left"), obyx::left));
 	op_types.insert(op_type_map::value_type(UCS2(L"length"), obyx::length));

@@ -78,7 +78,7 @@ public:
 	const string note() const { return fnnote; }
 	
 	void evaluate(size_t=0,size_t=0);	// new context one..
-	void do_catch(Output*); 			// set catcher to this.
+	void do_catch( Output* ); 			// set catcher to this.
 	void done_catch(); 					// unset catcher from this.
 	
 };

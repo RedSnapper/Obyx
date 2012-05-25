@@ -64,6 +64,18 @@ void IKO::log(const Log::msgtype mtype,const std::string msg) const {
 	trace();
 	*Logger::log << Log::blockend;
 }
+
+enc_type IKO::str_to_encoder(const u_str str_encoder) {
+	enc_type result = e_none;
+	if ( ! str_encoder.empty() ) {
+		enc_type_map::const_iterator j = enc_types.find(str_encoder);
+		if( j != enc_types.end() ) {
+			result = j->second; 
+		}
+	}
+	return result;
+}
+
 IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : ObyxElement(par,el,parm,n),kind(di_auto),encoder(e_none),context(immediate), process(obyx::encode),wsstrip(true),exists(false),name_v(),xpath() {
 	u_str str_context;
 	if ( XML::Manager::attribute(n,UCS2(L"context"),str_context) ) {
@@ -113,7 +125,13 @@ IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : ObyxElement
 				case e_name:
 				case e_md5:
 				case e_sha1:
+				case e_dss1:
+				case e_mdc2:
+				case e_ripemd160:
 				case e_secret:
+				case e_sha256:
+				case e_sha224:
+				case e_sha384:
 				case e_sha512:
 				case e_digits:
 				case e_none: 
@@ -129,6 +147,8 @@ IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : ObyxElement
 				case e_qp: 
 				case e_xml:
 				case e_url: 
+				case e_10to16: 
+				case e_btwoc:					
 				case e_base64: 
 				case e_deflate:
 				case e_hex:	{
@@ -181,6 +201,7 @@ IKO::IKO(ObyxElement* par,const IKO* orig) : ObyxElement(par,orig),
 	process(orig->process),wsstrip(orig->wsstrip),exists(orig->exists),
 	name_v(orig->name_v),xpath(orig->xpath) {}
 
+//bool IKO::legalsysenv(const u_str& envname) const {
 bool IKO::currentenv(const u_str& req,const usage_tests exist_test, const IKO* iko,DataItem*& container) {
 	Environment* env = Environment::service();
 	bool exists = false;
@@ -266,8 +287,12 @@ bool IKO::currentenv(const u_str& req,const usage_tests exist_test, const IKO* i
 					}
 				} break;
 				case c_osi_response: {
-					result = OsiAPP::last_osi_response();					
+					result = OsiAPP::last_osi_response();
 					container = DataItem::factory(result,di_object);
+					if (container == NULL) {
+						log(Log::error,"Error. OSI Response [" + result + "] was malformed.");
+						container = DataItem::factory("",di_text);
+					}
 				} break;
 				case c_cookies: {
 					if (exist_test == ut_significant) {
@@ -459,6 +484,49 @@ void IKO::process_encoding(DataItem*& basis) {
 					basis = DataItem::factory(encoded,kind); //MAY be XML - maybe not.
 				}
 			} break;
+			case e_btwoc: {
+#ifndef DISALLOW_GMP
+				if ( String::Regex::available() ) {
+					if ( process == encode) {
+						String::Bit::Num e(encoded,10);
+						encoded = e.str(16);
+						if (encoded.empty()) {
+							encoded = "\\x00";
+						} else {
+							unsigned char first=encoded[0]-'0';
+							String::toupper(encoded);
+							String::Regex::replace("(..)","\\\\x\\1",encoded,true);
+							if (first > 7) {
+								encoded = "\\x00" + encoded;
+							}
+						}
+						basis = DataItem::factory(encoded,di_text);
+					} else {
+						String::fandr(encoded,"\\x");
+						String::Bit::Num e(encoded,16);
+						encoded = e.str(10);
+						if (encoded.empty()) encoded = "0";
+						basis = DataItem::factory(encoded,di_text);
+					}
+				}
+#endif
+			} break;
+			case e_10to16: {
+#ifndef DISALLOW_GMP		
+				if ( process == encode) {
+					String::Bit::Num e(encoded,10);
+					encoded = e.str(16);
+					if (encoded.empty()) encoded = "00";
+					basis = DataItem::factory(encoded,di_text);
+					
+				} else {
+					String::Bit::Num e(encoded,16);
+					encoded = e.str(10);
+					if (encoded.empty()) encoded = "0";
+					basis = DataItem::factory(encoded,di_text);
+				}
+#endif
+			} break;
 			case e_base64: {
 				if ( process == encode) {
 					String::base64encode(encoded);
@@ -503,9 +571,52 @@ void IKO::process_encoding(DataItem*& basis) {
 					basis = DataItem::factory(encoded,di_text); //cannot be xml.
 				}
 			} break;
+			case e_sha256: {
+				if (String::Digest::available(errs)) {
+					String::Digest::do_digest(String::Digest::sha256,encoded);
+					String::tohex(encoded);
+					basis = DataItem::factory(encoded,di_text); //cannot be xml.
+				}
+			} break;
+			case e_sha224: {
+				if (String::Digest::available(errs)) {
+					String::Digest::do_digest(String::Digest::sha224,encoded);
+					String::tohex(encoded);
+					basis = DataItem::factory(encoded,di_text); //cannot be xml.
+				}
+			} break;
+			case e_sha384: {
+				if (String::Digest::available(errs)) {
+					String::Digest::do_digest(String::Digest::sha384,encoded);
+					String::tohex(encoded);
+					basis = DataItem::factory(encoded,di_text); //cannot be xml.
+				}
+			} break;
+				
 			case e_sha512: {
 				if (String::Digest::available(errs)) {
 					String::Digest::do_digest(String::Digest::sha512,encoded);
+					String::tohex(encoded);
+					basis = DataItem::factory(encoded,di_text); //cannot be xml.
+				}
+			} break;
+			case e_dss1: {
+				if (String::Digest::available(errs)) {
+					String::Digest::do_digest(String::Digest::dss1,encoded);
+					String::tohex(encoded);
+					basis = DataItem::factory(encoded,di_text); //cannot be xml.
+				}
+			} break;
+			case e_mdc2: {
+				if (String::Digest::available(errs)) {
+					String::Digest::do_digest(String::Digest::mdc2,encoded);
+					String::tohex(encoded);
+					basis = DataItem::factory(encoded,di_text); //cannot be xml.
+				}
+			} break;
+			case e_ripemd160: {
+				if (String::Digest::available(errs)) {
+					String::Digest::do_digest(String::Digest::ripemd160,encoded);
 					String::tohex(encoded);
 					basis = DataItem::factory(encoded,di_text); //cannot be xml.
 				}
@@ -1065,8 +1176,14 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 		if (!fresult.empty()) {
 			kind_type fkind = ikind;
 			switch ( encoder ) {
-				case e_sha1: 
+				case e_sha1:
+				case e_sha224:
+				case e_sha384:
+				case e_sha256:
 				case e_sha512: 
+				case e_dss1:
+				case e_mdc2:
+				case e_ripemd160:
 				case e_secret:
 				case e_md5: 
 				case e_name: 
@@ -1327,17 +1444,23 @@ void IKO::startup() {
 	enc_types.insert(enc_type_map::value_type(UCS2(L"url"), e_url));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"name"), e_name));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"digits"), e_digits));
+	enc_types.insert(enc_type_map::value_type(UCS2(L"btwoc"), e_btwoc));
+	enc_types.insert(enc_type_map::value_type(UCS2(L"base16"), e_10to16));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"base64"), e_base64));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"hex"), e_hex));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"message"), e_message));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"md5"), e_md5));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"sha1"), e_sha1));
+	enc_types.insert(enc_type_map::value_type(UCS2(L"sha224"), e_sha224));
+	enc_types.insert(enc_type_map::value_type(UCS2(L"sha256"), e_sha256));
+	enc_types.insert(enc_type_map::value_type(UCS2(L"sha384"), e_sha384));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"sha512"), e_sha512));
+	enc_types.insert(enc_type_map::value_type(UCS2(L"dss1"), e_dss1));
+	enc_types.insert(enc_type_map::value_type(UCS2(L"mdc2"), e_mdc2));
+	enc_types.insert(enc_type_map::value_type(UCS2(L"ripemd160"), e_ripemd160));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"secret"), e_secret));
-	
 	enc_types.insert(enc_type_map::value_type(UCS2(L"deflate"), e_deflate));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"json"), e_json));
-	
 	ctx_types.insert(inp_space_map::value_type(UCS2(L"none"), immediate));
 	ctx_types.insert(inp_space_map::value_type(UCS2(L"field"), field ));
 	ctx_types.insert(inp_space_map::value_type(UCS2(L"url"), url ));

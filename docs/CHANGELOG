@@ -17,6 +17,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.120525
+	Enh.		Added several more encoders, hmac instruction operation.
+	Bug			fixed an output memleak. fixed an output.error interleave.
 v1.120503
 	Enh.		Added log2() to arithmetic. Added unique to instruction. (returns a sorted list of unique chars)
 v1.120322

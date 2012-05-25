@@ -54,15 +54,25 @@ namespace String {
 		Num::Num(const string str) { 
 			GMP::mpz_init(value); 
 			if (!str.empty()) {
-				if ((str.size() > 2) && (str[0]=='0') && (str[1] == 'x' || str[1] =='X') ) {
-					GMP::mpz_set_str(value,str.c_str(),0);
-				} else {
-					GMP::mpz_set_str(value,str.c_str(),16);
-				}
+/*	
+ mpz_set_str
+ if the first two characters are `0x' or `0X', hexadecimal is assumed, 
+ otherwise if the first character is `0', octal is assumed, otherwise decimal is assumed.
+ */
+				GMP::mpz_set_str(value,str.c_str(),16);
 			} else {
 				GMP::mpz_set_ui(value,0);
 			}
 		}
+		Num::Num(const string str,unsigned base) { 
+			GMP::mpz_init(value); 
+			if (!str.empty()) {
+				GMP::mpz_set_str(value,str.c_str(),base);
+			} else {
+				GMP::mpz_set_ui(value,base);
+			}
+		}
+		
 		Num::Num(string::const_iterator& x) { //load a number from a string iterator.
 			GMP::mpz_init(value); 
 			if (*x == '0' && (*(x+1) == 'x' || *(x+1) == 'X')) {

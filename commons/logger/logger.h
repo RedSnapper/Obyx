@@ -38,6 +38,7 @@ namespace Log {
 
 class Logger {
 private:
+//	static size_t logdepth;     //msg nest depth 
 	bool		  top_line;		//first bracket contents of a block.
 	bool		  inraw;
 	Log::msgtype  curr_type;

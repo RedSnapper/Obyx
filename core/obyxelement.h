@@ -41,7 +41,7 @@ namespace obyx {
 	typedef enum { encode,decode } process_t;	//what sort of process
 	typedef enum { any,all } logic_t;	//what sort of scope (comparison)
 	
-	typedef enum { e_sql,e_url,e_xml,e_name,e_digits,e_none,e_base64,e_hex,e_message,e_qp,e_md5,e_sha1,e_sha512,e_secret,e_deflate,e_json } enc_type;	//
+	typedef enum { e_sql,e_url,e_xml,e_name,e_digits,e_none,e_10to16,e_btwoc,e_base64,e_hex,e_message,e_qp,e_md5,e_sha1,e_sha256,e_sha512,e_sha384,e_dss1,e_mdc2,e_sha224,e_ripemd160,e_secret,e_deflate,e_json } enc_type;	//
 	typedef std::map<u_str, enc_type > enc_type_map; 
 	
 	typedef enum { flowfunction,parm,defparm,other } elemclass;	//what sort of object
@@ -56,7 +56,7 @@ namespace obyx {
 	typedef enum {it_each,it_repeat,it_sql,it_while,it_while_not} it_type;
 	typedef std::map<u_str, it_type > it_type_map; 
 	
-	typedef enum { move,append,substring,position,length,left,right,reverse,upper,lower,kind,add,subtract,multiply,divide,random,maximum,minimum,remainder,quotient,shell_command,sort,query_command,function,arithmetic,bitwise,unique} op_type;	//transform
+	typedef enum { move,append,substring,position,length,left,right,reverse,upper,lower,kind,add,subtract,multiply,divide,random,maximum,minimum,remainder,quotient,shell_command,sort,query_command,function,hmac,arithmetic,bitwise,unique} op_type;	//transform
 	typedef std::map<u_str, op_type > op_type_map; 
 	
 	typedef enum { equivalent_to,exists,is_empty,found,greater_than,less_than,significant,cmp_true} cmp_type;	//

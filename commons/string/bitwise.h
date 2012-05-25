@@ -43,6 +43,7 @@
 				Num(); 
 				~Num(); 
 				Num(string::const_iterator&);
+				Num(const string,unsigned);
 				Num(const string);
 				Num(const Num &); 
 				Num(mpz_t &);

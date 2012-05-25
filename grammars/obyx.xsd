@@ -1,6 +1,6 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:o="http://www.obyx.org"
 	targetNamespace="http://www.obyx.org" elementFormDefault="qualified"
-	attributeFormDefault="unqualified" version="v1.120312" >
+	attributeFormDefault="unqualified" version="v1.120516" >
 	<xs:annotation><xs:documentation>
 		obyx.xsd is authored and maintained by Ben Griffin of Red Snapper Ltd.
 		obyx.xsd is a part of Obyx - see http://www.obyx.org .
@@ -63,6 +63,7 @@
 								<xs:enumeration value="divide"/>
 								<xs:enumeration value="random"/>
 								<xs:enumeration value="function"/>
+								<xs:enumeration value="hmac"/>
 								<xs:enumeration value="kind"/>
 								<xs:enumeration value="left"/>
 								<xs:enumeration value="length"/>
@@ -307,13 +308,21 @@
 					<xs:enumeration value="xml"/>
 					<xs:enumeration value="url"/>
 					<xs:enumeration value="sql"/>
+					<xs:enumeration value="base16"/>
 					<xs:enumeration value="base64"/>
+					<xs:enumeration value="btwoc"/>
 					<xs:enumeration value="qp"/>
 					<xs:enumeration value="hex"/>
 					<xs:enumeration value="message"/>
 					<xs:enumeration value="md5"/>
 					<xs:enumeration value="sha1"/>
+					<xs:enumeration value="sha224"/>
+					<xs:enumeration value="sha256"/>
+					<xs:enumeration value="sha384"/>
 					<xs:enumeration value="sha512"/>
+					<xs:enumeration value="dss1"/>
+					<xs:enumeration value="mdc2"/>
+					<xs:enumeration value="ripemd160"/>
 					<xs:enumeration value="secret"/>
 					<xs:enumeration value="deflate"/>
 					<xs:enumeration value="json"/>

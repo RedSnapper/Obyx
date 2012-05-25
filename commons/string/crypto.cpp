@@ -43,6 +43,8 @@ namespace String {
 	int (*Digest::EVP_DigestFinal_ex)(EVP_MD_CTX*,unsigned char *,unsigned int*) = NULL;
 	int (*Digest::RAND_bytes)(unsigned char*,int) = NULL;
 	int (*Digest::RAND_pseudo_bytes)(unsigned char*,int) = NULL;
+	unsigned char* (*Digest::HMAC)(const EVP_MD *,const void *,int,const unsigned char *,int,unsigned char *,unsigned int *) = NULL;
+
 	
 	void Digest::dlerr(std::string& errstr) {
 		const char *err = dlerror();
@@ -75,6 +77,7 @@ namespace String {
 				EVP_DigestFinal_ex		=(int (*)(EVP_MD_CTX*,unsigned char*,unsigned int*)) dlsym(lib_handle,"EVP_DigestFinal_ex"); dlerr(errors);
 				RAND_bytes				=(int (*)(unsigned char*,int)) dlsym(lib_handle,"RAND_bytes"); dlerr(errors);
 				RAND_pseudo_bytes		=(int (*)(unsigned char*,int)) dlsym(lib_handle,"RAND_pseudo_bytes"); dlerr(errors);
+				HMAC					=(unsigned char* (*)(const EVP_MD*,const void*,int,const unsigned char*,int,unsigned char*,unsigned int*)) dlsym(lib_handle,"HMAC"); dlerr(errors);
 				
 				if ( errors.empty() ) {
 					loaded = true;
@@ -92,7 +95,6 @@ namespace String {
 					md[9] = EVP_get_digestbyname("dss1");
 					md[10] = EVP_get_digestbyname("mdc2");
 					md[11] = EVP_get_digestbyname("ripemd160");
-					
 
 					unsigned char *ibuff = new unsigned char[16];
 					RAND_pseudo_bytes(ibuff,16); //err = 1 on SUCCESS.
@@ -135,6 +137,29 @@ namespace String {
 		EVP_DigestInit_ex(context, d_touse, NULL);
 		EVP_DigestUpdate(context,basis.c_str(),basis.size());
 		EVP_DigestFinal_ex(context, md_value, &md_len);
+		basis = string((char *)md_value,md_len);
+	}
+	
+	void Digest::hmac(const digest d,const string key,const string data, string& basis) {
+		unsigned char md_value[EVP_MAX_MD_SIZE];
+		unsigned int md_len;
+		const EVP_MD* d_touse;
+		switch (d) {
+			case md2: { d_touse=md[0];} break;
+			case md4: { d_touse=md[1];} break;
+			case md5: { d_touse=md[2];} break;
+			case sha: { d_touse=md[3];} break;
+			case sha1: { d_touse=md[4];} break;
+			case sha224: { d_touse=md[5];} break;
+			case sha256: { d_touse=md[6];} break;
+			case sha384: { d_touse=md[7];} break;
+			case sha512: { d_touse=md[8];} break;
+			case dss1: { d_touse=md[9];} break;
+			case mdc2: { d_touse=md[10];} break;
+			case ripemd160: { d_touse=md[11];} break;
+		}
+		const unsigned char* dataptr = (const unsigned char*)data.c_str();
+		HMAC(d_touse,key.c_str(),(int)key.length(),dataptr,(int)data.length(),md_value,&md_len);	
 		basis = string((char *)md_value,md_len);
 	}
 	
