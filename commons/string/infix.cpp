@@ -284,7 +284,7 @@ namespace String {
 			return p == q ? 1:0;
 		}
 		long double iftrue::evaluate(const long double o,const long double p,const long double q) const {
-			return (o != 0) ? p : q;
+			return (o != 0 && o != NAN) ? p : q;
 		}
 		long double rolfn::evaluate(const long double o,const long double p,const long double q) const {
 			unsigned long long x = (unsigned long long)o;	 //number to change
