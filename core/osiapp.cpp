@@ -106,7 +106,7 @@ bool OsiAPP::request(const xercesc::DOMNode* n,int max_redirects,int timeout_sec
 					string response_head,response_body;	//what was returned by remote server...
 					if (! my_req.doRequest(response_head,response_body, max_redirects, timeout_secs, req_errors) ) {
 						compile_http_response(response_head,response_body,last_response);
-						*Logger::log << Log::warn << Log::LI << Log::II << req_url << Log::IO << Log::II << req_errors << Log::IO << Log::LO << Log::blockend;
+						*Logger::log << Log::error << Log::LI << Log::II << req_url << Log::IO << Log::II << req_errors << Log::IO << Log::LO << Log::blockend;
 						request_result=false;
 					} else {
 						compile_http_response(response_head,response_body,last_response);
@@ -114,6 +114,7 @@ bool OsiAPP::request(const xercesc::DOMNode* n,int max_redirects,int timeout_sec
 					}
 				} else {
 					*Logger::log << Log::error << Log::LI<< "Error. OSI request failed for url:" << req_url << " - HTTPFetch not available." << Log::LO << Log::blockend;				
+					request_result=false;
 				}
 			}
 		} else {
