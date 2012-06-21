@@ -23,6 +23,7 @@
 #include "commons/logger/logger.h"
 #include "commons/xml/xml.h"
 #include "commons/environment/environment.h"
+#include "core/obyxelement.h"
 
 using Log::warn;
 using xercesc::DOMErrorHandler;
@@ -44,6 +45,7 @@ namespace XML {
 			Manager::transcode(domError.getMessage(),err_message);
 			if (Logger::log != NULL) { //This can happen before the Logger is loaded.
 				*Logger::log << Log::error << Log::LI << "DOM Error:" << err_message << Log::LO;
+				if ( ObyxElement::break_point == 0) { ObyxElement::break_point = ObyxElement::eval_count+1 ;}
 			} else {
 				cerr << err_message;
 			}

@@ -82,6 +82,7 @@ private:
 	void do_dealloc();
 	
 protected:
+	friend class XML::XMLErrorHandler;
 	friend class DataItem;
 	friend class Document;
 	friend class Environment;
