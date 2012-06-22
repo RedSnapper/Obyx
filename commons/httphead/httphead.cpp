@@ -278,10 +278,6 @@ Httphead::Httphead(ostream* output) {
 	httpsig				= "Status";
 	o = output;
 	
-	if (!env->getenv("OBYX_DEFAULT_MIME",mimevalue)) {
-		mimevalue	= "application/xhtml+xml; charset=utf-8";
-	}
-	
 	string req_method_str,cgi_type;
 	if ( env->getenv("REQUEST_METHOD",req_method_str)) {
 		if ( req_method_str.compare("CONSOLE") != 0 && req_method_str.compare("XML") != 0 ) {
