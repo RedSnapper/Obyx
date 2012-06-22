@@ -360,9 +360,11 @@ namespace String {
 			} else {
 				errmsg = "Unspecified compile error";
 			}
-			*Logger::log << Log::error << "Regex::compile_re() " << errmsg;
-			if (erroffset > 0) *Logger::log << " at offset " << erroffset; 			
-			*Logger::log << " while compiling pattern '" << pattern << "'." << Log::LO << Log::blockend; 
+			if (Logger::log) {
+				*Logger::log << Log::error << "Regex::compile_re() " << errmsg;
+				if (erroffset > 0) *Logger::log << " at offset " << erroffset; 			
+				*Logger::log << " while compiling pattern '" << pattern << "'." << Log::LO << Log::blockend; 
+			}
 			retval = false;	//could report the actual error here.
 		} else {
 			extra = pcre_study(container,0,&error);	
