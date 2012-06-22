@@ -234,7 +234,7 @@ void Httphead::shutdown() {
 }
 
 //so this now sends out the header AFTER the xml.
-void Httphead::init(ostream* output) {
+void Httphead::init(ostream* output) {	
 	if (singleton == NULL) {
 		singleton = new Httphead(output);	// instantiate singleton
 	} 
@@ -261,7 +261,7 @@ Httphead::Httphead(ostream* output) {
 	cacheprivacy		= "public";
 	pragmaline			= "no-cache";
 	mimevalue			= "application/xhtml+xml; charset=utf-8";
-	mimevalue			= "text/html; charset=utf-8";
+//	mimevalue			= "text/html; charset=utf-8";
 	servervalue			= "Obyx/version1";
 	rangevalue			= "bytes";
 	p3pline				= "";
@@ -276,7 +276,12 @@ Httphead::Httphead(ostream* output) {
 	isdone				= false;
 	mime_is_changed		= false;
 	httpsig				= "Status";
-	o = output;	
+	o = output;
+	
+	if (!env->getenv("OBYX_DEFAULT_MIME",mimevalue)) {
+		mimevalue	= "application/xhtml+xml; charset=utf-8";
+	}
+	
 	string req_method_str,cgi_type;
 	if ( env->getenv("REQUEST_METHOD",req_method_str)) {
 		if ( req_method_str.compare("CONSOLE") != 0 && req_method_str.compare("XML") != 0 ) {
