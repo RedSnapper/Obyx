@@ -1196,14 +1196,29 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 				}  break;
 				default: break;
 			}
-			
 			container = DataItem::factory(fresult,fkind); //test for xml if needs be. This is not being deleted.
 			if (container->empty()) {
 				log(Log::error,"IKO value composition error with: " + ikoname);
 			}
 			//if there was an error, we have ikoname here.
 		}
-	} 
+	}
+	
+	if (!namepath.second.empty()) {
+		DataItem* tmp = container; container=NULL;
+		if (tmp->kind() == di_object) {
+			string xp_errors;
+			XMLObject* xobj = *tmp;
+			xobj->xp(namepath.second, container, false, xp_errors);
+			if (!xp_errors.empty()) {
+				log(Log::error,"Error. url '" + ikoname + "' had xpath error '" + xp_errors + "'");
+			}
+		} else {
+			log(Log::error,"IKO xpath will not work on non-object: " + ikoname);
+		}
+		delete tmp;
+	}
+	
 	return exists;
 }
 bool IKO::sigfromspace(const u_str& input_name,const inp_space the_space,const bool release,const kind_type ikind,DataItem*& container) {
