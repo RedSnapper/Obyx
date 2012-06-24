@@ -1204,7 +1204,7 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 		}
 	}
 	
-	if (!namepath.second.empty() && container != NULL) {
+	if (!namepath.second.empty() && the_space != store && container != NULL) {
 		DataItem* tmp = container; container=NULL;
 		if (tmp->kind() == di_object) {
 			string xp_errors;
