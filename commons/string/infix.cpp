@@ -28,6 +28,10 @@ namespace String {
 			lut.insert(lut_t::value_type("\\",new quotient()));
 			lut.insert(lut_t::value_type("_",new uminus()));
 			lut.insert(lut_t::value_type("%",new modulo()));
+			lut.insert(lut_t::value_type("lt",new ltfn()));
+			lut.insert(lut_t::value_type("lte",new ltefn()));
+			lut.insert(lut_t::value_type("gt",new gtfn()));
+			lut.insert(lut_t::value_type("gte",new gtefn()));
 			lut.insert(lut_t::value_type("pow",new powfn()));
 			lut.insert(lut_t::value_type("max",new maxfn()));
 			lut.insert(lut_t::value_type("min",new minfn()));
@@ -282,6 +286,18 @@ namespace String {
 		// false = 0 here.
 		long double same::evaluate(const long double,const long double p,const long double q) const {
 			return p == q ? 1:0;
+		}
+		long double ltfn::evaluate(const long double,const long double p,const long double q) const {
+			return p < q ? 1:0;
+		}
+		long double ltefn::evaluate(const long double,const long double p,const long double q) const {
+			return p <= q ? 1:0;
+		}
+		long double gtfn::evaluate(const long double,const long double p,const long double q) const {
+			return p > q ? 1:0;
+		}
+		long double gtefn::evaluate(const long double,const long double p,const long double q) const {
+			return p >= q ? 1:0;
 		}
 		long double iftrue::evaluate(const long double o,const long double p,const long double q) const {
 			return (o != 0 && !isnan(o)) ? p : q;

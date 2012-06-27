@@ -126,6 +126,30 @@ namespace String {
 			long double evaluate(const long double,const long double,const long double) const;
 			char sig() const { return 'f';}
 		};
+		class ltfn : public Op {
+		public:
+			ltfn() : Op(2){}
+			long double evaluate(const long double,const long double,const long double) const;
+			char sig() const { return 'f';}
+		};
+		class gtfn : public Op {
+		public:
+			gtfn() : Op(2){}
+			long double evaluate(const long double,const long double,const long double) const;
+			char sig() const { return 'f';}
+		};
+		class ltefn : public Op {
+		public:
+			ltefn() : Op(2){}
+			long double evaluate(const long double,const long double,const long double) const;
+			char sig() const { return 'f';}
+		};
+		class gtefn : public Op {
+		public:
+			gtefn() : Op(2){}
+			long double evaluate(const long double,const long double,const long double) const;
+			char sig() const { return 'f';}
+		};
 		class bandfn : public Op {
 		public:
 			bandfn() : Op(2){} //as a function = 2; as characters (10)
