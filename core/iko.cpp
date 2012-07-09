@@ -219,6 +219,10 @@ bool IKO::currentenv(const u_str& req,const usage_tests exist_test, const IKO* i
 		} else {
 			exists=true;
 			switch (j->second) {
+				case c_scratch: {
+					result = env->ScratchDir();
+					container = DataItem::factory(result,di_text);
+				} break;
 				case c_vnumber: {
 					env->getenv("OBYX_VERSION_NUMBER",result);
 					container = DataItem::factory(result,di_text);
@@ -1442,6 +1446,7 @@ void IKO::startup() {
 	current_types.insert(current_type_map::value_type(UCS2(L"TIME"),c_time));
 	current_types.insert(current_type_map::value_type(UCS2(L"TS"),c_ts));
 	current_types.insert(current_type_map::value_type(UCS2(L"VERSION"),c_version));
+	current_types.insert(current_type_map::value_type(UCS2(L"SCRATCH"),c_scratch));
 	current_types.insert(current_type_map::value_type(UCS2(L"VERSION_NUMBER"),c_vnumber));
 	current_types.insert(current_type_map::value_type(UCS2(L"RESPONSE"),c_response));
 	current_types.insert(current_type_map::value_type(UCS2(L"POINT"),c_point));
