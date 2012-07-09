@@ -151,27 +151,21 @@ Function* Function::FnFactory(ObyxElement* par,const Function* orig) {
 void Function::do_catch(Output* out_error) { 			// set catcher to this.
 	catcher.push_back(out_error);
 }
-void Function::done_catch() { 			// set catcher to this.
-	if (!catcher.empty()) {
-		delete catcher.back();
-		catcher.pop_back();
-	}
-}
 
 void Function::evaluate(size_t,size_t) {
 	finalised = false;
 	if (!deferred) {
 		prep_breakpoint();
 		if (wotzit != endqueue) {
-			if (!catcher.empty()) { //We must always evaluate this, as it has increased the logstack.
-				catcher.back()->evaluate();
-			}
+			prepcatch();
 			if ( ! results.final() ) {
 				finalised = evaluate_this();
 				if (finalised) results.normalise();		//need to keep inputs on partial evaluation.
 			}
+			dropcatch(); 
+			if (!catcher.empty()) { catcher.front()->evaluate(); }
 			if (results.final() && !outputs.empty()) {
-				if (catcher.empty() || !(catcher.back()->caughterr())) {
+				if (catcher.empty() || !(catcher.front()->caughterr())) {
 					if ( may_eval_outputs()) {	
 						DataItem* imm_result = NULL; //need to keep immediate results.
 						size_t os = outputs.size();
@@ -192,7 +186,6 @@ void Function::evaluate(size_t,size_t) {
 					results.clearresult();
 				}
 			} 
-			done_catch();
 		} 
 	} else {
 		finalised=true; 

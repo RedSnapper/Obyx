@@ -183,6 +183,25 @@ owner(NULL),p(parent),node(n),results(),wotspace(tp),wotzit(et) {
 	do_alloc(); 
 #endif
 }
+
+void ObyxElement::prepcatch() {
+	incatch = false;
+	for (const ObyxElement* node = this; node != NULL && !incatch; node = node->p) {
+		const Function* fn = dynamic_cast<const Function *>(node);
+		if (fn != NULL && !fn->catcher.empty() ) {
+			incatch = true;
+			Logger::set_stream(fn->catcher.front()->errs);
+			break;
+		}
+	}
+}
+void ObyxElement::dropcatch() {
+	if (incatch) {
+		Logger::unset_stream();
+	}
+}
+
+
 void ObyxElement::do_breakpoint() {
 	eval_count++;		//global..
 	if (eval_count == break_point) {
@@ -245,7 +264,6 @@ unsigned long long int ObyxElement::breakpoint() {
 std::string ObyxElement::breakpoint_str() {
 	return String::tostring(eval_count + 1);
 }
-
 
 const string ObyxElement::name() const {
 	switch ( wotzit ) {

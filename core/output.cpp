@@ -118,6 +118,7 @@ Output::Output(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el): IKO(n,
 	Function* i = dynamic_cast<Function *>(p);	
 	if ( i != NULL ) {
 		if (type==out_error) {
+			errs = new ostringstream();
 			i->do_catch(this); 			//This is going to be a copy-constructed and this one needs to be deleted.
 		} else {
 			i->outputs.push_back(this);
@@ -135,6 +136,7 @@ Output::Output(ObyxElement* par,const Output* orig) :
 	Function* i = dynamic_cast<Function *>(par);	
 	if ( i != NULL ) {
 		if (type==out_error) {
+			errs = new ostringstream();
 			i->do_catch(this);
 		} else {
 			i->outputs.push_back(this);
@@ -146,12 +148,11 @@ Output::Output(ObyxElement* par,const Output* orig) :
 	}
 }
 Output::~Output() {
-	if (type==out_error) {
-		Logger::unset_stream(); //This has to be set before it's parent or siblings are evaluated!
-		if ( errs != NULL) { //this is why actual body has to be the last iteration.
-			delete errs; 
-			errs = NULL;	
-		}
+//	Function* i = dynamic_cast<Function *>(p);	
+//	i->remove_catch(this);
+	if ( errs != NULL) { //this is why actual body has to be the last iteration.
+		delete errs; 
+		errs = NULL;	
 	}
 }
 void Output::sethttp(const http_line_type line_type,const string& value) {
@@ -240,9 +241,17 @@ void Output::sethttp(const http_line_type line_type,const string& value) {
 		} break;
 	}
 }
+//void Output::startcatch() {
+//	if (type == out_error) {
+//		errs = new ostringstream();
+//		Logger::set_stream(errs); //This has to be set before it's parent or siblings are evaluated!
+//	}
+//}
+
 void Output::evaluate(size_t out_num,size_t out_count) {
 	results.undefer();
 	prep_breakpoint();
+	prepcatch();
 	results.evaluate();
 	DataItem* name_part = NULL; 
 	DataItem* value_part = NULL; 
@@ -289,9 +298,6 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 			}
 		} break;
 		case out_error: { 
-			errs = new ostringstream();
-			Logger::set_stream(errs); //This has to be set before it's parent or siblings are evaluated!
-			
 			string error_stuff;
 			error_stuff = errs->str();
 			haderror = ! error_stuff.empty();
@@ -527,6 +533,7 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 			}
 		} break;
 	}
+	dropcatch();
 	do_breakpoint();
 }
 void Output::startup() {

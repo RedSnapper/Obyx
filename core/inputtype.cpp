@@ -236,6 +236,7 @@ void InputType::evalfind(std::set<std::string>& keylist) {
 }
 void InputType::evaluate(size_t /*item_num*/,size_t /*item_count*/) {
 	prep_breakpoint();
+	prepcatch();
 	if (!results.final()) {	//This can happen when the value is not an attribute.
 		results.evaluate(wsstrip);
 	}
@@ -269,6 +270,7 @@ void InputType::evaluate(size_t /*item_num*/,size_t /*item_count*/) {
 			delete name_part; name_part=NULL;
 		}
 	}
+	dropcatch();
 	do_breakpoint();
 }
 void InputType::startup() {

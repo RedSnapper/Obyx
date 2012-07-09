@@ -80,6 +80,7 @@ private:
 	static long_map ce_map;
 	void do_alloc();
 	void do_dealloc();
+	bool incatch;
 	
 protected:
 	friend class XML::XMLErrorHandler;
@@ -124,6 +125,8 @@ public:
 	virtual void explain() { results.explain(); }			//
 	virtual const string name() const;	
 	virtual void evaluate(size_t=0,size_t=0) = 0 ;	
+	void prepcatch();	
+	void dropcatch();	
 	static void setbreak(bool broke) { break_happened = broke; }
 	static ObyxElement* Factory(xercesc::DOMNode* const&,ObyxElement*);
 	

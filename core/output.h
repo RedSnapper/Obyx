@@ -55,11 +55,11 @@ private:
 	part_type		part;
 	bool haderror;				//.
 	bool errowner;				//so we can delete the stream just once.
-	ostringstream* errs;		//error holder - used for type=error
 	bool dupe;
 	void sethttp(const http_line_type,const string&);
 	
 public:
+	ostringstream* errs;		//error holder - used for type=error
 	output_type gettype() const { return type; }
 	bool caughterr() {return haderror; }
 	void evaluate(size_t=0,size_t=1);

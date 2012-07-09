@@ -42,11 +42,10 @@ Logger*				Logger::log = NULL;
 string				Logger::title="Logger";
 std::ostringstream* Logger::lstore = NULL;
 bool 				Logger::debugflag = false;
-//size_t				Logger::logdepth = 0;
+//size_t			Logger::logdepth = 0;
 
 //startup identifies if we are outputting as a cgi script or as a commandline utility.
 //console is set to false if we are running in cgi mode, and true if we are in commandline mode.
-
 //should be the only way to set log->o
 void Logger::set_stream(std::ostringstream*& errstr) { 
 	if (log != NULL && errstr != NULL ) { 
@@ -262,6 +261,7 @@ Logger& Logger::operator << (const msgtype mtype) {
 	curr_type = mtype;
 	size_t ssize = estrm_stack.size();
 	if ( !infatal && (mtype == fatal || mtype == Log::error || mtype == syntax || mtype == thrown) && (ssize < 2) ) {
+//		*o << "depth:" << ssize;  
 		infatal = true;
 		fataldepth = msgdepth;
 	}

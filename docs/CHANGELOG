@@ -18,6 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 ------------------------------------------------------------------------------------
 CHANGELOG file
 v1.120709
+	Bug.		Still major problems found with catch errors. These are looking better (hopefully fixed).
 	Enh.		Added ability to write to scratch. CURRENT_SCRATCH is now available (slash terminated)
 v1.120627
 	Enh.		Added gt(),lt(),gte(),lte() to arithmetic.
