@@ -61,6 +61,7 @@ typedef hash_map<const string,string, hash<const string&> > var_map_type;
 var_map_type Environment::benv_map;
 var_map_type Environment::cgi_rfc_map;
 Environment* Environment::instance;
+bool Environment::config_file_done;
 double Environment::runtime_version = 999999.99999;
 #ifdef __MACH__
 	struct mach_timebase_info Environment::time_info;
@@ -116,6 +117,7 @@ void Environment::init_httphead() {
 //so this now sends out the header AFTER the xml.
 void Environment::init(int argc, char **argv, char** env) {
 	if (instance == NULL) {
+		config_file_done = false;
 		instance = new Environment();	// instantiate singleton
 		instance->gArgc=argc;
 		instance->gArgv=argv;
@@ -124,8 +126,8 @@ void Environment::init(int argc, char **argv, char** env) {
 		} else {
 			instance->init_httphead();
 		}
-		instance->getenvvars_base();
-		instance->getenvvars();
+		instance->getenvvars();			//args
+		instance->getenvvars_base();	//environment
 		instance->setbasetime();
 	} 
 }	
@@ -133,6 +135,7 @@ void Environment::finalise() {
 	if (instance != NULL) {
 		delete instance;
 		instance = NULL;
+		config_file_done = false;
 	}
 }
 
@@ -1009,35 +1012,39 @@ void Environment::initwlogger() {
 	dopostparms();	
 }
 void Environment::do_config_file(string& filepathstring) {
-	string filecontainer;
-	if (filepathstring[0] != '/') {
-		filepathstring = FileUtils::Path::wd() + '/' +filepathstring;
-	}
-	FileUtils::Path destination; 
-	destination.cd(filepathstring);
-	string final_file_path = destination.output(true);
-	FileUtils::File file(final_file_path);
-	if (file.exists()) {
-		off_t flen = file.getSize();
-		if ( flen != 0 ) {
-			file.readFile(filecontainer);
-			istringstream iss(filecontainer);
-			string env_setting;
-			//Format is ENV_VAR(wspace)(ENV_SETTING)(newline)+
-			while( getline(iss,env_setting) ) {
-				string envname,envval;
-				String::trim(env_setting);
-				string::size_type pos = env_setting.find_first_of("\t \r\n");
-				if (pos != string::npos) {
-					envname = env_setting.substr(0, pos);
-					if (!envname.empty() && envname[0] != '#') {
-						envval = env_setting.substr(env_setting.find_first_not_of("\t \r\n",pos+1), string::npos);
-						String::strip(envval);
-						setbenv(envname,envval);
+	if (!config_file_done) {
+		config_file_done=true;
+		string filecontainer;
+		if (filepathstring[0] != '/') {
+			filepathstring = FileUtils::Path::wd() + '/' +filepathstring;
+		}
+		FileUtils::Path destination; 
+		destination.cd(filepathstring);
+		string final_file_path = destination.output(true);
+		FileUtils::File file(final_file_path);
+		if (file.exists()) {
+			off_t flen = file.getSize();
+			if ( flen != 0 ) {
+				file.readFile(filecontainer);
+				istringstream iss(filecontainer);
+				string env_setting;
+				//Format is ENV_VAR(wspace)(ENV_SETTING)(newline)+
+				while( getline(iss,env_setting) ) {
+					string envname,envval;
+					String::trim(env_setting);
+					string::size_type pos = env_setting.find_first_of("\t \r\n");
+					if (pos != string::npos) {
+						envname = env_setting.substr(0, pos);
+						if (!envname.empty() && envname[0] != '#') {
+							envval = env_setting.substr(env_setting.find_first_not_of("\t \r\n",pos+1), string::npos);
+							String::strip(envval);
+							setbenv(envname,envval);
+						}
 					}
 				}
 			}
 		}
+		
 	}
 }
 bool Environment::sortvps(pair<string,string> n1,pair<string,string> n2) {

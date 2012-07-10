@@ -59,6 +59,7 @@ private:
 	static Environment* instance;
 	static var_map_type cgi_rfc_map;			//CGI_NAME rfc Header map (ro)
 	static var_map_type benv_map;				//Base     System environment (ro)
+	static bool config_file_done;
 	static double runtime_version;
 	var_map_type ienv_map;				//Instance System environment (ro)
 	
