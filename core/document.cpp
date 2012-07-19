@@ -357,6 +357,9 @@ bool Document::storefind(const u_str& pattern,const u_str& xpath,bool release,st
 }
 void Document::storekeys(const u_str& pattern,std::set<std::string>& keylist,std::string& errorstr) {
 	Document* doc = this;
+	if (doc_store != NULL) {
+		doc_store->keys(pattern,keylist,errorstr);
+	}	
 	while (doc != NULL) {
 		doc->store.keys(pattern,keylist,errorstr);
 		if (doc->p != NULL) {
