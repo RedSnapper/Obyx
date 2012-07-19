@@ -152,30 +152,44 @@ bool Comparison::evaluate_this() {
 		DataItem* acc = NULL;
 		bool compare_bool = (logic == obyx::all ? true : false);	//if invert, then bool must be false.
 		for ( unsigned int i = 0; (!finished  && i < inputs.size()); i++ ) {
-			inputs[i]->evaluate();
+			if (operation != found || inputs[i]->wotzit != comparate) {
+				inputs[i]->evaluate();
+			}
 			if ( inputs[i]->wotzit == comparate ) {
 				if (firstval) {
-					inputs[i]->results.takeresult(acc);
 					firstval = false;
 					switch(operation) {
-						case found: //same as exists.   
+						case found: {
+							unary_op = true;
+							std::set<std::string,less<std::string> > spacekeys;
+							inputs[i]->evalfind(spacekeys);
+							compare_bool = !spacekeys.empty();
+						} break;
+						case equivalent_to: {
+							inputs[i]->results.takeresult(acc);
+						} break;
 						case exists: {  
+							inputs[i]->results.takeresult(acc);
 							unary_op = true;
 							compare_bool = inputs[i]->getexists();
 						} break;	// compare_bool is true if it does exist.
 						case is_empty: { 
+							inputs[i]->results.takeresult(acc);
 							unary_op = true;
 							compare_bool = (acc == NULL || acc->empty());  
 						} break; 
 						case less_than: {
+							inputs[i]->results.takeresult(acc);
 							string sacc; if (acc != NULL) { sacc = *acc; }
 							daccumulator = String::real(sacc);
 						} break; 
 						case greater_than: {
+							inputs[i]->results.takeresult(acc);
 							string sacc; if (acc != NULL) { sacc = *acc; }
 							daccumulator = String::real(sacc);
 						} break;
 						case significant: {
+							inputs[i]->results.takeresult(acc);
 							unary_op = true;
 							compare_bool = inputs[i]->getexists();  
 							if (compare_bool) {
@@ -183,6 +197,7 @@ bool Comparison::evaluate_this() {
 							}
 						} break;
 						case cmp_true: { 
+							inputs[i]->results.takeresult(acc);
 							unary_op = true;
 							string sacc; if (acc != NULL) { sacc = *acc; }
 							if (sacc.compare("true") == 0) { 
@@ -196,28 +211,34 @@ bool Comparison::evaluate_this() {
 								}
 							}
 						} break;
-						default: break;
 					}
 				} else {
 					DataItem* inpval= NULL;
-					inputs[i]->results.takeresult(inpval);
 					if ( compare_bool || logic==obyx::any ) {
 						bool compare_test = false;
 						switch(operation) {
-							case found: //same as exists. it's iko that does the work here.   
+							case found: {
+								std::set<std::string,less<std::string> > spacekeys;
+								inputs[i]->evalfind(spacekeys);
+								compare_test = !spacekeys.empty();
+							} break;
 							case exists: { 
+								inputs[i]->results.takeresult(inpval);
 								compare_test = inputs[i]->getexists(); 
 							} break;
 							case is_empty: { 
+								inputs[i]->results.takeresult(inpval);
 								compare_test = ( inpval == NULL || inpval->empty() ); 
 							} break;
 							case significant: {
+								inputs[i]->results.takeresult(inpval);
 								compare_test = inputs[i]->getexists(); 
 								if (compare_test) {
 									compare_test = (inpval != NULL && ! inpval->empty());
 								}
 							} break;
 							case equivalent_to: { 
+								inputs[i]->results.takeresult(inpval);
 								if (acc == NULL) {
 									compare_test = (inpval == NULL);
 								} else {
@@ -229,6 +250,7 @@ bool Comparison::evaluate_this() {
 								}
 							} break;
 							case less_than: { 
+								inputs[i]->results.takeresult(inpval);
 								string sinp; if (inpval != NULL) { sinp = *inpval; }
 								double dinput = String::real(sinp);
 								if (!invert) {
@@ -239,6 +261,7 @@ bool Comparison::evaluate_this() {
 								daccumulator = dinput;
 							} break;
 							case greater_than: { //LTE = !GT for 773  (7 !gt 7)=T && (7 !gt 3)=F
+								inputs[i]->results.takeresult(inpval);
 								string sinp; if (inpval != NULL) { sinp = *inpval; }
 								double dinput = String::real(sinp);   // (7 !gt 7) = true = ok
 								if (!invert) {
@@ -249,6 +272,7 @@ bool Comparison::evaluate_this() {
 								daccumulator = dinput;
 							} break;
 							case cmp_true: {
+								inputs[i]->results.takeresult(inpval);
 								string sinp; if (inpval != NULL) { sinp = *inpval; }
 								if (sinp.compare("true") == 0) { 
 									compare_test = true; // baccumulator = baccumulator || true => baccumulator=true;
