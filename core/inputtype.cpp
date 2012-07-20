@@ -260,7 +260,12 @@ void InputType::evaluate(size_t /*item_num*/,size_t /*item_count*/) {
 		}
 		DataItem* value_part = NULL;  //remember - for nearly everything other than immediate, the input value is a name.
 		if (encoder != e_none) {
-			evaltype(type, release, eval, false, di_auto, name_part, value_part); //
+			if (process == encode) {
+				evaltype(type, release, eval, false, kind, name_part, value_part);    //Use the kind before the encoding.
+				kind = di_auto;														  //Kind should be used once.
+			} else {
+				evaltype(type, release, eval, false, di_auto, name_part, value_part); //Use the kind after the decoding
+			}
 			process_encoding(value_part); //This will use the kind.
 		} else {
 			evaltype(type, release, eval, false, kind, name_part, value_part); //
