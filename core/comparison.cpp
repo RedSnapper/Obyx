@@ -157,7 +157,6 @@ bool Comparison::evaluate_this() {
 			}
 			if ( inputs[i]->wotzit == comparate ) {
 				if (firstval) {
-					firstval = false;
 					switch(operation) {
 						case found: {
 							unary_op = true;
@@ -311,6 +310,7 @@ bool Comparison::evaluate_this() {
 					}
 				}
 			}
+			firstval = false;
 		}
 		delete acc;		
 		if (invert && operation != greater_than && operation !=less_than ) compare_bool = !compare_bool;

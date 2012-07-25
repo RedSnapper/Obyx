@@ -17,6 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.120725
+	Bug.		failure with non-solo false comparates
 v1.120720
 	Bug.		encoder always using a kind auto (discarding kind hint) for encode.
 v1.120719
