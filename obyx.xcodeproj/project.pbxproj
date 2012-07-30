@@ -1080,14 +1080,12 @@
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)",
 					/usr/local/mysql/include,
-					/Library/PostgreSQL/8.4/include,
 					/usr/local/include,
 					/usr/include,
 				);
 				INSTALL_PATH = "/Library/WebServer/CGI-Executables/";
 				LIBRARY_SEARCH_PATHS = (
 					/usr/local/mysql/lib,
-					/Library/PostgreSQL/8.4/lib,
 					/usr/local/lib,
 				);
 				LINK_WITH_STANDARD_LIBRARIES = YES;
@@ -1110,7 +1108,6 @@
 				GCC_VERSION = "";
 				OTHER_CFLAGS = (
 					"-DALLOW_MYSQL",
-					"-DX_ALLOW_POSTGRESQL",
 					"-fshort-wchar",
 				);
 				PRODUCT_NAME = obyx.cgi;

@@ -143,15 +143,15 @@ namespace XML {
 						}
 						Manager::parser()->errorHandler->resetErrors();
 					} else {
-						pair<grammar_map_type::iterator, bool> ins = the_grammar_map.insert(grammar_map_type::value_type(name,gmap_entry_type(false,record)));
+						the_grammar_map.insert(grammar_map_type::value_type(name,gmap_entry_type(false,record)));
 						if( type == Grammar::DTDGrammarType) { 
-							pair<grammar_map_type::iterator, bool> ins = the_grammar_map.insert(grammar_map_type::value_type(sysIDstr,gmap_entry_type(true,record)));
+							the_grammar_map.insert(grammar_map_type::value_type(sysIDstr,gmap_entry_type(true,record)));
 						}
 					}
 				} else {
-					pair<grammar_map_type::iterator, bool> ins = the_grammar_map.insert(grammar_map_type::value_type(name,gmap_entry_type(false,record)));
+					the_grammar_map.insert(grammar_map_type::value_type(name,gmap_entry_type(false,record)));
 					if( type == Grammar::DTDGrammarType) { 
-						pair<grammar_map_type::iterator, bool> ins = the_grammar_map.insert(grammar_map_type::value_type(sysIDstr,gmap_entry_type(true,record)));
+						the_grammar_map.insert(grammar_map_type::value_type(sysIDstr,gmap_entry_type(true,record)));
 					}
 				}
 			} 

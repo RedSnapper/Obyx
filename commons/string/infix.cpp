@@ -9,6 +9,7 @@
 
 #include "commons/environment/environment.h"
 #include "commons/string/strings.h"
+#include <math.h>
 
 namespace String {
 	
@@ -83,7 +84,7 @@ namespace String {
 						if(x == '(') {
 							curop = get(cur_name); //named fn.
 							if ( curop == NULL) {
-								errs =  "Error. Unknown function '" + cur_name + "' in " + expr;
+								errs =  "Error. Unknown function '" + cur_name + "'.";
 							}
 						} 
 					}
@@ -97,15 +98,15 @@ namespace String {
 						if(csig == ')' ) {
 							char ssig =' ';
 							while(!opstack.empty() && ssig !='(') {
-								ssig = evalstack();
+								ssig = evalstack(errs);
 								didfn = false;	//evalstack pushes to val.
 							}
 							//need to test the below with eg "4-3)"
 							if( ssig !='(' ) {
-								errs =  "Error. Unbalance bracket in expression " + expr;
+								errs =  "Error. Unbalanced bracket.";
 							} else {
 								if( !opstack.empty() && opstack.back()->sig() == 'f') {
-									evalstack(); //was a function declaration. so do it.
+									evalstack(errs); //was a function declaration. so do it.
 									didfn = false;	//evalstack pushes to val.
 								}
 							}
@@ -117,13 +118,13 @@ namespace String {
 							if(curop->assoc == Op::right) {
 								//mul=5,add=6,neg=3; so if tok=neg, and stack=mul, do neg first.
 								while(!opstack.empty() && (curop->precedence > opstack.back()->precedence)) {
-									evalstack();
+									evalstack(errs);
 									didfn = false;	//evalstack pushes to val.
 								}
 							} else {
 								//mul=5,add=6,neg=3; so if tok=add, and stack=mul, do mul first. if same, do stack first.
 								while(!opstack.empty() && (curop->precedence >= opstack.back()->precedence)) {
-									evalstack();
+									evalstack(errs);
 									didfn = false;	//evalstack pushes to val.
 								}
 							}
@@ -144,7 +145,12 @@ namespace String {
 				}
 			}
 			while(!opstack.empty()) {
-				evalstack(); //discard result here. should be just 1 operation, normally..
+				evalstack(errs); //discard result here. should be just 1 operation, normally..
+			}
+			if (!errs.empty()) {
+				errs.append(" Expression was '");
+				errs.append(expr);
+				errs.append("'.");
 			}
 			return valstack.back();
 		}
@@ -177,24 +183,32 @@ namespace String {
 			if( o != lut.end() ) { retval = o->second; } 
 			return retval;
 		}
-		char Evaluate::evalstack() {
-			const Op* pop = opstack.back(); 
-			char retval = pop->sig();
-			opstack.pop_back();
-			long double w(0),x(0),y(0);
-			if (pop->parms > 0) {
-				y = valstack.back(); 
-				valstack.pop_back();
-				if (pop->parms > 1) {
-					x = valstack.back(); 
-					valstack.pop_back();
-					if (pop->parms > 2) {
-						w = valstack.back(); 
+		char Evaluate::evalstack(string& errs) {
+			char retval = '?';
+			if (!opstack.empty()) {
+				const Op* pop = opstack.back();
+				if (pop->parms <= valstack.size()) {
+					retval = pop->sig();
+					opstack.pop_back();
+					long double w(0),x(0),y(0);
+					if (pop->parms > 0) {
+						y = valstack.back(); 
 						valstack.pop_back();
+						if (pop->parms > 1) {
+							x = valstack.back(); 
+							valstack.pop_back();
+							if (pop->parms > 2) {
+								w = valstack.back(); 
+								valstack.pop_back();
+							}
+						}
+						long double result = pop->evaluate(w,x,y);
+						valstack.push_back(result);
 					}
+				} else {
+					errs =  "Error. Stack underflow. Too few values.";
+					valstack.push_back(NAN);
 				}
-				long double result = pop->evaluate(w,x,y);
-				valstack.push_back(result);
 			}
 			return retval;
 		}
@@ -257,16 +271,20 @@ namespace String {
 			return p < q ? p : q;
 		}
 		long double bandfn::evaluate(const long double,const long double p,const long double q) const {
-			return ((long long)p & (long long)q) == 0 ? 0: 1;
+			return isnan(p) || isnan(q) ? NAN : ((long long)p & (long long)q) == 0 ? 0: 1;
+//			return ((long long)p & (long long)q) == 0 ? 0: 1;
 		}
 		long double bxorfn::evaluate(const long double,const long double p,const long double q) const {
-			return ((long long)p ^ (long long)q) == 0 ? 0: 1;
+			return isnan(p) || isnan(q) ? NAN : ((long long)p ^ (long long)q) == 0 ? 0: 1;
+//			return ((long long)p ^ (long long)q) == 0 ? 0: 1;
 		}
 		long double bnotfn::evaluate(const long double,const long double,const long double q) const {
-			return (long long)q == 0 ? 1: 0;
+			return isnan(q) ? NAN : (long long)q == 0 ? 1: 0;
+//			return (long long)q == 0 ? 1: 0;
 		}
 		long double borfn::evaluate(const long double,const long double p,const long double q) const {
-			return ((long long)p | (long long)q) == 0 ? 0: 1;
+			return isnan(p) || isnan(q) ? NAN : ((long long)p | (long long)q) == 0 ? 0: 1;
+//			return ((long long)p | (long long)q) == 0 ? 0: 1;
 		}
 		long double log2fn::evaluate(const long double,const long double,const long double q) const {
 			return log2l(q);
@@ -285,19 +303,24 @@ namespace String {
 		}
 		// false = 0 here.
 		long double same::evaluate(const long double,const long double p,const long double q) const {
-			return p == q ? 1:0;
+			return isnan(p) || isnan(q) ? NAN : p == q ? 1:0;
+//			return p == q ? 1:0;
 		}
 		long double ltfn::evaluate(const long double,const long double p,const long double q) const {
-			return p < q ? 1:0;
+			return isnan(p) || isnan(q) ? NAN : p < q ? 1:0;
+//			return p < q ? 1:0;
 		}
 		long double ltefn::evaluate(const long double,const long double p,const long double q) const {
-			return p <= q ? 1:0;
+			return isnan(p) || isnan(q) ? NAN : p <= q ? 1:0;
+//			return p <= q ? 1:0;
 		}
 		long double gtfn::evaluate(const long double,const long double p,const long double q) const {
-			return p > q ? 1:0;
+			return isnan(p) || isnan(q) ? NAN : p > q ? 1:0;
+//			return p > q ? 1:0;
 		}
 		long double gtefn::evaluate(const long double,const long double p,const long double q) const {
-			return p >= q ? 1:0;
+			return isnan(p) || isnan(q) ? NAN : p >= q ? 1:0;
+//			return p >= q ? 1:0;
 		}
 		long double iftrue::evaluate(const long double o,const long double p,const long double q) const {
 			return (o != 0 && !isnan(o)) ? p : q;

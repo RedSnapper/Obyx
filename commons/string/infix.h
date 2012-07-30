@@ -237,7 +237,7 @@ namespace String {
 			bool get(string::const_iterator&,long double&);
 			size_t name(string::const_iterator&,string&);
 			long double getvalue(const string&);
-			char evalstack();
+			char evalstack(string&);
 			const  Op* get(string::const_iterator&,size_t&);
 			const  Op* get(const string);
 			

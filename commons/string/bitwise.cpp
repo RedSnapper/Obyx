@@ -197,7 +197,7 @@ namespace String {
 							}
 							//need to test the below with eg "4-3)"
 							if( ssig !='(' ) {
-								errs =  "Error. Unbalance bracket in expression " + expr;
+								errs =  "Error. Unbalanced bracket in expression " + expr;
 							} else {
 								if( !opstack.empty() && opstack.back()->sig() == 'f') {
 									evalstack(); //was a function declaration. so do it.

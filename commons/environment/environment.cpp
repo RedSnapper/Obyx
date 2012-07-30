@@ -109,7 +109,7 @@ void Environment::init_httphead() {
 	for(var_map_type::iterator bi = benv_map.begin(); bi != benv_map.end(); bi++) {
 		var_map_type::iterator it = cgi_rfc_map.find(bi->first);
 		if (it != cgi_rfc_map.end()) {
-			pair<var_map_type::iterator, bool> ins = httphead_map.insert(var_map_type::value_type(it->second,bi->second));
+			httphead_map.insert(var_map_type::value_type(it->second,bi->second));
 		}
 	}
 }
@@ -1186,7 +1186,7 @@ void Environment::setienvmap(char ** environment) {
 			setienv(n,v);
 			var_map_type::iterator it = cgi_rfc_map.find(n);
 			if (it != cgi_rfc_map.end()) {
-				pair<var_map_type::iterator, bool> ins = httphead_map.insert(var_map_type::value_type(it->second,v));
+				httphead_map.insert(var_map_type::value_type(it->second,v));
 			}
 		}
 	}

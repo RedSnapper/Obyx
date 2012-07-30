@@ -43,7 +43,7 @@ ItemStore::ItemStore(const ItemStore* orig) : the_item_map() {
 	if (orig != NULL && ! orig->the_item_map.empty() ) {
 		item_map_type::const_iterator it = orig->the_item_map.begin();
 		while ( it != orig->the_item_map.end()) {
-			pair<item_map_type::iterator, bool> ins = the_item_map.insert(*it);
+			the_item_map.insert(*it);
 			it++;
 		}
 	} 
@@ -324,7 +324,7 @@ bool ItemStore::sset(const u_str& sname,const u_str& tpath,bool node_expected, D
 				delete basis;
 				the_item_map.erase(it); //and if there is any item then insert it.
 			}
-			pair<item_map_type::iterator, bool> ins = the_item_map.insert(item_map_type::value_type(name, item));
+			the_item_map.insert(item_map_type::value_type(name, item));
 			item = NULL; //this was already a document!
 			retval = true;
 		} else {

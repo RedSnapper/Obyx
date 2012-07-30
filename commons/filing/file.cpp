@@ -462,11 +462,11 @@
 				if (in.is_open()) { // reading a complete binary file
 					size = in.tellg();
 					if (size > 0) {
-						memblock = new char[size];
+						memblock = new char[(long long)size];
 						in.seekg(0, std::ios::beg);
-						in.read(memblock,(unsigned long)size);
+						in.read(memblock,(long long)size);
 						in.close();
-						result.assign(memblock,(unsigned long)size);
+						result.assign(memblock,(long long)size);
 						delete[] memblock;
 					}
 				}

@@ -536,7 +536,7 @@ ObyxElement(par,orig), xdoc(NULL),root_node(NULL),filepath(),signature(orig->sig
 		parm_map = pm_instance;
 		type_parm_map::iterator it = parm_map->begin();
 		while ( it != parm_map->end()) {
-			pair<Document::type_parm_map::iterator, bool> ins = pm_instance->insert(*it);
+			pm_instance->insert(*it);
 			it++;
 		}
 	}
