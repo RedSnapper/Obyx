@@ -940,7 +940,7 @@ void Instruction::call_system(std::string& cmd) {
 						resultfile= env->ScratchDir();
 						resultfile.append( env->ScratchName());
 						resultfile.append("obyx_rslt");
-						if ( command_parms.second.empty() || (command_parms.second.size() <= 200) ) {
+						if ( command_parms.second.empty() || (command_parms.second.size() <= 128000) ) { //128000 is basically ARG_MAX. Also See MAX_ARG_STRLEN
 							if (!command_parms.second.empty()) {
 								command.append(" ");
 								command.append(command_parms.second);
