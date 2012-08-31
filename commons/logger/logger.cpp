@@ -274,8 +274,12 @@ Logger& Logger::operator << (const msgtype mtype) {
 				ostream* msgs = NULL;
 				get_stream(msgs);
 				ostringstream* txt = dynamic_cast<ostringstream*>(msgs);
-				if (txt!=NULL) {
-					*(log->fo) << txt->str();
+				if (txt!=NULL ) {
+					if (log != NULL && log->fo != NULL) {
+						*(log->fo) << txt->str();
+					} else {
+						cout << txt->str();
+					}
 				}
 				unset_stream();
 			}
