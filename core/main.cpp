@@ -50,13 +50,13 @@ using namespace Vdb;
 using namespace Log;
 using namespace obyx;
 
-void startup(std::string&,std::string&);
+void startup(std::string&,std::string&,int,char**);
 void init(ostream*&,int,char**,char**);
 void finalise();
 void shutdown();
 
 int main(int argc, char *argv[]) {
-	string v_number = "1.120730"; //Do NOT put the v here!
+	string v_number = "1.120905"; //Do NOT put the v here!
 #ifdef FAST
 #ifdef PROFILING
 	int  profilecount = 1;
@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
 	    std::cout << "Status: 200 OK\r\nContent-Type: text/plain\r\n\r\n";
 		std::cout << version << ", Build:" << compiledate << " " << compiletime;
 	} else {
-		startup(version,v_number);
+		startup(version,v_number,argc,argv);
 		ostream* f_out = NULL;
 		char** ienv = NULL;
 #ifdef FAST
@@ -135,9 +135,9 @@ int main(int argc, char *argv[]) {
 	}
 	return 0;
 }
-void startup(std::string& version,std::string& v_number) {
+void startup(std::string& version,std::string& v_number,int argc,char** argv) {
 	string errs;
-	Environment::startup(version,v_number);				//unchanging environment stuff.
+	Environment::startup(version,v_number,argc,argv);	//unchanging environment stuff.
 	Logger::startup(version);							//Logger
 	String::Deflate::startup(errs);						//need to start up for mysql etc.	
 	Vdb::ServiceFactory::startup();

@@ -68,7 +68,6 @@ private:
 	bool gDevelop;
 	bool do_auto_utf8check;
 	int gSQLport;
-//	buildarea_type the_area;
 	string gRootDir;
 	string gScriptsDir;
 	string gScratchDir;
@@ -129,6 +128,7 @@ private:
 	
 	
 	//private statics
+	static void do_conf_from_args(int, char**);
 	static void setbenv(string,string); //should be private..
 	static void setbenvmap();
 	static void init_cgi_rfc_map();
@@ -137,7 +137,7 @@ private:
 	static void do_config_file(string&);
 public:
 	//statics
-	static void startup(string&,string&);		//everything that doesn't change across multiple runs
+	static void startup(string&,string&,int,char **);		//everything that doesn't change across multiple runs
 	static void shutdown();
 	static void init(int,char **,char **);
 	static void finalise();

@@ -230,19 +230,19 @@ void Function::finalise() {
 }
 void Function::startup() {
 	//startup once per process..
+	PairQueue::startup();
 	Instruction::startup();
 	Comparison::startup();
 	Iteration::startup();
 	Mapping::startup();	
-	PairQueue::startup();
 }
 void Function::shutdown() {
 	//shutdown once per process..
-	PairQueue::shutdown();
 	Instruction::shutdown();
 	Comparison::shutdown();
 	Iteration::shutdown();
 	Mapping::shutdown();	
+	PairQueue::shutdown();
 }
 void Endqueue::addInputType(InputType*) {
 	*Logger::log << Log::error << Log::LI << "Internal Error. Endqueue cannot accept InputTypes." << Log::LO; 

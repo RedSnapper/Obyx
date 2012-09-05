@@ -30,7 +30,7 @@ bool HTTPLogger::minititle = true;
 
 void HTTPLogger::dofatal(std::string message) {
 	Httphead* http = Httphead::service();
-	if (! http->done() ) {
+	if ( http && ! http->done() ) {
 		string xpath=path;
 		if ( xpath.find(rpath) == 0 ) {
 			xpath.erase(0,rpath.length());

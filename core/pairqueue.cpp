@@ -140,9 +140,13 @@ void PairQueue::copy(ObyxElement* mypar,const PairQueue& orig) {	//Pointers are 
 		DataItem* qi1 = NULL;
 		if (orig.queue[i].first != NULL) {
 			orig.queue[i].first->copy(qi1);
-		} 
-		Function* qi2 = Function::FnFactory(mypar,orig.queue[i].second); 
-		queue.push_back(pqpair(qi1,qi2));
+		}
+		if ( orig.queue[i].second != pqendthing) {
+			Function* qi2 = Function::FnFactory(mypar,orig.queue[i].second);
+			queue.push_back(pqpair(qi1,qi2));
+		} else {
+			queue.push_back(pqpair(qi1,pqendthing));
+		}
 	}
 }
 void PairQueue::append(PairQueue& xqueue,ObyxElement *par) {
@@ -167,9 +171,13 @@ void PairQueue::append(PairQueue& xqueue,ObyxElement *par) {
 		for ( size_t i = 1; i < n; i++) { //will copy new endthing from xqueue
 			DataItem*& qi1 = xqueue.queue[i].first;  //grab this!
 			xqueue.queue[i].first = NULL;
-			Function* qi2 = Function::FnFactory(par,xqueue.queue[i].second);  //copy this!
-			delete xqueue.queue[i].second; //delete old. 
-			queue.push_back(pqpair(qi1,qi2));
+			if ( xqueue.queue[i].second != pqendthing) {
+				Function* qi2 = Function::FnFactory(par,xqueue.queue[i].second);
+				delete xqueue.queue[i].second; //delete old.
+				queue.push_back(pqpair(qi1,qi2));
+			} else {
+				queue.push_back(pqpair(qi1,pqendthing));
+			}
 		}
 	}
 	xqueue.clear(false); 

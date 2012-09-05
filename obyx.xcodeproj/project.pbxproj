@@ -350,8 +350,8 @@
 		0249A662FF388D9811CA2CEA /* External Frameworks and Libraries */ = {
 			isa = PBXGroup;
 			children = (
-				B5CA58FB11B66946001A56D4 /* libxerces-c-3.1.dylib */,
 				B51648160CBB8285000995D5 /* libdl.dylib */,
+				B5CA58FB11B66946001A56D4 /* libxerces-c-3.1.dylib */,
 				B599F9230F583DEA00AD3D2C /* libxqilla.dylib */,
 				B541F23811941EC30099F07C /* libfcgi.dylib */,
 				B541F23911941EC30099F07C /* libfcgi++.dylib */,
@@ -765,7 +765,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 0430;
+				LastUpgradeCheck = 0440;
 				ORGANIZATIONNAME = "Red Snapper Ltd";
 			};
 			buildConfigurationList = B59B3B1E08E2B9FB0065257B /* Build configuration list for PBXProject "obyx" */;
@@ -1052,7 +1052,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
 				GCC_TREAT_NONCONFORMANT_CODE_ERRORS_AS_WARNINGS = NO;
-				GCC_VERSION = "";
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
@@ -1083,7 +1083,7 @@
 					/usr/local/include,
 					/usr/include,
 				);
-				INSTALL_PATH = "/Library/WebServer/CGI-Executables/";
+				INSTALL_PATH = "/Library/WebServer/CGI-Executables";
 				LIBRARY_SEARCH_PATHS = (
 					/usr/local/mysql/lib,
 					/usr/local/lib,
@@ -1094,7 +1094,7 @@
 				OTHER_CFLAGS = "";
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
 				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = YES;
-				SDKROOT = "";
+				SDKROOT = macosx;
 				SKIP_INSTALL = NO;
 				STANDARD_C_PLUS_PLUS_LIBRARY_TYPE = dynamic;
 				STRIP_INSTALLED_PRODUCT = NO;
@@ -1105,10 +1105,11 @@
 		B5E3209809BC598C00F7FC96 /* General */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				GCC_VERSION = "";
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				OTHER_CFLAGS = (
 					"-DALLOW_MYSQL",
 					"-fshort-wchar",
+					"-DPROFILING",
 				);
 				PRODUCT_NAME = obyx.cgi;
 				SKIP_INSTALL = NO;

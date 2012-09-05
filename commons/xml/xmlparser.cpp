@@ -156,12 +156,7 @@ namespace XML {
 		DOMConfiguration* dc = writer->getDomConfig();
 		dc->setParameter(XMLUni::fgDOMErrorHandler,errorHandler);
 		dc->setParameter(XMLUni::fgDOMWRTDiscardDefaultContent,true);
-//PRETTY_PRINT was deprecated 26 Jan 2011				
-//		if (Environment::getbenv("OBYX_PRETTY_PRINT",dummy)) {
-//			dc->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint,true);
-//		} else {
-			dc->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint,false);
-//		}
+		dc->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint,false);
 		dc->setParameter(XMLUni::fgDOMXMLDeclaration,Environment::getbenvtf("OBYX_XMLDECL"));
 		dc->setParameter(XMLUni::fgDOMWRTBOM,false);
 	}

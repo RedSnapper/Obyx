@@ -124,6 +124,7 @@ void Logger::startup(string& t) {
 	debugflag = Environment::getbenvtf("OBYX_DEBUG");
 	setlocale(LC_CTYPE,"UTF-8");
 	title = t;
+	log = new HTTPLogger();	// create new http reporter for startup.
 }
 void Logger::shutdown() {
 	log = NULL;
@@ -133,7 +134,9 @@ void Logger::shutdown() {
 ostream* Logger::init(ostream*& final_out) {
 	Environment* env = Environment::service();
 	string tmp_env;
-	log = new HTTPLogger();	// create new http reporter
+	if (log == NULL) { //startup creates a temporary. fastcgi will delete it on finalise
+		log = new HTTPLogger();	// create new http reporter
+	}
 	/*
 	 OBYX_DEVELOPMENT OBYX_DEBUG OBYX_LOGGING_OFF OBYX_SYSLOG_OFF RESULT
 	 on				on			off				on			syslog(debug) (syslog opened)

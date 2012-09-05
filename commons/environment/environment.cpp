@@ -88,8 +88,9 @@ Environment::~Environment() {
 	httphead_map.clear();						//Request HTTP headers  (ro)
 }
 #pragma mark STATIC CONTROL
-void Environment::startup(string& v,string& vn) {					//everything that doesn't change across multiple runs
+void Environment::startup(string& v,string& vn,int argc, char **argv) {					//everything that doesn't change across multiple runs
 	init_cgi_rfc_map();
+	do_conf_from_args(argc,argv);
 	setbenvmap();
 	runtime_version = String::real(vn);
 	setbenv("OBYX_VERSION",v);			//Let coders know what version we are in!
@@ -110,6 +111,23 @@ void Environment::init_httphead() {
 		var_map_type::iterator it = cgi_rfc_map.find(bi->first);
 		if (it != cgi_rfc_map.end()) {
 			httphead_map.insert(var_map_type::value_type(it->second,bi->second));
+		}
+	}
+}
+
+void Environment::do_conf_from_args(int argc, char **argv) {
+	if (argc > 0) {
+		bool this_one = false;
+		for(int i = 1; i < argc; i++) {
+			string av = argv[i];
+			if (av.compare("-c") == 0) { 	// none of this currently works
+				this_one = true;			// because vdb/zip etc. dlopen runs in startup and
+			} else {						// cli is processed at init
+				if (this_one) {
+					do_config_file(av);
+					this_one=false;
+				}
+			}
 		}
 	}
 }
@@ -1234,9 +1252,9 @@ void Environment::getenvvars() {
 		bool this_one = false;
 		for(int i = 1; i < gArgc; i++) {
 			string av = gArgv[i];
-			if (av.compare("-c") == 0) {
-				this_one = true;
-			} else {
+			if (av.compare("-c") == 0) { 	// none of this currently works
+				this_one = true;			// because vdb/zip etc. dlopen runs in startup and
+			} else {						// cli is processed at init
 				if (this_one) {
 					do_config_file(av);
 					this_one=false;

@@ -200,9 +200,7 @@ namespace String {
 		}
 	}
 	bool Deflate::available(string & errors) {
-		if (!loadattempted) { 
-			startup(errors); 
-		}
+		startup(errors); 
 		return loaded;
 	}
 	bool Deflate::startup(string& errors) {	
