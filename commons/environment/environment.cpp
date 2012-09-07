@@ -61,7 +61,7 @@ typedef hash_map<const string,string, hash<const string&> > var_map_type;
 var_map_type Environment::benv_map;
 var_map_type Environment::cgi_rfc_map;
 Environment* Environment::instance;
-bool Environment::config_file_done;
+//bool Environment::config_file_done;
 double Environment::runtime_version = 999999.99999;
 #ifdef __MACH__
 	struct mach_timebase_info Environment::time_info;
@@ -135,7 +135,7 @@ void Environment::do_conf_from_args(int argc, char **argv) {
 //so this now sends out the header AFTER the xml.
 void Environment::init(int argc, char **argv, char** env) {
 	if (instance == NULL) {
-		config_file_done = false;
+//		config_file_done = false;
 		instance = new Environment();	// instantiate singleton
 		instance->gArgc=argc;
 		instance->gArgv=argv;
@@ -153,7 +153,7 @@ void Environment::finalise() {
 	if (instance != NULL) {
 		delete instance;
 		instance = NULL;
-		config_file_done = false;
+//		config_file_done = false;
 	}
 }
 
@@ -1030,8 +1030,8 @@ void Environment::initwlogger() {
 	dopostparms();	
 }
 void Environment::do_config_file(string& filepathstring) {
-	if (!config_file_done) {
-		config_file_done=true;
+//	if (!config_file_done) {
+//		config_file_done=true;
 		string filecontainer;
 		if (filepathstring[0] != '/') {
 			filepathstring = FileUtils::Path::wd() + '/' +filepathstring;
@@ -1063,7 +1063,7 @@ void Environment::do_config_file(string& filepathstring) {
 			}
 		}
 		
-	}
+//	}
 }
 bool Environment::sortvps(pair<string,string> n1,pair<string,string> n2) {
 	return (n1.first.compare(n2.first) < 0) ? true : false;
