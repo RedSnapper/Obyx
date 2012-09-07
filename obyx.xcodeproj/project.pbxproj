@@ -1019,7 +1019,7 @@
 					"-DFAST",
 					"-DALLOW_MYSQL",
 					"-fshort-wchar",
-					"-DPRxxxOFILING",
+					"-DxxxxPROFILING",
 				);
 				PRODUCT_NAME = obyx.fcgi;
 				SKIP_INSTALL = NO;
@@ -1052,7 +1052,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
 				GCC_TREAT_NONCONFORMANT_CODE_ERRORS_AS_WARNINGS = NO;
-				GCC_VERSION = com.apple.compilers.llvmgcc42;
+				GCC_VERSION = "";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
@@ -1105,7 +1105,7 @@
 		B5E3209809BC598C00F7FC96 /* General */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				GCC_VERSION = com.apple.compilers.llvmgcc42;
+				GCC_VERSION = "";
 				OTHER_CFLAGS = (
 					"-DALLOW_MYSQL",
 					"-fshort-wchar",
@@ -1113,6 +1113,7 @@
 				);
 				PRODUCT_NAME = obyx.cgi;
 				SKIP_INSTALL = NO;
+				VALIDATE_PRODUCT = YES;
 			};
 			name = General;
 		};

@@ -436,7 +436,7 @@ ObyxElement* ObyxElement::Factory(DOMNode* const& n,ObyxElement* parent) {
 				} else {
 					DOMNode* tmp = n->cloneNode(true);
 					DataItem* elcdata = DataItem::factory(tmp);
-					if (tmp) delete tmp;
+//					if (tmp) delete tmp; This is used.
 					parent->results.append( elcdata ); //this TAKES elnode.
 				}
 			} else {

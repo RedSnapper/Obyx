@@ -61,7 +61,13 @@ namespace XML {
 				
 				char* buff = NULL;
 				const XMLCh* src=(const XMLCh*)(source.c_str());
-				buff = (char*)(TranscodeToStr(src,source.size(),"UTF-8").adopt());
+				try {
+					buff = (char*)(TranscodeToStr(src,source.size(),"UTF-8").adopt());
+				} catch (...) { //bad UTF-8
+					*Logger::log << error << Log::LI << "Error Bad UTF-8 String found. Replaced with '[NOT UTF-8]'" << Log::LO << Log::blockend;
+					buff = NULL;
+					result="[NOT UTF-8]";
+				}
 				if (buff != NULL) { 
 					result = buff; 
 					XMLString::release(&buff);

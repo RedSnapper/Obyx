@@ -245,11 +245,11 @@ bool XMLObject::xp(const u_str& path,DataItem*& container,bool node_expected,std
 		if (path.rfind(UCS2(L"-gap()"),path.length()-6) == string::npos) { //  eg //BOOK[0]/child-gap() will always return empty.
 			bool want_value = false;
 			u_str xp_path(path);
-			Sequence result;
 			if (xp_path.rfind(UCS2(L"/value()"),xp_path.length()-8) != string::npos) { //eg comment()/value()
 				xp_path.resize(xp_path.length()-8);
 				want_value = true;
 			}
+			Sequence result;
 			DynamicContext* context = NULL;
 			retval = xp_result(xp_path,result,context,error_str);
 			if (retval) { //otherwise return empty.
@@ -300,6 +300,7 @@ bool XMLObject::xp(const u_str& path,DataItem*& container,bool node_expected,std
 					retval=false;
 				}
 			}
+			result.clear();
 			if (context != NULL && retval) {
 				delete context;
 				context=NULL;
