@@ -17,6 +17,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.120907
+	Bug.		Inadvertent Memory leak caused by not using DOMNode->clone() for documents.
+				However, this has a side effect of adding defaults, so defaults have been 
+				Removed from both Obyx and HTML5 schemas.
+	Enh.		XQilla DOM API is inefficient for the tasks that we require of it, so the
+				XPath evaluation component has been completely rewritten.  There may be
+				further optimisations available.
 v1.120905
 	Bug.		crashes caused when configurations are broken (ie, bad start).
 v1.120730

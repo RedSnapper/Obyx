@@ -50,6 +50,7 @@ private:
 	friend class Instruction;
 	friend class InputType;
 	friend class Iteration;
+	friend class XMLObject;
 	
 	typedef hash_map<const string, DataItem*, hash<const string&> > type_parm_map;
 	typedef hash_map<const string, ItemStore*, hash<const string&> > type_store_map;
@@ -103,7 +104,7 @@ public:
 	const std::string own_filepath() const { return filepath; }
 	virtual const std::string name() const;
 	const xercesc::DOMDocument* doc() const;
-	
+		
 	bool metastore(const string,unsigned long long&);
 	bool setstore(const DataItem*, DataItem*&, kind_type, Output::scope_type, std::string& );   //name#path
 	bool setstore(u_str&,u_str&, DataItem*&, kind_type, Output::scope_type, std::string& );     //name,path
@@ -129,6 +130,9 @@ public:
  	void process(xercesc::DOMNode*&,ObyxElement* = NULL);
 	double version() const { return doc_version; }
 	string version_str() const { return String::tostring(doc_version,8); }
+	static void setroot(Document *doc) {root = doc;}
+	static DOMDocument* getroot() {return root->xdoc;}
+	static DOMNode* getrootnode() {return root->root_node;}
 	static void startup();
 	static void init();
 	static void finalise();

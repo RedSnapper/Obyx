@@ -51,7 +51,7 @@ namespace XML {
 
 	//#define u_str u_str
 	//#define UCS2(x) (const XMLCh*)(x)
-	
+//	vector<DOMDocumentType*> Parser::doctypes;
 	const u_str Parser::memfile = UCS2(L"[xsd]"); // "[xsd]"
 	
 	Parser::Parser() : errorHandler(NULL),resourceHandler(NULL),impl(NULL),writer(NULL),xfmt(NULL),parser(NULL),validation(false) {
@@ -140,6 +140,9 @@ namespace XML {
 		} // else {} //node was NULL
 	}
 	
+	void Parser::finalise() {
+	}
+	
 	Parser::~Parser() {
 		delete resourceHandler;
 		delete errorHandler;
@@ -223,48 +226,25 @@ namespace XML {
 	DOMDocument* Parser::newDoc(const DOMNode* n) {
 		DOMDocument* doc = NULL;
 		if (n != NULL) {
-			const DOMDocument* basis  = NULL;
-			const DOMElement* root = NULL;
-			if (n->getNodeType() == DOMNode::DOCUMENT_NODE) {
-				basis = (const DOMDocument*)(n);
-			} else {
-				basis = n->getOwnerDocument();
-				if (n->getNodeType() == DOMNode::ELEMENT_NODE) {
-					root = (const DOMElement*)(n);
+			try {
+				if (n->getNodeType() == DOMNode::DOCUMENT_NODE) {
+					doc = (DOMDocument*)n->cloneNode(true);
+				} else {
+					doc = impl->createDocument();
+					if (n->getNodeType() == DOMNode::ELEMENT_NODE) {
+						const DOMElement*root = (const DOMElement*)(n);
+						xercesc::DOMNode* inod = doc->importNode(root,true);
+						doc->appendChild(inod);
+					}
 				}
 			}
-			const XMLCh* nsuri = NULL;
-			const XMLCh* nsname = NULL;
-			if (root == NULL) {
-				root = basis->getDocumentElement();
-			}
-			if (root != NULL) {
-				nsuri = root->getNamespaceURI();
-				nsname = root->getLocalName();
-			}
-			DOMDocumentType* newdt = NULL;
-			const DOMDocumentType* dt = basis->getDoctype();
-			if (dt != NULL) {
-				newdt = impl->createDocumentType(root->getNodeName(),dt->getPublicId(),dt->getSystemId());
-			}
-			if (nsuri == NULL && newdt == NULL) { //it's anonymous.
-				doc = impl->createDocument(); 
-				xercesc::DOMNode* inod = doc->importNode(root,true);
-				doc->appendChild(inod);
-			} else {
-				try {
-					doc = impl->createDocument(nsuri,nsname,newdt); 
-					xercesc::DOMNode* inod = doc->importNode(root,true);
-					doc->replaceChild(inod,doc->getDocumentElement());
-				}
-				catch (DOMException e) {
-					string err_message;
-					Manager::transcode(e.getMessage(),err_message);			
-					*Logger::log << error << Log::LI << "DOM Copy. Exception message is:" << Log::br << err_message << "\n" << Log::LO << Log::blockend;				
-				}
+			catch (DOMException e) {
+				string err_message;
+				Manager::transcode(e.getMessage(),err_message);
+				*Logger::log << error << Log::LI << "DOM Copy. Exception message is:" << Log::br << err_message << "\n" << Log::LO << Log::blockend;
 			}
 		} else {
-			doc = impl->createDocument(); 
+			doc = impl->createDocument();
 		}
 		return doc;
 	}

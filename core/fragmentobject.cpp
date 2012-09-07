@@ -68,8 +68,6 @@ FragmentObject::FragmentObject(const xercesc::DOMNode* n) : DataItem(),fragment(
 	switch (nt) {
 		case DOMNode::DOCUMENT_NODE: {
 			const DOMDocument* d = static_cast<const DOMDocument*>(n);
-			//			const DOMDocument* d = dynamic_cast<const DOMDocument*>(n);
-			//			const DOMDocument* d = n->getOwnerDocument();
 			if (d != NULL) {
 				const DOMNode* de = d->getDocumentElement();
 				if (de != NULL) {
@@ -107,13 +105,14 @@ void FragmentObject::append(DataItem*& s) {
 						if (de != NULL) {
 							n = frag_doc->importNode(de,true);	 //importNode always takes a copy - returns DOMNode* inod =  new node pointer.
 						}
+						delete d;
 					}
 				} break;
 				default: {
 					n = frag_doc->importNode(nbase,true);	 //importNode always takes a copy - returns DOMNode* inod =  new node pointer.
+					nbase->release();
 				} break;
 			}
-			nbase->release();
 		} else {
 			FragmentObject* y = dynamic_cast<FragmentObject*>(s);
 			if (y != NULL) {
@@ -154,7 +153,8 @@ FragmentObject::operator xercesc::DOMNode*() const {
 }
 void FragmentObject::copy(DataItem*& container) const {
 	if  ( fragment != NULL ) {
-		container = DataItem::factory(fragment,di_fragment); 
+		DOMNode* tmp = fragment->cloneNode(true);
+		container = DataItem::factory(tmp,di_fragment);
 	}		
 }
 long long FragmentObject::size() const {

@@ -72,7 +72,7 @@ public:
 	static DataItem* factory(const XMLCh*,kind_type = di_auto);
 	static DataItem* factory(const xercesc::DOMDocument*&,kind_type = di_object);
 	static DataItem* factory(xercesc::DOMDocument*&,kind_type = di_object);
-	static DataItem* factory(xercesc::DOMNode* const&,kind_type = di_auto); //actually must be const.
+	static DataItem* factory(xercesc::DOMNode*&,kind_type = di_auto); //actually must be const.
 	static DataItem* factory(DataItem*,kind_type = di_auto);
 	
 	static void append(DataItem*&,DataItem*&);

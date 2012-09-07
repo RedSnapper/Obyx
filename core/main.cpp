@@ -56,7 +56,7 @@ void finalise();
 void shutdown();
 
 int main(int argc, char *argv[]) {
-	string v_number = "1.120905"; //Do NOT put the v here!
+	string v_number = "1.120907"; //Do NOT put the v here!
 #ifdef FAST
 #ifdef PROFILING
 	int  profilecount = 1;
@@ -98,19 +98,20 @@ int main(int argc, char *argv[]) {
 					string out_str;				
 					if (true) { // used to delete document before finalising stuff
 						DataItem* result = NULL;
-						Document* obyxdoc = new Document(sfile,Document::Main,sourcefilepath);	//Main = called from here!
+						Document* obyxdoc = new Document(sfile,Document::Main,sourcefilepath,NULL,false);	//Main = called from here!
+						Document::setroot(obyxdoc);
+						obyxdoc->eval();
+						obyxdoc->results.evaluate(false);
 						obyxdoc->results.takeresult(result);
 						if (result != NULL) { 
 							out_str = *result; 
 							kind = result->kind();
 							delete result;
 						}
-						delete obyxdoc;
-						obyxdoc = NULL;
+						delete obyxdoc; obyxdoc=NULL;
 					}
 					Filer::output(out_str,kind);
 					delete sfile;
-					ObyxElement::finalise();	
 				} else {
 					http->setcode(404);
 					string wd = FileUtils::Path::wd();
@@ -171,10 +172,12 @@ void init(ostream*& f_out,int argc,char** argv,char** env) {
 	ItemStore::init();
 }
 void finalise() {
-	ItemStore::finalise();
 	OsiMessage::finalise();
-	Document::finalise();		
-	DataItem::finalise();
+	ItemStore::finalise();
+	Document::finalise();
+	DataItem::finalise();    //This must be run before Document finalise (b/c root has stuff to delete)
+	ObyxElement::finalise(); //Needs to be run after Document finalise (which gets rid of root).
+	XML::Parser::finalise(); //Removes any doctypes created during clones.
 	Logger::finalise();
 	Httphead::finalise();
 	Environment::finalise();

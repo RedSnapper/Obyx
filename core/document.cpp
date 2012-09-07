@@ -72,7 +72,6 @@ void Document::finalise() {
 		delete i->second;
 	}
 	docstores.clear();	//on eg fastcgi, we don't want the map to empty stores left behind!
-	root = NULL; 		//This a copy of the opening document, it's deleted in main.
 	xmlmanager->resetDocPool(); //This resets the cache of the entire set of all docs
 }
 void Document::shutdown() {
@@ -575,7 +574,7 @@ ObyxElement(par,xmldocument,other,NULL), xdoc(NULL),root_node(NULL),filepath(fp)
 	}
 	store.setowner(name());
 	if (use_loader == Main) { //otherwise this is handled by output type = error.
-		root = this;
+//		root = this;
 		Logger::unset_stream();		  // docerrs should have all our errors but it does not...
 		string errs = docerrs->str(); // XMLChar::encode(errs);
 		delete docerrs; docerrs=0;
@@ -595,11 +594,12 @@ ObyxElement(par,xmldocument,other,NULL), xdoc(NULL),root_node(NULL),filepath(fp)
 				String::trim(textstuff);
 				results.append(textstuff,di_text);
 			} else {
+				owner = this;
 				if (evaluate_it) {
 					if (par != NULL) {
 						doc_par = par->owner;
 					} 
-					owner = this;
+//					owner = this;
 					eval();
 				}
 			}

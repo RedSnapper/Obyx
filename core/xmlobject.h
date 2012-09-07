@@ -41,12 +41,12 @@ namespace {
 
 class XMLObject : public DataItem {
 private:
-	typedef hash_map<const u_str,xercesc::DOMXPathExpression*, hash<const u_str&> > xpe_map_type;
+	typedef hash_map<const u_str,XQQuery*, hash<const u_str&> > xpp_map_type;
 	
 	XMLObject() : DataItem() {}
-	bool xp_result(const u_str&,DOMXPathResult*&,std::string&);
-	void set_pnsr(); // Set the pnsr with the latest list of namespaces.
-	void del_pnsr(); // Delete the pnsr and release the xpe cache.
+	bool xp_result(const u_str&,Sequence&,DynamicContext*&,std::string&);
+//	bool xp_result(const u_str&,Sequence&,std::string&);
+	void set_pnsr();  // Set the pnsr with the latest list of namespaces.
 	xercesc::DOMXPathExpression* xpe(const u_str& );
 
 protected:
@@ -55,7 +55,7 @@ protected:
 	XMLObject(const XMLObject*);
 	XMLObject(const xercesc::DOMDocument*);
 	XMLObject(xercesc::DOMDocument*&);
-	XMLObject(const xercesc::DOMNode*);
+	XMLObject(xercesc::DOMNode*);
 	
 public:
 	//	u_str
@@ -106,19 +106,25 @@ public:
 	virtual void clear();
 	virtual void trim();
 	virtual ~XMLObject();
-	static void startup();
+	static void init();
+	static void finalise();
 	
 private:
 	unsigned int x;								//Used during debugging to see how a doc was created.
 	xercesc::DOMDocument* 			x_doc;		//Actual document itself.
-	xercesc::DOMXPathNSResolver* 	xpnsr;		//namespace resolver.
-	unsigned long 					xpnsr_v;	//used to indicate if the namespace has changed.
-	xpe_map_type					xpe_map;
 
+	static DynamicContext*			xpather;		//XPath2 context.
+//	static xercesc::DOMXPathNSResolver* 	xpnsr;		//namespace resolver.
+	static unsigned long 					xpnsr_v;	//used to indicate if the namespace has changed.
 	static u_str_map_type 			object_ns_map;	//Store set of active namespaces across objects
 	static unsigned long 			ns_map_version;	//used to indicate if the namespace has changed.
+	static xpp_map_type				xpp_map;
+	
+	XQQuery* xpp(const u_str&);
+	static void rm_cache();
 	
 };
+
 
 #endif
 

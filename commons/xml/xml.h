@@ -25,6 +25,7 @@
 
 #include <xqilla/xqilla-dom3.hpp>
 #include <xqilla/exceptions/XQException.hpp>
+#include <xqilla/xqilla-simple.hpp>
 
 #include <xercesc/util/PlatformUtils.hpp>
 #include <xercesc/util/XercesDefs.hpp>
@@ -37,22 +38,6 @@
 #include <xercesc/util/OutOfMemoryException.hpp>
 
 #include <xercesc/dom/DOM.hpp>
-#include <xercesc/dom/DOMAttr.hpp>
-#include <xercesc/dom/DOMDocument.hpp>
-#include <xercesc/dom/DOMDocumentFragment.hpp>
-#include <xercesc/dom/DOMElement.hpp>
-#include <xercesc/dom/DOMError.hpp>
-#include <xercesc/dom/DOMErrorHandler.hpp>
-#include <xercesc/dom/DOMException.hpp>
-#include <xercesc/dom/DOMImplementation.hpp>
-#include <xercesc/dom/DOMImplementationLS.hpp>
-#include <xercesc/dom/DOMImplementationRegistry.hpp>
-#include <xercesc/dom/DOMLocator.hpp>
-#include <xercesc/dom/DOMLSParser.hpp>
-#include <xercesc/dom/DOMLSSerializer.hpp>
-#include <xercesc/dom/DOMNamedNodeMap.hpp>
-#include <xercesc/dom/DOMNode.hpp>
-
 #include <xercesc/validators/common/Grammar.hpp>
 
 #include <xercesc/framework/XMLGrammarPoolImpl.hpp>

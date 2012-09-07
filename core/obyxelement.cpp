@@ -338,7 +338,8 @@ ObyxElement* ObyxElement::Factory(DOMNode* const& n,ObyxElement* parent) {
 			u_str elname = n->getLocalName();
 			u_str docpfx,elpfx;
 			if (!Document::prefix(docpfx)) { //This is an xml document not inside an obyx container.
-				DataItem* elnode = DataItem::factory(n,di_object);
+				DOMNode* tmp = n->cloneNode(true);
+				DataItem* elnode = DataItem::factory(tmp,di_object); //will be deleted.
 				parent->results.append( elnode );
 			} else {
 				const XMLCh* px = n->getPrefix();
@@ -374,7 +375,8 @@ ObyxElement* ObyxElement::Factory(DOMNode* const& n,ObyxElement* parent) {
 								result=instr;
 							} break;
 							default: {
-								DataItem* elnode = DataItem::factory(n,di_object);
+								DOMNode* tmp = n->cloneNode(true);
+								DataItem* elnode = DataItem::factory(tmp,di_object);
 								parent->results.append( elnode );
 							} break;
 						}
@@ -388,7 +390,8 @@ ObyxElement* ObyxElement::Factory(DOMNode* const& n,ObyxElement* parent) {
 						}
 					}
 				} else {
-					DataItem* elnode = DataItem::factory(n,di_object);
+					DOMNode* tmp = n->cloneNode(true);
+					DataItem* elnode = DataItem::factory(tmp,di_object);
 					parent->results.append( elnode );			
 				}	
 			}
@@ -431,7 +434,9 @@ ObyxElement* ObyxElement::Factory(DOMNode* const& n,ObyxElement* parent) {
 					Manager::transcode(u_nodevalue,nodevalue);
 					parent->results.append(nodevalue.substr(1,string::npos),di_text); 
 				} else {
-					DataItem* elcdata = DataItem::factory(n);
+					DOMNode* tmp = n->cloneNode(true);
+					DataItem* elcdata = DataItem::factory(tmp);
+					if (tmp) delete tmp;
 					parent->results.append( elcdata ); //this TAKES elnode.
 				}
 			} else {
@@ -443,7 +448,9 @@ ObyxElement* ObyxElement::Factory(DOMNode* const& n,ObyxElement* parent) {
 						Manager::transcode(u_nodevalue,nodevalue);
 						parent->results.append(nodevalue.substr(Document::prefix_length+1,string::npos),di_text); 				
 					} else {
-						DataItem* elcdata = DataItem::factory(n);
+						DOMNode* tmp = n->cloneNode(true);
+						DataItem* elcdata = DataItem::factory(tmp);
+						if (tmp) delete tmp;
 						parent->results.append( elcdata ); //this TAKES elnode.
 					}
 				}

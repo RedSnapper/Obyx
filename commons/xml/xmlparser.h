@@ -39,6 +39,7 @@ namespace XML {
 		friend class XMLResourceHandler;
 		static const char*  SourceId;
 		static const u_str memfile;
+//		static vector<DOMDocumentType*> doctypes;
 
 		static std::string  xmlxsd;
 		static std::string  oalxsd;
@@ -55,6 +56,7 @@ namespace XML {
 		static std::string	wsdlmimexsd;
 		static std::string	wsdlxsd;
 		static std::string	jsonxsd;
+		
 
 		XML::XMLErrorHandler*	errorHandler;
 		DOMImplementation*		impl;
@@ -109,6 +111,8 @@ namespace XML {
 		void writedoc(const DOMDocument* const& ,std::string&);
 		void writenode(const DOMNode* const& ,u_str&);
 		void writedoc(const DOMDocument* const& ,u_str&);
+		
+		static void finalise();
 	};	
 }
 

@@ -2,15 +2,15 @@
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
 	xmlns:svg="http://www.w3.org/2000/svg" 
 	attributeFormDefault="unqualified" 
-	version="1.0" 
+	version="1.0"
 	targetNamespace="http://www.w3.org/1999/xhtml"
 	>
 	<xsd:import namespace="http://www.w3.org/2000/svg" schemaLocation="svg.xsd" />
 	<xsd:attributeGroup name="coreServerAttributeGroup">
-		<xsd:attribute name="EnableTheming" type="xsd:boolean" default="true"/>
-		<xsd:attribute name="EnableViewState" type="xsd:boolean" default="true"/>
-		<xsd:attribute name="SkinID" type="xsd:string" default=""/>
-		<xsd:attribute name="Visible" type="xsd:boolean" default="true"/>
+		<xsd:attribute name="EnableTheming" type="xsd:boolean" />
+		<xsd:attribute name="EnableViewState" type="xsd:boolean" />
+		<xsd:attribute name="SkinID" type="xsd:string" />
+		<xsd:attribute name="Visible" type="xsd:boolean"/>
 		<xsd:attribute name="OnDataBinding"/>
 		<xsd:attribute name="OnDisposed"/>
 		<xsd:attribute name="OnInit"/>
@@ -22,14 +22,14 @@
 		<xsd:attribute name="OnServerClick"/>
 	</xsd:attributeGroup>
 	<xsd:attributeGroup name="buttonServerAttributeGroup">
-		<xsd:attribute name="CausesValidation" type="xsd:boolean" default="true"/>
-		<xsd:attribute name="ValidationGroup" type="xsd:string" default=""/>
+		<xsd:attribute name="CausesValidation" type="xsd:boolean"/>
+		<xsd:attribute name="ValidationGroup" type="xsd:string" />
 		<xsd:attribute name="OnServerClick"/>
 	</xsd:attributeGroup>
 	<xsd:attributeGroup name="formServerAttributeGroup">
-		<xsd:attribute name="DefaultButton" type="xsd:string" default=""/>
-		<xsd:attribute name="DefaultFocus" type="xsd:string" default=""/>
-		<xsd:attribute name="SubmitDisabledControls" type="xsd:boolean" default="false"/>
+		<xsd:attribute name="DefaultButton" type="xsd:string" />
+		<xsd:attribute name="DefaultFocus" type="xsd:string" />
+		<xsd:attribute name="SubmitDisabledControls" type="xsd:boolean"/>
 	</xsd:attributeGroup>
 	<xsd:attributeGroup name="inputServerAttributeGroup">
 		<xsd:attribute name="CausesValidation" type="xsd:boolean"/>
@@ -38,9 +38,9 @@
 		<xsd:attribute name="ValidationGroup" type="xsd:string"/>
 	</xsd:attributeGroup>
 	<xsd:attributeGroup name="selectServerAttributeGroup">
-		<xsd:attribute name="DataSourceID" type="xsd:string" default=""/>
-		<xsd:attribute name="DataTextField" type="xsd:string" default=""/>
-		<xsd:attribute name="DataValueField" type="xsd:string" default=""/>
+		<xsd:attribute name="DataSourceID" type="xsd:string" />
+		<xsd:attribute name="DataTextField" type="xsd:string" />
+		<xsd:attribute name="DataValueField" type="xsd:string" />
 		<xsd:attribute name="OnServerChange"/>
 	</xsd:attributeGroup>
 	<xsd:attributeGroup name="textareaServerAttributeGroup">
@@ -65,7 +65,7 @@
 			</xsd:simpleType>
 		</xsd:attribute>
 		<xsd:attribute name="contextmenu"/>
-		<xsd:attribute name="dir" default="ltr">
+		<xsd:attribute name="dir">
 			<xsd:simpleType>
 				<xsd:restriction base="xsd:NMTOKEN">
 					<xsd:enumeration value="ltr"/>
@@ -451,7 +451,7 @@
 			<xsd:attribute name="href" type="xsd:anyURI"/>
 			<xsd:attribute name="hreflang" type="i18LanguageCode"/>
 			<xsd:attribute name="rel" type="linkType"/>
-			<xsd:attribute name="media" type="mediaType" default="screen"/>
+			<xsd:attribute name="media" type="mediaType"/>
 			<xsd:attribute name="type" type="contentType"/>
 			<xsd:attribute name="sizes"/>
 		</xsd:complexType>
@@ -498,7 +498,7 @@
 					</xsd:union>
 				</xsd:simpleType>
 			</xsd:attribute>
-			<xsd:attribute name="media" type="mediaType" default="screen"/>
+			<xsd:attribute name="media" type="mediaType"/>
 			<xsd:attribute name="scoped">
 				<xsd:simpleType>
 					<xsd:restriction base="xsd:NMTOKEN">
@@ -1083,7 +1083,7 @@
 					</xsd:restriction>
 				</xsd:simpleType>
 			</xsd:attribute>
-			<xsd:attribute name="method" default="get">
+			<xsd:attribute name="method">
 				<xsd:simpleType>
 					<xsd:restriction base="xsd:NMTOKEN">
 						<xsd:enumeration value="get"/>
@@ -1187,7 +1187,7 @@
 					</xsd:restriction>
 				</xsd:simpleType>
 			</xsd:attribute>
-			<xsd:attribute name="formmethod" default="get">
+			<xsd:attribute name="formmethod">
 				<xsd:simpleType>
 					<xsd:restriction base="xsd:NMTOKEN">
 						<xsd:enumeration value="get"/>
@@ -1255,7 +1255,7 @@
 					</xsd:restriction>
 				</xsd:simpleType>
 			</xsd:attribute>
-			<xsd:attribute name="formmethod" default="get">
+			<xsd:attribute name="formmethod">
 				<xsd:simpleType>
 					<xsd:restriction base="xsd:NMTOKEN">
 						<xsd:enumeration value="get"/>
@@ -1275,7 +1275,7 @@
 			<xsd:attribute name="formtarget" type="browsingContext"/>
 			<xsd:attribute name="name"/>
 			<xsd:attribute name="value"/>
-			<xsd:attribute name="type" default="submit">
+			<xsd:attribute name="type">
 				<xsd:simpleType>
 					<xsd:restriction base="xsd:NMTOKEN">
 						<xsd:enumeration value="button"/>
@@ -1471,7 +1471,7 @@
 	<xsd:element name="area">
 		<xsd:complexType>
 			<xsd:attributeGroup ref="commonAttributeGroup"/>
-			<xsd:attribute name="Shape" default="rect">
+			<xsd:attribute name="Shape">
 				<xsd:simpleType>
 					<xsd:restriction base="xsd:NMTOKEN">
 						<xsd:enumeration value="rect"/>
@@ -1521,13 +1521,13 @@
 				<xsd:element ref="col" minOccurs="0" maxOccurs="unbounded"/>
 			</xsd:choice>
 			<xsd:attributeGroup ref="commonAttributeGroup"/>
-			<xsd:attribute name="span" type="xsd:integer" default="1"/>
+			<xsd:attribute name="span" type="xsd:integer"/>
 		</xsd:complexType>
 	</xsd:element>
 	<xsd:element name="col">
 		<xsd:complexType>
 			<xsd:attributeGroup ref="commonAttributeGroup"/>
-			<xsd:attribute name="span" type="xsd:integer" default="1"/>
+			<xsd:attribute name="span" type="xsd:integer"/>
 		</xsd:complexType>
 	</xsd:element>
 	<xsd:element name="thead">
@@ -1570,8 +1570,8 @@
 			</xsd:choice>
 			<xsd:attributeGroup ref="commonAttributeGroup"/>
 			<xsd:attribute name="headers"/>
-			<xsd:attribute name="rowspan" default="1" type="xsd:positiveInteger"/>
-			<xsd:attribute name="colspan" default="1" type="xsd:positiveInteger"/>
+			<xsd:attribute name="rowspan" type="xsd:positiveInteger"/>
+			<xsd:attribute name="colspan" type="xsd:positiveInteger"/>
 			<xsd:attribute name="scope">
 				<xsd:simpleType>
 					<xsd:restriction base="xsd:NMTOKEN">
@@ -1591,8 +1591,8 @@
 			</xsd:choice>
 			<xsd:attributeGroup ref="commonAttributeGroup"/>
 			<xsd:attribute name="headers"/>
-			<xsd:attribute name="rowspan" default="1" type="xsd:positiveInteger"/>
-			<xsd:attribute name="colspan" default="1" type="xsd:positiveInteger"/>
+			<xsd:attribute name="rowspan" type="xsd:positiveInteger"/>
+			<xsd:attribute name="colspan" type="xsd:positiveInteger"/>
 		</xsd:complexType>
 	</xsd:element>
 	<xsd:simpleType name="mediaType">

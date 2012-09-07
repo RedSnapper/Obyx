@@ -47,6 +47,8 @@ namespace XML {
 		
 	public:
 		static XML::Parser*				xparser;
+		static XQilla* 					xqilla;
+		static XercesConfiguration*     xc;
 		
 		static void transcode(const u_str&, std::string&);
 		static void transcode(const std::string&,u_str&,const std::string = "UTF-8");

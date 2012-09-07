@@ -77,6 +77,7 @@ void DataItem::append(DataItem*& a,DataItem*& b) { //this is static
 					DOMNode* n;
 					x->take(n); delete a;
 					a = new FragmentObject(n);
+					delete n; //the DOMDocument must be deleted.
 				} 
 			}
 			a->append(b); //does the delete.
@@ -377,17 +378,19 @@ DataItem* DataItem::factory(DataItem* s,kind_type kind_it_is) {
 	}
 	return retval;
 }
-DataItem* DataItem::factory(xercesc::DOMNode* const& pt,kind_type kind_it_is) {
+DataItem* DataItem::factory(xercesc::DOMNode*& pt,kind_type kind_it_is) {
 	DataItem* retval = NULL;
 	if (pt != NULL) {
 		switch( kind_it_is ) {
 			case di_auto: {
 				switch ( pt->getNodeType() ) {
 					case DOMNode::DOCUMENT_NODE: {
-						retval = new XMLObject((const xercesc::DOMDocument*&)pt);
+//						retval = new XMLObject((const xercesc::DOMDocument*&)pt);
+						retval = new XMLObject(pt);
 					} break;
 					case DOMNode::ELEMENT_NODE: {
-						retval = new XMLObject((const xercesc::DOMElement*&)pt);
+//						retval = new XMLObject((const xercesc::DOMElement*&)pt);
+						retval = new XMLObject(pt);
 					} break;
 					case DOMNode::DOCUMENT_TYPE_NODE: 
 					case DOMNode::DOCUMENT_FRAGMENT_NODE: 
@@ -425,6 +428,7 @@ DataItem* DataItem::factory(xercesc::DOMNode* const& pt,kind_type kind_it_is) {
 			} break;
 			case di_null: break;
 		}
+//		delete pt; pt = NULL;
 	}
 	return retval;
 }
@@ -465,7 +469,6 @@ DataItem* DataItem::factory(u_str s,kind_type kind_it_is) {
 }
 void DataItem::startup() {
 	FragmentObject::startup();
-	XMLObject::startup();
 
 }
 void DataItem::shutdown() {
@@ -473,9 +476,11 @@ void DataItem::shutdown() {
 }
 void DataItem::init() {
 	FragmentObject::init();
+	XMLObject::init();
 }
 void DataItem::finalise() {
 	FragmentObject::finalise();
+	XMLObject::finalise();
 #ifdef PROFILING
 	 if ( ! ce_map.empty() ) {
 		 *Logger::log << Log::error << Log::LI << "Error. Not all DataItems were deleted."  << Log::LO << Log::blockend;	

@@ -37,13 +37,13 @@ namespace XML {
 		mem = new MemBufInputSource(xmlraw,gra.size(),key.c_str(),false);
 		mem->setCopyBufToStream(false);
 		inp->setByteStream(mem);
+		inp->setEncoding(XMLUni::fgUTF8EncodingString); //This must be done.
 		if (t == Grammar::DTDGrammarType) {
 			inp->setPublicId(p.c_str());
 			inp->setSystemId(s.c_str());
 			mem->setPublicId(p.c_str());
 			mem->setSystemId(s.c_str());
 		}
-		inp->setEncoding(XMLUni::fgUTF8EncodingString); //This must be done.
 	}
 	GrammarRecord::~GrammarRecord() {
 		if (grx != NULL) {

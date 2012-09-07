@@ -44,7 +44,10 @@ namespace XML {
 	// for information regarding transcoders, see
 	// http://xerces.apache.org/xerces-c/faq-parse-3.html#faq-19
 	
+	XQilla*					Manager::xqilla = NULL;
+	XercesConfiguration* 	Manager::xc = NULL;
 	Parser*					Manager::xparser = NULL;
+
 	ostream*				Manager::serial_ostream = NULL;
 	Manager::su_map_type 	Manager::tsu;	//transcode (str to ustr) cache.
 	Manager::us_map_type 	Manager::tus;	//transcode (ustr to str) cache.
@@ -145,8 +148,10 @@ namespace XML {
 	//instantiated by Document.startup().
 	Manager::Manager() {
 		try {
-//			XMLPlatformUtils::Initialize(); 
+//			XMLPlatformUtils::Initialize();
 			XQillaPlatformUtils::initialize(); //if using XQilla..
+			xqilla = new XQilla();
+			xc = new XercesConfiguration();
 			xparser = new Parser();
 			xparser->makerw();
 		}
@@ -155,10 +160,12 @@ namespace XML {
 			throw XercesInitExn(); // pass on the error
 		}
 	}
-	
 	Manager::~Manager() {
+		delete xc; xc=NULL;
 		delete xparser; xparser=NULL;
-//		XMLPlatformUtils::Terminate();
+		delete xqilla; xqilla = NULL;
 		XQillaPlatformUtils::terminate();
+//		XMLPlatformUtils::Terminate();
+
 	}
 }
