@@ -301,7 +301,10 @@ bool XMLObject::xp(const u_str& path,DataItem*& container,bool node_expected,std
 					retval=false;
 				}
 			}
-			delete context;
+			if (context != NULL) {
+				delete context;
+				context=NULL;
+			}
 		} else {
 			if (node_expected) {
 				std::string xpath; XML::Manager::transcode(path,xpath);
