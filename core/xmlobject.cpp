@@ -294,11 +294,6 @@ bool XMLObject::xp(const u_str& path,DataItem*& container,bool node_expected,std
 					error_str = "While attempting a get, the xpath " + xpath + " returned no nodes.";
 					retval=false;
 				}
-				if (node_expected) {
-					std::string xpath; XML::Manager::transcode(path,xpath);
-					error_str.append(". While attempting a get, the xpath " + xpath + " returned an empty result.");												
-					retval=false;
-				}
 			}
 			result.clear();
 			if (context != NULL && retval) {
