@@ -242,75 +242,80 @@ bool XMLObject::xp_result(const u_str& xpath,Sequence& result,DynamicContext*& c
 bool XMLObject::xp(const u_str& path,DataItem*& container,bool node_expected,std::string& error_str) {
 	bool retval = true; //retval represents existence not failure.
 	if (!path.empty() ) {
-		if (path.rfind(UCS2(L"-gap()"),path.length()-6) == string::npos) { //  eg //BOOK[0]/child-gap() will always return empty.
-			bool want_value = false;
-			u_str xp_path(path);
-			Sequence result;
-			if (xp_path.rfind(UCS2(L"/value()"),xp_path.length()-8) != string::npos) { //eg comment()/value()
-				xp_path.resize(xp_path.length()-8);
-				want_value = true;
-			}
-			DynamicContext* context = NULL;
-			retval = xp_result(xp_path,result,context,error_str);
-			if (retval) { //otherwise return empty.			
-				XMLSize_t sslena = result.getLength();
-				if (sslena == 0) retval = false;
-				for ( XMLSize_t ai = 0; ai < sslena; ai++) {
-					const Item::Ptr item = result.item(ai);
-					if (item.notNull()) {
-						DataItem* ditem = NULL;
-						if ( item->isNode() ) {
-							DOMNode *xn = (DOMNode*)item->getInterface(XercesConfiguration::gXerces);
-							DOMNode::NodeType xnt = xn->getNodeType();
-							switch (xnt) {
-								case DOMNode::PROCESSING_INSTRUCTION_NODE: 
-								case DOMNode::COMMENT_NODE: {
-									if (want_value) {
+		if (x_doc != NULL) {
+			if (path.rfind(UCS2(L"-gap()"),path.length()-6) == string::npos) { //  eg //BOOK[0]/child-gap() will always return empty.
+				bool want_value = false;
+				u_str xp_path(path);
+				Sequence result;
+				if (xp_path.rfind(UCS2(L"/value()"),xp_path.length()-8) != string::npos) { //eg comment()/value()
+					xp_path.resize(xp_path.length()-8);
+					want_value = true;
+				}
+				DynamicContext* context = NULL;
+				retval = xp_result(xp_path,result,context,error_str);
+				if (retval) { //otherwise return empty.
+					XMLSize_t sslena = result.getLength();
+					if (sslena == 0) retval = false;
+					for ( XMLSize_t ai = 0; ai < sslena; ai++) {
+						const Item::Ptr item = result.item(ai);
+						if (item.notNull()) {
+							DataItem* ditem = NULL;
+							if ( item->isNode() ) {
+								DOMNode *xn = (DOMNode*)item->getInterface(XercesConfiguration::gXerces);
+								DOMNode::NodeType xnt = xn->getNodeType();
+								switch (xnt) {
+									case DOMNode::PROCESSING_INSTRUCTION_NODE:
+									case DOMNode::COMMENT_NODE: {
+										if (want_value) {
+											u_str xs(xn->getNodeValue());
+											ditem = DataItem::factory(xs,di_utext);
+										} else {
+											ditem = DataItem::factory(xn);
+										}
+									} break;
+									case DOMNode::TEXT_NODE:
+									case DOMNode::CDATA_SECTION_NODE:
+									case DOMNode::ATTRIBUTE_NODE: {
 										u_str xs(xn->getNodeValue());
 										ditem = DataItem::factory(xs,di_utext);
-									} else {
+									} break;
+									default: {
 										ditem = DataItem::factory(xn);
-									}
-								} break;
-								case DOMNode::TEXT_NODE:
-								case DOMNode::CDATA_SECTION_NODE:
-								case DOMNode::ATTRIBUTE_NODE: {
-									u_str xs(xn->getNodeValue());
-									ditem = DataItem::factory(xs,di_utext);
-								} break;
-								default: {
-									ditem = DataItem::factory(xn);
-								} break;
+									} break;
+								}
+							} else {
+								u_str xs(item->asString(context));
+								ditem = DataItem::factory(xs);
 							}
-						} else {
-							u_str xs(item->asString(context));
-							ditem = DataItem::factory(xs);
+							DataItem::append(container,ditem); //either/both could be NULL. and we may need to convert from one type to another.
 						}
-						DataItem::append(container,ditem); //either/both could be NULL. and we may need to convert from one type to another.
+					}
+					if (sslena == 0 && node_expected) {
+						std::string xpath; XML::Manager::transcode(path,xpath);
+						error_str = "While attempting a get, the xpath " + xpath + " returned no nodes.";
+						retval=false;
+					}
+					if (node_expected) {
+						std::string xpath; XML::Manager::transcode(path,xpath);
+						error_str.append(". While attempting a get, the xpath " + xpath + " returned an empty result.");												
+						retval=false;
 					}
 				}
-				if (sslena == 0 && node_expected) {
-					std::string xpath; XML::Manager::transcode(path,xpath);
-					error_str = "While attempting a get, the xpath " + xpath + " returned no nodes.";												
-					retval=false;
+				if (context != NULL && retval) {
+					delete context;
+					context=NULL;
 				}
 			} else {
 				if (node_expected) {
 					std::string xpath; XML::Manager::transcode(path,xpath);
-					error_str.append(". While attempting a get, the xpath " + xpath + " returned an empty result.");												
+					error_str = "While attempting a get, the xpath " + xpath + " included an insertion point.";												
 					retval=false;
 				}
 			}
-			if (context != NULL && retval) {
-				delete context;
-				context=NULL;
-			}
 		} else {
-			if (node_expected) {
-				std::string xpath; XML::Manager::transcode(path,xpath);
-				error_str = "While attempting a get, the xpath " + xpath + " included an insertion point.";												
-				retval=false;
-			}
+			std::string xpath; XML::Manager::transcode(path,xpath);
+			error_str = "NULL document attempt with xpath " + xpath;
+			retval=false;
 		}
 	} else {
 		copy(container);
