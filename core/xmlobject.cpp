@@ -301,7 +301,7 @@ bool XMLObject::xp(const u_str& path,DataItem*& container,bool node_expected,std
 					retval=false;
 				}
 			}
-			if (context != NULL) {
+			if (context != NULL && retval) {
 				delete context;
 				context=NULL;
 			}
