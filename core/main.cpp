@@ -124,9 +124,11 @@ int main(int argc, char *argv[]) {
 					FileUtils::Path::pop_wd();
 				}
 			} else {
-				http->setcode(404);	
-				*Logger::log << Log::fatal << Log::LI << "Error. PATH_TRANSLATED was not set. Obyx needs a source file to parse." << Log::LO << blockend;
-				http->doheader();
+				string errstr = "404: Document Not Found";
+				*Logger::log << Log::thrown << Log::LI << "404 Error" << Log::LO << Log::LI;
+				Environment::service()->list();
+				*Logger::log << Log::LO << Log::blockend;
+				Filer::output(errstr,di_text);
 			}
 			finalise();
 #ifdef FAST
