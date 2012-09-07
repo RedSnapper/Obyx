@@ -413,7 +413,7 @@ bool XMLObject::xp(const DataItem* ins,const u_str& path,DOMLSParser::ActionType
 					if (retval) {
 						XMLSize_t sslena = xpra.getLength();
 						for ( XMLSize_t ai = 0; ai < sslena; ai++) {
-							const Item::Ptr item = xpr.item(ai);
+							const Item::Ptr item = xpra.item(ai);
 							if (item->isNode()) {
 								DOMNode* pt = (DOMNode*)item->getInterface(XercesConfiguration::gXerces);
 								if ( pt->getNodeType() == DOMNode::ELEMENT_NODE ) {
