@@ -38,11 +38,10 @@
 
 using namespace Log;
 
-Logger*				Logger::log = NULL;
-string				Logger::title="Logger";
-std::ostringstream* Logger::lstore = NULL;
-bool 				Logger::debugflag = false;
-//size_t			Logger::logdepth = 0;
+Logger*					Logger::log = NULL;
+string					Logger::title="Logger";
+bool 					Logger::debugflag = false;
+//size_t				Logger::logdepth = 0;
 
 //startup identifies if we are outputting as a cgi script or as a commandline utility.
 //console is set to false if we are running in cgi mode, and true if we are in commandline mode.
@@ -50,20 +49,16 @@ bool 				Logger::debugflag = false;
 void Logger::set_stream(std::ostringstream*& errstr) { 
 	if (log != NULL && errstr != NULL ) { 
 		log->storageused=true; //not always true.. if cout is set here...
-//		cerr << "L   set_stream. Was: " << log->o;
 		log->estrm_stack.push(errstr);
 		log->o = log->estrm_stack.top();
-//		cerr << " Now: " << log->o << endl;
 	}
 }	
 
 void Logger::set_stream(std::ostream*& errstr) {
 	if (log != NULL && errstr != NULL ) { 
 		log->storageused=true; //not always true.. if cout is set here...
-//		cerr << "L   set_stream. Was: " << log->o;
 		log->estrm_stack.push(errstr);
 		log->o = log->estrm_stack.top();
-//		cerr << " Now: " << log->o << endl;
 	}
 }	
 
@@ -95,6 +90,7 @@ void Logger::unset_stream() {
 Logger::Logger(int i) : syslogging(true),bdepth(i) {
 	fo = NULL;		//final output stream
 	o = NULL;		//current output stream
+	logging_on=true;
 	storageused=false;
 	isopened=false;
 	hadfatal=false;
@@ -105,6 +101,7 @@ Logger::Logger(int i) : syslogging(true),bdepth(i) {
 	curr_type = info;
 	msgdepth = 0;
 	fataldepth = 0;
+	lstore = &storage;
 	type_stack.push(logger);    //current log type was static Log::msgtype itype;
 }
 
@@ -125,10 +122,13 @@ void Logger::startup(string& t) {
 	setlocale(LC_CTYPE,"UTF-8");
 	title = t;
 	log = new HTTPLogger();	// create new http reporter for startup.
+	log->logging_on = true;
+	log->fo = &cout;	//set final output.
+	set_stream(log->lstore);	//set up storage.
+	log->open();
 }
 void Logger::shutdown() {
 	log = NULL;
-	lstore=NULL;
 }
 
 ostream* Logger::init(ostream*& final_out) {
@@ -136,6 +136,8 @@ ostream* Logger::init(ostream*& final_out) {
 	string tmp_env;
 	if (log == NULL) { //startup creates a temporary. fastcgi will delete it on finalise
 		log = new HTTPLogger();	// create new http reporter
+		set_stream(log->lstore);	//set up storage.
+		log->open();
 	}
 	/*
 	 OBYX_DEVELOPMENT OBYX_DEBUG OBYX_LOGGING_OFF OBYX_SYSLOG_OFF RESULT
@@ -185,9 +187,9 @@ ostream* Logger::init(ostream*& final_out) {
 	} else {
 		log->fo = &cout;	    //set final output.
 	}
-	lstore = &(log->storage);
-	set_stream(lstore);				//set up storage.
-	log->open();
+//	lstore = &(log->storage);
+//	set_stream(lstore);				//set up storage.
+//	log->open();
 	return log->fo;
 }
 
@@ -278,8 +280,11 @@ Logger& Logger::operator << (const msgtype mtype) {
 				get_stream(msgs);
 				ostringstream* txt = dynamic_cast<ostringstream*>(msgs);
 				if (txt!=NULL ) {
-					if (log != NULL && log->fo != NULL) {
-						*(log->fo) << txt->str();
+					string msgtext = txt->str();
+					if (log != NULL) {
+						if (log->fo != NULL) {
+							*(log->fo) << msgtext;
+						}
 					} else {
 						cout << txt->str();
 					}
@@ -311,7 +316,7 @@ Logger& Logger::operator << (const extratype extrabit) {
 
 Logger& Logger::operator<< (const char* msg) { 
 	if (msg != NULL) {
-		string mesg(msg);
+		string mesg = msg;
 		if (! String::normalise(mesg)) {
 			mesg = msg;
 			String::base64encode(mesg);
@@ -319,7 +324,7 @@ Logger& Logger::operator<< (const char* msg) {
 		if (msgdepth-1 == fataldepth && infatal && log->top_line) { log->syslogbuffer << mesg;}
 		if ( should_report() || debugging() )  {
 			XMLChar::encode(mesg);
-			*o << mesg;  
+			*o << mesg;			
 		}
 	}
 	return *this;
@@ -336,7 +341,7 @@ Logger& Logger::operator<< (const std::string msg ) {
 		if (!inraw) { 
 			XMLChar::encode(mesg);
 		}
-		*o << mesg;  
+		*o << mesg;
 	}
 	return *this;
 }

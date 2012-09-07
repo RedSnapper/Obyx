@@ -57,7 +57,11 @@ void HTTPLogger::dofatal(std::string message) {
 		} else {
 			top(top_str,false);
 		}
-		*fo << top_str;
+		if (fo) {
+			*fo << top_str;
+		} else {
+			cout << top_str;
+		}
 	}
 }
 

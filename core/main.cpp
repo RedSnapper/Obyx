@@ -114,16 +114,18 @@ int main(int argc, char *argv[]) {
 					delete sfile;
 				} else {
 					http->setcode(404);
+					string errstr = "404: Error loading main file. ";
 					string wd = FileUtils::Path::wd();
 					*Logger::log << Log::fatal << Log::LI << "Error loading main file. ";
 					*Logger::log << errorstr;
 					*Logger::log << "Path: [" << sourcefilepath << "], Directory: [" << wd << "]. Obyx needs a source file to parse." << Log::LO << blockend;	
-					http->doheader();
+					Filer::output(errstr,di_text);
 				}
 				if ( wdp != string::npos) {
 					FileUtils::Path::pop_wd();
 				}
 			} else {
+				http->setcode(404);
 				string errstr = "404: Document Not Found";
 				*Logger::log << Log::thrown << Log::LI << "404 Error" << Log::LO << Log::LI;
 				Environment::service()->list();
@@ -142,7 +144,8 @@ void startup(std::string& version,std::string& v_number,int argc,char** argv) {
 	string errs;
 	Environment::startup(version,v_number,argc,argv);	//unchanging environment stuff.
 	Logger::startup(version);							//Logger
-	String::Deflate::startup(errs);						//need to start up for mysql etc.	
+	XMLChar::startup();									//Used By LOGGER.
+	String::Deflate::startup(errs);						//need to start up for mysql etc.
 	Vdb::ServiceFactory::startup();
 #ifdef FAST
 	Fast::startup();
@@ -160,7 +163,6 @@ void startup(std::string& version,std::string& v_number,int argc,char** argv) {
 	DataItem::startup();
 	ItemStore::startup();
 	Fetch::HTTPFetch::startup();
-	XMLChar::startup();
 }
 void init(ostream*& f_out,int argc,char** argv,char** env) {
 	Environment::init(argc,argv,env);	//

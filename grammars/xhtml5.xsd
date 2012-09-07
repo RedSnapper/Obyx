@@ -1,11 +1,9 @@
 <xsd:schema xmlns="http://www.w3.org/1999/xhtml" 
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-	xmlns:svg="http://www.w3.org/2000/svg" 
-	attributeFormDefault="unqualified" 
+	attributeFormDefault="unqualified"
 	version="1.0"
 	targetNamespace="http://www.w3.org/1999/xhtml"
 	>
-	<xsd:import namespace="http://www.w3.org/2000/svg" schemaLocation="svg.xsd" />
 	<xsd:attributeGroup name="coreServerAttributeGroup">
 		<xsd:attribute name="EnableTheming" type="xsd:boolean" />
 		<xsd:attribute name="EnableViewState" type="xsd:boolean" />
@@ -269,7 +267,6 @@
 			<xsd:element ref="style"/>
 			<xsd:element ref="sub"/>
 			<xsd:element ref="sup"/>
-			<xsd:element ref="svg:svg"/>
 
 			<xsd:element ref="table"/>
 			<xsd:element ref="textarea"/>
@@ -365,7 +362,6 @@
 			<xsd:element ref="strong"/>
 			<xsd:element ref="sub"/>
 			<xsd:element ref="sup"/>
-			<xsd:element ref="svg:svg"/>
 
 			<xsd:element ref="textarea"/>
 			<xsd:element ref="time"/>
@@ -1108,7 +1104,7 @@
 		<xsd:complexType mixed="true">
 			<xsd:sequence>
 				<xsd:element ref="legend" minOccurs="0" maxOccurs="1"/>
-				<xsd:group ref="noForm_flowContent" maxOccurs="unbounded" />
+				<xsd:group ref="noForm_flowContent" minOccurs="0" maxOccurs="unbounded" />
 				<xsd:element ref="legend" minOccurs="0" maxOccurs="1"/>
 			</xsd:sequence>
 			<xsd:attributeGroup ref="commonAttributeGroup"/>

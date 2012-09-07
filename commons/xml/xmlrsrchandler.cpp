@@ -223,20 +223,20 @@ namespace XML {
 			if (namespaceUri != NULL) Manager::transcode(namespaceUri,a_nsu); 
 			if (publicId != NULL ) Manager::transcode(publicId,a_pid);  //Currently we only bind on publicID.
 			if (systemId != NULL ) Manager::transcode(systemId,a_sid);
-			if (Logger::log != NULL) {					
+//			if (Logger::log != NULL) {
 				*Logger::log << Log::error << Log::LI << "Remote Grammar Required. Ensure that you have a local grammar file for this." << Log::LO;
-				*Logger::log << Log::LI << Log::subhead << Log::LI << "Grammar details follow:" << Log::LO; 
+				*Logger::log << Log::LI << "Grammar details follow:" << Log::LO; 
 				*Logger::log << Log::LI << a_nsu << Log::LO << Log::LI << a_pid << Log::LO << Log::LI << a_sid << Log::LO; 
-				*Logger::log << Log::blockend << Log::LO << Log::blockend;
-			} else {
-				cerr << "Remote Grammar Required. Grammar details: " << a_nsu << " " << a_pid << " " << a_sid ;							
-			}			
+				*Logger::log << Log::LO << Log::blockend;
+//			} else {
+//				cerr << "Remote Grammar Required. Grammar details: " << a_nsu << " " << a_pid << " " << a_sid ;
+//			}
 		} else {
 			GrammarRecord* grec =  it->second.second;
 			if (! grec->used()) {
 				grec->setused();
 				retval = grec->inp;
-			} 
+			}
 		}
 		return retval; // DOMLSInput* 
 	}

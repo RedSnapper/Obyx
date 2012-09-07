@@ -44,7 +44,8 @@ private:
 	Log::msgtype  curr_type;
 	std::ostringstream syslogbuffer; 
 	std::ostringstream storage;
-	static std::ostringstream* lstore;
+	std::ostringstream* lstore;
+
 	size_t 		  msgdepth;     //msg nest depth 
 	size_t 		  fataldepth;   //msg depth at time of fatal.
 
@@ -63,8 +64,8 @@ protected:
 	bool hadfatal;
 	bool infatal;
 	bool evenodd;
-	ostream*	fo;							  //final output stream
-	ostream*	o;							  //output stream
+	ostream*	fo;						//final output stream
+	ostream*	o;							//output stream
 	Logger(int i);
 	Log::msgtype type() const { return curr_type; }
 	bool 		 should_report();
