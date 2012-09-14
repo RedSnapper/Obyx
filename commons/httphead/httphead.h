@@ -68,6 +68,7 @@ private:
 	
 	ostream*	o;									//output stream
 	bool isdone;
+	bool initialised;
 	bool mime_is_changed;
 	
 	//httphead settings
@@ -149,6 +150,7 @@ public:
 	const bool mime_changed();			
 	const bool done();
 	const bool contentset() { return content_set;}
+	void initialise();
 	void setmime(string newmime);
 	void setdisposition(string newdisp); 
 	void setconnection(string newconn);	

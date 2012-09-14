@@ -237,8 +237,53 @@ void Httphead::shutdown() {
 void Httphead::init(ostream* output) {	
 	if (singleton == NULL) {
 		singleton = new Httphead(output);	// instantiate singleton
-	} 
-}	
+	}
+	singleton->initialise();
+}
+
+void Httphead::initialise() {
+	Environment* env = Environment::service();
+	if (env && !initialised) {
+		initialised = true;
+		string req_method_str,cgi_type;
+		if (env->getenv("REQUEST_METHOD",req_method_str)) {
+			if ( req_method_str.compare("CONSOLE") != 0 && req_method_str.compare("XML") != 0 ) {
+				http_req_method = true;
+			}
+		}
+		if ( http_req_method && env->getenv("SCRIPT_NAME",cgi_type)) {
+			if ( cgi_type.find("/nph-") != string::npos ) {
+				httpsig = "HTTP/1.0";
+			} else {
+				http_fmt.version_o = ": ";
+				httpsig = "Status";
+			}
+		}
+		DateUtils::Date date;
+		date.getNowDateStr("%a, %d %b %Y %H:%M:%S %Z",defaultdatevalue);
+		//Default mime switched if MSIE.
+		string dct;
+		if (env->getenv("OBYX_CONTENT_TYPE",dct) ) {
+			mimevalue = dct;
+		} else {
+			if (env->getenv("HTTP_USER_AGENT",dct) ) {
+				if ( dct.find("MSIE") != string::npos ) {
+					mimevalue = "text/html; charset=utf-8";
+				} else {
+					mimevalue = "application/xhtml+xml; charset=utf-8";
+				}
+			}
+		}
+		string p3penv;
+		if (env->getenv("OBYX_P3P",p3penv)) {
+			p3pline = "CP=\"";
+			p3pline.append(p3penv);
+			p3pline.append("\", policyref=\"/w3c/p3p.xml\"");
+		}
+		noheaders = env->envexists("OBYX_NO_HEADERS");
+	}
+}
+
 void Httphead::finalise() {
 	if (singleton != NULL) {
 		delete singleton;
@@ -247,9 +292,9 @@ void Httphead::finalise() {
 }
 
 Httphead::Httphead(ostream* output) {
-	Environment* env = Environment::service();
 	httpcode			= 200;
 	content_length		= 0;
+	initialised			= false;
 	content_set			= false;
 	nocaching			= true;		//true - no cache by default.
 	nodate				= false;	//true - no cache by default.
@@ -277,44 +322,6 @@ Httphead::Httphead(ostream* output) {
 	mime_is_changed		= false;
 	httpsig				= "Status";
 	o = output;
-	
-	string req_method_str,cgi_type;
-	if ( env->getenv("REQUEST_METHOD",req_method_str)) {
-		if ( req_method_str.compare("CONSOLE") != 0 && req_method_str.compare("XML") != 0 ) {
-			http_req_method = true;
-		}
-	}
-	if ( http_req_method && env->getenv("SCRIPT_NAME",cgi_type)) {
-		if ( cgi_type.find("/nph-") != string::npos ) {
-			httpsig = "HTTP/1.0";
-		} else {
-			http_fmt.version_o = ": ";
-			httpsig = "Status";
-		}
-	}
-	DateUtils::Date date;
-	date.getNowDateStr("%a, %d %b %Y %H:%M:%S %Z",defaultdatevalue);
-	//Default mime switched if MSIE.
-	string dct;
-	if (env->getenv("OBYX_CONTENT_TYPE",dct) ) {
-		mimevalue = dct;
-	} else {
-		if (env->getenv("HTTP_USER_AGENT",dct) ) {
-			if ( dct.find("MSIE") != string::npos ) {
-				mimevalue = "text/html; charset=utf-8";
-			} else {
-				mimevalue = "application/xhtml+xml; charset=utf-8";
-			}
-		}
-	}
-	string p3penv;
-	if (env->getenv("OBYX_P3P",p3penv)) {
-		p3pline = "CP=\"";
-		p3pline.append(p3penv); 
-		p3pline.append("\", policyref=\"/w3c/p3p.xml\"");
-	} 
-	noheaders = env->envexists("OBYX_NO_HEADERS");
-	//	std::ios_base::sync_with_stdio(true);
 }
 
 Httphead::~Httphead() {
