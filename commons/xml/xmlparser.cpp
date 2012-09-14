@@ -188,9 +188,15 @@ namespace XML {
 			if (dc->canSetParameter(XMLUni::fgDOMValidate, true)) {
 				dc->setParameter(XMLUni::fgDOMValidate, true);
 			}
-		} else {
 			if (dc->canSetParameter(XMLUni::fgDOMValidateIfSchema, true)) {
 				dc->setParameter(XMLUni::fgDOMValidateIfSchema, true);
+			}
+		} else {
+			if (dc->canSetParameter(XMLUni::fgDOMValidate, false)) {
+				dc->setParameter(XMLUni::fgDOMValidate, false);
+			}
+			if (dc->canSetParameter(XMLUni::fgDOMValidateIfSchema, false)) {
+				dc->setParameter(XMLUni::fgDOMValidateIfSchema, false);
 			}
 		}
 		dc->setParameter(XMLUni::fgDOMDatatypeNormalization, true); //Add in datatypes..
