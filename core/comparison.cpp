@@ -406,14 +406,14 @@ void Comparison::init() {
 void Comparison::finalise() {
 }
 void Comparison::startup() {
-	cmp_types.insert(cmp_type_map::value_type(UCS2(L"empty"), std::pair<cmp_type,bool>::pair(is_empty,false) ));
-	cmp_types.insert(cmp_type_map::value_type(UCS2(L"equal"), std::pair<cmp_type,bool>::pair(equivalent_to,false) ));
-	cmp_types.insert(cmp_type_map::value_type(UCS2(L"existent"), std::pair<cmp_type,bool>::pair(exists,false)));
-	cmp_types.insert(cmp_type_map::value_type(UCS2(L"found"), std::pair<cmp_type,bool>::pair(found,false) ));
-	cmp_types.insert(cmp_type_map::value_type(UCS2(L"greater"), std::pair<cmp_type,bool>::pair(greater_than,false) ));
-	cmp_types.insert(cmp_type_map::value_type(UCS2(L"lesser"), std::pair<cmp_type,bool>::pair(less_than,false) ));
-	cmp_types.insert(cmp_type_map::value_type(UCS2(L"significant"), std::pair<cmp_type,bool>::pair(significant,false) ));
-	cmp_types.insert(cmp_type_map::value_type(UCS2(L"true"), std::pair<cmp_type,bool>::pair(cmp_true,false) ));
+	cmp_types.insert(cmp_type_map::value_type(UCS2(L"empty"), std::pair<cmp_type,bool>(is_empty,false) ));
+	cmp_types.insert(cmp_type_map::value_type(UCS2(L"equal"), std::pair<cmp_type,bool>(equivalent_to,false) ));
+	cmp_types.insert(cmp_type_map::value_type(UCS2(L"existent"), std::pair<cmp_type,bool>(exists,false)));
+	cmp_types.insert(cmp_type_map::value_type(UCS2(L"found"), std::pair<cmp_type,bool>(found,false) ));
+	cmp_types.insert(cmp_type_map::value_type(UCS2(L"greater"), std::pair<cmp_type,bool>(greater_than,false) ));
+	cmp_types.insert(cmp_type_map::value_type(UCS2(L"lesser"), std::pair<cmp_type,bool>(less_than,false) ));
+	cmp_types.insert(cmp_type_map::value_type(UCS2(L"significant"), std::pair<cmp_type,bool>(significant,false) ));
+	cmp_types.insert(cmp_type_map::value_type(UCS2(L"true"), std::pair<cmp_type,bool>(cmp_true,false) ));
 }
 void Comparison::shutdown() {
 	cmp_types.clear();
