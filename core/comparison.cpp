@@ -43,6 +43,7 @@
 using namespace Log;
 using namespace XML;
 using namespace obyx;
+using namespace std;
 
 cmp_type_map Comparison::cmp_types;
 
