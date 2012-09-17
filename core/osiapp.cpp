@@ -156,7 +156,12 @@ bool OsiAPP::request(const xercesc::DOMNode* n,int max_redirects,int timeout_sec
 						cmd << " -f \"" << env_sender << "\""; //-r is now deprecated by sendmail.org
 					}
 					cmd << " -t > " << resf;  
-					system(cmd.str().c_str());
+					int errno = system(cmd.str().c_str());
+					if (errno != 0) {
+						string errmsg;
+						errmsg = strerror(errno);
+						*Logger::log << Log::error << Log::LI << "Error during system " << Log::LO << Log::LI << cmd << errmsg << Log::LO << Log::blockend;
+					}
 					FileUtils::File file(resf);
 					if (file.exists()) {
 						off_t flen = file.getSize();
