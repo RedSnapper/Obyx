@@ -41,7 +41,10 @@
 using namespace Log;
 using namespace XML;
 
+
 namespace Fetch {
+	size_t	HTTPFetch::curpos=0;
+
 	size_t HTTPFetch::writeMemoryCallback(char *ptr, size_t size, size_t nmemb, void *data) {
 		std::string* s = static_cast<std::string*>(data);
 		size_t realSize = size * nmemb;
@@ -75,7 +78,44 @@ namespace Fetch {
 		}
 		return 0;
 	}
-	
+/*
+	 CURLOPT_SEEKFUNCTION Pass a pointer to a function that matches the following prototype: 
+	 int function(void *instream, curl_off_t offset, int origin); 
+	 This function gets called by libcurl to seek to a certain position in the 
+	 input stream and can be used to fast forward a file in a resumed upload 
+	 (instead of reading all uploaded bytes with the normal read function/callback).
+	 It is also called to rewind a stream when doing a HTTP PUT or POST with a multi-pass authentication method.
+	 The function shall work like "fseek" or "lseek" and 
+	 accepted SEEK_SET, SEEK_CUR and SEEK_END as argument for origin, 
+	 although (in 7.18.0) libcurl only passes SEEK_SET. 
+	 The callback must return 
+	 0 (CURL_SEEKFUNC_OK) on success,
+	 1 (CURL_SEEKFUNC_FAIL) to cause the upload operation to fail or
+	 2 (CURL_SEEKFUNC_CANTSEEK) to indicate that while the seek failed,
+	 libcurl is free to work around the problem if possible. 
+	 The latter can sometimes be done by instead reading from the input or similar.
+*/
+	int HTTPFetch::seekMemoryCallback(void *stream, curl_off_t offset, int cmd) {
+		int retval = CURL_SEEKFUNC_FAIL;
+		std::string* s = static_cast<std::string*>(stream); //this should be same as body.
+		if (s != NULL) {
+			switch (cmd) {
+				case SEEK_SET:
+				case SEEK_CUR: if ((size_t)offset < s->size()) {
+					curpos = offset;
+					retval = CURL_SEEKFUNC_OK;
+				} break;
+				case SEEK_END: {
+					curpos = s->size();
+					retval = CURL_SEEKFUNC_OK;
+				} break;
+				default: {
+				} break;
+			}
+		}
+		return retval;
+	}
+
 	/*
 	 Function pointer that should match the following prototype: 
 	 size_t function( void *ptr, size_t size, size_t nmemb, void *stream); 
@@ -90,12 +130,16 @@ namespace Fetch {
 	 
 	 If you set the callback pointer to NULL, or doesn't set it at all, the default internal read 
 	 function will be used. It is simply doing an fread() on the FILE * stream set with CURLOPT_READDATA.	
-	 */ 
+	 */
+	
 	size_t HTTPFetch::readMemoryCallback(void *ptr, size_t size, size_t nmemb, void *stream) {
-		std::string* s = static_cast<std::string*>(stream); //we must actually change the string...
+		std::string* s = static_cast<std::string*>(stream); //this should be same as body.
 		size_t realSize = size * nmemb;
-		size_t result = s->copy(static_cast<char*>(ptr), realSize);
-		try { s->erase(0, result); } catch(...) { }
+		if (curpos >= s->size()) {
+			curpos = s->size() - 1;
+		}
+		size_t result = s->copy(static_cast<char*>(ptr), realSize, curpos);
+		curpos += realSize;
 		return result;
 	}
 	
@@ -207,8 +251,11 @@ namespace Fetch {
 		} else {
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_VERBOSE, 0), errstr);
 		}
-		processErrorCode(curl_easy_setopt(handle, CURLOPT_READFUNCTION, readMemoryCallback), errstr);
+		curpos = 0;
+		processErrorCode(curl_easy_setopt(handle, CURLOPT_SEEKDATA, &body), errstr);
+		processErrorCode(curl_easy_setopt(handle, CURLOPT_SEEKFUNCTION, seekMemoryCallback), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_READDATA, &body), errstr);
+		processErrorCode(curl_easy_setopt(handle, CURLOPT_READFUNCTION, readMemoryCallback), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, writeMemoryCallback), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_HEADERFUNCTION, writeMemoryCallback), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_SSL_VERIFYPEER, 0), errstr);
@@ -316,6 +363,7 @@ namespace Fetch {
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_NOSIGNAL, 1), my_errors);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_COOKIELIST, cookies.c_str()), my_errors);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_FAILONERROR, true), my_errors); //Prevents output on return values > 300
+//		processErrorCode(curl_easy_setopt(handle, CURLOPT_POSTREDIR, CURL_REDIR_GET_ALL), my_errors);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_NOBODY, false), my_errors);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_HTTPGET, true), my_errors);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_URL, urlString.c_str()), my_errors);

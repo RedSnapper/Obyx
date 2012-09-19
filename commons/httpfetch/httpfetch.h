@@ -44,6 +44,7 @@ namespace Fetch {
 		static void* lib_handle;
 		static bool loadattempted;	//used to show if the service is up or down.
 		static bool loaded;			//used to show if the service is up or down.
+		static size_t curpos;
 		static CURL* (*curl_easy_init)();
 		static CURLcode (*curl_easy_setopt)(CURL *, CURLoption, ...);
 		static CURLcode (*curl_easy_perform)(CURL *);
@@ -52,9 +53,12 @@ namespace Fetch {
 		static struct curl_slist* (*curl_slist_append)(struct curl_slist*,const char *);
 		static curl_version_info_data* (*curl_version_info)(CURLversion);
 
+		static int seekMemoryCallback(void *,curl_off_t, int);
 		static size_t writeMemoryCallback(char *, size_t, size_t, void *);
 		static size_t readMemoryCallback(void *, size_t, size_t, void *);
 		static int debugCallback(CURL*,curl_infotype,char*,size_t,void*);
+		
+//		static size_t current_body_size;
 		
 		//-- End of dll stuff		
 		struct curl_slist *headers;		
@@ -63,6 +67,7 @@ namespace Fetch {
 		CURL* handle;
 		char* errorBuf;
 		bool had_error;
+		
 		
 		class PageFetcher;
 		class HeaderFetcher;
