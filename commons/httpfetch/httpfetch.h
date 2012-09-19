@@ -58,8 +58,6 @@ namespace Fetch {
 		static size_t readMemoryCallback(void *, size_t, size_t, void *);
 		static int debugCallback(CURL*,curl_infotype,char*,size_t,void*);
 		
-//		static size_t current_body_size;
-		
 		//-- End of dll stuff		
 		struct curl_slist *headers;		
 		std::string cookies;
