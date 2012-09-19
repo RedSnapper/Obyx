@@ -114,6 +114,7 @@ private:
 	xercesc::DOMDocument* 			x_doc;		//Actual document itself.
 
 	static DynamicContext*			xpather;		//XPath2 context.
+	static bool						modload;		//have we loaded modules?
 //	static xercesc::DOMXPathNSResolver* 	xpnsr;		//namespace resolver.
 	static unsigned long 					xpnsr_v;	//used to indicate if the namespace has changed.
 	static u_str_map_type 			object_ns_map;	//Store set of active namespaces across objects

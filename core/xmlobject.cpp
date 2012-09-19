@@ -35,6 +35,7 @@ unsigned long XMLObject::ns_map_version = 0; //used to indicate if the namespace
 //xercesc::DOMXPathNSResolver* 	XMLObject::xpnsr = NULL;		//namespace resolver.
 unsigned long 					XMLObject::xpnsr_v = 0;			//used to indicate if the namespace has changed.
 DynamicContext*					XMLObject::xpather = NULL;		//XPath2 context.
+bool							XMLObject::modload = false;
 XMLObject::xpp_map_type			XMLObject::xpp_map;
 
 /* ==================== NON virtual methods. =========== */
@@ -213,8 +214,13 @@ XQQuery* XMLObject::xpp(const u_str& xpath) {
 		if (it != xpp_map.end()) {
 			retval = (*it).second;
 		} else {
+			int flags = 0x12; //x02: NO_ADOPT_CONTEXT|x10 NO_DEFAULT_MODULES .
 			set_pnsr();	//This only does something if it needs to.
-			retval = Manager::xqilla->parse(xpath.c_str(),xpather,NULL,0x12); //x02: NO_ADOPT_CONTEXT|x10 NO_DEFAULT_MODULES .
+			if (!modload) {
+				modload = true;
+				flags = 0x02; //load modules once.
+			}
+			retval = Manager::xqilla->parse(xpath.c_str(),xpather,NULL,flags);
 			xpp_map.insert(xpp_map_type::value_type(xpath,retval));
 		}
 	}
@@ -628,8 +634,8 @@ bool XMLObject::getns(const u_str& code, u_str& result,bool release) {
 }
 
 void XMLObject::init() {
-	xpather = Manager::xqilla->createContext(XQilla::XPATH2,Manager::xc); //XQilla::XPATH3 is available, maybe.
-//	xpather->setInheritNamespaces(true);
+	modload = false;
+	xpather = Manager::xqilla->createContext((XQilla::Language)(XQilla::XPATH2|XQilla::EXTENSIONS),Manager::xc); //XQilla::XPATH3 is available, maybe.
 	setns(UCS2(L"xs"),UCS2(L"http://www.w3.org/2001/XMLSchema"));
 }
 
@@ -639,6 +645,7 @@ void XMLObject::finalise() {
 	}
 	xpp_map.clear();
 	delete xpather; xpather=NULL;
+	modload= false;
 }
 
 XMLObject::~XMLObject() {
