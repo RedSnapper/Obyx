@@ -25,6 +25,7 @@
 #include <istream>
 #include <ostream>
 
+#include "commons/environment/environment.h"
 #include "commons/logger/logger.h"
 #include "commons/xml/xml.h"
 
@@ -166,6 +167,15 @@ namespace XML {
 			throw XercesInitExn(); // pass on the error
 		}
 	}
+	
+	void Manager::init() {
+		xparser->validation_set(Environment::service()->getenvtf("OBYX_VALIDATE_ALWAYS"));
+	}
+	
+	void Manager::finalise() {
+		xparser->validation_set(xparser->srv_validation);
+	}
+	
 	Manager::~Manager() {
 		delete xc; xc=NULL;
 		delete xparser; xparser=NULL;

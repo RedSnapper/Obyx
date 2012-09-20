@@ -17,6 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.120920
+	Enh.		Support for fastcgi config-based parser validation. Support for errors into views.
 v1.120919
 	Enh.		Added libCurl support for POSTS that get redirected when under authentication.
 v1.120907

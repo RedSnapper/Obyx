@@ -140,9 +140,6 @@ namespace XML {
 		} // else {} //node was NULL
 	}
 	
-	void Parser::finalise() {
-	}
-	
 	Parser::~Parser() {
 		delete resourceHandler;
 		delete errorHandler;
@@ -164,6 +161,28 @@ namespace XML {
 		dc->setParameter(XMLUni::fgDOMWRTBOM,false);
 	}
 	
+	void Parser::validation_set(bool validsetting,bool start) {
+		if (validation != validsetting || start) {
+			DOMConfiguration* dc = parser->getDomConfig();
+			if (validsetting) {
+				if (dc->canSetParameter(XMLUni::fgDOMValidateIfSchema, false)) {
+					dc->setParameter(XMLUni::fgDOMValidateIfSchema, false);
+				}
+				if (dc->canSetParameter(XMLUni::fgDOMValidate, true)) {
+					dc->setParameter(XMLUni::fgDOMValidate, true);
+				}
+			} else {
+				if (dc->canSetParameter(XMLUni::fgDOMValidate, false)) {
+					dc->setParameter(XMLUni::fgDOMValidate, false);
+				}
+				if (dc->canSetParameter(XMLUni::fgDOMValidateIfSchema, true)) {
+					dc->setParameter(XMLUni::fgDOMValidateIfSchema, true);
+				}
+			}
+			validation = validsetting;
+		}
+	}
+
 	void Parser::makeReader() {
 // Xerces-c v3.0 and up. Val_Auto 
 		parser = ((DOMImplementationLS*)impl)->createLSParser(DOMImplementationLS::MODE_SYNCHRONOUS, NULL);
@@ -171,36 +190,25 @@ namespace XML {
 		dc->setParameter(XMLUni::fgDOMErrorHandler,errorHandler);
 		dc->setParameter(XMLUni::fgDOMResourceResolver,resourceHandler);  //This is the 'dom' way- it's 'the same' as fgXercesEntityResolver!
 		dc->setParameter(XMLUni::fgXercesValidationErrorAsFatal, false);		
-        dc->setParameter(XMLUni::fgXercesUserAdoptsDOMDocument, true);		
+        dc->setParameter(XMLUni::fgXercesSkipDTDValidation, false);
+        dc->setParameter(XMLUni::fgXercesUserAdoptsDOMDocument, true);
         dc->setParameter(XMLUni::fgXercesContinueAfterFatalError, true);		
 		dc->setParameter(XMLUni::fgXercesCacheGrammarFromParse, true);		
 		dc->setParameter(XMLUni::fgXercesUseCachedGrammarInParse, true);		
 		dc->setParameter(XMLUni::fgDOMElementContentWhitespace, false); //if true, will keep loads of unwanted whitespace.		
         dc->setParameter(XMLUni::fgDOMNamespaces, true);
-		dc->setParameter(XMLUni::fgXercesSchema, true);	
+		dc->setParameter(XMLUni::fgXercesSchema, true);
+		dc->setParameter(XMLUni::fgXercesIgnoreAnnotations, true);
 		dc->setParameter(XMLUni::fgXercesLoadExternalDTD, false);
 		dc->setParameter(XMLUni::fgXercesIgnoreCachedDTD, false);
 		dc->setParameter(XMLUni::fgXercesIdentityConstraintChecking,true);
 // If we are using an xml config file, we need to choose if this is on or off by default. 
 // I think that false is probably the correct move here.
-		validation=Environment::getbenvtf("OBYX_VALIDATE_ALWAYS");
-		if (validation) {
-			if (dc->canSetParameter(XMLUni::fgDOMValidate, true)) {
-				dc->setParameter(XMLUni::fgDOMValidate, true);
-			}
-			if (dc->canSetParameter(XMLUni::fgDOMValidateIfSchema, true)) {
-				dc->setParameter(XMLUni::fgDOMValidateIfSchema, true);
-			}
-		} else {
-			if (dc->canSetParameter(XMLUni::fgDOMValidate, false)) {
-				dc->setParameter(XMLUni::fgDOMValidate, false);
-			}
-			if (dc->canSetParameter(XMLUni::fgDOMValidateIfSchema, false)) {
-				dc->setParameter(XMLUni::fgDOMValidateIfSchema, false);
-			}
-		}
+		srv_validation=Environment::getbenvtf("OBYX_VALIDATE_ALWAYS");
+		validation_set(srv_validation,true);
 		dc->setParameter(XMLUni::fgDOMDatatypeNormalization, true); //Add in datatypes..
-		dc->setParameter(XMLUni::fgXercesDOMHasPSVIInfo,false);		//Otherwise we are in trouble.
+		dc->setParameter(XMLUni::fgXercesDOMHasPSVIInfo,false);		//Otherwise we are in trouble - validation will fail
+//		dc->setParameter(XMLUni::fgXercesDOMHasPSVIInfo,true);		//Otherwise we are in trouble - validation will fail
 		
 		//See http://xerces.apache.org/xerces-c/program-dom-3.html for full list of parameters/features
 		//the 'SystemId' values must be the namespace urls.
@@ -264,24 +272,24 @@ namespace XML {
 		DOMDocument* rslt = NULL;
 		if ( ! xfile.empty() ) {
 			std::string xmlfile = xfile;		
-			bool do_validation = false;	//only has an effect if VALIDATE_ALWAYS is set.
+			bool do_validation = validation;	//only has an effect if VALIDATE_ALWAYS is set.
 			if (validation) {
 				if ( String::Regex::available() ) {
 					if (String::Regex::match("<(\\w*):?schema[^>]+xmlns:?\\1=\"http://www.w3.org/2001/XMLSchema\"",xfile)) {
-						do_validation = false; //This is a grammar.
+//						do_validation = false; //This is a grammar.
 					} else {
 						string f_namespace;
 						if (String::Regex::field(String::Regex::xml_namespace_prolog,xfile,2,f_namespace)) {
 							u_str ns_load;
 							Manager::transcode(f_namespace,ns_load);
 							resourceHandler->installGrammar(ns_load); //will only do it the first time.
-							do_validation = true;
+//							do_validation = true;
 						} else {
-							if (String::Regex::match(String::Regex::xml_doctype_prolog,xfile)) {
-								do_validation = true;
-							} else { 
-								do_validation = false;
-							}
+//							if (String::Regex::match(String::Regex::xml_doctype_prolog,xfile)) {
+//								do_validation = true;
+//							} else {
+//								do_validation = false;
+//							}
 						}
 					}
 				} 

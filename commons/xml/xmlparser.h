@@ -39,7 +39,6 @@ namespace XML {
 		friend class XMLResourceHandler;
 		static const char*  SourceId;
 		static const u_str memfile;
-//		static vector<DOMDocumentType*> doctypes;
 
 		static std::string  xmlxsd;
 		static std::string  oalxsd;
@@ -63,7 +62,8 @@ namespace XML {
 		DOMLSSerializer*		writer;
 		XMLFormatTarget*        xfmt;
 		DOMLSParser*			parser; //xercesc 3.0
-		bool					validation; //still validates if there's a schema.
+		bool					srv_validation; //srv_validation default value.
+		bool					validation; 	//instance value.
 		void makeReader();
 		void makeWriter();
 		
@@ -90,6 +90,7 @@ namespace XML {
 		Parser();
 		~Parser();
 		void makerw();		
+		void validation_set(bool,bool=false);
 		void validation_on();
 		void validation_off();
 		void grammar_reading_on();
@@ -111,8 +112,6 @@ namespace XML {
 		void writedoc(const DOMDocument* const& ,std::string&);
 		void writenode(const DOMNode* const& ,u_str&);
 		void writedoc(const DOMDocument* const& ,u_str&);
-		
-		static void finalise();
 	};	
 }
 

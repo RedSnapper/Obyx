@@ -56,7 +56,7 @@ void finalise();
 void shutdown();
 
 int main(int argc, char *argv[]) {
-	string v_number = "1.120919"; //Do NOT put the v here!
+	string v_number = "1.120920"; //Do NOT put the v here!
 #ifdef FAST
 #ifdef PROFILING
 	int  profilecount = 1;
@@ -170,6 +170,7 @@ void init(ostream*& f_out,int argc,char** argv,char** env) {
 	ostream* os = Logger::init(f_out);	//Instance Logger
 	Httphead::init(os);					//Instance head
 	e->initwlogger();					//Continue environment load.
+	XML::Manager::init(); 				//sets validation for instance.
 	OsiMessage::init();
 	Document::init();					//Instance Document
 	DataItem::init();
@@ -179,9 +180,11 @@ void finalise() {
 	OsiMessage::finalise();
 	ItemStore::finalise();
 	Document::finalise();
-	DataItem::finalise();    //This must be run before Document finalise (b/c root has stuff to delete)
-	ObyxElement::finalise(); //Needs to be run after Document finalise (which gets rid of root).
-	XML::Parser::finalise(); //Removes any doctypes created during clones.
+	DataItem::finalise();    			//This must be run before Document finalise (b/c root has stuff to delete)
+
+	ObyxElement::finalise(); 			//Needs to be run after Document finalise (which gets rid of root).
+	XML::Manager::finalise(); 			//resets validation to server setting.
+	//--validation
 	Logger::finalise();
 	Httphead::finalise();
 	Environment::finalise();

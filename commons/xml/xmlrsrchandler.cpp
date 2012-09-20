@@ -72,9 +72,9 @@ namespace XML {
 		if (it != the_grammar_map.end()) {
 			GrammarRecord* grec =  it->second.second;
 			if (! grec->used()) {
-				Manager::parser()->grammar_reading_on();
+//				Manager::parser()->grammar_reading_on();
 				grec->grx = Manager::parser()->parser->loadGrammar(grec->inp, grec->typ, true); 
-				Manager::parser()->grammar_reading_off();
+//				Manager::parser()->grammar_reading_off();
 				if ( Manager::parser()->errorHandler->hadErrors() ) {
 					string err_name; Manager::transcode(name.c_str(),err_name);
 					*Logger::log << Log::error << Log::LI << "loading grammar:" << err_name << " with contents:" << Log::LO;

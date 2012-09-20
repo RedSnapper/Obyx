@@ -241,19 +241,13 @@ void Output::sethttp(const http_line_type line_type,const string& value) {
 		} break;
 	}
 }
-//void Output::startcatch() {
-//	if (type == out_error) {
-//		errs = new ostringstream();
-//		Logger::set_stream(errs); //This has to be set before it's parent or siblings are evaluated!
-//	}
-//}
 
 void Output::evaluate(size_t out_num,size_t out_count) {
 	results.undefer();
 	prep_breakpoint();
 	prepcatch();
 	results.evaluate();
-	DataItem* name_part = NULL; 
+	DataItem* name_part = NULL;
 	DataItem* value_part = NULL; 
 	switch ( context ) {
 		case immediate: {
@@ -298,31 +292,44 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 			}
 		} break;
 		case out_error: { 
-			string error_stuff;
+			string top_s,tail_s,error_stuff,wrapper;
 			error_stuff = errs->str();
 			haderror = ! error_stuff.empty();
 			if (haderror) {
+				pair<u_str,u_str> np;
+				bool expected = false;
+				DataItem* err_di = NULL;
+				string errstring;
 				ostringstream err_report;
-				string top_s,tail_s,tmptitle,errstring;
-				Logger::get_title(tmptitle);
-				Logger::set_title("Caught Error");
-				Logger::top(top_s,false);
-				Logger::tail(tail_s);
+				if (xpath.empty()) {
+					XMLObject::npsplit(*name_part,np,expected);
+				} else {
+					np.second=xpath;
+				}
+				if (np.second.empty()) {
+					string tmptitle;
+					Logger::get_title(tmptitle);
+					Logger::set_title("Caught Error");
+					Logger::top(top_s,false);
+					Logger::tail(tail_s);
+					Logger::set_title(tmptitle);
+				} else {
+					Logger::top(top_s,false,true); //we want tiny headers.
+					Logger::tail(tail_s,true);
+				}
 				err_report << top_s << error_stuff << tail_s;
-				string err_result = err_report.str();
-				String::normalise(err_result);
-				Logger::set_title(tmptitle);
-				DataItem* err_doc = new XMLObject(err_result);
-				owner->setstore(name_part,err_doc,di_object,scope,errstring);
+				wrapper = err_report.str();			
+				String::normalise(wrapper);
+				err_di = DataItem::factory(wrapper,di_auto);
+				owner->setstore(np.first,np.second,err_di,di_auto,scope,errstring);
+				if (err_di != NULL) { delete err_di; err_di = NULL; }
 				if (!errstring.empty()) {
 					string err_msg; Manager::transcode(name_v.c_str(),err_msg);
-					*Logger::log << Log::error << Log::LI << "Error while outputting an error space to store with " << err_msg << Log::LO;	
-					*Logger::log << Log::LI << errstring << Log::LO;	
+					*Logger::log << Log::error << Log::LI << "Error while outputting an error space to store with " << err_msg << Log::LO;
+					*Logger::log << Log::LI << errstring << Log::LO;
 					trace();
 					*Logger::log << Log::blockend;
-					if (err_doc != NULL) { delete err_doc; }
 				}
-				err_doc = NULL;
 			}
 			delete name_part; name_part = NULL;
 		} break;

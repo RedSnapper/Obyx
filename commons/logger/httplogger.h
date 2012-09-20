@@ -48,8 +48,8 @@ protected:
 	virtual void strip(string&);		//strip container..
 	virtual void bracket(bracketing);
 	virtual void dofatal(std::string);
-	virtual void ltop(string&,bool);	//top log document
-	virtual void ltail(string&);		//tail log document
+	virtual void ltop(string&,bool,bool=false);	//top log document
+	virtual void ltail(string&,bool=false);		//tail log document
 	
 };
 

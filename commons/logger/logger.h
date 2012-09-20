@@ -75,8 +75,8 @@ protected:
 	virtual void close() =0;				 //And close the logger 
 	virtual void strip(string&) =0;				//strip container..
 	virtual void bracket(Log::bracketing) =0;
-	virtual void ltop(string&,bool) =0;		//top log document
-	virtual void ltail(string&) =0;		//tail log document
+	virtual void ltop(string&,bool,bool=false) =0;	//top log document
+	virtual void ltail(string&,bool=false) =0;		//tail log document
 	virtual void dofatal(std::string) =0; //handle fatal.
 	
 	
@@ -98,8 +98,8 @@ public:
 	
 	static void unset_stream(); //  { log->unset_estream(); }
 	
-	static void top(string&,bool);		//top log document
-	static void tail(string&);		//tail log document
+	static void top(string&,bool,bool=false);		//top log document
+	static void tail(string&,bool=false);		//tail log document
 	
 	static void stripcontainer(string& contents) { log->strip(contents); }
 	static bool opened() { return (log != NULL && log->isopened);}

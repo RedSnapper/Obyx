@@ -1089,7 +1089,6 @@
 					/usr/local/lib,
 				);
 				LINK_WITH_STANDARD_LIBRARIES = YES;
-				MACOSX_DEPLOYMENT_TARGET = "";
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "";
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
@@ -1109,7 +1108,7 @@
 				OTHER_CFLAGS = (
 					"-DALLOW_MYSQL",
 					"-fshort-wchar",
-					"-DPROFILING",
+					"-DPRXXXXPROFILING",
 				);
 				PRODUCT_NAME = obyx.cgi;
 				SKIP_INSTALL = NO;

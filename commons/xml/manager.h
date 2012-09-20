@@ -61,6 +61,9 @@ namespace XML {
 		static void resetDocPool();
 		static bool hadErrors();
 		
+		static void init();
+		static void finalise();
+		
 		Manager();
 		~Manager();
 	};

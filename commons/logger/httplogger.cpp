@@ -82,75 +82,93 @@ void HTTPLogger::strip(string& basis) {
 }
 
 //top-tail are used to compose external log-reports as well.
-void HTTPLogger::ltop(string& container,bool do_bits) {		//top log document
+void HTTPLogger::ltop(string& container,bool do_bits,bool do_tiny) {		//top log document
 	container.clear();
-	if (Environment::getbenvtf("OBYX_USING_XHTML5")) {
-		container.append("<!DOCTYPE html>\n");
-	} else {
-		container.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n");
-	}
-	container.append("<html xmlns=\"http://www.w3.org/1999/xhtml\" ><head><title>");
-	container.append(title);
-	container.append("</title><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />");
-	if (do_bits) {
-		std::string logjs="<script type=\"text/javascript\" charset=\"utf-8\" >"
-		"/* <![CDATA[ */\n"
-		"function f(n,b){n=n.nextSibling;while(n!=null){if(n.nodeType==1&&n.nodeName.toLowerCase()=='li'){n.style.display=b;}n=n.nextSibling;}}\n"
-		"function s(n){while(n!=null){if(n.nodeType==1){if(n.nodeName.toLowerCase()=='li'){if(n.firstChild!=null&&n.firstChild.nodeValue!=null){switch(n.firstChild.nodeValue.substring(0,1)){case'▶':f(n,'none');break;default:s(n.firstChild);break;}}}s(n.firstChild);}n=n.nextSibling;}}\n"
-		"function d(n,a,b){n.firstChild.nodeValue=a+n.firstChild.nodeValue.substring(1);f(n,b);}\n"
-		"function sh(n){x=n.firstChild.nodeValue.substring(0,1);switch(x){case'▼':d(n,'▶','none');break;case'▶':d(n,'▼','block');break;}}\n"		"/* ]]>*/\n"
-		"</script>\n";
-		std::string logstyle="<style type=\"text/css\">\n"
-		"/* <![CDATA[ */\n"
-		"ol,li,div {font-family: Gill Sans, Arial; font-size: 1em; display: block; padding:0; margin:0; padding-left:0.25em; }\n"
-		"a {text-decoration: none;}\n"
-		"a:hover { background-color: #FFF2B5; }\n"
-		"li {display:block;}\n"
-		"span {padding-right:2em;}\n"
-		"span + span {padding-right:1em;}\n"
-		".notify {font-weight:normal; color: #3F3F6F; background-color: #DDDDDD;}\n"
-		".info {font-weight:normal; color:#00008B; background-color: #FFF;}\n"
-		".redirect {font-weight:normal; color: #A6A6A6; background-color: #F2F2F2;}\n"
-		".error   {color: #441100; background-color: #FFDDDD; border-color: #F80000; border-style: solid; border-width: 1px; padding-bottom:0.25em; margin-top: 2px; margin-bottom: 2px;}\n"
-		".syntax  {color: #331100; background-color: #FFAAAA; border-color: #F80000; border-style: solid; border-width: 1px; padding-bottom:0.25em; margin-top: 2px; margin-bottom: 2px;}\n"
-		".warning {color: #441100; background-color: #FFEEDD; border-color: #F87700; border-style: solid; border-width: 1px; padding-bottom:0.25em; margin-top: 2px; margin-bottom: 2px; }\n"
-		".subhead  {font-weight: bold; color: #4F4F4F; background-color: #DDDDDD; padding-top:0.25em; padding-bottom:0.25em; }\n"
-		".headline {font-family: Gill Sans, Arial; font-size: 1.1em; font-weight: bold; color: #000000; background-color: #FCFCFC; border-color:#CFCFCF; border-style: solid; border-width: 1px; }\n"
-		".timing {color: #001199; background-color: #CCCCFF;}\n"
-		".eo {font-weight:normal;}\n"
-		".even {font-weight:normal; color:#1C1C1C; background-color: #F8F8F8;}\n"
-		".odd {font-weight:normal; color:#4F4F4F; background-color: #FFFFFF;}\n"
-		"li.xpath, li.filepath, li.breakpoint {font-weight:normal; color:#1F1F1F; background-color: #DDDDDD;}\n"
-		"/* ]]>*/\n"
-		"</style>";	
-		container.append(logjs);
-		container.append(logstyle);
-		container.append("</head><body onload=\"s(document.body);\">");
-	} else { 
-		container.append("</head><body>");
-	}
-	if (!should_report()) {
-		container.append("<h1>An internal error has occured.</h1>");
-		if(syslogging) {
-			container.append("<h3>We have been notified and will be fixing it as soon as possible.</h3>");
+	if (do_tiny) {
+		if (Environment::getbenvtf("OBYX_USING_XHTML5")) {
+			container="<!DOCTYPE div><div xmlns=\"http://www.w3.org/1999/xhtml\" >";
+			if (!should_report()) {
+				container.append("<h3>An internal error has occured.</h3>");
+				if(syslogging) {
+					container.append("<h4>We have been notified and will be fixing it as soon as possible.</h4>");
+				}
+			}
+		} else {
+			container="<!DOCTYPE div PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n<div xmlns=\"http://www.w3.org/1999/xhtml\" >";
 		}
 	} else {
-		container.append("<div class=\"headline\">");
+		if (Environment::getbenvtf("OBYX_USING_XHTML5")) {
+			container.append("<!DOCTYPE html>\n");
+		} else {
+			container.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n");
+		}
+		container.append("<html xmlns=\"http://www.w3.org/1999/xhtml\" ><head><title>");
 		container.append(title);
-		container.append("</div><div>");
+		container.append("</title><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />");
+		if (do_bits) {
+			std::string logjs="<script type=\"text/javascript\" charset=\"utf-8\" >"
+			"/* <![CDATA[ */\n"
+			"function f(n,b){n=n.nextSibling;while(n!=null){if(n.nodeType==1&&n.nodeName.toLowerCase()=='li'){n.style.display=b;}n=n.nextSibling;}}\n"
+			"function s(n){while(n!=null){if(n.nodeType==1){if(n.nodeName.toLowerCase()=='li'){if(n.firstChild!=null&&n.firstChild.nodeValue!=null){switch(n.firstChild.nodeValue.substring(0,1)){case'▶':f(n,'none');break;default:s(n.firstChild);break;}}}s(n.firstChild);}n=n.nextSibling;}}\n"
+			"function d(n,a,b){n.firstChild.nodeValue=a+n.firstChild.nodeValue.substring(1);f(n,b);}\n"
+			"function sh(n){x=n.firstChild.nodeValue.substring(0,1);switch(x){case'▼':d(n,'▶','none');break;case'▶':d(n,'▼','block');break;}}\n"		"/* ]]>*/\n"
+			"</script>\n";
+			std::string logstyle="<style type=\"text/css\">\n"
+			"/* <![CDATA[ */\n"
+			"ol,li,div {font-family: Gill Sans, Arial; font-size: 1em; display: block; padding:0; margin:0; padding-left:0.25em; }\n"
+			"a {text-decoration: none;}\n"
+			"a:hover { background-color: #FFF2B5; }\n"
+			"li {display:block;}\n"
+			"span {padding-right:2em;}\n"
+			"span + span {padding-right:1em;}\n"
+			".notify {font-weight:normal; color: #3F3F6F; background-color: #DDDDDD;}\n"
+			".info {font-weight:normal; color:#00008B; background-color: #FFF;}\n"
+			".redirect {font-weight:normal; color: #A6A6A6; background-color: #F2F2F2;}\n"
+			".error   {color: #441100; background-color: #FFDDDD; border-color: #F80000; border-style: solid; border-width: 1px; padding-bottom:0.25em; margin-top: 2px; margin-bottom: 2px;}\n"
+			".syntax  {color: #331100; background-color: #FFAAAA; border-color: #F80000; border-style: solid; border-width: 1px; padding-bottom:0.25em; margin-top: 2px; margin-bottom: 2px;}\n"
+			".warning {color: #441100; background-color: #FFEEDD; border-color: #F87700; border-style: solid; border-width: 1px; padding-bottom:0.25em; margin-top: 2px; margin-bottom: 2px; }\n"
+			".subhead  {font-weight: bold; color: #4F4F4F; background-color: #DDDDDD; padding-top:0.25em; padding-bottom:0.25em; }\n"
+			".headline {font-family: Gill Sans, Arial; font-size: 1.1em; font-weight: bold; color: #000000; background-color: #FCFCFC; border-color:#CFCFCF; border-style: solid; border-width: 1px; }\n"
+			".timing {color: #001199; background-color: #CCCCFF;}\n"
+			".eo {font-weight:normal;}\n"
+			".even {font-weight:normal; color:#1C1C1C; background-color: #F8F8F8;}\n"
+			".odd {font-weight:normal; color:#4F4F4F; background-color: #FFFFFF;}\n"
+			"li.xpath, li.filepath, li.breakpoint {font-weight:normal; color:#1F1F1F; background-color: #DDDDDD;}\n"
+			"/* ]]>*/\n"
+			"</style>";	
+			container.append(logjs);
+			container.append(logstyle);
+			container.append("</head><body onload=\"s(document.body);\">");
+		} else { 
+			container.append("</head><body>");
+		}
+		if (!should_report()) {
+			container.append("<h1>An internal error has occured.</h1>");
+			if(syslogging) {
+				container.append("<h3>We have been notified and will be fixing it as soon as possible.</h3>");
+			}
+		} else {
+			container.append("<div class=\"headline\">");
+			container.append(title);
+			container.append("</div><div>");
+		}
 	}
 }
 
 //top-tail are used to compose external log-reports as well.
-void HTTPLogger::ltail(string& container) {		//tail log document
+void HTTPLogger::ltail(string& container,bool do_tiny) {		//tail log document
 	container.clear();
-	if (!should_report()) {
-		container.append("</body></html>\n"); 
+	if (do_tiny) {
+		container="</div>";
 	} else {
-		container = "</div><div class=\"headline\">";
-		container.append(title);
-		container.append("</div></body></html>\n"); 
-	}	
+		if (!should_report()) {
+			container.append("</body></html>\n"); 
+		} else {
+			container = "</div><div class=\"headline\">";
+			container.append(title);
+			container.append("</div></body></html>\n"); 
+		}
+	}
 }
 
 void HTTPLogger::open() {	//This should always be called ..

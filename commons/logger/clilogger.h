@@ -42,8 +42,8 @@ protected:
 	virtual void close();
 	virtual void strip(string&) {}		//strip container - do nothing for cli
 	virtual void bracket(bracketing);
-	virtual void ltop(string&,bool) {}		//top log document
-	virtual void ltail(string&){}		//tail log document
+	virtual void ltop(string&,bool,bool) {}		//top log document
+	virtual void ltail(string&,bool){}		//tail log document
 	virtual void dofatal(std::string) {}
 
 };

@@ -206,12 +206,12 @@ void Logger::finalise() {
 	log = NULL;
 }
 
-void Logger::top(string& container,bool do_gubbins) {
-	log->ltop(container,do_gubbins);
+void Logger::top(string& container,bool do_gubbins,bool do_tiny) {
+	log->ltop(container,do_gubbins,do_tiny);
 }
 
-void Logger::tail(string& container) {
-	log->ltail(container);
+void Logger::tail(string& container,bool do_tiny) {
+	log->ltail(container,do_tiny);
 }
 
 bool Logger::should_report() { //always report to stacked errors. 
