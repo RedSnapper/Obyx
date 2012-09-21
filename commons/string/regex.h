@@ -62,6 +62,7 @@ namespace String {
 	public:
 		static const string xml_doctype_prolog;
 		static const string xml_namespace_prolog;
+		static const string xml_schema_prolog;
 		
 		static bool startup();
 		static bool available();

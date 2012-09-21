@@ -208,7 +208,6 @@ namespace XML {
 		validation_set(srv_validation,true);
 		dc->setParameter(XMLUni::fgDOMDatatypeNormalization, true); //Add in datatypes..
 		dc->setParameter(XMLUni::fgXercesDOMHasPSVIInfo,false);		//Otherwise we are in trouble - validation will fail
-//		dc->setParameter(XMLUni::fgXercesDOMHasPSVIInfo,true);		//Otherwise we are in trouble - validation will fail
 		
 		//See http://xerces.apache.org/xerces-c/program-dom-3.html for full list of parameters/features
 		//the 'SystemId' values must be the namespace urls.
@@ -275,21 +274,21 @@ namespace XML {
 			bool do_validation = validation;	//only has an effect if VALIDATE_ALWAYS is set.
 			if (validation) {
 				if ( String::Regex::available() ) {
-					if (String::Regex::match("<(\\w*):?schema[^>]+xmlns:?\\1=\"http://www.w3.org/2001/XMLSchema\"",xfile)) {
-//						do_validation = false; //This is a grammar.
+					if (String::Regex::match(String::Regex::xml_schema_prolog,xfile)) {
+						do_validation = false; //This is a grammar.
 					} else {
 						string f_namespace;
 						if (String::Regex::field(String::Regex::xml_namespace_prolog,xfile,2,f_namespace)) {
 							u_str ns_load;
 							Manager::transcode(f_namespace,ns_load);
 							resourceHandler->installGrammar(ns_load); //will only do it the first time.
-//							do_validation = true;
+							do_validation = true;
 						} else {
-//							if (String::Regex::match(String::Regex::xml_doctype_prolog,xfile)) {
-//								do_validation = true;
-//							} else {
-//								do_validation = false;
-//							}
+							if (String::Regex::match(String::Regex::xml_doctype_prolog,xfile)) {
+								do_validation = true;
+							} else {
+								do_validation = false;
+							}
 						}
 					}
 				} 
