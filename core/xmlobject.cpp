@@ -231,17 +231,27 @@ XQQuery* XMLObject::xpp(const u_str& xpath) {
 /* private */
 bool XMLObject::xp_result(const u_str& xpath,Sequence& result,DynamicContext*& context,std::string& err_message) {
 	bool retval = true;
-	try {
-		XQQuery* query = xpp(xpath);
-		context = query->createDynamicContext();
-		context->setContextItem(((XercesConfiguration*)context->getConfiguration())->createNode(x_doc->getDocumentElement(),context));
-		result = query->execute(context)->toSequence(context);
-	} 
-	catch (XQException &e) { XML::Manager::transcode(e.getError(),err_message); retval = false; }
-	catch (XQillaException &e) { XML::Manager::transcode(e.getString(),err_message); retval = false; }					
-	catch (DOMXPathException &e) { XML::Manager::transcode(e.getMessage(),err_message); retval = false; }
-	catch (DOMException &e) {XML::Manager::transcode(e.getMessage(),err_message); retval = false;}
-	catch (...) { err_message = "Unknown xpath error."; retval = false; }
+	if (x_doc && x_doc->getDocumentElement() != NULL) {
+		try {
+			XQQuery* query = xpp(xpath);
+			context = query->createDynamicContext();
+			context->setContextItem(((XercesConfiguration*)context->getConfiguration())->createNode(x_doc->getDocumentElement(),context));
+			result = query->execute(context)->toSequence(context);
+		} 
+		catch (XQException &e) { XML::Manager::transcode(e.getError(),err_message); retval = false; }
+		catch (XQillaException &e) { XML::Manager::transcode(e.getString(),err_message); retval = false; }					
+		catch (DOMXPathException &e) { XML::Manager::transcode(e.getMessage(),err_message); retval = false; }
+		catch (DOMException &e) {XML::Manager::transcode(e.getMessage(),err_message); retval = false;}
+		catch (...) { err_message = "Unknown xpath error."; retval = false; }
+	} else {
+		XML::Manager::transcode(xpath,err_message);
+		if (x_doc) {
+			err_message.append(";  Document has no document (root) element");
+		} else {
+			err_message.append(";  Document is null.");
+		}
+		retval = false;
+	}
 	return retval;
 }
 
