@@ -146,7 +146,7 @@ bool XMLObject::find(const DataItem* o,std::string& error_msg) {
 	if (o != NULL) xpath = *o;
 	Sequence pt;
 	DynamicContext* context = NULL;
-	retval = xp_result(xpath,pt,context,error_msg);
+	retval = xp_result(xpath,pt,context,false,error_msg);
 	if (retval && pt.getLength() > 0 ) {
 		retval = true;
 	}
@@ -159,7 +159,7 @@ bool XMLObject::find(const char* o,std::string& error_msg) {
 	if (o != NULL)  xpath = *o;
 	Sequence pt;
 	DynamicContext* context = NULL;
-	retval = xp_result(xpath,pt,context,error_msg);
+	retval = xp_result(xpath,pt,context,false,error_msg);
 	if (retval && pt.getLength()  > 0 ) {
 		retval = true;
 	}
@@ -173,7 +173,7 @@ bool XMLObject::find(const XMLCh* srch,std::string& error_msg) {
 		u_str xpath(srch);
 		Sequence pt;
 		DynamicContext* context = NULL;
-		retval = xp_result(xpath,pt,context,error_msg);
+		retval = xp_result(xpath,pt,context,false,error_msg);
 		if (retval && pt.getLength()  > 0 ) {
 			retval = true;
 		}
@@ -229,7 +229,7 @@ XQQuery* XMLObject::xpp(const u_str& xpath) {
 
 /* -- more non-virtual methods -- */
 /* private */
-bool XMLObject::xp_result(const u_str& xpath,Sequence& result,DynamicContext*& context,std::string& err_message) {
+bool XMLObject::xp_result(const u_str& xpath,Sequence& result,DynamicContext*& context,bool expected,std::string& err_message) {
 	bool retval = true;
 	if (x_doc && x_doc->getDocumentElement() != NULL) {
 		try {
@@ -244,11 +244,13 @@ bool XMLObject::xp_result(const u_str& xpath,Sequence& result,DynamicContext*& c
 		catch (DOMException &e) {XML::Manager::transcode(e.getMessage(),err_message); retval = false;}
 		catch (...) { err_message = "Unknown xpath error."; retval = false; }
 	} else {
-		XML::Manager::transcode(xpath,err_message);
-		if (x_doc) {
-			err_message.append(";  Document has no document (root) element");
-		} else {
-			err_message.append(";  Document is null.");
+		if (expected) {
+			XML::Manager::transcode(xpath,err_message);
+			if (x_doc) {
+				err_message.append(";  Document has no document (root) element");
+			} else {
+				err_message.append(";  Document is null.");
+			}
 		}
 		retval = false;
 	}
@@ -267,7 +269,7 @@ bool XMLObject::xp(const u_str& path,DataItem*& container,bool node_expected,std
 			}
 			Sequence result;
 			DynamicContext* context = NULL;
-			retval = xp_result(xp_path,result,context,error_str);
+			retval = xp_result(xp_path,result,context,node_expected,error_str);
 			if (retval) { //otherwise return empty.
 				XMLSize_t sslena = result.getLength();
 				if (sslena == 0) retval = false;
@@ -330,10 +332,10 @@ bool XMLObject::xp(const u_str& path,DataItem*& container,bool node_expected,std
 }
 bool XMLObject::xp(const DataItem* ins,const u_str& path,DOMLSParser::ActionType action,bool node_expected,std::string& error_str) {
 	// SET a value at the xpath given
-	bool retval = true;
+	bool retval = true; //retval is existence, not failure.
 	Sequence xpr;
 	DynamicContext* context = NULL;
-	retval = xp_result(path,xpr,context,error_str);
+	retval = xp_result(path,xpr,context,node_expected,error_str);
 	if (retval) {
 		XMLSize_t sslen = xpr.getLength();
 		if ( sslen > 0 ) { //node is found.
@@ -374,7 +376,7 @@ bool XMLObject::xp(const DataItem* ins,const u_str& path,DOMLSParser::ActionType
 				u_str aname=path.substr(apoint+1);
 				Sequence xpra;
 				DynamicContext* xcontext = NULL;
-				retval = xp_result(apath,xpra,xcontext,error_str);
+				retval = xp_result(apath,xpra,xcontext,node_expected,error_str);
 				if (retval) {
 					XMLSize_t sslena = xpra.getLength();
 					if (sslena > 0) {
@@ -421,8 +423,8 @@ bool XMLObject::xp(const DataItem* ins,const u_str& path,DOMLSParser::ActionType
 					u_str apath=path.substr(0,com_pos);
 					Sequence xpra;
 					DynamicContext* xcontext = NULL;
-					retval = xp_result(apath,xpra,xcontext,error_str);
-					if (retval) {
+					retval = xp_result(apath,xpra,xcontext,node_expected,error_str);
+					if (retval) { //retval = existence, not failure.
 						XMLSize_t sslena = xpra.getLength();
 						for ( XMLSize_t ai = 0; ai < sslena; ai++) {
 							const Item::Ptr item = xpra.item(ai);
@@ -485,7 +487,7 @@ bool XMLObject::sort(const u_str& path,const u_str& sortpath,bool ascending,bool
 			}
 			Sequence result;
 			DynamicContext* context = NULL;
-			retval = xp_result(xp_path,result,context,error_str);
+			retval = xp_result(xp_path,result,context,node_expected,error_str);
 			if (retval) { //otherwise return empty.
 				XMLSize_t sslena = result.getLength();
 				if (sslena > 0) {

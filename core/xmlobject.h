@@ -44,8 +44,7 @@ private:
 	typedef hash_map<const u_str,XQQuery*, hash<const u_str&> > xpp_map_type;
 	
 	XMLObject() : DataItem() {}
-	bool xp_result(const u_str&,Sequence&,DynamicContext*&,std::string&);
-//	bool xp_result(const u_str&,Sequence&,std::string&);
+	bool xp_result(const u_str&,Sequence&,DynamicContext*&,bool,std::string&);
 	void set_pnsr();  // Set the pnsr with the latest list of namespaces.
 	xercesc::DOMXPathExpression* xpe(const u_str& );
 
