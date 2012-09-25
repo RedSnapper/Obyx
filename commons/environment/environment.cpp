@@ -22,7 +22,7 @@
 
 #include <time.h>
 #include <sys/times.h>
-#include <termios.h>
+#include <fcntl.h>
 #include <unistd.h>
 #ifdef __MACH__
 #import <mach/mach_time.h>
@@ -985,13 +985,19 @@ void Environment::dodocument() { //for POST values
 		}
 	} else { 
 		if (! envexists("GATEWAY_INTERFACE")) { //not cgi.
-			struct termios tio;
-			if( tcgetattr(0,&tio) < 0) { //basically, if we cannot get the struct for cin, we can read this from the buffer. weird.
-				ostringstream sb;
-				while ( *iss >> sb.rdbuf() );			
-				input = sb.str();
-				setparm("THIS_REQ_BODY",input);	
+			const ssize_t buffsize=1024;
+			ostringstream sb;
+			int flags = fcntl(STDIN_FILENO, F_GETFL, 0);
+			fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
+			char buffer[buffsize];
+			ssize_t bytes_read = buffsize;
+			while (buffsize == bytes_read) {
+				bytes_read = read(STDIN_FILENO, buffer, buffsize);
+				if (bytes_read > 0) {
+					sb << string(buffer,bytes_read);
+				}
 			}
+			setparm("THIS_REQ_BODY",sb.str());
 		}
 	}
 	if (test_file != NULL) { delete test_file;}
