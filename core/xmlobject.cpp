@@ -655,10 +655,6 @@ void XMLObject::finalise() {
 	for( xpp_map_type::iterator i = xpp_map.begin(); i != xpp_map.end(); i++) {
 		delete i->second;
 	}
-
-	for( xpp_map_type::iterator i = xpp_map.begin(); i != xpp_map.end(); i++) {
-		delete i->second;
-	}
 	xpp_map.clear();
 	delete xpather; xpather=NULL;
 	modload= false;
