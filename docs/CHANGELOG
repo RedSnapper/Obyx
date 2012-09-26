@@ -17,6 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.120926
+	Bug.		Namespace hashmap not reset after a request (Fastcgi)
 v1.120925
 	Bug.		Rewrote non-blocking stdin read so that it works even when no tty.
 v1.120924
