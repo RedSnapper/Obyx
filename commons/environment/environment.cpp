@@ -1526,29 +1526,35 @@ bool Environment::getparm(string const name,string& container) {
 						if (result.second.size() >= 4 && (result.second[1] == '[') &&(result.second[0] == 'n' || result.second[0] == 'v')) {
 							if (result.second[0] == 'n') {
 								vec_map_type::iterator it = parm_map.find("࿅"); //get the names list.
-								string::const_iterator numit = result.second.begin()+2;
-								index = String::natural(numit);
-								if (index - 1 < it->second.size()) {
-									retval = true;
-									container = it->second[index-1];
+								if (it != parm_map.end()) {
+									string::const_iterator numit = result.second.begin()+2;
+									index = String::natural(numit);
+									if (index - 1 < it->second.size()) {
+										retval = true;
+										container = it->second[index-1];
+									}
 								} //else false.
 							} else { //value.
 								vec_map_type::iterator it = parm_map.find("࿄"); //get the values list.
-								string::const_iterator numit = result.second.begin()+2;
-								index = String::natural(numit);
-								if (index - 1 < it->second.size()) {
-									retval = true;
-									container = it->second[index-1];
-								} //else false.
+								if (it != parm_map.end()) {
+									string::const_iterator numit = result.second.begin()+2;
+									index = String::natural(numit);
+									if (index - 1 < it->second.size()) {
+										retval = true;
+										container = it->second[index-1];
+									} //else false.
+								}
 							}
 						} else { // a direct number?
 							vec_map_type::iterator it = parm_map.find("࿅"); //get the names list.
-							pair<unsigned long long,bool> idx = String::znatural(result.second);
-							if (idx.second && (size_t)(idx.first - 1) < it->second.size()) {
-								retval = true;
-								container = it->second[(size_t)idx.first - 1];
-							} 
-						} 
+							if (it != parm_map.end()) {
+								pair<unsigned long long,bool> idx = String::znatural(result.second);
+								if (idx.second && (size_t)(idx.first - 1) < it->second.size()) {
+									retval = true;
+									container = it->second[(size_t)idx.first - 1];
+								}
+							}
+						}
 					}
 				}
 			}
