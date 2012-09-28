@@ -158,14 +158,23 @@ ostream* Logger::init(ostream*& final_out) {
 	 off			on			off				off			[no syslog]   (syslog not opened)		
 	 off			off			off				off			[no syslog]   (syslog not opened)	
 	 */
-	log->syslogging = ! env->getenvtf("OBYX_SYSLOG_OFF");
-	log->logging_on =   env->getenvtf("OBYX_DEVELOPMENT");
-	if (log->logging_on) {
-		if (debugflag) {
-			if (log->syslogging) {
-				setlogmask(LOG_UPTO (LOG_DEBUG ));
+	if (log != NULL) { //startup creates a temporary. fastcgi will delete it on finalise
+		log->syslogging = ! env->getenvtf("OBYX_SYSLOG_OFF");
+		log->logging_on =   env->getenvtf("OBYX_DEVELOPMENT");
+		if (log->logging_on) {
+			if (debugflag) {
+				if (log->syslogging) {
+					setlogmask(LOG_UPTO (LOG_DEBUG ));
+				}
+				openlog("Obyx",0,LOG_USER);
+			} else {
+				if (!env->getenvtf("OBYX_LOGGING_OFF")) {
+					if (log->syslogging) {
+						setlogmask(LOG_UPTO (LOG_WARNING));
+					}
+					openlog("Obyx",0,LOG_USER);
+				}
 			}
-			openlog("Obyx",0,LOG_USER);
 		} else {
 			if (!env->getenvtf("OBYX_LOGGING_OFF")) {
 				if (log->syslogging) {
@@ -174,23 +183,15 @@ ostream* Logger::init(ostream*& final_out) {
 				openlog("Obyx",0,LOG_USER);
 			}
 		}
-	} else {
-		if (!env->getenvtf("OBYX_LOGGING_OFF")) {
-			if (log->syslogging) {
-				setlogmask(LOG_UPTO (LOG_WARNING));
-			}
-			openlog("Obyx",0,LOG_USER);
+		if (final_out != NULL) {
+			log->fo = final_out;	//set final output.
+		} else {
+			log->fo = &cout;	    //set final output.
 		}
-	}
-	if (final_out != NULL) {
-		log->fo = final_out;	//set final output.
+		return log->fo;
 	} else {
-		log->fo = &cout;	    //set final output.
+		return NULL;
 	}
-//	lstore = &(log->storage);
-//	set_stream(lstore);				//set up storage.
-//	log->open();
-	return log->fo;
 }
 
 void Logger::finalise() {
