@@ -1498,12 +1498,14 @@ bool Environment::getparm(string const name,string& container) {
 							container = result.first;
 							retval = true;
 						} else { //value.
-							string::const_iterator numit = result.second.begin()+2;
-							index = String::natural(numit);
-							if (index - 1 < it->second.size()) {
-								retval = true;
-								container = it->second[index-1];
-							} //else false.
+							if (it != parm_map.end()) {
+								string::const_iterator numit = result.second.begin()+2;
+								index = String::natural(numit);
+								if (index - 1 < it->second.size()) {
+									retval = true;
+									container = it->second[index-1];
+								} //else false.
+							}
 						}
 					} else { // a direct number?
 						pair<unsigned long long,bool> idx = String::znatural(result.second);
