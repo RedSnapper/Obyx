@@ -1112,6 +1112,7 @@
 				);
 				PRODUCT_NAME = obyx.cgi;
 				RUN_CLANG_STATIC_ANALYZER = YES;
+				SDKROOT = "";
 				SKIP_INSTALL = NO;
 				VALIDATE_PRODUCT = YES;
 			};

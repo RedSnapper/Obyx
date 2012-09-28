@@ -1,17 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
+   LastUpgradeVersion = "0450"
    version = "1.8">
    <BuildAction
       parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES">
    </BuildAction>
    <TestAction
-      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.GDB"
-      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.GDB"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES"
       buildConfiguration = "Debug">
       <Testables>
       </Testables>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "B5E31FFE09BC596000F7FC96"
+            BuildableName = "obyx.cgi"
+            BlueprintName = "obyx.cgi"
+            ReferencedContainer = "container:obyx.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
       <EnvironmentVariables>
          <EnvironmentVariable
             key = "OBYX_CONFIG_FILE"
@@ -44,7 +54,9 @@
       useCustomWorkingDirectory = "YES"
       customWorkingDirectory = "/Library/WebServer/CGI-Executables"
       buildConfiguration = "Debug"
-      enablesOpenGLESFrameCapture = "YES">
+      ignoresPersistentStateOnLaunch = "NO"
+      debugDocumentVersioning = "YES"
+      allowLocationSimulation = "YES">
       <BuildableProductRunnable>
          <BuildableReference
             BuildableIdentifier = "primary"
@@ -56,7 +68,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "/Users/ben/Desktop/Coding/Obyx/w.obyx -c /Users/ben/Desktop/Coding/obyx.cf"
+            argument = "/Library/WebServer/Documents/pubroot/forgottenpassword.obyx -c /Library/WebServer/include/obyx.cf"
             isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>
@@ -68,27 +80,27 @@
          </EnvironmentVariable>
          <EnvironmentVariable
             key = "PATH_TRANSLATED"
-            value = "/Library/WebServer/Documents/pubroot/Knots/grid.obyx"
+            value = "/Library/WebServer/Documents/pubroot/wop.obyx"
             isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable
+            key = "TEST_FILE"
+            value = "/Library/WebServer/Documents/pubroot/sorc.post"
+            isEnabled = "NO">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "CONTENT_TYPE"
+            value = "multipart/form-data; boundary=----WebKitFormBoundarymCkhh9afDvypi7rc"
+            isEnabled = "NO">
+         </EnvironmentVariable>
+         <EnvironmentVariable
             key = "HTTP_COOKIE"
-            value = "session=192.168.1.70.1319213566571979"
+            value = "session=192.168.1.70.1319213566571979; xsession=192.168.1.70.1319213566571979"
             isEnabled = "NO">
          </EnvironmentVariable>
          <EnvironmentVariable
             key = "QUERY_STRING"
             value = "dd&amp;66"
-            isEnabled = "NO">
-         </EnvironmentVariable>
-         <EnvironmentVariable
-            key = "PATH_TRANSLATED"
-            value = "/Library/WebServer/Documents/pubroot/sams.obyx"
-            isEnabled = "NO">
-         </EnvironmentVariable>
-         <EnvironmentVariable
-            key = "EVENTCODE"
-            value = "olympics"
             isEnabled = "NO">
          </EnvironmentVariable>
          <EnvironmentVariable
@@ -113,11 +125,12 @@
    <ProfileAction
       displayScaleIsEnabled = "NO"
       displayScale = "1.00"
-      shouldUseLaunchSchemeArgsEnv = "YES"
-      savedToolIdentifier = "/Developer/Applications/Instruments.app/Contents/Resources/templates/Time Profiler.tracetemplate"
+      shouldUseLaunchSchemeArgsEnv = "NO"
+      savedToolIdentifier = "/Applications/Xcode.app/Contents/Applications/Instruments.app/Contents/Resources/templates/Time Profiler.tracetemplate"
       useCustomWorkingDirectory = "YES"
       customWorkingDirectory = "/Library/WebServer/CGI-Executables"
-      buildConfiguration = "Release">
+      buildConfiguration = "General"
+      debugDocumentVersioning = "YES">
       <BuildableProductRunnable>
          <BuildableReference
             BuildableIdentifier = "primary"
@@ -127,25 +140,21 @@
             ReferencedContainer = "container:obyx.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <CommandLineArguments>
+         <CommandLineArgument
+            argument = "/Library/WebServer/Documents/pubroot/sitelist.obyx -c /Library/WebServer/include/obyx.cf"
+            isEnabled = "YES">
+         </CommandLineArgument>
+      </CommandLineArguments>
       <EnvironmentVariables>
          <EnvironmentVariable
             key = "OBYX_CONFIG_FILE"
             value = "/Library/WebServer/include/obyx.cf"
-            isEnabled = "YES">
-         </EnvironmentVariable>
-         <EnvironmentVariable
-            key = "PATH_TRANSLATED"
-            value = "/Library/WebServer/Documents/pubroot/sort.obyx"
-            isEnabled = "YES">
-         </EnvironmentVariable>
-         <EnvironmentVariable
-            key = "PATH_TRANSLATED"
-            value = "/Library/WebServer/Documents/obyxdebug/odb/test.obyx"
             isEnabled = "NO">
          </EnvironmentVariable>
          <EnvironmentVariable
-            key = "QUERY_STRING"
-            value = "f=2&amp;f=3"
+            key = "PATH_TRANSLATED"
+            value = "/Library/WebServer/Documents/pubroot/sitelist.obyx"
             isEnabled = "NO">
          </EnvironmentVariable>
       </EnvironmentVariables>
