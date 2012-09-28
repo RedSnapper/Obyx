@@ -111,6 +111,12 @@ void Environment::init_httphead() {
 		var_map_type::iterator it = cgi_rfc_map.find(bi->first);
 		if (it != cgi_rfc_map.end()) {
 			httphead_map.insert(var_map_type::value_type(it->second,bi->second));
+		} else {
+			if (bi->first.find("HTTP_") == 0) {
+				string special=bi->first.substr(5,string::npos);
+				String::cgi_to_http(special);
+				httphead_map.insert(var_map_type::value_type(special,bi->second));
+			} 
 		}
 	}
 }
@@ -1211,6 +1217,12 @@ void Environment::setienvmap(char ** environment) {
 			var_map_type::iterator it = cgi_rfc_map.find(n);
 			if (it != cgi_rfc_map.end()) {
 				httphead_map.insert(var_map_type::value_type(it->second,v));
+			} else {
+				if (n.find("HTTP_") == 0) {
+					string special=n.substr(5,string::npos);
+					String::cgi_to_http(special);
+					httphead_map.insert(var_map_type::value_type(special,v));
+				}
 			}
 		}
 	}

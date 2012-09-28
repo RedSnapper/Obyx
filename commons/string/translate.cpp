@@ -308,6 +308,22 @@ namespace String {
 		return retval;
 	}
 	
+	void cgi_to_http(string& s) {
+		bool upper=true; //we want to skip the X
+		for (string::iterator i = s.begin() ; i != s.end(); ++i) {
+			if (*i == '_') {
+				upper=true;
+				*i = '-';
+			} else {
+				if (upper) {
+					upper=false;
+				} else {
+					*i = std::tolower(*i);
+				}
+			}
+		}
+	}
+	
 //--------------------------------------------------------------------------------
 //xml name encoding http://www.w3.org/TR/REC-xml/#NT-Name
 //	[4]   	NameChar   ::=   	 Letter | '_' | ':' | Digit | '.' | '-' | CombiningChar | Extender

@@ -43,6 +43,8 @@ namespace String {
 
 	void urldecode(string&);
 	void urlencode(string&);
+	
+	void cgi_to_http(string&);
 
 	bool qpdecode(string&,const string = "\r\n");
 
