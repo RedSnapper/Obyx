@@ -160,7 +160,7 @@ namespace Vdb {
 						readString.replace(hashpos,11,tmpval);
 						retval = true;
 					}
-					hashpos = readString.find('#',hashpos);
+					hashpos = readString.find('#',hashpos+1);
 				}
 				if (!retval) {
 					readString = "";
