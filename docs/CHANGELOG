@@ -17,6 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.121012
+	Bug.		iterator not being moved up when passing hash chars in a field.
 v1.120928
 	Bug.		sysparm find assuming found.
 v1.120926

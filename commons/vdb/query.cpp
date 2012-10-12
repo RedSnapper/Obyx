@@ -145,22 +145,23 @@ namespace Vdb {
 				string tmpval;
 				readString = field;
 				while (hashpos != string::npos) {
+					size_t offset = 1;
 					if (readString.compare(hashpos,9,"#rowcount") == 0) {
 						String::tostring(tmpval,(unsigned long long)numRows);
 						readString.replace(hashpos,9,tmpval);
-						retval = true; 
+						retval = true; offset=0;
 					} 
 					if ( readString.compare(hashpos,4,"#row") == 0 ) {
 						String::tostring(tmpval,(unsigned long long)i);
 						readString.replace(hashpos,4,tmpval);
-						retval = true;
+						retval = true; offset=0;
 					}
 					if ( readString.compare(hashpos,11,"#fieldcount") == 0 ) {
 						String::tostring(tmpval,(unsigned long long)numFields);
 						readString.replace(hashpos,11,tmpval);
-						retval = true;
+						retval = true; offset=0;
 					}
-					hashpos = readString.find('#',hashpos+1);
+					hashpos = readString.find('#',hashpos+offset);
 				}
 				if (!retval) {
 					readString = "";
