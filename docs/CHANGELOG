@@ -18,7 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 ------------------------------------------------------------------------------------
 CHANGELOG file
 v1.121012
-	Bug.		iterator not being moved up when passing hash chars in a field.
+	Bug.		An offset needs to be calculated based on whether or not the string has been modified. If it has, then offset should be 0. If not, then it should be 1.
 v1.120928
 	Bug.		sysparm find assuming found.
 v1.120926
