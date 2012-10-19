@@ -17,6 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.121019
+	Bug.		Removed fixed from the xhtml dtd
 v1.121012
 	Bug.		An offset needs to be calculated based on whether or not the string has been modified. If it has, then offset should be 0. If not, then it should be 1.
 v1.120928
