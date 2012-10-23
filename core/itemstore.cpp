@@ -358,9 +358,13 @@ bool ItemStore::sset(const u_str& sname,const u_str& tpath,bool node_expected, D
 							}
 						}
 						try {
-							xbase->xp(item,path,i_type,node_expected,errorstr);
-							delete item; item= NULL; //item here is a const.
-						} 
+							if (item->kind() == di_object) {
+								xbase->xp(item,path,i_type,node_expected,errorstr);
+								delete item; item= NULL; //item here is a const.
+							} else {
+								errorstr = "Data item is not xml";
+							}
+						}
 						//------------------------------								
 						catch (XQException &e) {
 							XML::Manager::transcode(e.getError(),errorstr);
@@ -376,6 +380,7 @@ bool ItemStore::sset(const u_str& sname,const u_str& tpath,bool node_expected, D
 						}
 						catch (...) {
 							errorstr = "unknown xpath error";
+							retval= true; //bad name/path
 						}
 						//-----------------------------								
 					} else {
