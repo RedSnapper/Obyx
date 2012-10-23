@@ -49,7 +49,6 @@ bool Fast::ready(ostream*& out_ptr,char**& env) { //outp = 'final_out' where eve
 	}
 	out_ptr = &cout;
 	return retval;
-//	return true;
 }
 
 void Fast::startup() {	
