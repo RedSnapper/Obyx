@@ -347,20 +347,22 @@ bool XMLObject::xp(const DataItem* ins,const u_str& path,DOMLSParser::ActionType
 				const Item::Ptr item = xpr.item(i);
 				if (item->isNode()) {
 					DOMNode* pt = (DOMNode*)item->getInterface(XercesConfiguration::gXerces);
-					const XMLObject* ox = dynamic_cast<const XMLObject*>(ins);
-					if ( ox == NULL ) {  //ins is a string.
-						const FragmentObject* fg = dynamic_cast<const FragmentObject*>(ins);
-						if ( fg == NULL ) {  //ins is a string.
-							u_str insval;
-							if (ins != NULL) {
+					u_str insval;
+					if (ins != NULL) {
+						const XMLObject* ox = dynamic_cast<const XMLObject*>(ins);
+						if ( ox == NULL ) {  //ins is a string.
+							const FragmentObject* fg = dynamic_cast<const FragmentObject*>(ins);
+							if ( fg == NULL ) {  //ins is a string.
 								insval = *ins; 
+								XML::Manager::parser()->insertContext(x_doc,pt,insval,action);
+							} else { //fragment.
+								XML::Manager::parser()->insertContext(x_doc,pt,fg->fragment,action);					
 							}
-							XML::Manager::parser()->insertContext(x_doc,pt,insval,action);
-						} else { //fragment.
-							XML::Manager::parser()->insertContext(x_doc,pt,fg->fragment,action);					
+						} else {
+							XML::Manager::parser()->insertContext(x_doc,pt,ox->x_doc,action);					
 						}
 					} else {
-						XML::Manager::parser()->insertContext(x_doc,pt,ox->x_doc,action);					
+						XML::Manager::parser()->insertContext(x_doc,pt,insval,action);
 					}
 				} else {
 					if (node_expected) {
