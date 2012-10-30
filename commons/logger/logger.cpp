@@ -360,20 +360,27 @@ Logger& Logger::operator<< (const bracketing bkt) {
         size_t ssize = estrm_stack.size();
 		if (bkt == LO && log->top_line && !log->syslogbuffer.str().empty() && ssize < 2 ) {
 			if (log->syslogging) {
-				unsigned int bp = (unsigned int)ObyxElement::breakpoint(); 
+				unsigned int bp = (unsigned int)ObyxElement::breakpoint();
+				Environment* env = Environment::service();
+				string site("");
+				if (env->envexists("HTTP_HOST")) {
+					env->getenv("HTTP_HOST",site);
+					site.insert('(',0);
+					site.append(") ");
+				}
 				switch ( type_stack.top() ) {
 					case thrown:
 					case warn : { 
-						syslog(LOG_WARNING,"[%s]: %s ;%u (%s)",title.c_str(),path.c_str(),bp,log->syslogbuffer.str().c_str());
+						syslog(LOG_WARNING,"()[%s]%s: %s; %u (%s)",title.c_str(),site.c_str(),path.c_str(),bp,log->syslogbuffer.str().c_str());
 					} break;
 					case fatal : { 
-						syslog(LOG_CRIT,"[%s]: %s ;%u (%s)",title.c_str(),path.c_str(),bp,log->syslogbuffer.str().c_str());
+						syslog(LOG_CRIT,"[%s]%s: %s; %u (%s)",title.c_str(),site.c_str(),path.c_str(),bp,log->syslogbuffer.str().c_str());
 					} break;
 					case Log::syntax : { 
-						syslog(LOG_ERR,"[%s]: %s ;%u (%s)",title.c_str(),path.c_str(),bp,log->syslogbuffer.str().c_str());
+						syslog(LOG_ERR,"[%s]%s: %s; %u (%s)",title.c_str(),site.c_str(),path.c_str(),bp,log->syslogbuffer.str().c_str());
 					} break;
 					case Log::error : { 
-						syslog(LOG_ERR,"[%s]: %s ;%u (%s)",title.c_str(),path.c_str(),bp,log->syslogbuffer.str().c_str());
+						syslog(LOG_ERR,"[%s]%s: %s; %u (%s)",title.c_str(),site.c_str(),path.c_str(),bp,log->syslogbuffer.str().c_str());
 					} break;
 					case timing : 
 					case even : 

@@ -17,6 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.121030
+	Enh.		Added HTTP_HOST to logging if it exists
 v1.121025
 	Bug.		Rare null needs testing.
 v1.121019
