@@ -371,7 +371,7 @@ Logger& Logger::operator<< (const bracketing bkt) {
 				switch ( type_stack.top() ) {
 					case thrown:
 					case warn : { 
-						syslog(LOG_WARNING,"()[%s]%s: %s; %u (%s)",title.c_str(),site.c_str(),path.c_str(),bp,log->syslogbuffer.str().c_str());
+						syslog(LOG_WARNING,"[%s]%s: %s; %u (%s)",title.c_str(),site.c_str(),path.c_str(),bp,log->syslogbuffer.str().c_str());
 					} break;
 					case fatal : { 
 						syslog(LOG_CRIT,"[%s]%s: %s; %u (%s)",title.c_str(),site.c_str(),path.c_str(),bp,log->syslogbuffer.str().c_str());
