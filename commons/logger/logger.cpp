@@ -365,8 +365,7 @@ Logger& Logger::operator<< (const bracketing bkt) {
 				string site("");
 				if (env->envexists("HTTP_HOST")) {
 					env->getenv("HTTP_HOST",site);
-					site.insert('(',0);
-					site.append(") ");
+					site = "(" + site + ") ";
 				}
 				switch ( type_stack.top() ) {
 					case thrown:
