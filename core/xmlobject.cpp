@@ -653,7 +653,7 @@ bool XMLObject::getns(const u_str& code, u_str& result,bool release) {
 
 void XMLObject::init() {
 	modload = false;
-	xpather = Manager::xqilla->createContext((XQilla::Language)(XQilla::XPATH3_FULLTEXT),Manager::xc); //XQilla::XPATH3 is available, maybe.
+	xpather = Manager::xqilla->createContext((XQilla::Language)(XQilla::XPATH2_FULLTEXT),Manager::xc); //XQilla::XPATH3 is available, maybe.
 	setns(UCS2(L"xs"),UCS2(L"http://www.w3.org/2001/XMLSchema"));
 }
 
