@@ -303,7 +303,6 @@ void ItemStore::list() const {
 		*Logger::log << Log::blockend << Log::LO ; 	//even
 //		*Logger::log << Log::blockend; //subhead
 	}
-	XMLObject::listns();
 }
 bool ItemStore::sset(const u_str& sname,const u_str& tpath,bool node_expected, DataItem*& item,kind_type kind,std::string& errorstr) {
 	//we need to test that the kind being asked for is the same kind as item.
