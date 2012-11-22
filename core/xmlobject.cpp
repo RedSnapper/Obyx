@@ -650,7 +650,24 @@ bool XMLObject::getns(const u_str& code, u_str& result,bool release) {
 	}
 	return retval;
 }
-
+void XMLObject::listns() {
+	*Logger::log << Log::LI << Log::even;
+	for (XMLObject::u_str_map_type::const_iterator s = object_ns_map.begin(); s != object_ns_map.end(); s++) {
+		string nsn,nsu;
+		XML::Manager::transcode(s->first,nsn);
+		XML::Manager::transcode(s->second,nsu);
+		if ( ! nsn.empty() ) {
+			*Logger::log << Log::LI << Log::II << nsn << Log::IO;
+			if ( nsu.empty() ) {
+				*Logger::log << Log::II << "--empty--" << Log::IO;
+			} else {
+				*Logger::log << Log::II << nsu << Log::IO;
+			}
+			*Logger::log << Log::LO;
+		}
+	}
+	*Logger::log << Log::blockend << Log::LO ; 	//even
+}
 void XMLObject::init() {
 	modload = false;
 	xpather = Manager::xqilla->createContext((XQilla::Language)(XQilla::XPATH2_FULLTEXT),Manager::xc); //XQilla::XPATH3 is available, maybe.

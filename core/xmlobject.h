@@ -63,6 +63,7 @@ public:
 	
 	static bool setns(const u_str&, const u_str&);
 	static bool getns(const u_str&, u_str&,bool);
+	static void listns();
 
 	//utility
 	static bool npsplit(const u_str&,pair<u_str,u_str>&,bool&);
