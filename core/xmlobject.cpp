@@ -52,7 +52,6 @@ XMLObject::XMLObject(xercesc::DOMDocument*& s) : DataItem(),x(2),x_doc(s) {}
 XMLObject::XMLObject(xercesc::DOMNode* s) : DataItem(),x(3),x_doc(NULL) {
 	if  ( s != NULL ) {
 		x_doc = XML::Manager::parser()->newDoc(s);
-//		if (s) s->release();
 	}
 }
 /* Public Errors need to be caught higher up! */
@@ -262,6 +261,7 @@ bool XMLObject::xp_result(const u_str& xpath,Sequence& result,DynamicContext*& c
 }
 
 bool XMLObject::xp(const u_str& path,DataItem*& container,bool node_expected,std::string& error_str) {
+	// GET a value at the xpath given
 	bool retval = true; //retval represents existence not failure.
 	if (!path.empty() ) {
 		if (path.rfind(UCS2(L"-gap()"),path.length()-6) == string::npos) { //  eg //BOOK[0]/child-gap() will always return empty.
@@ -650,8 +650,9 @@ bool XMLObject::getns(const u_str& code, u_str& result,bool release) {
 	}
 	return retval;
 }
+
 void XMLObject::listns() {
-	*Logger::log << Log::LI << Log::even;
+	*Logger::log << Log::subhead << Log::LI << "Namespaces" << Log::LO << Log::LI ;
 	for (XMLObject::u_str_map_type::const_iterator s = object_ns_map.begin(); s != object_ns_map.end(); s++) {
 		string nsn,nsu;
 		XML::Manager::transcode(s->first,nsn);
@@ -666,7 +667,7 @@ void XMLObject::listns() {
 			*Logger::log << Log::LO;
 		}
 	}
-	*Logger::log << Log::blockend << Log::LO ; 	//even
+	*Logger::log << Log::LO << Log::blockend;
 }
 void XMLObject::init() {
 	modload = false;

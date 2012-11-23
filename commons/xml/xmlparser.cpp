@@ -238,6 +238,7 @@ namespace XML {
 	
 	DOMDocument* Parser::newDoc(const DOMNode* n) {
 		DOMDocument* doc = NULL;
+		const DOMNamedNodeMap*  mmn = NULL;
 		if (n != NULL) {
 			try {
 				if (n->getNodeType() == DOMNode::DOCUMENT_NODE) {
@@ -248,6 +249,27 @@ namespace XML {
 						const DOMElement*root = (const DOMElement*)(n);
 						xercesc::DOMNode* inod = doc->importNode(root,true);
 						doc->appendChild(inod);
+//now handle implicit namespaces as found in schemas.
+						const DOMDocument* p = n->getOwnerDocument();
+						if ( p != NULL) {
+							const DOMElement* pde = p->getDocumentElement();
+							if (pde != NULL) {
+								mmn=pde->getAttributes(); //now we have the attributes of the parent doc.
+								DOMElement* de = doc->getDocumentElement();
+								if (de != NULL && mmn != NULL ) {
+									size_t n = mmn->getLength();
+									for(size_t i=0; i<n; i++) {
+										DOMAttr* ai = (DOMAttr*)(mmn->item(i));
+										const u_str ain(ai->getName());
+										if (ain.compare(0,5,UCS2(L"xmlns")) == 0) {
+											DOMAttr* iattr = (DOMAttr*)(doc->importNode(ai,true));
+											DOMAttr* oattr = de->setAttributeNode(iattr);
+											if ( oattr!= NULL ) { delete oattr; } //This attribute was already there.
+										}
+									}
+								}
+							}							
+						}
 					}
 				}
 			}

@@ -17,6 +17,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.121123
+	Enh.		Modified document clones to load all namespaces as declared by root.
+	Enh.		declared namespaces are now shown in a debug.
 v1.121030
 	Enh.		Added HTTP_HOST to logging if it exists
 v1.121025

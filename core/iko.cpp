@@ -398,6 +398,7 @@ void IKO::doerrspace(const u_str& input_name) const {
 				trace();
 				*Logger::log << Log::LI ;
 				env->list();
+				XMLObject::listns();
 				owner->list();
 				owner->liststore();
 				Iteration::list(this);		//available fields from here.
