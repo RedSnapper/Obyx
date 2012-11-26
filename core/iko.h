@@ -39,7 +39,6 @@ private:
 	typedef enum { c_object, c_name, c_request, c_response, c_osi_response, c_ts, c_time, c_timing, c_version, c_vnumber, c_point, c_cookies, c_scratch } current_type;	//what kind of dataItem
 	typedef std::map< u_str, current_type > current_type_map; 
 //ok - problem is that xpath is u_str, whereas keys are string (so that we can use regex without having to transliterate every key in a map).
-	bool valuefromspace(u_str&,const inp_space,const bool,const bool,const kind_type,DataItem*&);
 	bool existsinspace(u_str&,const inp_space,const bool,const bool);
 	bool sigfromspace(const u_str&,const inp_space,const bool,const kind_type,DataItem*&);
 	bool foundinspace(const u_str&,const inp_space,const bool);
@@ -62,6 +61,7 @@ protected:
 	kind_type kind;				//derived from the kind attribute
 	enc_type  encoder;			//derived from the encoder attribute
 	inp_space  context;			//derived from the context attribute
+	inp_space  xcontext;		//derived from the xcontext attribute
 	process_t process;			//derived from the process attribute
 	bool	  wsstrip;			//referring to wsstrip attribute.
 	bool	  exists;		    //a value exists - is inp_space or has a context != none
@@ -71,6 +71,7 @@ protected:
 	//            input    release eval, is_context name/ref  container 
 	void evaltype(inp_space, bool, bool, bool, kind_type, DataItem*&,DataItem*&); 
 	void keysinspace(const u_str&,const inp_space,set<string>&);	//gather them keys.
+	bool valuefromspace(u_str&,const inp_space,const bool,const bool,const kind_type,DataItem*&);
 	
 public:
 	static void init(); 

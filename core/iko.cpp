@@ -76,7 +76,7 @@ enc_type IKO::str_to_encoder(const u_str str_encoder) {
 	return result;
 }
 
-IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : ObyxElement(par,el,parm,n),kind(di_auto),encoder(e_none),context(immediate), process(obyx::encode),wsstrip(true),exists(false),name_v(),xpath() {
+IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : ObyxElement(par,el,parm,n),kind(di_auto),encoder(e_none),context(immediate),xcontext(immediate),process(obyx::encode),wsstrip(true),exists(false),name_v(),xpath() {
 	u_str str_context;
 	if ( XML::Manager::attribute(n,UCS2(L"context"),str_context) ) {
 		inp_space_map::const_iterator j = ctx_types.find(str_context);
@@ -86,6 +86,18 @@ IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : ObyxElement
 			string err_msg; Manager::transcode(str_context.c_str(),err_msg);
 			*Logger::log << Log::syntax << Log::LI << "Syntax Error. " <<  err_msg << " is not a legal context space. It should be one of " ;
 			*Logger::log << "none, store, field, sysparm, sysenv, cookie, file, url, parm." << Log::LO; 
+			trace();
+			*Logger::log << Log::blockend;
+		}
+	}
+	if ( XML::Manager::attribute(n,UCS2(L"xcontext"),str_context) ) {
+		inp_space_map::const_iterator j = ctx_types.find(str_context);
+		if( j != ctx_types.end() ) {
+			xcontext = j->second;
+		} else {
+			string err_msg; Manager::transcode(str_context.c_str(),err_msg);
+			*Logger::log << Log::syntax << Log::LI << "Syntax Error. " <<  err_msg << " is not a legal xcontext space. It should be one of " ;
+			*Logger::log << "none, store, field, sysparm, sysenv, cookie, file, url, parm." << Log::LO;
 			trace();
 			*Logger::log << Log::blockend;
 		}
@@ -197,7 +209,7 @@ IKO::~IKO() {
 }
 
 IKO::IKO(ObyxElement* par,const IKO* orig) : ObyxElement(par,orig),
-	kind(orig->kind),encoder(orig->encoder),context(orig->context), 
+	kind(orig->kind),encoder(orig->encoder),context(orig->context),xcontext(orig->xcontext),
 	process(orig->process),wsstrip(orig->wsstrip),exists(orig->exists),
 	name_v(orig->name_v),xpath(orig->xpath) {}
 
@@ -1023,7 +1035,17 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 	bool node_expected = false;
 	if (!is_context && !xpath.empty()) {
 		namepath.first=input_name;
-		namepath.second=xpath;
+		if (xcontext != immediate) {
+			DataItem* xcresult = NULL;
+			if(valuefromspace(xpath,xcontext,true,false,di_utext,xcresult)) {
+				namepath.second= *xcresult;
+				delete xcresult;
+			} else {
+				log(Log::error,"Error. XContext lookup failed.");
+			}
+		} else {
+			namepath.second=xpath;
+		}
 	} else {
 		if(the_space != store ) { //only stores use # for xpath. everything else uses the xpath value.
 			namepath.first=input_name;

@@ -304,7 +304,19 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 				if (xpath.empty()) {
 					XMLObject::npsplit(*name_part,np,expected);
 				} else {
-					np.second=xpath;
+					if (xcontext != immediate) {
+						DataItem* xcresult = NULL;
+						if(valuefromspace(xpath,xcontext,true,false,di_utext,xcresult)) {
+							np.second= *xcresult;
+							delete xcresult;
+						} else {
+							*Logger::log << Log::error << Log::LI << "Error. XContext lookup failed. " << Log::LO;
+							trace();
+							*Logger::log << Log::blockend;
+						}
+					} else {
+						np.second=xpath;
+					}
 				}
 				if (np.second.empty()) {
 					string tmptitle;
@@ -384,7 +396,20 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 						string errstring;
 						if (!xpath.empty()) {
 							u_str name= *name_part;
-							owner->setstore(name,xpath,value_comp,kind,scope,errstring);
+							if (xcontext != immediate) {
+								DataItem* xcresult = NULL;
+								if(valuefromspace(xpath,xcontext,true,false,di_utext,xcresult)) {
+									u_str xp = *xcresult;
+									owner->setstore(name,xp,value_comp,kind,scope,errstring);
+									delete xcresult;
+								} else {
+									*Logger::log << Log::error << Log::LI << "Error. XContext lookup failed. " << Log::LO;
+									trace();
+									*Logger::log << Log::blockend;
+								}
+							} else {
+								owner->setstore(name,xpath,value_comp,kind,scope,errstring);
+							}
 						} else {
 							owner->setstore(name_part,value_comp,kind,scope,errstring);
 						}
