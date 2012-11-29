@@ -253,6 +253,10 @@ void InputType::evaluate(size_t /*item_num*/,size_t /*item_count*/) {
 				results.takeresult(context_part);
 				//          type  release eval  context kind  name/ref container 
 				evaltype(context, false, false, true, di_text, context_part,name_part);
+				if (!xpath.empty()) {
+					//was this used already?
+					xpath.clear();
+				}
 				delete context_part; 
 				context_part=NULL;
 				context = immediate;

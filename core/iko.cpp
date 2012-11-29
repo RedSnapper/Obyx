@@ -1033,24 +1033,44 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 	//however, if there is an xpath which doen't exist, we return nothing and don't throw an error.
 	pair<u_str,u_str> namepath;
 	bool node_expected = false;
-	if (!is_context && !xpath.empty()) {
-		namepath.first=input_name;
-		if (xcontext != immediate) {
+	if (!is_context) {
+		if (!xpath.empty()) {
+			namepath.first=input_name;
+			if (xcontext != immediate) {
+				DataItem* xcresult = NULL;
+				if(valuefromspace(xpath,xcontext,true,false,di_utext,xcresult)) {
+					namepath.second= *xcresult;
+					delete xcresult;
+				} else {
+					log(Log::error,"Error. XContext lookup failed.");
+				}
+			} else {
+				namepath.second=xpath;
+			}
+		} else {
+			if(the_space != store ) { //only stores use # for xpath. everything else uses the xpath value.
+				namepath.first=input_name;
+			} else {
+				XMLObject::npsplit(input_name,namepath,node_expected);
+			}
+		}
+	} else {
+		if (xcontext != immediate && !xpath.empty()) {
 			DataItem* xcresult = NULL;
-			if(valuefromspace(xpath,xcontext,true,false,di_utext,xcresult)) {
-				namepath.second= *xcresult;
+			namepath.first=input_name;
+			inp_space ct = xcontext; xcontext=immediate;
+			if(valuefromspace(xpath,ct,true,false,di_utext,xcresult)) { //evaluate xpath using the xcontext-space.
+				namepath.second= *xcresult ;
 				delete xcresult;
 			} else {
 				log(Log::error,"Error. XContext lookup failed.");
 			}
 		} else {
-			namepath.second=xpath;
-		}
-	} else {
-		if(the_space != store ) { //only stores use # for xpath. everything else uses the xpath value.
-			namepath.first=input_name;
-		} else {
-			XMLObject::npsplit(input_name,namepath,node_expected);
+			if(the_space == store ) { //only stores use # for xpath. everything else uses the xpath value.
+				XMLObject::npsplit(input_name,namepath,node_expected);
+			} else {
+				namepath.first=input_name;
+			}
 		}
 	}
 	if (namepath.second.empty()) {
