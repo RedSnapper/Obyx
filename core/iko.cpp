@@ -1028,63 +1028,43 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 	Environment* env = Environment::service();
 	exists = false;
 	string ikoname,fresult;	//used to hold result for most spaces.
-/* Adding xpath facility to all spaces */	
+	/* Adding xpath facility to all spaces */
 	//now this is odd re. xpaths. If there is no xpath, then we throw a non-existence error..
 	//however, if there is an xpath which doen't exist, we return nothing and don't throw an error.
 	pair<u_str,u_str> namepath;
 	bool node_expected = false;
-	if (!is_context) {
-		if (!xpath.empty()) {
-			namepath.first=input_name;
-			if (xcontext != immediate) {
-				DataItem* xcresult = NULL;
-				if(valuefromspace(xpath,xcontext,true,false,di_utext,xcresult)) {
-					namepath.second= *xcresult;
-					delete xcresult;
-				} else {
-					log(Log::error,"Error. XContext lookup failed.");
-				}
-			} else {
-				namepath.second=xpath;
-			}
-		} else {
-			if(the_space != store ) { //only stores use # for xpath. everything else uses the xpath value.
-				namepath.first=input_name;
-			} else {
-				XMLObject::npsplit(input_name,namepath,node_expected);
-			}
-		}
-	} else {
-		if (xcontext != immediate && !xpath.empty()) {
+	if (!is_context && !xpath.empty()) {
+		namepath.first=input_name;
+		if (xcontext != immediate) {
 			DataItem* xcresult = NULL;
-			namepath.first=input_name;
-			inp_space ct = xcontext; xcontext=immediate;
-			if(valuefromspace(xpath,ct,true,false,di_utext,xcresult)) { //evaluate xpath using the xcontext-space.
-				namepath.second= *xcresult ;
+			if(valuefromspace(xpath,xcontext,true,false,di_utext,xcresult)) {
+				namepath.second= *xcresult;
 				delete xcresult;
 			} else {
 				log(Log::error,"Error. XContext lookup failed.");
 			}
 		} else {
-			if(the_space == store ) { //only stores use # for xpath. everything else uses the xpath value.
-				XMLObject::npsplit(input_name,namepath,node_expected);
-			} else {
-				namepath.first=input_name;
-			}
+			namepath.second=xpath;
+		}
+	} else {
+		if(the_space != store ) { //only stores use # for xpath. everything else uses the xpath value.
+			namepath.first=input_name;
+		} else {
+			XMLObject::npsplit(input_name,namepath,node_expected);
 		}
 	}
 	if (namepath.second.empty()) {
 		node_expected = true;
 	}
-/* Now we have name,path,expected */
+	/* Now we have name,path,expected */
 	
 	switch ( the_space ) { //now do all the named input_spaces!
 		case none: break; //exists = false by default.
-		case immediate: { 
+		case immediate: {
 			exists = true; //value handled by caller!!!
 		} break;
 		case field: {
-			std::string errstring = "It does not exist or is not available."; 
+			std::string errstring = "It does not exist or is not available.";
 			if ( namepath.first.empty() ) {
 				log(Log::error,"Error. Field name missing.");
 			} else {
@@ -1097,30 +1077,30 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 						exists = ite->field(namepath.first,container,ikind,errstring);
 					}
 					if (mpp != NULL && mpp->active() && (cur->wotzit==match)) {
-						exists = mpp->field(namepath.first,fresult); 
+						exists = mpp->field(namepath.first,fresult);
 					}
 					if (par != NULL && !exists) {
 						cur = par;
 						par = par->p;
 						ite = dynamic_cast<const Iteration *>(par);
 						mpp = dynamic_cast<const Mapping *>(par);
-					}														
+					}
 				}
 				if (!exists) {
-					string erv; XML::Manager::transcode(namepath.first,erv);		
+					string erv; XML::Manager::transcode(namepath.first,erv);
 					log(Log::error,"Error. Field " + erv + " : " + errstring);
 				}
 			}
 		} break;
-		case xmlnamespace: { 
-			XML::Manager::transcode(namepath.first,ikoname);		
+		case xmlnamespace: {
+			XML::Manager::transcode(namepath.first,ikoname);
 			exists = ItemStore::getns(ikoname,container,release);
 			if (!exists)  {
 				log(Log::error,"Error. Namespace " + ikoname + " does not exist");
 			}
 		} break;
 		case xmlgrammar: {
-			XML::Manager::transcode(namepath.first,ikoname);		
+			XML::Manager::transcode(namepath.first,ikoname);
 			exists = ItemStore::getgrammar(ikoname,container,ikind,release);
 			if (!exists)  {
 				log(Log::error,"Error. Grammar " + ikoname + " does not exist");
@@ -1130,10 +1110,10 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 			string errstring;
 			exists = owner->getstore(namepath.first,namepath.second,container,node_expected,release,errstring);
 			if ((node_expected && !exists) || !errstring.empty()) {
-				string erv; XML::Manager::transcode(namepath.first,erv);		
+				string erv; XML::Manager::transcode(namepath.first,erv);
 				if (errstring.empty()) { errstring = "does not exist.";}
 				log(Log::error,"Error. Store error: " + erv + " " + errstring);
-			} 
+			}
 		} break;
 		case fnparm: {
 			const DataItem* ires = NULL; // we need to copy the parm from owner, not adopt it.
@@ -1143,15 +1123,15 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 					ires->copy(container);
 				}
 			} else {
-				string erv; XML::Manager::transcode(namepath.first,erv);		
+				string erv; XML::Manager::transcode(namepath.first,erv);
 				log(Log::error,"Error. Parm " + erv + " does not exist here.");
-			} 
-		} break;					
+			}
+		} break;
 		case file: {
-			XML::Manager::transcode(namepath.first,ikoname);		
+			XML::Manager::transcode(namepath.first,ikoname);
 			string file_path; setfilepath(ikoname,file_path);
 			string orig_wd(FileUtils::Path::wd());
-			FileUtils::Path destination; 
+			FileUtils::Path destination;
 			destination.cd(file_path);
 			std::string dest_out = destination.output(true);
 			Manager::transcode(dest_out,name_v);			//Keep the resulting path for use elsewhere.
@@ -1172,8 +1152,8 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 		} break;
 		case url: {
 			if (httpready()) {
-				XML::Manager::transcode(namepath.first,ikoname);		
-				string redirect_val,timeout_val,errstr;				
+				XML::Manager::transcode(namepath.first,ikoname);
+				string redirect_val,timeout_val,errstr;
 				unsigned long long max_redirects = ULLONG_MAX,timeout_secs = ULLONG_MAX;
 				owner->metastore("REDIRECT_BREAK_COUNT",max_redirects);
 				owner->metastore("URL_TIMEOUT_SECS",timeout_secs);
@@ -1186,14 +1166,14 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 			}
 		} break;
 		case cookie: {
-			XML::Manager::transcode(namepath.first,ikoname);		
+			XML::Manager::transcode(namepath.first,ikoname);
 			exists = env->getcookie_req(ikoname,fresult);
 			if( !exists ) {
 				log(Log::error,"Error. Cookie " + ikoname + " does not exist.");
 			}
 		} break;
 		case sysparm: {
-			XML::Manager::transcode(namepath.first,ikoname);		
+			XML::Manager::transcode(namepath.first,ikoname);
 			exists = env->getparm(ikoname,fresult);
 			if (!exists) {
 				log(Log::error,"Error. Sysparm " + ikoname + " does not exist.");
@@ -1205,20 +1185,20 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 				if ( namepath.first.find(UCS2(L"CURRENT_"),0,8) == !string::npos) {
 					exists = currentenv(namepath.first.substr(8,string::npos),ut_value,this,container);
 				} else { //it's not a CURRENT_
-					XML::Manager::transcode(namepath.first,ikoname);		
+					XML::Manager::transcode(namepath.first,ikoname);
 					exists = env->getenv(ikoname,fresult);
 				}
-				if (!exists) { 
-					XML::Manager::transcode(namepath.first,ikoname);		
+				if (!exists) {
+					XML::Manager::transcode(namepath.first,ikoname);
 					log(Log::error,"Error. Sysenv " + ikoname + errmsg);
-				}				
+				}
 			}
 		} break;
 		case IKO::error: {
 			doerrspace(namepath.first);
 			exists = true;
 		} break;
-	}	
+	}
 	if ( exists && container == NULL ) {
 		if (!fresult.empty()) {
 			kind_type fkind = ikind;
@@ -1227,19 +1207,19 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 				case e_sha224:
 				case e_sha384:
 				case e_sha256:
-				case e_sha512: 
+				case e_sha512:
 				case e_dss1:
 				case e_mdc2:
 				case e_ripemd160:
 				case e_secret:
-				case e_md5: 
-				case e_name: 
+				case e_md5:
+				case e_name:
 				case e_digits:
 				case e_hex:
 				case e_base64:
 				case e_xml:
 				case e_url: {
-					if (process == encode) {fkind = di_text;} 
+					if (process == encode) {fkind = di_text;}
 				}  break;
 				default: break;
 			}
@@ -1265,7 +1245,6 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 		}
 		delete tmp;
 	}
-	
 	return exists;
 }
 bool IKO::sigfromspace(const u_str& input_name,const inp_space the_space,const bool release,const kind_type ikind,DataItem*& container) {
