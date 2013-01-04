@@ -311,6 +311,7 @@
 					<xs:enumeration value="sql"/>
 					<xs:enumeration value="base16"/>
 					<xs:enumeration value="base64"/>
+					<xs:enumeration value="base64s"/>
 					<xs:enumeration value="btwoc"/>
 					<xs:enumeration value="qp"/>
 					<xs:enumeration value="hex"/>

@@ -162,6 +162,7 @@ IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : ObyxElement
 				case e_10to16: 
 				case e_btwoc:					
 				case e_base64: 
+				case e_base64S:
 				case e_deflate:
 				case e_hex:	{
 					process = obyx::decode; 					
@@ -544,9 +545,14 @@ void IKO::process_encoding(DataItem*& basis) {
 				}
 #endif
 			} break;
+			case e_base64S:
 			case e_base64: {
 				if ( process == encode) {
-					String::base64encode(encoded);
+					if ( encoder == e_base64) {
+						String::base64encode(encoded,true); //bool = with lf.
+					} else {
+						String::base64encode(encoded,false);
+					}
 					basis = DataItem::factory(encoded,di_text); //cannot be xml..
 				} else {
 					//rfc2045:  "All line breaks or other characters not found in Table 1 must be ignored by decoding software"
@@ -1033,9 +1039,9 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 	//however, if there is an xpath which doen't exist, we return nothing and don't throw an error.
 	pair<u_str,u_str> namepath;
 	bool node_expected = false;
-	if (!is_context && !xpath.empty()) {
+	if (!is_context && !xpath.empty()) { //we only ever evaluate xpath after context is evaluated.
 		namepath.first=input_name;
-		if (xcontext != immediate) {
+		if (xcontext != immediate) { // evaluate the xcontext(xpath) -> store.xpath; 
 			DataItem* xcresult = NULL;
 			if(valuefromspace(xpath,xcontext,true,false,di_utext,xcresult)) {
 				namepath.second= *xcresult;
@@ -1043,7 +1049,7 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 			} else {
 				log(Log::error,"Error. XContext lookup failed.");
 			}
-		} else {
+		} else { //evaluate the (xpath) -> store.xpath
 			namepath.second=xpath;
 		}
 	} else {
@@ -1489,6 +1495,7 @@ void IKO::startup() {
 	enc_types.insert(enc_type_map::value_type(UCS2(L"btwoc"), e_btwoc));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"base16"), e_10to16));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"base64"), e_base64));
+	enc_types.insert(enc_type_map::value_type(UCS2(L"base64s"), e_base64S));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"hex"), e_hex));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"message"), e_message));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"md5"), e_md5));
