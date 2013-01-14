@@ -751,19 +751,60 @@ void OsiMessage::compile(string& msg_str, ostringstream& res, bool do_namespace)
 		}
 		if ( isnt_multipart ) {
 			if ( !body.empty()) {
-				if ( !body_type.empty() && (body_type.compare("text")!=0)) {
-					String::urlencode(body);
-					res << " urlencoded=\"true\"";
-				} else {
-					if (do_encoding(body)) {
+				if (body_subtype.compare("x-www-form-urlencoded") != 0) {
+					if ( !body_type.empty() && (body_type.compare("text")!=0)) {
+						String::urlencode(body);
 						res << " urlencoded=\"true\"";
+					} else {
+						if (do_encoding(body)) {
+							res << " urlencoded=\"true\"";
+						}
 					}
 				}
 			}
 		}
 		res << ">";
 		if ( isnt_multipart ) {
-			res << body;	
+			if (body_subtype.compare("x-www-form-urlencoded") == 0) {
+				res << "<m:message xmlns:m=\"http://www.obyx.org/message\">";
+				string parmn,parmv,parmstring;
+				size_t split,start = 0,find = 0;
+				while((find = body.find('&',start)) != string::npos) {
+					parmstring = body.substr(start, find - start);
+					String::urldecode(parmstring);
+					split = parmstring.find('=');
+					if (split != string::npos && split > 0) {
+						parmn = parmstring.substr(0,split);
+						parmv = parmstring.substr(split+1,string::npos);
+					} else {
+						parmn = parmstring;
+						parmv = "";
+					}
+					res << "<m:header name=\"" << parmn <<"\"";
+					if (!parmv.empty()) { res << " value=\"" << parmv <<"\"";	}
+					if (parmstring.compare(body.substr(start, find - start)) != 0) { res << " urlencoded=\"true\"" ; }
+					res << "/>";
+					start = find + 1;
+				}
+				if (start != body.length()) { //tailing parameter
+					parmstring = body.substr(start, body.length() - start);
+					String::urldecode(parmstring);
+					split = parmstring.find('=');
+					if (split != string::npos && split > 0) {
+						parmn = parmstring.substr(0,split);
+						parmv = parmstring.substr(split+1,string::npos);
+					} else {
+						parmn = parmstring;
+						parmv = "";
+					}
+					res << "<m:header name=\"" << parmn <<"\"";
+					if (!parmv.empty()) { res << " value=\"" << parmv <<"\"";	}
+					if (parmstring.compare(body.substr(start, find - start)) != 0) { res << " urlencoded=\"true\"" ; }
+				}
+				res << "</m:message>";
+			} else {
+				res << body;
+			}
 		} else {
 			string startboundary = "--" + body_boundary; 
 			string endboundary = startboundary + "--";
