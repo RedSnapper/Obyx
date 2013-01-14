@@ -766,7 +766,7 @@ void OsiMessage::compile(string& msg_str, ostringstream& res, bool do_namespace)
 		res << ">";
 		if ( isnt_multipart ) {
 			if (body_subtype.compare("x-www-form-urlencoded") == 0) {
-				res << "<m:message xmlns:m=\"http://www.obyx.org/message\">";
+				res << "<m:message>";
 				string parmn,parmv,parmstring;
 				size_t split,start = 0,find = 0;
 				while((find = body.find('&',start)) != string::npos) {
@@ -781,8 +781,13 @@ void OsiMessage::compile(string& msg_str, ostringstream& res, bool do_namespace)
 						parmv = "";
 					}
 					res << "<m:header name=\"" << parmn <<"\"";
-					if (!parmv.empty()) { res << " value=\"" << parmv <<"\"";	}
-					if (parmstring.compare(body.substr(start, find - start)) != 0) { res << " urlencoded=\"true\"" ; }
+					if (!parmv.empty()) {
+						if (do_encoding(parmv)) {
+							res << "value=\"" << parmv << "\"" << " urlencoded=\"true\"";
+						} else {
+							res << "value=\"" << parmv << "\"";
+						}
+					}
 					res << "/>";
 					start = find + 1;
 				}
@@ -798,8 +803,15 @@ void OsiMessage::compile(string& msg_str, ostringstream& res, bool do_namespace)
 						parmv = "";
 					}
 					res << "<m:header name=\"" << parmn <<"\"";
-					if (!parmv.empty()) { res << " value=\"" << parmv <<"\"";	}
-					if (parmstring.compare(body.substr(start, find - start)) != 0) { res << " urlencoded=\"true\"" ; }
+					if (!parmv.empty()) {
+						if (do_encoding(parmv)) {
+							res << " value=\"" << parmv << "\"" << " urlencoded=\"true\"";
+						} else {
+							res << " value=\"" << parmv << "\"";
+						}
+					}
+					res << "/>";
+					
 				}
 				res << "</m:message>";
 			} else {
