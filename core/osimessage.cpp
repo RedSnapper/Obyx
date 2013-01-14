@@ -783,9 +783,9 @@ void OsiMessage::compile(string& msg_str, ostringstream& res, bool do_namespace)
 					res << "<m:header name=\"" << parmn <<"\"";
 					if (!parmv.empty()) {
 						if (do_encoding(parmv)) {
-							res << "value=\"" << parmv << "\"" << " urlencoded=\"true\"";
+							res << " value=\"" << parmv << "\"" << " urlencoded=\"true\"";
 						} else {
-							res << "value=\"" << parmv << "\"";
+							res << " value=\"" << parmv << "\"";
 						}
 					}
 					res << "/>";
