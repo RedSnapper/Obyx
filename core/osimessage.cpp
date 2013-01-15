@@ -771,7 +771,6 @@ void OsiMessage::compile(string& msg_str, ostringstream& res, bool do_namespace)
 				size_t split,start = 0,find = 0;
 				while((find = body.find('&',start)) != string::npos) {
 					parmstring = body.substr(start, find - start);
-					String::urldecode(parmstring);
 					split = parmstring.find('=');
 					if (split != string::npos && split > 0) {
 						parmn = parmstring.substr(0,split);
@@ -780,6 +779,8 @@ void OsiMessage::compile(string& msg_str, ostringstream& res, bool do_namespace)
 						parmn = parmstring;
 						parmv = "";
 					}
+					String::urldecode(parmn);
+					String::urldecode(parmv);
 					res << "<m:header name=\"" << parmn <<"\"";
 					if (!parmv.empty()) {
 						if (do_encoding(parmv)) {
@@ -1172,13 +1173,35 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 							body.append("--");
 						} else {
 							heads.push_back(head); head.clear();
-							const DOMNode* ch=n->getFirstChild();	//.
-							encode_nodes(ch,body);
-							if (encoded.compare("true") == 0 ) String::urldecode(body);
-							if (addlength) {
-								head.append("Content-Length: ");
-								head.append(String::tostring((long long unsigned int)body.size())); 
-								heads.push_back(head); head.clear();
+							if (subtype.compare("x-www-form-urlencoded") == 0) {
+								const DOMNode* m=n;	//message container of form headers.
+								next_ch(m);//now n is an the message container.
+								for (next_ch(m); m!=NULL; next_el(m)) { //for each child of m...
+									string name_s,value_s;
+									XML::Manager::attribute(m,UCS2(L"name"),name_s);
+									if ( XML::Manager::attribute(m,UCS2(L"value"),value_s)) { //optional
+										if( XML::Manager::attribute(m,UCS2(L"urlencoded"),encoded_s)) { //subhead value
+											if ( encoded_s.compare("true") == 0 ) String::urldecode(value_s);
+										}
+									}
+									String::urlencode(name_s); //This is a part of the x-www-form-urlencoded encoding itself
+									String::urlencode(value_s);
+									body.append(name_s); body.append("="); body.append(value_s);
+									const DOMNode* x=m;
+									until_el(x);
+									if (x != NULL) {
+										body.append("&");
+									}
+								}
+							} else {
+								const DOMNode* ch=n->getFirstChild();	//.
+								encode_nodes(ch,body);
+								if (encoded.compare("true") == 0 ) String::urldecode(body);
+								if (addlength) {
+									head.append("Content-Length: ");
+									head.append(String::tostring((long long unsigned int)body.size()));
+									heads.push_back(head); head.clear();
+								}
 							}
 						}
 					} else {
