@@ -74,12 +74,13 @@ long Reader::readUBits( int numBits ) throw ( exception ) {
 int Reader::readSBits( int numBits ) throw ( exception ) {
   // Get the number as an unsigned value.
   long uBits = readUBits( numBits );
-
+	if( numBits > 0 ) { 
   // Is the number negative?
-  if( ( uBits & ( 1L << ( numBits - 1 ) ) ) != 0 ) {
-    // Yes. Extend the sign.
-    uBits |= -1L << numBits;
-  }
+	  if( ( uBits & ( 1L << (numBits - 1 ) ) ) != 0 ) {
+		// Yes. Extend the sign.
+		uBits |= -1L << numBits;
+	  }
+	}
   return static_cast< int >( uBits );
 }  
    
