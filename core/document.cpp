@@ -629,8 +629,7 @@ Document::~Document() {
 	if (parm_map != NULL) {	
 		type_parm_map::iterator it = parm_map->begin();
 		while ( it != parm_map->end()) {
-			delete (*it).second;
-			(*it).second = NULL;
+			delete it->second;
 			it++;
 		}
 		parm_map->clear();

@@ -287,8 +287,9 @@ void ItemStore::list() const {
 //		*Logger::log << Log::subhead << Log::LI << "Stores (" << Log::II << owner << Log::IO << ")" << Log::LO;
 		*Logger::log << Log::LI << Log::even;
 		while (it != the_item_map.end() ) {
-			if ( ! it->first.empty() ) {
-				*Logger::log << Log::LI << Log::II << it->first << Log::IO;
+			const string name= it->first;
+			if ( ! name.empty() ) {
+				*Logger::log << Log::LI << Log::II << name << Log::IO;
 				if ( it->second == NULL) {
 					*Logger::log << Log::II << "--empty--" << Log::IO;
 				} else {

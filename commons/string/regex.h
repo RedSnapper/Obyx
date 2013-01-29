@@ -37,7 +37,8 @@ extern "C" {
 namespace String {
 	class Regex {
 	private:
-		typedef hash_map<const string, pair<pcre*,pcre_extra*>, hash<const string&> > type_regex_cache;
+		typedef pair<pcre*,pcre_extra*> pccache_item;
+		typedef hash_map<const string, pccache_item, hash<const string&> > type_regex_cache;
 		static type_regex_cache regex_cache;
 		
 		static void * pcre_lib_handle;
@@ -56,6 +57,7 @@ namespace String {
 		static pcre* (*pcre_compile)(const char*, int, const char**, int*,const unsigned char*);
 		static int (*pcre_exec)(const pcre*,const pcre_extra*,PCRE_SPTR,int,int,int,int*,int);
 		static int (*pcre_config)(int,void *);
+		static void (*pcre_free)(void *);
 		static pcre_extra* (*pcre_study)(const pcre*,int,const char**);
 		//		static void (*pcre_free)(void *); // appears to be causing crashes.
 		

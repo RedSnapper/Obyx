@@ -58,67 +58,72 @@ bool OsiAPP::request(const xercesc::DOMNode* n,int max_redirects,int timeout_sec
 		while ( n != NULL && n->getNodeType() != DOMNode::ELEMENT_NODE)  {
 			n = n->getNextSibling();
 		}
-		XML::Manager::transcode(n->getLocalName(),elname);
-		if (elname.compare("request") == 0) {
-			string req_url,req_method,req_version;
-			if ( ! XML::Manager::attribute(n,UCS2(L"url"),req_url)) {
-				*Logger::log << Log::error << Log::LI << "Error. OSI 'http' request must have a url attribute." << Log::LO << Log::blockend;
-				request_result=false;
-			} else {
-				if ( ! XML::Manager::attribute(n,UCS2(L"method"),req_method)) { 
-					*Logger::log << Log::error << Log::LI << "Error. OSI 'http' request must have a method attribute. Normally GET or POST." << Log::LO << Log::blockend;
+		if (n != NULL) {
+			XML::Manager::transcode(n->getLocalName(),elname);
+			if (elname.compare("request") == 0) {
+				string req_url,req_method,req_version;
+				if ( ! XML::Manager::attribute(n,UCS2(L"url"),req_url)) {
+					*Logger::log << Log::error << Log::LI << "Error. OSI 'http' request must have a url attribute." << Log::LO << Log::blockend;
 					request_result=false;
-				}
-				String::toupper(req_method);
-				if ( ! XML::Manager::attribute(n,UCS2(L"version"),req_version)) { 
-					req_version="HTTP/1.0";
-				}
-				string body;		//we need to initialise this before initializing the HTTPFetch.
-				string req_errors;
-				if ( HTTPFetch::available() ) {
-					vector<std::string> heads;
-					DOMNode* msg=n->getFirstChild();		//this is one of request|response - but we only support request here.
-					while ( msg != NULL && msg->getNodeType() != DOMNode::ELEMENT_NODE)  {
-						msg = msg->getNextSibling();
-					}
-					if (msg != NULL) {
-						OsiMessage::decompile(msg,heads,body);		//this is a message...
-					}
-//					int max_redirects = 33, timeout_secs = 30;
-					//---------------- COMMENT  when NOT debugging
-					/*					
-					 string logb = Environment::ScratchDir();
-					 logb.append("osi.log");
-					 ofstream logFile(logb.c_str()); 
-					 for (unsigned int i=0; i < heads.size(); i++) {
-					 logFile << heads[i] << crlf;
-					 }
-					 logFile << crlf << body; 
-					 logFile.close(); 
-					 */
-					//---------------- COMMENT  when NOT debugging
-					HTTPFetch my_req(req_url,req_method,req_version,body,max_redirects,timeout_secs,req_errors);
-					for (unsigned int i=0; i < heads.size(); i++) {
-						String::fandr(heads[i],crlf,crlft);		//crlf in heads need a tab after them to indicate that they are not heads.
-						my_req.addHeader(heads[i]);
-					}
-					last_response.clear();
-					string response_head,response_body;	//what was returned by remote server...
-					if (! my_req.doRequest(response_head,response_body, max_redirects, timeout_secs, req_errors) ) {
-						compile_http_response(response_head,response_body,last_response);
-						*Logger::log << Log::error << Log::LI << Log::II << req_url << Log::IO << Log::II << req_errors << Log::IO << Log::LO << Log::blockend;
-						request_result=false;
-					} else {
-						compile_http_response(response_head,response_body,last_response);
-						the_result = DataItem::factory(last_response,obyx::di_object);
-					}
 				} else {
-					*Logger::log << Log::error << Log::LI<< "Error. OSI request failed for url:" << req_url << " - HTTPFetch not available." << Log::LO << Log::blockend;				
-					request_result=false;
+					if ( ! XML::Manager::attribute(n,UCS2(L"method"),req_method)) { 
+						*Logger::log << Log::error << Log::LI << "Error. OSI 'http' request must have a method attribute. Normally GET or POST." << Log::LO << Log::blockend;
+						request_result=false;
+					}
+					String::toupper(req_method);
+					if ( ! XML::Manager::attribute(n,UCS2(L"version"),req_version)) { 
+						req_version="HTTP/1.0";
+					}
+					string body;		//we need to initialise this before initializing the HTTPFetch.
+					string req_errors;
+					if ( HTTPFetch::available() ) {
+						vector<std::string> heads;
+						DOMNode* msg=n->getFirstChild();		//this is one of request|response - but we only support request here.
+						while ( msg != NULL && msg->getNodeType() != DOMNode::ELEMENT_NODE)  {
+							msg = msg->getNextSibling();
+						}
+						if (msg != NULL) {
+							OsiMessage::decompile(msg,heads,body);		//this is a message...
+						}
+	//					int max_redirects = 33, timeout_secs = 30;
+						//---------------- COMMENT  when NOT debugging
+						/*					
+						 string logb = Environment::ScratchDir();
+						 logb.append("osi.log");
+						 ofstream logFile(logb.c_str()); 
+						 for (unsigned int i=0; i < heads.size(); i++) {
+						 logFile << heads[i] << crlf;
+						 }
+						 logFile << crlf << body; 
+						 logFile.close(); 
+						 */
+						//---------------- COMMENT  when NOT debugging
+						HTTPFetch my_req(req_url,req_method,req_version,body,max_redirects,timeout_secs,req_errors);
+						for (unsigned int i=0; i < heads.size(); i++) {
+							String::fandr(heads[i],crlf,crlft);		//crlf in heads need a tab after them to indicate that they are not heads.
+							my_req.addHeader(heads[i]);
+						}
+						last_response.clear();
+						string response_head,response_body;	//what was returned by remote server...
+						if (! my_req.doRequest(response_head,response_body, max_redirects, timeout_secs, req_errors) ) {
+							compile_http_response(response_head,response_body,last_response);
+							*Logger::log << Log::error << Log::LI << Log::II << req_url << Log::IO << Log::II << req_errors << Log::IO << Log::LO << Log::blockend;
+							request_result=false;
+						} else {
+							compile_http_response(response_head,response_body,last_response);
+							the_result = DataItem::factory(last_response,obyx::di_object);
+						}
+					} else {
+						*Logger::log << Log::error << Log::LI<< "Error. OSI request failed for url:" << req_url << " - HTTPFetch not available." << Log::LO << Log::blockend;				
+						request_result=false;
+					}
 				}
+			} else {
+				*Logger::log << Log::error << Log::LI << "Error. OSI 'http' only supports request for outwards initiation." << Log::LO << Log::blockend;
+				request_result=false;
 			}
 		} else {
-			*Logger::log << Log::error << Log::LI << "Error. OSI 'http' only supports request for outwards initiation." << Log::LO << Log::blockend;
+			*Logger::log << Log::error << Log::LI << "Error. OSI document was not complete." << Log::LO << Log::blockend;
 			request_result=false;
 		}
 	} else {
@@ -127,71 +132,76 @@ bool OsiAPP::request(const xercesc::DOMNode* n,int max_redirects,int timeout_sec
 			while ( n != NULL && n->getNodeType() != DOMNode::ELEMENT_NODE)  {
 				n = n->getNextSibling();
 			}
-			XML::Manager::transcode(n->getLocalName(),elname);
-			if (elname.compare("send") == 0) {
-				string send_path,env_sender;
-				if (XML::Manager::attribute(n,UCS2(L"sender"),env_sender)) {
-					String::mailencode(env_sender);
-				}
-				if ( ! env->getenv("OBYX_MTA",send_path)) {
-					*Logger::log << Log::error << Log::LI << "Error. OBYX_MTA must be defined which is a path to the sendmail binary." << Log::LO << Log::blockend;
-					request_result=false;
-				} else {
-					n=n->getFirstChild();		  //we only support send here.
-					while ( n != NULL && n->getNodeType() != DOMNode::ELEMENT_NODE)  {
-						n = n->getNextSibling();
+			if (n != NULL) {
+				XML::Manager::transcode(n->getLocalName(),elname);
+				if (elname.compare("send") == 0) {
+					string send_path,env_sender;
+					if (XML::Manager::attribute(n,UCS2(L"sender"),env_sender)) {
+						String::mailencode(env_sender);
 					}
-					string mfil = env->ScratchDir();
-					mfil.append(env->ScratchName());
-					string resf = mfil;
-					mfil.append("osimail.file");
-					resf.append("osimail.res");
-					ofstream outFile(mfil.c_str()); 
-					OsiMessage::decompile(n,outFile,false,true);
-					outFile.close();
-					String::strip(send_path);
-					ostringstream cmd;
-					cmd << "cat " << mfil << " | " << send_path;
-					if (! env_sender.empty() ) {
-						cmd << " -f \"" << env_sender << "\""; //-r is now deprecated by sendmail.org
-					}
-					cmd << " -t > " << resf;  
-					int errno = system(cmd.str().c_str());
-					if (errno != 0) {
-						string errmsg;
-						errmsg = strerror(errno);
-						*Logger::log << Log::error << Log::LI << "Error during system " << Log::LO << Log::LI << cmd << errmsg << Log::LO << Log::blockend;
-					}
-					FileUtils::File file(resf);
-					if (file.exists()) {
-						off_t flen = file.getSize();
-						if ( flen != 0 ) {
-							string file_content;
-							file.readFile(file_content);
-							the_result = DataItem::factory(file_content);
+					if ( ! env->getenv("OBYX_MTA",send_path)) {
+						*Logger::log << Log::error << Log::LI << "Error. OBYX_MTA must be defined which is a path to the sendmail binary." << Log::LO << Log::blockend;
+						request_result=false;
+					} else {
+						n=n->getFirstChild();		  //we only support send here.
+						while ( n != NULL && n->getNodeType() != DOMNode::ELEMENT_NODE)  {
+							n = n->getNextSibling();
 						}
-						file.removeFile();
+						string mfil = env->ScratchDir();
+						mfil.append(env->ScratchName());
+						string resf = mfil;
+						mfil.append("osimail.file");
+						resf.append("osimail.res");
+						ofstream outFile(mfil.c_str()); 
+						OsiMessage::decompile(n,outFile,false,true);
+						outFile.close();
+						String::strip(send_path);
+						ostringstream cmd;
+						cmd << "cat " << mfil << " | " << send_path;
+						if (! env_sender.empty() ) {
+							cmd << " -f \"" << env_sender << "\""; //-r is now deprecated by sendmail.org
+						}
+						cmd << " -t > " << resf;  
+						int errno = system(cmd.str().c_str());
+						if (errno != 0) {
+							string errmsg;
+							errmsg = strerror(errno);
+							*Logger::log << Log::error << Log::LI << "Error during system " << Log::LO << Log::LI << cmd << errmsg << Log::LO << Log::blockend;
+						}
+						FileUtils::File file(resf);
+						if (file.exists()) {
+							off_t flen = file.getSize();
+							if ( flen != 0 ) {
+								string file_content;
+								file.readFile(file_content);
+								the_result = DataItem::factory(file_content);
+							}
+							file.removeFile();
+						}
+						FileUtils::File srcfile(mfil);
+						if (srcfile.exists()) {
+							srcfile.removeFile();
+						}					
+						request_result=true;
+						//---------------- COMMENT  when NOT debugging
+						/*
+						 string logb = Environment::ScratchDir();
+						 logb.append("osi.log");
+						 ofstream logFile(logb.c_str()); 
+						 for (unsigned int i=0; i < heads.size(); i++) {
+						 logFile << heads[i] << crlf;
+						 }
+						 logFile << crlf << body; 
+						 logFile.close(); 
+						 */
+						//---------------- COMMENT  when NOT debugging
 					}
-					FileUtils::File srcfile(mfil);
-					if (srcfile.exists()) {
-						srcfile.removeFile();
-					}					
-					request_result=true;
-					//---------------- COMMENT  when NOT debugging
-					/*
-					 string logb = Environment::ScratchDir();
-					 logb.append("osi.log");
-					 ofstream logFile(logb.c_str()); 
-					 for (unsigned int i=0; i < heads.size(); i++) {
-					 logFile << heads[i] << crlf;
-					 }
-					 logFile << crlf << body; 
-					 logFile.close(); 
-					 */
-					//---------------- COMMENT  when NOT debugging
+				} else {
+					*Logger::log << Log::error << Log::LI << "Error. OSI 'mta' only supports send for the time being." << Log::LO << Log::blockend;
+					request_result=false;
 				}
 			} else {
-				*Logger::log << Log::error << Log::LI << "Error. OSI 'mta' only supports send for the time being." << Log::LO << Log::blockend;
+				*Logger::log << Log::error << Log::LI << "Error. OSI document was not complete." << Log::LO << Log::blockend;
 				request_result=false;
 			}
 		} else {

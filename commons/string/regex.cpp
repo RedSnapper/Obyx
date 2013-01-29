@@ -47,6 +47,8 @@ namespace String {
 	pcre* (*Regex::pcre_compile)(const char*, int, const char**, int*, const unsigned char*) = NULL;
 	int (*Regex::pcre_exec)(const pcre*,const pcre_extra*,PCRE_SPTR,int,int,int,int*,int) = NULL;
 	int (*Regex::pcre_config)(int,void *)= NULL;
+	void (*Regex::pcre_free)(void *) = NULL;
+
 	pcre_extra* (*Regex::pcre_study)(const pcre*,int,const char**) = NULL;
 	//	void (*Regex::pcre_free)(void *) = NULL;
 	
@@ -71,6 +73,7 @@ namespace String {
 				pcre_exec = (int (*)(const pcre*,const pcre_extra*,PCRE_SPTR,int,int,int,int*,int)) dlsym(pcre_lib_handle,"pcre_exec"); dlerr(err);
 				pcre_config = (int (*)(int,void *)) dlsym(pcre_lib_handle,"pcre_config");  dlerr(err);
 				pcre_study = (pcre_extra* (*)(const pcre*,int,const char**)) dlsym(pcre_lib_handle,"pcre_study");  dlerr(err);
+				pcre_free = (void (*)(void *)) dlsym(pcre_lib_handle,"pcre_free");  dlerr(err);
 				if ( err.empty() ) {
 					if ( pcre_config != NULL && pcre_compile != NULL && pcre_exec!=NULL) {
 						int locr = 0;
@@ -102,9 +105,15 @@ namespace String {
 		if (! regex_cache.empty() ) {
 			type_regex_cache::iterator it = regex_cache.begin();
 			while ( it != regex_cache.end()) {
-//				string x = (*it).first; 
-				free((*it).second.first);
-				free((*it).second.second);
+				pccache_item* item = &(it->second);
+				if (item != NULL) {
+					if (item->first != NULL) {
+						(*pcre_free)(item->first);
+					}
+					if (item->second != NULL) {
+						delete item->second;
+					}
+				}
 				it++;
 			}
 			regex_cache.clear();
