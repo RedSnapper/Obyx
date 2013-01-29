@@ -262,9 +262,9 @@ namespace XML {
 										DOMAttr* ai = (DOMAttr*)(mmn->item(i));
 										const u_str ain(ai->getName());
 										if (ain.compare(0,6,UCS2(L"xmlns:")) == 0) {
+											de->removeAttribute(ain.c_str());
 											DOMAttr* iattr = (DOMAttr*)(doc->importNode(ai,true));
-											DOMAttr* oattr = de->setAttributeNode(iattr);
-											if ( oattr!= NULL ) { delete oattr; } //This attribute was already there.
+											de->setAttributeNode(iattr);
 										}
 									}
 								}
