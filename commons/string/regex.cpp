@@ -108,7 +108,8 @@ namespace String {
 				pccache_item* item = &(it->second);
 				if (item != NULL) {
 					if (item->first != NULL) {
-						(*pcre_free)(item->first);
+						delete item->first;
+//						pcre_free(item->first);
 					}
 					if (item->second != NULL) {
 						delete item->second;
