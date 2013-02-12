@@ -20,7 +20,6 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
 #include "commons/logger/logger.h"
 #include "commons/xml/xml.h"
 #include "dataitem.h"
@@ -229,7 +228,7 @@ bool Json::decode(DataItem** basis,const kind_type,string& err_str) const {
 	ostringstream errors;
 	bool retval = true; DataItem* orig = *basis; 
 	if (orig != NULL) {
-		string encoded = *orig;
+		string encoded = *orig; delete orig; orig = NULL;			//default for non-implemented encodings.
 		ostringstream result,errs;
 		size_t offset = encoded.find_first_of("[{");	//skip any wrap.
 		if (offset != string::npos) {

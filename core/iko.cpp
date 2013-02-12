@@ -434,10 +434,10 @@ void IKO::doerrspace(const u_str& input_name) const {
 void IKO::process_encoding(DataItem*& basis) {
 	if (basis != NULL && encoder != e_none) {
 		string errs,encoded;
-		if (!((encoder == e_message && process == encode) || (encoder == e_json && process == decode) )) {
-			encoded = *basis;		//xml cannot survive an encoding.
-			delete basis;					//now it is no longer.
-			basis = NULL;					//default for non-implemented encodings.
+		if (!((encoder == e_message && process == encode) || (encoder == e_json) )) {
+			encoded = *basis;		//xml cannot survive an encoding. (except for json)
+			delete basis;			//now it is no longer.
+			basis = NULL;			//default for non-implemented encodings.
 		}
 		switch ( encoder ) {
 			case e_message: {
