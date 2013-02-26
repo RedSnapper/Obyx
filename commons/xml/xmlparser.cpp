@@ -216,13 +216,13 @@ namespace XML {
 			resourceHandler->setGrammar(xhtml1dtd,UCS2(L"-//W3C//DTD XHTML 1.0 Strict//EN"),Grammar::DTDGrammarType,true);      //XERCESC-1927: DTDs must be loaded before xml documents.
 			resourceHandler->setGrammar(xmlxsd,UCS2(L"http://www.w3.org/XML/1998/namespace"),Grammar::SchemaGrammarType);
 			resourceHandler->setGrammar(xlinkxsd,UCS2(L"http://www.w3.org/1999/xlink"),Grammar::SchemaGrammarType);
-//			resourceHandler->setGrammar(svgxsd,UCS2(L"http://www.w3.org/2000/svg"),Grammar::SchemaGrammarType,true);
+			resourceHandler->setGrammar(svgxsd,UCS2(L"http://www.w3.org/2000/svg"),Grammar::SchemaGrammarType,true);
 			resourceHandler->setGrammar(xhtml5xsd,UCS2(L"http://www.w3.org/1999/xhtml"),Grammar::SchemaGrammarType,true);
 		} else {
 			resourceHandler->setGrammar(xhtml1dtd,UCS2(L"http://www.w3.org/1999/xhtml"),Grammar::DTDGrammarType,true);      //XERCESC-1927: DTDs must be loaded before xml documents.
 			resourceHandler->setGrammar(xmlxsd,UCS2(L"http://www.w3.org/XML/1998/namespace"),Grammar::SchemaGrammarType);
 			resourceHandler->setGrammar(xlinkxsd,UCS2(L"http://www.w3.org/1999/xlink"),Grammar::SchemaGrammarType);
-//			resourceHandler->setGrammar(svgxsd,UCS2(L"http://www.w3.org/2000/svg"),Grammar::SchemaGrammarType,true);
+			resourceHandler->setGrammar(svgxsd,UCS2(L"http://www.w3.org/2000/svg"),Grammar::SchemaGrammarType,true);
 		}
 		resourceHandler->setGrammar(obyxxsd,UCS2(L"http://www.obyx.org"),Grammar::SchemaGrammarType);      //I don't really know why this has to be preloaded..
 		resourceHandler->setGrammar(messagexsd,UCS2(L"http://www.obyx.org/message"),Grammar::SchemaGrammarType);

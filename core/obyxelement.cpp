@@ -521,6 +521,16 @@ void ObyxElement::get_sql_connection() {
 	} 
 }
 void ObyxElement::drop_sql_connection() {
+
+	Environment* env = Environment::service();
+	if (env != NULL) {
+		env->resetenv("OBYX_SQLDATABASE");
+		env->resetenv("OBYX_SQLHOST");
+		env->resetenv("OBYX_SQLUSER");
+		env->resetenv("OBYX_SQLUSERPW");
+		env->resetenv("OBYX_SQLPORT");
+	}
+	
 	if (dbc != NULL ) {
 		if (dbc->isopen())  { //dbs is managed by vdb. Just look after Connections.
 			dbc->close();

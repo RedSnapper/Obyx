@@ -149,6 +149,7 @@ public:
 	static bool getbenv(string const,string&);
 	static bool benvexists(const string&);
 	
+	void resetenv(const string); //? used to reset per-request values.
 	void setienvmap(char ** environment);
 	void gettiming(string&);
 	void do_response_cookies(string&);					//

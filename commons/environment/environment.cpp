@@ -1200,6 +1200,16 @@ void Environment::setbenv(string name,string value) {
 		benv_map.insert(var_map_type::value_type(name, value));
 	}
 }
+void Environment::resetenv(const string name) { //? used to reset per-request values.
+	var_map_type::iterator i = ienv_map.find(name);
+	if (i != ienv_map.end()) {
+		benv_map.erase(i);
+	} 
+	i = benv_map.find(name);
+	if (i != benv_map.end()) {
+		benv_map.erase(i);
+	}
+}
 void Environment::setienvmap(char ** environment) {
 	unsigned int eit = 0;
 	while ( environment[eit] != NULL ) {

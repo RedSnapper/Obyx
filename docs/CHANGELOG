@@ -17,6 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.130226
+	Bug.		fastcgi variables that should change per request are not being cleared.
 v1.130212
 	Bug.		json encoder failing.
 v1.130129
