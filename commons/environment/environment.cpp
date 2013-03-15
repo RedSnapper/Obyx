@@ -1394,8 +1394,9 @@ void Environment::envkeys(const string& pattern,set<string>& keylist) {
 void Environment::parmkeys(const string& pattern,set<string>& keylist) {
 	if ( String::Regex::available() ) {
 		for(vec_map_type::iterator imt = parm_map.begin(); imt != parm_map.end(); imt++) {
-			if (String::Regex::match(pattern,imt->first)) {
-				keylist.insert(imt->first);
+			string pname=imt->first;
+			if (!(pname.compare("࿅") == 0 || pname.compare("࿄") == 0) && String::Regex::match(pattern,pname)) {
+				keylist.insert(pname);
 			}
 		}
 	} else {
