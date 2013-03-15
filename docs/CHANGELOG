@@ -17,6 +17,9 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.130315
+	Bug.		Sysparm keymap returning meta-parameters.
+	Enh.		Added multiple attribute to input on xhtml1 (naughty, but nice).
 v1.130226
 	Bug.		fastcgi variables that should change per request are not being cleared.
 v1.130212
