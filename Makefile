@@ -34,7 +34,7 @@ CC_FLAGS    = -x c++ -DALLOW_MYSQL -funsigned-char -fno-asm -Wno-trigraphs -g -O
 
 CGIHOME  = $(RPATH)/$(CGIDIR)
 CGIHOMEDEV  = $(RPATH)/$(CGIDIR)_dev
-ALL_LIBS = -ldl -lrt -lxerces-c -lxqilla -lstdc++
+ALL_LIBS = -ldl -lrt -lxerces-c -lxqilla -lstdc++ -lm
 SHELL    = /bin/sh
 ###############################################################################
 # Standard Library Compiler Settings
