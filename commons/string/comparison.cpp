@@ -36,14 +36,12 @@ namespace String {
 		if (!s.empty()) {
 			string::const_iterator n=s.end();
 			for (string::const_iterator i=s.begin(); i != n; i++) {
-//				if ( *i & 0x80 != 0) {
 				const char& ch(*i);
 				char z = ch & m;
 				if (z != 0) {
 					retval = false;
 					break;
 				}
-//				}
 			}
 		}
 		return retval;		
