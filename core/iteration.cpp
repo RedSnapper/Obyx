@@ -379,7 +379,7 @@ bool Iteration::operation_repeat() {
 	return fully_evaluated;
 }
 bool Iteration::operation_sql() {
-	bool inputsfinal = true;
+	bool sqldone = true;
 	string tmp_var,controlstring;
 	if ( ! inputs.empty() && inputs[0]->results.result() != NULL ) { 
 		controlstring = *(inputs[0]->results.result());
@@ -421,7 +421,7 @@ bool Iteration::operation_sql() {
 					*Logger::log << Log::error;
 					trace();
 					*Logger::log << Log::blockend;
-					inputsfinal = false; //Just give up.
+					sqldone = false; //Just give up.
 				}
 				delete query; query = NULL;	 //reset the reference..  (used for iko type="field")
 			} else {
@@ -434,13 +434,15 @@ bool Iteration::operation_sql() {
 			*Logger::log << Log::error << Log::LI << "Error. The iteration sql operation must have an sql service available." << Log::LO;
 			trace();
 			*Logger::log << Log::blockend;
+			sqldone = false;
 		}
 	} else {
 		*Logger::log << Log::error << Log::LI << "Error. The value of an SQL control must contain an SQL statement" << Log::LO;
 		trace();
 		*Logger::log << Log::blockend;
+		sqldone = false;
 	}
-	return inputsfinal;
+	return sqldone;
 }
 bool Iteration::operation_while(bool existence) {
 	bool inputsfinal = true;
