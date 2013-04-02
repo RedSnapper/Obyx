@@ -1,9 +1,11 @@
-# 
-# This Makefile is authored and maintained by Ben Griffin of Red Snapper Ltd 
-# This Makefile is a part of Obyx - see http://www.obyx.org .
-# This file is Copyright (C) 2005-2010 Red Snapper Ltd. http://www.redsnapper.net
+# ----------------------------------------------------------------------------
+#
+# This Makefile is authored and maintained by Ben Griffin of Red Snapper Ltd
+# This Makefile is a part of Obyx - see http://www.obyx.org
+# This file is Copyright (C)2005-2013 Red Snapper Ltd. http://www.redsnapper.net
 # Obyx is registered as a trade mark (2483369) in the name of Red Snapper Ltd.
 #
+# ----------------------------------------------------------------------------
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
 # Software Foundation; either version 3 of the License, or (at your option)
@@ -18,7 +20,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-#The includes for xerc are not normally needed, unless xercesc is built there.
+# The includes for xerc are not normally needed, unless xercesc is built there.
 ###############################################################################
 #Also RPATH and CGIDIR must have values -e.g.
 #RPATH=/var/www 
