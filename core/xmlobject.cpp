@@ -339,68 +339,84 @@ bool XMLObject::xp(const DataItem* ins,const u_str& path,DOMLSParser::ActionType
 	bool retval = true; //retval is existence, not failure.
 	Sequence xpr;
 	DynamicContext* context = NULL;
-	retval = xp_result(path,xpr,context,node_expected,error_str);
-	if (retval) {
-		XMLSize_t sslen = xpr.getLength();
-		if ( sslen > 0 ) { //node is found.
-			for ( XMLSize_t i = 0; i < sslen; i++) {
-				const Item::Ptr item = xpr.item(i);
-				if (item->isNode()) {
-					DOMNode* pt = (DOMNode*)item->getInterface(XercesConfiguration::gXerces);
-					u_str insval;
-					if (ins != NULL) {
-						const XMLObject* ox = dynamic_cast<const XMLObject*>(ins);
-						if ( ox == NULL ) {  //ins is a string.
-							const FragmentObject* fg = dynamic_cast<const FragmentObject*>(ins);
-							if ( fg == NULL ) {  //ins is a string.
-								insval = *ins; 
-								XML::Manager::parser()->insertContext(x_doc,pt,insval,action);
-							} else { //fragment.
-								XML::Manager::parser()->insertContext(x_doc,pt,fg->fragment,action);					
+	if( (kind() != di_object) && node_expected) {
+		error_str.append(" Inappropriate for an xpath.");
+		std::string xpath; XML::Manager::transcode(path,xpath);
+		std::string me = *this;
+		error_str = "When attempting an xpath " + xpath + " the object '" + me + "' was not recognised as XML." ;
+		retval=false;
+	} else {
+		retval = xp_result(path,xpr,context,node_expected,error_str);
+		if (retval && error_str.empty()) {
+			XMLSize_t sslen = xpr.getLength();
+			if ( sslen > 0 ) { //node is found.
+				for ( XMLSize_t i = 0; i < sslen; i++) {
+					const Item::Ptr item = xpr.item(i);
+					if (item->isNode()) {
+						DOMNode* pt = (DOMNode*)item->getInterface(XercesConfiguration::gXerces);
+						u_str insval;
+						if (ins != NULL) {
+							const XMLObject* ox = dynamic_cast<const XMLObject*>(ins);
+							if ( ox == NULL ) {  //ins is a string.
+								const FragmentObject* fg = dynamic_cast<const FragmentObject*>(ins);
+								if ( fg == NULL ) {  //ins is a string.
+									insval = *ins; 
+									XML::Manager::parser()->insertContext(x_doc,pt,insval,action);
+								} else { //fragment.
+									XML::Manager::parser()->insertContext(x_doc,pt,fg->fragment,action);					
+								}
+							} else {
+								XML::Manager::parser()->insertContext(x_doc,pt,ox->x_doc,action);					
 							}
 						} else {
-							XML::Manager::parser()->insertContext(x_doc,pt,ox->x_doc,action);					
+							XML::Manager::parser()->insertContext(x_doc,pt,insval,action);
 						}
 					} else {
-						XML::Manager::parser()->insertContext(x_doc,pt,insval,action);
-					}
-				} else {
-					if (node_expected) {
-						if (error_str.empty()) {
-							std::string xpath; XML::Manager::transcode(path,xpath);
-							error_str = "When attempting a set, the xpath " + xpath + " result was not a node.";
+						if (node_expected) {
+							if (error_str.empty()) {
+								std::string xpath; XML::Manager::transcode(path,xpath);
+								error_str = "When attempting a set, the xpath " + xpath + " result was not a node.";
+							}
 						}
+						retval	= false;					
 					}
-					retval	= false;					
 				}
-			}
-		} else {
-			string::size_type slpoint = path.rfind('/');
-			string::size_type apoint = path.rfind('@');
-			if ( apoint == slpoint+1 ) {
-				u_str apath=path.substr(0,slpoint);
-				u_str aname=path.substr(apoint+1);
-				Sequence xpra;
-				DynamicContext* xcontext = NULL;
-				retval = xp_result(apath,xpra,xcontext,node_expected,error_str);
-				if (retval) {
-					XMLSize_t sslena = xpra.getLength();
-					if (sslena > 0) {
-						for ( XMLSize_t ai = 0; ai < sslena; ai++) {
-							const Item::Ptr item = xpra.item(ai);
-							if (item->isNode()) {
-								DOMNode* pt = (DOMNode*)item->getInterface(XercesConfiguration::gXerces);
-								if ( pt->getNodeType() == DOMNode::ELEMENT_NODE ) {
-									DOMElement* enod = (DOMElement*)pt;
-									if ( ins != NULL && ! ins->empty() ) {
-										u_str xvalue = *ins;
-										DOMAttr* dnoda = x_doc->createAttribute(aname.c_str());
-										dnoda->setNodeValue(xvalue.c_str());
-										enod->setAttributeNode(dnoda);
-									} else { //in obyx, setting an attribute to nothing deletes it.								
-										enod->removeAttribute(aname.c_str());
+			} else {
+				string::size_type slpoint = path.rfind('/');
+				string::size_type apoint = path.rfind('@');
+				if ( apoint == slpoint+1 ) {
+					u_str apath=path.substr(0,slpoint);
+					u_str aname=path.substr(apoint+1);
+					Sequence xpra;
+					DynamicContext* xcontext = NULL;
+					retval = xp_result(apath,xpra,xcontext,node_expected,error_str);
+					if (retval) {
+						XMLSize_t sslena = xpra.getLength();
+						if (sslena > 0) {
+							for ( XMLSize_t ai = 0; ai < sslena; ai++) {
+								const Item::Ptr item = xpra.item(ai);
+								if (item->isNode()) {
+									DOMNode* pt = (DOMNode*)item->getInterface(XercesConfiguration::gXerces);
+									if ( pt->getNodeType() == DOMNode::ELEMENT_NODE ) {
+										DOMElement* enod = (DOMElement*)pt;
+										if ( ins != NULL && ! ins->empty() ) {
+											u_str xvalue = *ins;
+											DOMAttr* dnoda = x_doc->createAttribute(aname.c_str());
+											dnoda->setNodeValue(xvalue.c_str());
+											enod->setAttributeNode(dnoda);
+										} else { //in obyx, setting an attribute to nothing deletes it.								
+											enod->removeAttribute(aname.c_str());
+										}
 									}
 								}
+							}
+						} else {
+							if (node_expected) {
+								if (error_str.empty()) {
+									std::string epath; XML::Manager::transcode(apath,epath);
+									error_str = "When attempting an attribute set, the xpath " + epath + " did not return a node position.";
+								}
+								retval=false;
 							}
 						}
 					} else {
@@ -412,75 +428,67 @@ bool XMLObject::xp(const DataItem* ins,const u_str& path,DOMLSParser::ActionType
 							retval=false;
 						}
 					}
+					delete xcontext;
 				} else {
-					if (node_expected) {
-						if (error_str.empty()) {
-							std::string epath; XML::Manager::transcode(apath,epath);
-							error_str = "When attempting an attribute set, the xpath " + epath + " did not return a node position.";
-						}
-						retval=false;
-					}
-				}
-				delete xcontext;
-			} else {
-				string::size_type pathlen = path.size();
-				string::size_type com_pos = path.rfind(UCS2(L"/comment()"),pathlen-10);
-				if (com_pos != string::npos) {
-					u_str apath=path.substr(0,com_pos);
-					Sequence xpra;
-					DynamicContext* xcontext = NULL;
-					retval = xp_result(apath,xpra,xcontext,node_expected,error_str);
-					if (retval) { //retval = existence, not failure.
-						XMLSize_t sslena = xpra.getLength();
-						for ( XMLSize_t ai = 0; ai < sslena; ai++) {
-							const Item::Ptr item = xpra.item(ai);
-							if (item->isNode()) {
-								DOMNode* pt = (DOMNode*)item->getInterface(XercesConfiguration::gXerces);
-								if ( pt->getNodeType() == DOMNode::ELEMENT_NODE ) {
-									DOMElement* enod = (DOMElement*)pt;
-									if ( ins != NULL && ! ins->empty() ) {
-										u_str xvalue  = *ins;
-										DOMNode* dnoda = x_doc->createComment(xvalue.c_str());
-										dnoda->setNodeValue(xvalue.c_str());
-										enod->appendChild(dnoda);
-									} 
+					string::size_type pathlen = path.size();
+					string::size_type com_pos = path.rfind(UCS2(L"/comment()"),pathlen-10);
+					if (com_pos != string::npos) {
+						u_str apath=path.substr(0,com_pos);
+						Sequence xpra;
+						DynamicContext* xcontext = NULL;
+						retval = xp_result(apath,xpra,xcontext,node_expected,error_str);
+						if (retval) { //retval = existence, not failure.
+							XMLSize_t sslena = xpra.getLength();
+							for ( XMLSize_t ai = 0; ai < sslena; ai++) {
+								const Item::Ptr item = xpra.item(ai);
+								if (item->isNode()) {
+									DOMNode* pt = (DOMNode*)item->getInterface(XercesConfiguration::gXerces);
+									if ( pt->getNodeType() == DOMNode::ELEMENT_NODE ) {
+										DOMElement* enod = (DOMElement*)pt;
+										if ( ins != NULL && ! ins->empty() ) {
+											u_str xvalue  = *ins;
+											DOMNode* dnoda = x_doc->createComment(xvalue.c_str());
+											dnoda->setNodeValue(xvalue.c_str());
+											enod->appendChild(dnoda);
+										} 
+									}
 								}
 							}
+						} else {
+							if (node_expected) {
+								if (error_str.empty()) {
+									std::string epath; XML::Manager::transcode(apath,epath);
+									error_str = "When attempting to set a comment, the xpath " + epath + " did not return a node position.";
+								}
+								retval=false;
+							}
 						}
+						delete xcontext;
 					} else {
 						if (node_expected) {
 							if (error_str.empty()) {
-								std::string epath; XML::Manager::transcode(apath,epath);
-								error_str = "When attempting to set a comment, the xpath " + epath + " did not return a node position.";
+								std::string epath; XML::Manager::transcode(path,epath);
+								error_str = "When attempting a set, the xpath " + epath + " did not return a node position.";
 							}
 							retval=false;
 						}
 					}
-					delete xcontext;
-				} else {
-					if (node_expected) {
-						if (error_str.empty()) {
-							std::string epath; XML::Manager::transcode(path,epath);
-							error_str = "When attempting a set, the xpath " + epath + " did not return a node position.";
-						}
-						retval=false;
-					}
-				}
-			}			
-		}
-		if (x_doc->getDocumentElement() == NULL) {
-			x_doc->release(); x_doc = NULL;
-		}
-	} else {
-		if (node_expected) {
-			if (error_str.empty()) {
-				std::string epath; XML::Manager::transcode(path,epath);
-				error_str = "When attempting a set, the xpath " + epath + " failed.";
+				}			
 			}
-			retval=false;
+			if (x_doc->getDocumentElement() == NULL) {
+				x_doc->release(); x_doc = NULL;
+			}
+		} else {
+			if (node_expected) {
+				if (error_str.empty()) {
+					std::string epath; XML::Manager::transcode(path,epath);
+					error_str = "When attempting a set, the xpath " + epath + " failed.";
+				}
+				retval=false;
+			}
 		}
+		delete context;
 	}
-	delete context;
 	return retval;
 }
 bool XMLObject::sort(const u_str& path,const u_str& sortpath,bool ascending,bool node_expected,std::string& error_str) {
