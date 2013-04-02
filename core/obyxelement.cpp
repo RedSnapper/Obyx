@@ -169,15 +169,15 @@ void ObyxElement::do_dealloc() {
 }
 #endif
 
-ObyxElement::ObyxElement(ObyxElement* par,const ObyxElement* orig) : 
-owner(orig->owner),p(par),node(orig->node),results(false),wotspace(orig->wotspace),wotzit(orig->wotzit) { 
+ObyxElement::ObyxElement(ObyxElement* par,const ObyxElement* orig) :
+incatch(false),owner(orig->owner),p(par),node(orig->node),results(false),wotspace(orig->wotspace),wotzit(orig->wotzit) { 
 	results.copy(this,orig->results);
 #ifdef PROFILING
 	do_alloc(); 
 #endif
 }
 ObyxElement::ObyxElement(ObyxElement* parent,const obyx::elemtype et,const obyx::elemclass tp,DOMNode* n) : 
-owner(NULL),p(parent),node(n),results(),wotspace(tp),wotzit(et) {
+incatch(false),owner(NULL),p(parent),node(n),results(),wotspace(tp),wotzit(et) {
 	if ( p != NULL ) { owner = p->owner; }
 #ifdef PROFILING
 	do_alloc(); 
