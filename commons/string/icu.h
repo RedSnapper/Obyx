@@ -48,7 +48,8 @@ namespace String {
 			
 			static void* i18n;
 			static void* uc;
-			
+			static void* tu;
+
 			static bool loadattempted;	//used to show if the service is up or down.
 			static bool loaded;			//used to show if the service is up or down.
 			static UTransliterator* transservice;
@@ -56,6 +57,7 @@ namespace String {
 
 			static void (*u_init)(UErrorCode*);
 			static void (*u_cleanup)();
+			static const char* 	(*u_errorName)(UErrorCode);
 
 			//	UTransliterator * 	utrans_openU (const UChar *id, int32_t idLength, UTransDirection dir, const UChar *rules, int32_t rulesLength, UParseError *parseError, UErrorCode *pErrorCode)
 			//	Open a custom transliterator, given a custom rules string OR a system transliterator, given its ID.

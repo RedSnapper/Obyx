@@ -35,12 +35,14 @@ namespace String {
 
 	void* TransliterationService::i18n= NULL;
 	void* TransliterationService::uc= NULL;
+	void* TransliterationService::tu= NULL;
 	
 	UTransliterator* TransliterationService::transservice = NULL;
 	UErrorCode TransliterationService::errcode;
 
 	void (*TransliterationService::u_init)(UErrorCode*);
 	void (*TransliterationService::u_cleanup)();
+	const char* 	(*TransliterationService::u_errorName)(UErrorCode);
 	
 	UTransliterator* (*TransliterationService::utrans_openU)(const UChar*,int32_t,UTransDirection,const UChar*,int32_t,UParseError*,UErrorCode*);
 	void (*TransliterationService::utrans_close)(UTransliterator *);
@@ -70,17 +72,20 @@ namespace String {
 			Environment::getbenv("OBYX_LIBICUVS",sufstr);
 			string i18nstr = SO(icupath,libicui18n); i18n = dlopen(i18nstr.c_str(),RTLD_GLOBAL | RTLD_NOW); dlerr(errors);
 			string ucstr = SO(icupath,libicuuc);   	 uc = dlopen(ucstr.c_str(),RTLD_GLOBAL | RTLD_NOW); dlerr(errors);
+			string tustr = SO(icupath,libicutu);   	 tu = dlopen(tustr.c_str(),RTLD_GLOBAL | RTLD_NOW); dlerr(errors);
 			
-			if (errors.empty() && uc != NULL && i18n != NULL ) {
+			if (errors.empty() && uc != NULL && i18n != NULL && tu != NULL) {
 				string init="u_init"+sufstr;
 				string cleanup="u_cleanup"+sufstr;
 				string open="utrans_openU"+sufstr;
 				string openo="utrans_open"+sufstr;
 				string close="utrans_close"+sufstr;
 				string trans="utrans_transUChars"+sufstr;
+				string errname="u_errorName"+sufstr;
 
 				u_init = (void (*)(UErrorCode*)) dlsym(uc,init.c_str()); dlerr(errors);
 				u_cleanup = (void (*)()) dlsym(uc,cleanup.c_str()); dlerr(errors);
+				u_errorName = (const char* (*)(UErrorCode)) dlsym(tu,errname.c_str()); dlerr(errors);
 				utrans_openU = (UTransliterator* (*)(const UChar*,int32_t,UTransDirection,const UChar*,int32_t,UParseError*,UErrorCode*)) dlsym(i18n,open.c_str()); dlerr(errors);
 				utrans_close = (void (*)(UTransliterator *)) dlsym(i18n,close.c_str()); dlerr(errors);
 				utrans_transUChars = (void (*)(const UTransliterator*, UChar*, int32_t*, int32_t, int32_t, int32_t*, UErrorCode*)) dlsym(i18n,trans.c_str()); dlerr(errors);
@@ -88,7 +93,11 @@ namespace String {
 				if ( errors.empty() ) {
 					loaded = true;
 					u_init(&errcode);
-					transservice = utrans_openU((const UChar*)(L"Any-NFKD;Any-Latin;Latin-ASCII"),-1,UTRANS_FORWARD,NULL,0,NULL,&errcode);
+					transservice = utrans_openU((const UChar*)(L"Any-NFKD;Any-Latin;Latin-ASCII;[\\u007F-\\uFB02] Remove;"),-1,UTRANS_FORWARD,NULL,0,NULL,&errcode);
+					if (errcode != 0) {
+						errors.append("Transliteration service found and loaded but the service failed with the error: ");
+						errors.append(u_errorName(errcode));
+					}
 				}
 			}
 		}
