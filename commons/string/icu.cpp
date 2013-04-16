@@ -21,6 +21,7 @@
  */
 
 #include <dlfcn.h>
+#include <string.h>
 #include "icu.h"
 #include "commons/environment/environment.h"
 #include "commons/dlso.h"
