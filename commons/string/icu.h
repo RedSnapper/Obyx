@@ -25,15 +25,13 @@
 #ifndef OBYX_ICU_H
 #define OBYX_ICU_H
 
+#ifndef DISALLOW_ICU
+
 #include <map>
 #include <vector>
 #include <sstream>
-
-#ifndef DISALLOW_ICU
-
-#include <unicode/utrans.h>
 #include <string>
-#include <sstream>
+#include <unicode/utrans.h>
 
 namespace {
 #ifndef u_str
