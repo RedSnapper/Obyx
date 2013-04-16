@@ -218,7 +218,7 @@ namespace String {
 				if (Environment::getbenv("OBYX_LIBZIPDIR",libdir)) {
 					if (!libdir.empty() && *libdir.rbegin() != '/') libdir.push_back('/');
 				}
-				libstr = SO(libdir,libzip);
+				libstr = SO(libdir,libz);
 			}
 			lib_handle = dlopen(libstr.c_str(),RTLD_GLOBAL | RTLD_NOW);
 			dlerr(errors); //debug only.
