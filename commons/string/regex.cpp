@@ -21,6 +21,7 @@
  */
 
 #include <string>
+#include <string.h>
 #include <dlfcn.h>
 #include <pcre.h>
 
