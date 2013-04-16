@@ -35,13 +35,14 @@
 #include <string>
 #include <sstream>
 
-using namespace std;
-
+namespace {
 #ifndef u_str
 	#include "xercesc/util/Xerces_autoconf_config.hpp"
 	typedef std::basic_string<XMLCh> u_str;
 #endif
+}
 
+using namespace std;
 
 namespace String {
 		class TransliterationService {
