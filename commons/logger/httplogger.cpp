@@ -28,6 +28,12 @@
 
 bool HTTPLogger::minititle = true;
 
+HTTPLogger::HTTPLogger() : Logger(1),topped(false),tailed(false) {
+//	if (!storageused) {
+//		storageused = storageused; //bkpt.
+//	}
+}
+
 void HTTPLogger::dofatal(std::string message) {
 	Httphead* http = Httphead::service();
 	if ( http && ! http->done() ) {

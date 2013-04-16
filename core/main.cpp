@@ -167,7 +167,7 @@ void startup(std::string& version,std::string& v_number,int argc,char** argv) {
 	ItemStore::startup();
 	Fetch::HTTPFetch::startup();
 	if (!errs.empty()) {
-		*Logger::log << Log::fatal << Log::LI << "Error during startup. " << errs;
+		*Logger::log << Log::fatal << Log::LI << "Error during startup. " << errs << Log::LO << Log::blockend;
 	}
 }
 void init(ostream*& f_out,int argc,char** argv,char** env) {

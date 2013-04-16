@@ -270,6 +270,7 @@ Logger& Logger::operator << (const msgtype mtype) {
 	if ( !infatal && (mtype == fatal || mtype == Log::error || mtype == syntax || mtype == thrown) && (ssize < 2) ) {
 //		*o << "depth:" << ssize;  
 		infatal = true;
+		
 		fataldepth = msgdepth;
 	}
 	if (mtype == blockend) {
@@ -364,8 +365,8 @@ Logger& Logger::operator<< (const bracketing bkt) {
 				unsigned int bp = (unsigned int)ObyxElement::breakpoint();
 				Environment* env = Environment::service();
 				string site("");
-				if (env->envexists("HTTP_HOST")) {
-					env->getenv("HTTP_HOST",site);
+				if (env->benvexists("HTTP_HOST")) {
+					env->getbenv("HTTP_HOST",site);
 					site = "(" + site + ") ";
 				}
 				switch ( type_stack.top() ) {
