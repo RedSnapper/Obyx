@@ -306,7 +306,7 @@ namespace String {
 				long long sti,ssj;
 				sti = ist.tellg();
 				ssj = s.length();
-				if (sti == ssj ) {
+				if ( ist.eof() || sti == ssj ) {
 					isnumber = true;
 				}
 			}
