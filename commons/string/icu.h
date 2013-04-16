@@ -62,7 +62,6 @@ namespace String {
 			//	UTransliterator * 	utrans_openU (const UChar *id, int32_t idLength, UTransDirection dir, const UChar *rules, int32_t rulesLength, UParseError *parseError, UErrorCode *pErrorCode)
 			//	Open a custom transliterator, given a custom rules string OR a system transliterator, given its ID.
 			static UTransliterator* (*utrans_openU)(const UChar*,int32_t,UTransDirection,const UChar*,int32_t,UParseError*,UErrorCode*);
-			static UTransliterator* (*utrans_open)(const char *,UTransDirection,const UChar*,int32_t,UParseError*,UErrorCode*);
 
 			//	void 	utrans_close (UTransliterator *trans)
 			//	Close a transliterator.

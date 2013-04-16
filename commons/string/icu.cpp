@@ -40,7 +40,6 @@ namespace String {
 	void (*TransliterationService::u_init)(UErrorCode*);
 	void (*TransliterationService::u_cleanup)();
 	
-	UTransliterator* (*TransliterationService::utrans_open)(const char*,UTransDirection,const UChar*,int32_t,UParseError*,UErrorCode*);
 	UTransliterator* (*TransliterationService::utrans_openU)(const UChar*,int32_t,UTransDirection,const UChar*,int32_t,UParseError*,UErrorCode*);
 	void (*TransliterationService::utrans_close)(UTransliterator *);
 	void (*TransliterationService::utrans_transUChars)(const UTransliterator*,UChar*,int32_t*,int32_t,int32_t,int32_t*,UErrorCode*);
@@ -80,7 +79,6 @@ namespace String {
 
 				u_init = (void (*)(UErrorCode*)) dlsym(uc,init.c_str()); dlerr(errors);
 				u_cleanup = (void (*)()) dlsym(uc,cleanup.c_str()); dlerr(errors);
-				utrans_open = (UTransliterator* (*)(const char*,UTransDirection,const UChar*,int32_t,UParseError*,UErrorCode*)) dlsym(i18n,open.c_str()); dlerr(errors);
 				utrans_openU = (UTransliterator* (*)(const UChar*,int32_t,UTransDirection,const UChar*,int32_t,UParseError*,UErrorCode*)) dlsym(i18n,open.c_str()); dlerr(errors);
 				utrans_close = (void (*)(UTransliterator *)) dlsym(i18n,close.c_str()); dlerr(errors);
 				utrans_transUChars = (void (*)(const UTransliterator*, UChar*, int32_t*, int32_t, int32_t, int32_t*, UErrorCode*)) dlsym(i18n,trans.c_str()); dlerr(errors);
@@ -88,8 +86,7 @@ namespace String {
 				if ( errors.empty() ) {
 					loaded = true;
 					u_init(&errcode);
-//					transservice = utrans_openU((const UChar*)(L"Any-NFKD;Any-Latin;Latin-ASCII"),-1,UTRANS_FORWARD,NULL,0,NULL,&errcode);
-					transservice = utrans_open("Any-NFKD;Any-Latin;Latin-ASCII",UTRANS_FORWARD,NULL,0,NULL,&errcode);
+					transservice = utrans_openU((const UChar*)(L"Any-NFKD;Any-Latin;Latin-ASCII"),-1,UTRANS_FORWARD,NULL,0,NULL,&errcode);
 				}
 			}
 		}
