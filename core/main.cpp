@@ -145,7 +145,9 @@ void startup(std::string& version,std::string& v_number,int argc,char** argv) {
 	Environment::startup(version,v_number,argc,argv);	//unchanging environment stuff.
 	Logger::startup(version);							//Logger
 	XMLChar::startup();									//Used By LOGGER.
+#ifndef DISALLOW_ICU
 	String::TransliterationService::startup(errs);
+#endif
 	String::Deflate::startup(errs);						//need to start up for mysql etc.
 	Vdb::ServiceFactory::startup();
 #ifdef FAST
@@ -211,6 +213,8 @@ void shutdown() {
 #endif
 	Vdb::ServiceFactory::shutdown();	//Remove the database service
 	String::Deflate::shutdown();
+#ifndef DISALLOW_ICU
 	String::TransliterationService::shutdown();
+#endif
 	Environment::shutdown();
 }

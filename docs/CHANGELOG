@@ -20,7 +20,7 @@ CHANGELOG file
 v1.130416
 	Enh.		ICU-based ASCII transliteration for arbitrary non-ascii strings implemented with encoder="ascii"
 				If the icu library has version suffices, use OBYX_LIBICUVS to set it.
-				eg: "_50" or "_3_6" etc.  Use `nm -D libicui18n.so.36 | grep utrans_openU`
+				eg: "_50" or "_3_6" etc.  Use `nm -D libicui18n.so | grep utrans_openU`
 	Enh.		Shared libraries are now loaded using .dylib on osx and .so on other unices.
 	Enh. 		New environment/obyx config settings for specifying the location of a dynamic shared library
 				eg: OBYX_LIBMYSQLDIR /usr/local/mysql/lib

@@ -26,6 +26,8 @@
 #include "commons/environment/environment.h"
 #include "commons/dlso.h"
 
+#ifndef DISALLOW_ICU
+
 namespace String {
 
 	bool TransliterationService::loadattempted = false;
@@ -119,3 +121,5 @@ namespace String {
 		}
 	};
 }
+
+#endif
