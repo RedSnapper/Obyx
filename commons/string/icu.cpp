@@ -85,7 +85,8 @@ namespace String {
 				if ( errors.empty() ) {
 					loaded = true;
 					u_init(&errcode);
-					transservice = utrans_openU((const UChar*)(L"Any-NFKD;Any-Latin;Latin-ASCII"),-1,UTRANS_FORWARD,NULL,0,NULL,&errcode);
+					UChar transkind[]={'A','n','y','-','N','F','K','D',';','A','n','y','-','L','a','t','i','n',';','L','a','t','i','n','-','A','S','C','I','I',0};
+					transservice = utrans_openU(transkind,-1,UTRANS_FORWARD,NULL,0,NULL,&errcode);
 				}
 			}
 		}
