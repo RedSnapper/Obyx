@@ -26,7 +26,6 @@
 #include "commons/logger/logger.h"
 #include "commons/environment/environment.h"
 
-#include <xercesc/validators/common/GrammarResolver.hpp>
 
 using namespace Log;
 

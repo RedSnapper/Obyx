@@ -23,6 +23,7 @@
 
 #include <dlfcn.h>
 
+#include "commons/dlso.h"
 #include "commons/logger/logger.h"
 #include "commons/environment/environment.h"
 
@@ -46,10 +47,15 @@ namespace Vdb {
 	PostgreSQLService::PostgreSQLService(bool fatal_necessity) : 
 	Service(),postgres_lib_handle(NULL),
 	PQconnectdb(NULL)
-	{ 
-		string postgresqllib;
-		if (!Environment::getbenv("OBYX_LIBPQSO",postgresqllib)) postgresqllib = "libpq.so";
-		postgres_lib_handle = dlopen(postgresqllib.c_str(),RTLD_LAZY);
+	{
+		string libdir,libname;
+		if (!Environment::getbenv("OBYX_LIBPQSO",libname)) { 	//legacy method
+			if (Environment::getbenv("OBYX_LIBPQDIR",libdir)) {
+				if (!libdir.empty() && *libdir.rbegin() != '/') libdir.push_back('/');
+			}
+			libname = SO(libdir,libpq);
+		}
+		postgres_lib_handle = dlopen(libname.c_str(),RTLD_LAZY);
 		if (postgres_lib_handle != NULL ) {
 			PQconnectdb =             (PGconn* (*)(const char*)) dlsym(postgres_lib_handle,"PQconnectdb"); 
 			PQfinish =                   (void (*)(PGconn*)) dlsym(postgres_lib_handle,"PQfinish");

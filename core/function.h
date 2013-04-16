@@ -30,8 +30,6 @@
 #include <vector>
 #include <stack>
 
-#include <xercesc/dom/DOMNode.hpp>
-
 #include "obyxelement.h"
 #include "output.h"
 #include "inputtype.h"

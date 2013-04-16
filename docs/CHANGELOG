@@ -17,6 +17,25 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.130416
+	Enh.		ICU-based ASCII transliteration for arbitrary non-ascii strings implemented with encoder="ascii"
+				If the icu library has version suffices, use OBYX_LIBICUVS to set it.
+				eg: "_50" or "_3_6" etc.  Use `nm -D libicui18n.so.36 | grep utrans_openU`
+	Enh.		Shared libraries are now loaded using .dylib on osx and .so on other unices.
+	Enh. 		New environment/obyx config settings for specifying the location of a dynamic shared library
+				eg: OBYX_LIBMYSQLDIR /usr/local/mysql/lib
+				OBYX_LIBMYSQLDIR (deprecates OBYX_LIBMYSQLCRSO)
+				OBYX_LIBPQDIR 	(deprecates OBYX_LIBPQSO)
+				OBYX_LIBPCREDIR (deprecates OBYX_LIBPCRESO)
+				OBYX_LIBZIPDIR  (deprecates OBYX_LIBZIPSO)
+				OBYX_LIBSSLDIR  (deprecates OBYX_LIBSSLSO)
+				OBYX_LIBICUDIR  (new)
+				OBYX_LIBCURLDIR (deprecates OBYX_LIBCURLSO)
+				OBYX_LIBGMPDIR  (deprecates OBYX_LIBGMPSO)
+				Backwards compatible support is still provided for the *SO environment variables.
+	Enh.		Relocated Header dependancies on XercesC/XQilla as centrally as possible.
+				Also mapped function dependancies. See dummy declaration in xml.h
+
 v1.130401
 	Enh.		Preventing xpath crashes.
 v1.130315

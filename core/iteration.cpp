@@ -25,8 +25,6 @@
 #include <string>
 #include <utility>
 
-#include <xercesc/dom/DOMDocument.hpp>
-#include <xercesc/dom/DOMNode.hpp>
 #include "commons/vdb/vdb.h"
 #include "commons/logger/logger.h"
 #include "commons/xml/xml.h"

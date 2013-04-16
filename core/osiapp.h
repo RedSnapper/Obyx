@@ -24,8 +24,6 @@
 #define OBYX_OSI_APP_H
 
 #include <string>
-#include <xercesc/dom/DOMNode.hpp>
-
 #include "commons/xml/xml.h"
 #include "obyxelement.h"
 #include "dataitem.h"

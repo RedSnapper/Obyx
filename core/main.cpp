@@ -56,7 +56,7 @@ void finalise();
 void shutdown();
 
 int main(int argc, char *argv[]) {
-	string v_number = "1.130401"; //Do NOT put the v here!
+	string v_number = "1.130416"; //Do NOT put the v here!
 #ifdef FAST
 #ifdef PROFILING
 	int  profilecount = 1;
@@ -145,6 +145,7 @@ void startup(std::string& version,std::string& v_number,int argc,char** argv) {
 	Environment::startup(version,v_number,argc,argv);	//unchanging environment stuff.
 	Logger::startup(version);							//Logger
 	XMLChar::startup();									//Used By LOGGER.
+	String::TransliterationService::startup(errs);
 	String::Deflate::startup(errs);						//need to start up for mysql etc.
 	Vdb::ServiceFactory::startup();
 #ifdef FAST
@@ -210,5 +211,6 @@ void shutdown() {
 #endif
 	Vdb::ServiceFactory::shutdown();	//Remove the database service
 	String::Deflate::shutdown();
+	String::TransliterationService::shutdown();
 	Environment::shutdown();
 }

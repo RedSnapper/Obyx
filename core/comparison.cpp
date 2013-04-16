@@ -22,7 +22,6 @@
 
 #include <ctype.h>
 #include <math.h>
-#include <xercesc/dom/DOMNode.hpp>
 
 #include "commons/logger/logger.h"
 #include "commons/xml/xml.h"

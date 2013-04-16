@@ -22,8 +22,7 @@
 
 #include <deque>
 #include <string>
-#include <xercesc/dom/DOMNode.hpp>
-
+#include "commons/dlso.h"
 #include "commons/string/strings.h"
 #include "commons/date/date.h"
 #include "commons/environment/environment.h"
@@ -145,6 +144,7 @@ IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : ObyxElement
 				case e_sha224:
 				case e_sha384:
 				case e_sha512:
+				case e_ascii:
 				case e_digits:
 				case e_none: 
 				case e_sql: {
@@ -383,13 +383,15 @@ bool IKO::httpready() const {
 	if (!HTTPFetch::available()) {
 		httpgood = false;
 		*Logger::log << Log::error << Log::LI << "Error. space 'url' requires libcurl and this was not found. ";
-		Environment* env = Environment::service();
-		if (env->envexists("OBYX_LIBCURLSO")) {
-			string val; env->getenv("OBYX_LIBCURLSO",val); 
-			*Logger::log << "The environment 'OBYX_LIBCURLSO' of '" << val << "' is not working.";
-		} else {
-			*Logger::log << "If your libcurl is not in a system library directory, set the environment 'OBYX_LIBCURLSO'.";
+		string libdir,libstr;
+		if (!Environment::getbenv("OBYX_LIBCURLSO",libstr)) { 	//legacy method
+			if (Environment::getbenv("OBYX_LIBCURLDIR",libdir)) {
+				if (!libdir.empty() && *libdir.rbegin() != '/') libdir.push_back('/');
+			}
+			libstr = SO(libdir,libcurl);
+			*Logger::log << "The environment 'OBYX_LIBCURLSO/OBYX_LIBCURLDIR' of '" << libstr << "' is not working.";
 		}
+		*Logger::log << "If your libcurl is not in a system library directory, set the environment 'OBYX_LIBCURLDIR'.";
 		*Logger::log << Log::LO;
 		trace();
 		*Logger::log << Log::blockend;
@@ -433,11 +435,18 @@ void IKO::doerrspace(const u_str& input_name) const {
 }
 void IKO::process_encoding(DataItem*& basis) {
 	if (basis != NULL && encoder != e_none) {
+		u_str uencoded;
 		string errs,encoded;
-		if (!((encoder == e_message && process == encode) || (encoder == e_json) )) {
+		if (!((process == encode && (encoder == e_message || encoder == e_ascii ) ) || (encoder == e_json) )) {
 			encoded = *basis;		//xml cannot survive an encoding. (except for json)
 			delete basis;			//now it is no longer.
 			basis = NULL;			//default for non-implemented encodings.
+		} else {
+			if (process == encode && encoder == e_ascii) {
+				uencoded = *basis;
+				delete basis;			//now it is no longer.
+				basis = NULL;			//default for non-implemented encodings.
+			}
 		}
 		switch ( encoder ) {
 			case e_message: {
@@ -693,6 +702,13 @@ void IKO::process_encoding(DataItem*& basis) {
 				String::todigits(encoded);
 				basis = DataItem::factory(encoded,di_text); //cannot be xml.
 			} break;
+			case e_ascii: { //strip out anything that isn't ascii...
+#ifndef DISALLOW_ICU
+				String::TransliterationService::transliterate(uencoded,errs);
+#endif
+				basis = DataItem::factory(uencoded,di_text); //cannot be xml.
+			} break;
+			
 			default: break;
 		}
 	}
@@ -1485,6 +1501,7 @@ void IKO::startup() {
 	kind_types.insert(kind_type_map::value_type(UCS2(L"text"), di_text));
 	kind_types.insert(kind_type_map::value_type(UCS2(L"object"), di_object));
 	
+	enc_types.insert(enc_type_map::value_type(UCS2(L"ascii"), e_ascii));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"none"), e_none));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"qp"), e_qp));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"sql"), e_sql));

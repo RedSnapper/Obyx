@@ -23,6 +23,7 @@
 #include <string.h>
 #include <dlfcn.h>
 #include "crypto.h"
+#include "commons/dlso.h"
 #include "commons/environment/environment.h"
 
 namespace String {
@@ -63,8 +64,13 @@ namespace String {
 		if ( ! loadattempted ) {
 			loadattempted = true;
 			loaded = false;
-			string libstr;
-			if (!Environment::getbenv("OBYX_LIBSSLSO",libstr)) libstr = "libssl.so";
+			string libdir,libstr;
+			if (!Environment::getbenv("OBYX_LIBSSLSO",libstr)) { 	//legacy method
+				if (Environment::getbenv("OBYX_LIBSSLDIR",libdir)) {
+					if (!libdir.empty() && *libdir.rbegin() != '/') libdir.push_back('/');
+				}
+				libstr = SO(libdir,libssl);
+			}
 			lib_handle = dlopen(libstr.c_str(),RTLD_GLOBAL | RTLD_NOW);
 			dlerr(errors); //debug only.
 			if (errors.empty() && lib_handle != NULL ) {
@@ -207,8 +213,13 @@ namespace String {
 		if ( ! loadattempted ) {
 			loadattempted = true;
 			loaded = false;
-			string libstr;
-			if (!Environment::getbenv("OBYX_LIBZIPSO",libstr)) libstr = "libz.so";
+			string libdir,libstr;
+			if (!Environment::getbenv("OBYX_LIBZIPSO",libstr)) { 	//legacy method
+				if (Environment::getbenv("OBYX_LIBZIPDIR",libdir)) {
+					if (!libdir.empty() && *libdir.rbegin() != '/') libdir.push_back('/');
+				}
+				libstr = SO(libdir,libzip);
+			}
 			lib_handle = dlopen(libstr.c_str(),RTLD_GLOBAL | RTLD_NOW);
 			dlerr(errors); //debug only.
 			if (errors.empty() && lib_handle != NULL ) {

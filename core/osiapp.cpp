@@ -23,8 +23,6 @@
 #include <unistd.h>
 #include <string>
 #include <fstream>
-#include <xercesc/dom/DOMDocument.hpp>
-#include <xercesc/dom/DOMNode.hpp>
 #include "commons/logger/logger.h"
 #include "commons/xml/xml.h"
 #include "commons/environment/environment.h"

@@ -309,6 +309,7 @@
 					<xs:enumeration value="xml"/>
 					<xs:enumeration value="url"/>
 					<xs:enumeration value="sql"/>
+					<xs:enumeration value="ascii"/>
 					<xs:enumeration value="base16"/>
 					<xs:enumeration value="base64"/>
 					<xs:enumeration value="base64s"/>

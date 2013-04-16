@@ -28,7 +28,6 @@
 #include <stack>
 #include <map>
 #include <ext/hash_map>
-#include <xercesc/dom/DOMDocument.hpp>
 
 #include "commons/string/strings.h"
 #include "commons/xml/xml.h"

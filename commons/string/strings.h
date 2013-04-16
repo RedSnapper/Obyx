@@ -31,6 +31,7 @@
 #include "regex.h"
 #include "crypto.h"
 #include "chars.h"
+#include "icu.h"
 
 using namespace std;
 using namespace __gnu_cxx; //hashmap namespace.

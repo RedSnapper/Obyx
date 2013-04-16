@@ -25,8 +25,7 @@
 
 #include <string>
 
-#include <xercesc/dom/DOMNode.hpp>
-
+#include "commons/xml/xml.h"
 #include "obyxelement.h"
 #include "pairqueue.h"
 #include "output.h"

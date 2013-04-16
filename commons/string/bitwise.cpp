@@ -27,6 +27,7 @@
 #ifndef DISALLOW_GMP
 
 #include <gmp.h>
+#include "commons/dlso.h"
 #include "commons/environment/environment.h"
 #include "commons/logger/logger.h"
 #include "commons/string/bitwise.h"
@@ -457,8 +458,13 @@ namespace String {
 			if ( ! loadattempted ) {
 				loadattempted = true;
 				loaded = false;
-				string libname;
-				if (!Environment::getbenv("OBYX_LIBGMPSO",libname)) libname = "libgmp.so";
+				string libdir,libname;
+				if (!Environment::getbenv("OBYX_LIBGMPSO",libname)) { 	//legacy method
+					if (Environment::getbenv("OBYX_LIBGMPDIR",libdir)) {
+						if (!libdir.empty() && *libdir.rbegin() != '/') libdir.push_back('/');
+					}
+					libname = SO(libdir,libgmp);
+				}
 				lib_handle = dlopen(libname.c_str(),RTLD_GLOBAL | RTLD_NOW);
 				dlerr(err); //debug only.
 				if (err.empty() && lib_handle != NULL ) {

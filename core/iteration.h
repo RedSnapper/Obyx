@@ -24,8 +24,7 @@
 #define OBYX_CONTEXT_H
 
 #include <string>
-#include <xercesc/dom/DOMDocument.hpp>
-#include <xercesc/dom/DOMNode.hpp>
+#include "commons/xml/xml.h"
 #include "commons/vdb/vdb.h"
 
 #include "function.h"

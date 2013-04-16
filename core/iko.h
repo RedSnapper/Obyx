@@ -24,7 +24,7 @@
 #define OBYX_CONTEXT_IKO_H
 
 #include <string>
-#include <xercesc/dom/DOMNode.hpp>
+#include "commons/xml/xml.h"
 #include "commons/logger/logger.h"
 #include "obyxelement.h"
 #include "json.h"

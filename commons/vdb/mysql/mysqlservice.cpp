@@ -25,6 +25,7 @@
 
 #include "mysql.h"
 
+#include "commons/dlso.h"
 #include "commons/string/strings.h"
 #include "commons/logger/logger.h"
 #include "commons/environment/environment.h"
@@ -54,10 +55,15 @@ namespace Vdb {
 	real_query(NULL),row_seek(NULL),row_tell(NULL),character_set_name(NULL),set_character_set(NULL),store_result(NULL)
 	{ 
 		string errstr;
-		if (String::Deflate::available(errstr)) {			
-			string mysqllib;
-			if (!Environment::getbenv("OBYX_LIBMYSQLCRSO",mysqllib)) mysqllib = "libmysqlclient_r.so";
-			mysql_lib_handle = dlopen(mysqllib.c_str(),RTLD_LAZY);
+		if (String::Deflate::available(errstr)) {
+			string libdir,libname;
+			if (!Environment::getbenv("OBYX_LIBMYSQLCRSO",libname)) { 	//legacy method
+				if (Environment::getbenv("OBYX_LIBMYSQLDIR",libdir)) {
+					if (!libdir.empty() && *libdir.rbegin() != '/') libdir.push_back('/');
+				}
+				libname = SO(libdir,libmysqlclient_r);
+			}
+			mysql_lib_handle = dlopen(libname.c_str(),RTLD_LAZY);
 			if (mysql_lib_handle != NULL ) {
 				library_init = (int (*)(int, char **,char **)) dlsym(mysql_lib_handle,"mysql_server_init");
 				library_end = (void (*)()) dlsym(mysql_lib_handle,"mysql_server_end");
@@ -90,7 +96,7 @@ namespace Vdb {
 				service=false;
 				if (fatal_necessity) {
 					string msg;	char* err = dlerror(); if ( err != NULL) msg=err;
-					*Logger::log <<  Log::fatal << Log::LI << "MySQLService error:: Failed to load the " << mysqllib << " dynamic library. " << msg << Log::LO << Log::blockend; 
+					*Logger::log <<  Log::fatal << Log::LI << "MySQLService error:: Failed to load the " << libname << " dynamic library. " << msg << Log::LO << Log::blockend; 
 				}
 			}
 			if (service) {

@@ -26,7 +26,6 @@
 #include <cfloat>
 #include <errno.h>
 #include <float.h>
-#include <xercesc/dom/DOMNode.hpp>
 
 #include "commons/logger/logger.h"
 #include "commons/xml/xml.h"

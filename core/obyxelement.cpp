@@ -20,9 +20,7 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <xercesc/dom/DOMDocument.hpp>
-#include <xercesc/dom/DOMNode.hpp>
-
+#include "commons/xml/xml.h"
 #include "commons/httpfetch/httpfetch.h"
 #include "commons/environment/environment.h"
 #include "commons/logger/logger.h"

@@ -34,6 +34,7 @@
 #include "commons/environment/environment.h"
 #include "commons/xml/xml.h"
 
+using namespace xercesc;
 using namespace std;
 using namespace __gnu_cxx; //hashmap namespace.
 

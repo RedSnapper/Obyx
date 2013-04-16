@@ -21,10 +21,10 @@
  */
 
 #include <string>
-#include <pcre.h>
 #include <dlfcn.h>
-#include <string.h>
+#include <pcre.h>
 
+#include "commons/dlso.h"
 #include "commons/environment/environment.h"
 #include "commons/logger/logger.h"
 #include "regex.h"
@@ -64,9 +64,14 @@ namespace String {
 		if ( ! loadattempted ) {
 			loadattempted = true;
 			loaded = false;
-			string pcrelib;
-			if (!Environment::getbenv("OBYX_LIBPCRESO",pcrelib)) pcrelib = "libpcre.so";
-			pcre_lib_handle = dlopen(pcrelib.c_str(),RTLD_GLOBAL | RTLD_NOW);
+			string libdir,libstr;
+			if (!Environment::getbenv("OBYX_LIBPCRESO",libstr)) { 	//legacy method
+				if (Environment::getbenv("OBYX_LIBPCREDIR",libdir)) {
+					if (!libdir.empty() && *libdir.rbegin() != '/') libdir.push_back('/');
+				}
+				libstr = SO(libdir,libpcre);
+			}
+			pcre_lib_handle = dlopen(libstr.c_str(),RTLD_GLOBAL | RTLD_NOW);
 			dlerr(err); //debug only.
 			if (err.empty() && pcre_lib_handle != NULL ) {
 				pcre_compile = (pcre* (*)(const char*, int, const char**, int*,const unsigned char*)) dlsym(pcre_lib_handle,"pcre_compile"); dlerr(err);

@@ -58,7 +58,7 @@ VDB_SRCS         =vdb/servicefactory.cpp vdb/connection.cpp vdb/query.cpp ${VDB_
 LOG_SRCS         =logger/logger.cpp logger/httplogger.cpp logger/clilogger.cpp
 DATE_SRCS        =date/date.cpp 
 STRING_SRCS      =string/infix.cpp string/crypto.cpp string/chars.cpp string/comparison.cpp string/convert.cpp \
-                  string/fandr.cpp string/translate.cpp string/regex.cpp string/bitwise.cpp
+                  string/fandr.cpp string/translate.cpp string/regex.cpp string/bitwise.cpp string/icu.cpp 
 ENV_SRCS         =environment/environment.cpp environment/IInfImageBase.cpp environment/IInfImageTypes.cpp environment/IInfInfo.cpp environment/IInfNetworkGraphics.cpp environment/IInfReader.cpp
 XML_SRCS         =xml/manager.cpp xml/xmlerrhandler.cpp xml/xmlparser.cpp xml/xmlrsrchandler.cpp
 HEAD_SRCS        =httphead/httphead.cpp

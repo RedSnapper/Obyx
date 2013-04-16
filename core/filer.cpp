@@ -22,8 +22,6 @@
 
 #include <string>
 
-#include <xercesc/dom/DOMDocument.hpp>
-
 #include "commons/filing/filing.h"
 #include "commons/logger/logger.h"
 #include "commons/environment/environment.h"

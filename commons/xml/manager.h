@@ -27,8 +27,8 @@
 #include <istream>
 #include <ostream>
 
-#include "commons/xml/xml.h"
 #include "commons/string/strings.h"
+#include "commons/xml/xml.h"
 
 namespace XML {
 	

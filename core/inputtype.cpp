@@ -22,7 +22,6 @@
 
 #include <deque>
 #include <string>
-#include <xercesc/dom/DOMNode.hpp>
 #include "commons/logger/logger.h"
 #include "commons/environment/environment.h"
 #include "commons/vdb/vdb.h"

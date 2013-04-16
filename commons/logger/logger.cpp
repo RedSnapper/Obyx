@@ -25,6 +25,7 @@
 #include <string>
 #include <sstream>
 
+#include "commons/xml/xml.h"
 #include "commons/httphead/httphead.h"
 #include "commons/environment/environment.h"
 #include "commons/string/strings.h"

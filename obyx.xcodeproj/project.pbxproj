@@ -100,12 +100,13 @@
 		B56171840AD134C00032F167 /* instruction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B56171830AD134C00032F167 /* instruction.cpp */; };
 		B56171DF0AD13B430032F167 /* comparison.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B56171DE0AD13B430032F167 /* comparison.cpp */; };
 		B56234A10FEFC9A400CF092E /* itemstore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B56234A00FEFC9A400CF092E /* itemstore.cpp */; };
+		B563F4C0170C23AF0073A76A /* libxerces-c-3.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B5CA58FB11B66946001A56D4 /* libxerces-c-3.1.dylib */; };
+		B563F4C1170C23B30073A76A /* libxqilla.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B599F9230F583DEA00AD3D2C /* libxqilla.dylib */; };
 		B568C3030CC63C1600B1EBFF /* connection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B568C2FB0CC63C1600B1EBFF /* connection.cpp */; };
 		B56A57021265F924001C4299 /* infix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B56A57011265F924001C4299 /* infix.cpp */; };
 		B56A57031265F924001C4299 /* infix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B56A57011265F924001C4299 /* infix.cpp */; };
 		B5741877119436A80046BE0B /* httplogger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B50F509E09939223002FC561 /* httplogger.cpp */; };
 		B5741878119436AA0046BE0B /* clilogger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B50F509C09939223002FC561 /* clilogger.cpp */; };
-		B5798122124282DA004752BE /* libxqilla.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B599F9230F583DEA00AD3D2C /* libxqilla.dylib */; };
 		B57DFC7D13559D8F00122195 /* rawitem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B57DFC7B13559D8F00122195 /* rawitem.cpp */; };
 		B57DFC7E13559D8F00122195 /* rawitem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B57DFC7B13559D8F00122195 /* rawitem.cpp */; };
 		B58852A60CC39E1B009D0279 /* regex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B58852A10CC39E1B009D0279 /* regex.cpp */; };
@@ -114,9 +115,10 @@
 		B5A2AE07149BA5E8001D0266 /* json.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5A2AE05149BA5E8001D0266 /* json.cpp */; };
 		B5A68E9209CF266B00D69316 /* pairqueue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5A68E9109CF266B00D69316 /* pairqueue.cpp */; };
 		B5CA58FC11B66946001A56D4 /* libxerces-c-3.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B5CA58FB11B66946001A56D4 /* libxerces-c-3.1.dylib */; };
-		B5CA58FD11B66946001A56D4 /* libxerces-c-3.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B5CA58FB11B66946001A56D4 /* libxerces-c-3.1.dylib */; };
 		B5CB066109BE09DB0014329C /* document.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5CB066009BE09DB0014329C /* document.cpp */; };
 		B5D74F1C0CA0433E00D37970 /* osiapp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5D74F1B0CA0433E00D37970 /* osiapp.cpp */; };
+		B5D79438171BFEEA004936A4 /* icu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5D79436171BFEEA004936A4 /* icu.cpp */; };
+		B5D79439171BFEEA004936A4 /* icu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5D79436171BFEEA004936A4 /* icu.cpp */; };
 		B5DA48C10CFC48BE0060FFB1 /* iko.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5DA48C00CFC48BE0060FFB1 /* iko.cpp */; };
 		B5E18D350D7C3B2200888B5C /* obyxelement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5CB068609BE0CBF0014329C /* obyxelement.cpp */; };
 		B5E3209A09BC599B00F7FC96 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B5E31FE609BC584A00F7FC96 /* main.cpp */; };
@@ -290,6 +292,9 @@
 		B5CB068609BE0CBF0014329C /* obyxelement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = obyxelement.cpp; sourceTree = "<group>"; };
 		B5D74F1A0CA0433E00D37970 /* osiapp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = osiapp.h; sourceTree = "<group>"; };
 		B5D74F1B0CA0433E00D37970 /* osiapp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = osiapp.cpp; sourceTree = "<group>"; };
+		B5D79436171BFEEA004936A4 /* icu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = icu.cpp; sourceTree = "<group>"; };
+		B5D79437171BFEEA004936A4 /* icu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = icu.h; sourceTree = "<group>"; };
+		B5D7943A171C5521004936A4 /* dlso.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = dlso.h; sourceTree = "<group>"; };
 		B5D99D4D0D992FC10093325B /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		B5D99D4E0D992FFD0093325B /* TODO */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TODO; sourceTree = "<group>"; };
 		B5D99D4F0D992FFD0093325B /* THANKS */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = THANKS; sourceTree = "<group>"; };
@@ -339,8 +344,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				B51648170CBB8285000995D5 /* libdl.dylib in Frameworks */,
-				B5CA58FD11B66946001A56D4 /* libxerces-c-3.1.dylib in Frameworks */,
-				B5798122124282DA004752BE /* libxqilla.dylib in Frameworks */,
+				B563F4C0170C23AF0073A76A /* libxerces-c-3.1.dylib in Frameworks */,
+				B563F4C1170C23B30073A76A /* libxqilla.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -387,6 +392,7 @@
 		B509B96B098E4D180001B5AD /* commons */ = {
 			isa = PBXGroup;
 			children = (
+				B5D7943A171C5521004936A4 /* dlso.h */,
 				B541F1D3119414330099F07C /* fast */,
 				B509B96C098E4D180001B5AD /* date */,
 				B509B981098E4D180001B5AD /* string */,
@@ -432,6 +438,8 @@
 				B5072F07099CA2E1002F675A /* strings.h */,
 				B54EE14E0E3501860044DFA3 /* chars.h */,
 				B54EE14F0E3501860044DFA3 /* chars.cpp */,
+				B5D79437171BFEEA004936A4 /* icu.h */,
+				B5D79436171BFEEA004936A4 /* icu.cpp */,
 				B5F79CB11268876B008CBD64 /* bitwise.h */,
 				B5F79CB21268876B008CBD64 /* bitwise.cpp */,
 				B56A57001265F924001C4299 /* infix.h */,
@@ -933,6 +941,7 @@
 				B5350FA2134DBE3F00801466 /* ustritem.cpp in Sources */,
 				B57DFC7E13559D8F00122195 /* rawitem.cpp in Sources */,
 				B5A2AE07149BA5E8001D0266 /* json.cpp in Sources */,
+				B5D79439171BFEEA004936A4 /* icu.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1004,6 +1013,7 @@
 				B5350FA1134DBE3F00801466 /* ustritem.cpp in Sources */,
 				B57DFC7D13559D8F00122195 /* rawitem.cpp in Sources */,
 				B5A2AE06149BA5E8001D0266 /* json.cpp in Sources */,
+				B5D79438171BFEEA004936A4 /* icu.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1015,6 +1025,18 @@
 			buildSettings = {
 				GCC_USE_STANDARD_INCLUDE_SEARCHING = YES;
 				GCC_VERSION = "";
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)",
+					/usr/local/mysql/include,
+					/usr/local/include,
+					/usr/include,
+					/opt/local/include,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					/usr/local/mysql/lib,
+					/usr/local/lib,
+					/opt/local/lib/,
+				);
 				OTHER_CFLAGS = (
 					"-DFAST",
 					"-DALLOW_MYSQL",
@@ -1105,16 +1127,26 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_VERSION = "";
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)",
+					/usr/local/mysql/include,
+					/usr/local/include,
+					/usr/include,
+					/opt/local/include,
+				);
 				OTHER_CFLAGS = (
 					"-DALLOW_MYSQL",
 					"-fshort-wchar",
+					"-ferror-limit=0",
 					"-DPRXXXXPROFILING",
+					"-fmax-errors=0",
 				);
 				PRODUCT_NAME = obyx.cgi;
 				RUN_CLANG_STATIC_ANALYZER = YES;
 				SDKROOT = "";
 				SKIP_INSTALL = NO;
 				VALIDATE_PRODUCT = YES;
+				WARNING_CFLAGS = "";
 			};
 			name = General;
 		};

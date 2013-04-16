@@ -29,6 +29,7 @@
 
 #include <curl/curl.h>
 
+#include "commons/dlso.h"
 #include "commons/environment/environment.h"
 #include "commons/string/strings.h"
 #include "commons/logger/logger.h"
@@ -172,9 +173,14 @@ namespace Fetch {
 		if ( ! loadattempted ) {
 			loadattempted = true;
 			loaded = false;
-			string curllib;
-			if (!Environment::getbenv("OBYX_LIBCURLSO",curllib)) curllib = "libcurl.so";
-			lib_handle = dlopen(curllib.c_str(),RTLD_GLOBAL | RTLD_NOW);
+			string libdir,libstr;
+			if (!Environment::getbenv("OBYX_LIBCURLSO",libstr)) { 	//legacy method
+				if (Environment::getbenv("OBYX_LIBCURLDIR",libdir)) {
+					if (!libdir.empty() && *libdir.rbegin() != '/') libdir.push_back('/');
+				}
+				libstr = SO(libdir,libcurl);
+			}
+			lib_handle = dlopen(libstr.c_str(),RTLD_GLOBAL | RTLD_NOW);
 			dlerr(err);
 			if (err.empty() && lib_handle != NULL ) {
 				curl_easy_init = (CURL* (*)()) dlsym(lib_handle,"curl_easy_init");
