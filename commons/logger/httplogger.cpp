@@ -71,7 +71,7 @@ void HTTPLogger::dofatal(std::string message) {
 	}
 }
 
-void HTTPLogger::strip(string& basis) { 
+void HTTPLogger::strip(string& basis) {
 	if ( ! basis.empty() && String::Regex::available() ) {
 		String::Regex::replace("<!DOCTYPE([^>]+)>","<!--[DOCTYPE \\1]-->",basis);
 		String::Regex::replace("<\\?xml([^>]+)\\?>","<!--[xml \\1]-->",basis);

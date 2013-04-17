@@ -256,7 +256,7 @@
 				static int (*mpz_root)(mpz_t,mpz_t,unsigned long int);
 				static mpz_t zero;
 				
-				static bool startup();
+				static bool startup(string&);
 				static bool available();
 				static bool shutdown();
 				//		static bool field(const string &,const string &,unsigned int,string &);

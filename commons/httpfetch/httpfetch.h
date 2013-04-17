@@ -88,7 +88,7 @@ namespace Fetch {
 		~HTTPFetch();
 		void addHeader(std::string&);
 		bool doRequest(string&,string&,unsigned long long,unsigned long long, string&);
-		static bool startup();
+		static bool startup(string&);
 		static bool available();
 		static bool shutdown();
 		

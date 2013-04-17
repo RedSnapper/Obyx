@@ -54,14 +54,16 @@ namespace String {
 	//	void (*Regex::pcre_free)(void *) = NULL;
 	
 	Regex::type_regex_cache Regex::regex_cache;
-	
+
 	bool Regex::available() {
-		if (!loadattempted) startup();
+		if (!loadattempted) {
+			string pcre_errors;
+			startup(pcre_errors);
+		}
 		return loaded;
-	}
-	
-	bool Regex::startup() {	
-		std::string err=""; //necessary IFF script uses pcre.
+	}	
+	bool Regex::startup(string& startup_errors) {
+		string err;
 		if ( ! loadattempted ) {
 			loadattempted = true;
 			loaded = false;
@@ -93,6 +95,7 @@ namespace String {
 					}
 				} 
 			}
+			startup_errors.append(err);
 		}
 		return loaded;
 	}

@@ -55,8 +55,10 @@ namespace String {
 		}
 	}
 	bool Digest::available(string& errors) {
-		if (!loadattempted) { 
-			startup(errors); 
+		if (!loadattempted) {
+			string digest_errors;
+			startup(digest_errors);
+			errors.append(digest_errors);
 		}
 		return loaded;
 	}
@@ -205,11 +207,15 @@ namespace String {
 			errstr.push_back(';');
 		}
 	}
-	bool Deflate::available(string & errors) {
-		startup(errors); 
+	bool Deflate::available() {
+		if (!loadattempted) {
+			string errors;
+			startup(errors);
+		}
 		return loaded;
 	}
-	bool Deflate::startup(string& errors) {	
+	bool Deflate::startup(string& startup_errors) {
+		string errors;
 		if ( ! loadattempted ) {
 			loadattempted = true;
 			loaded = false;
@@ -239,6 +245,7 @@ namespace String {
 					if (zlv != NULL) { libversion = zlv; }
 				}
 			}
+			startup_errors.append(errors);
 		}
 		return loaded;
 	}

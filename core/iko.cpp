@@ -670,7 +670,7 @@ void IKO::process_encoding(DataItem*& basis) {
 				}
 			} break;
 			case e_deflate: {
-				if (String::Deflate::available(errs)) {
+				if (String::Deflate::available()) {
 					if ( process == encode) {
 						String::Deflate::deflate(encoded,errs);
 						if (errs.empty()) {

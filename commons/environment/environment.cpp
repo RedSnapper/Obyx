@@ -141,7 +141,6 @@ void Environment::do_conf_from_args(int argc, char **argv) {
 //so this now sends out the header AFTER the xml.
 void Environment::init(int argc, char **argv, char** env) {
 	if (instance == NULL) {
-//		config_file_done = false;
 		instance = new Environment();	// instantiate singleton
 		instance->gArgc=argc;
 		instance->gArgv=argv;
@@ -159,7 +158,6 @@ void Environment::finalise() {
 	if (instance != NULL) {
 		delete instance;
 		instance = NULL;
-//		config_file_done = false;
 	}
 }
 

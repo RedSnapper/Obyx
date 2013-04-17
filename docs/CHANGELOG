@@ -17,6 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.130417
+	Bug.		Dynamic library initialisation bug resolved (affected fastcgi builds).
 v1.130416
 	Enh.		ICU-based ASCII transliteration for arbitrary non-ascii strings implemented with encoder="ascii"
 				If the icu library has version suffices, use OBYX_LIBICUVS to set it.

@@ -66,7 +66,7 @@ namespace String {
 		static const string xml_namespace_prolog;
 		static const string xml_schema_prolog;
 		
-		static bool startup();
+		static bool startup(string&);
 		static bool available();
 		static bool shutdown();
 		

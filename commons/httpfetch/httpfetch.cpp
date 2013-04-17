@@ -156,11 +156,14 @@ namespace Fetch {
 	void (*HTTPFetch::curl_easy_cleanup)(CURL*) = NULL;
 	curl_version_info_data* (*HTTPFetch::curl_version_info)(CURLversion)  = NULL;
 
-	
 	bool HTTPFetch::available() {
-		if (!loadattempted) startup();
+		if (!loadattempted) {
+			string fetch_errors;
+			startup(fetch_errors);
+		}
 		return loaded;
 	}
+
 	void HTTPFetch::dlerr(std::string& container) {
 		const char *err = dlerror();
 		if (err != NULL) {
@@ -168,8 +171,8 @@ namespace Fetch {
 		}
 	}
 	
-	bool HTTPFetch::startup() {	
-		std::string err=""; //necessary IFF script uses pcre.
+	bool HTTPFetch::startup(string& startup_errors) {
+		string err;
 		if ( ! loadattempted ) {
 			loadattempted = true;
 			loaded = false;
@@ -199,10 +202,8 @@ namespace Fetch {
 					//					string msg = err;
 					//					*Logger::log << Log::info << Log::LI << "HTTPFetch::startup() dlsym reported '" << err << "'." << Log::LO << Log::blockend;
 				}
-			} else {
-				//				string msg = err;
-				//				*Logger::log << Log::info << Log::LI << "HTTPFetch::startup() dlopen reported '" << err << "'." << Log::LO << Log::blockend;
-			}
+			} 
+			startup_errors.append(err);
 		}
 		return loaded;
 	}

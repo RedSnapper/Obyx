@@ -75,7 +75,7 @@ namespace String {
 			
 		public:
 			static bool startup(string&);
-			static bool available(string&);
+			static bool available();
 			static bool shutdown();
 			static void transliterate(u_str&,string&);
 			

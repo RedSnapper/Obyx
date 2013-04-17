@@ -449,12 +449,15 @@ namespace String {
 		int (*GMP::mpz_root)(mpz_t,mpz_t,unsigned long int)= NULL;
 		
 		bool GMP::available() {
-			if (!loadattempted) startup();
+			if (!loadattempted) {
+				string errors;
+				startup(errors);
+			}
 			return loaded;
 		}
 		
-		bool GMP::startup() {	
-			std::string err=""; //necessary IFF script uses pcre.
+		bool GMP::startup(string& startup_errors) {
+			string err;
 			if ( ! loadattempted ) {
 				loadattempted = true;
 				loaded = false;
@@ -465,9 +468,9 @@ namespace String {
 					}
 					libname = SO(libdir,libgmp);
 				}
-				lib_handle = dlopen(libname.c_str(),RTLD_GLOBAL | RTLD_NOW);
+				GMP::lib_handle = dlopen(libname.c_str(),RTLD_GLOBAL | RTLD_NOW);
 				dlerr(err); //debug only.
-				if (err.empty() && lib_handle != NULL ) {
+				if (err.empty() && GMP::lib_handle != NULL ) {
 					mpz_init		= (void (*)(mpz_t))							dlsym(lib_handle,"__gmpz_init"); dlerr(err);
 					mpz_clear		= (void (*)(mpz_t))							dlsym(lib_handle,"__gmpz_clear"); dlerr(err);
 					mpz_set			= (void (*)(mpz_t,mpz_t))					dlsym(lib_handle,"__gmpz_set"); dlerr(err);
@@ -520,6 +523,7 @@ namespace String {
 						loaded = true;
 					} 
 				}
+				startup_errors.append(err);
 			}
 			return loaded;
 		}
@@ -535,7 +539,9 @@ namespace String {
 			loadattempted = false;
 			loaded = false;
 			if ( lib_handle != NULL ) {
-				mpz_clear(zero);
+				if (mpz_clear != NULL) {
+					mpz_clear(zero);
+				}
 				dlclose(lib_handle);
 				lib_handle=NULL;
 			}

@@ -56,10 +56,10 @@ void finalise();
 void shutdown();
 
 int main(int argc, char *argv[]) {
-	string v_number = "1.130416"; //Do NOT put the v here!
+	string v_number = "1.130417"; //Do NOT put the v here!
 #ifdef FAST
 #ifdef PROFILING
-	int  profilecount = 1;
+	int  profilecount = 40;
 #endif
 	string version  = "Obyx v"+v_number+"F Supported";
 #else
@@ -155,17 +155,17 @@ void startup(std::string& version,std::string& v_number,int argc,char** argv) {
 #endif
 	String::Infix::Evaluate::startup();
 #ifndef DISALLOW_GMP
-	String::Bit::GMP::startup();
+	String::Bit::GMP::startup(errs);
 	String::Bit::Evaluate::startup();
 #endif
-	String::Regex::startup();
+	String::Regex::startup(errs);
 	Httphead::startup();
 	OsiMessage::startup();
 	Document::startup();
 	ObyxElement::startup();
 	DataItem::startup();
 	ItemStore::startup();
-	Fetch::HTTPFetch::startup();
+	Fetch::HTTPFetch::startup(errs);
 	if (!errs.empty()) {
 		*Logger::log << Log::fatal << Log::LI << "Error during startup. " << errs << Log::LO << Log::blockend;
 	}

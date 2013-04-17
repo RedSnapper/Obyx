@@ -54,8 +54,7 @@ namespace Vdb {
 	list_tables(NULL),num_fields(NULL),num_rows(NULL),options(NULL),real_connect(NULL),real_escape_string(NULL),
 	real_query(NULL),row_seek(NULL),row_tell(NULL),character_set_name(NULL),set_character_set(NULL),store_result(NULL)
 	{ 
-		string errstr;
-		if (String::Deflate::available(errstr)) {
+		if (String::Deflate::available()) {
 			string libdir,libname;
 			if (!Environment::getbenv("OBYX_LIBMYSQLCRSO",libname)) { 	//legacy method
 				if (Environment::getbenv("OBYX_LIBMYSQLDIR",libdir)) {
@@ -127,9 +126,6 @@ namespace Vdb {
 			}
 		} else {
 			service=false;
-			if (fatal_necessity) {
-				*Logger::log <<  Log::fatal << Log::LI << "MySQLService error:: Failed to load zip dynamic library. " << errstr << Log::LO << Log::blockend; 
-			}
 		}
 	}
 	

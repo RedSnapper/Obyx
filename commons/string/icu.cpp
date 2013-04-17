@@ -55,13 +55,15 @@ namespace String {
 			errstr.append("; ");
 		}
 	}
-	bool TransliterationService::available(string& errors) {
+	bool TransliterationService::available() {
 		if (!loadattempted) {
+			string errors;
 			startup(errors);
 		}
 		return loaded;
 	}
-	bool TransliterationService::startup(string& errors) {
+	bool TransliterationService::startup(string& startup_errors) {
+		string errors;
 		if ( ! loadattempted ) {
 			loadattempted = true;
 			loaded = false;
@@ -99,6 +101,7 @@ namespace String {
 						errors.append(u_errorName(errcode));
 					}
 				}
+				startup_errors.append(errors);
 			}
 		}
 		return loaded;
@@ -115,7 +118,7 @@ namespace String {
 		return true;
 	}
 	void TransliterationService::transliterate(u_str& basis,string& errstr) {
-		if (available(errstr)) {
+		if (loaded) {
 			UChar buffer[4*basis.size()+1]; 				//16 bit mem-array buffer single chars can transliterate to 4 ascii.
 			memcpy(buffer,basis.c_str(),2*basis.size());	//memcpy uses 1 byte for size
 			buffer[basis.size()] = 0;

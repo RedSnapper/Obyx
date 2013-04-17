@@ -1025,6 +1025,7 @@
 			buildSettings = {
 				GCC_USE_STANDARD_INCLUDE_SEARCHING = YES;
 				GCC_VERSION = "";
+				GENERATE_PROFILING_CODE = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)",
 					/usr/local/mysql/include,
@@ -1041,7 +1042,7 @@
 					"-DFAST",
 					"-DALLOW_MYSQL",
 					"-fshort-wchar",
-					"-DxxxxPROFILING",
+					"-DPROFILING",
 				);
 				PRODUCT_NAME = obyx.fcgi;
 				SKIP_INSTALL = NO;
