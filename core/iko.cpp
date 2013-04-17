@@ -704,7 +704,7 @@ void IKO::process_encoding(DataItem*& basis) {
 			} break;
 			case e_ascii: { //strip out anything that isn't ascii...
 #ifndef DISALLOW_ICU
-				String::TransliterationService::transliterate(uencoded,errs);
+				String::TransliterationService::ascii(uencoded,errs);
 #endif
 				basis = DataItem::factory(uencoded,di_text); //cannot be xml.
 			} break;

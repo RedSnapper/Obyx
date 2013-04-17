@@ -294,6 +294,7 @@ bool Instruction::evaluate_this() {
 								case move:
 								case kind:
 								case obyx::sort:
+								case obyx::transform:
 								case function:
 									break; //operations handled outside of this switch, or DataItem is native.
 								case bitwise: {
@@ -637,6 +638,11 @@ bool Instruction::evaluate_this() {
 										}
 									}
 								} break;
+								case obyx::transform: {
+									if (srcval != NULL) {
+										uaccumulator.append(*srcval);
+									}
+								} break;
 							}
 							delete srcval; srcval=NULL;
 						}
@@ -804,6 +810,25 @@ bool Instruction::evaluate_this() {
 								results.append(num,di_text);
 							} else {
 								results.append("NaN",di_text);
+							}
+						}
+					} break;
+					case obyx::transform: {
+						if (first_value != NULL) {
+							u_str urules = *first_value;
+							if (String::TransliterationService::available()) {
+								string errs;
+								String::TransliterationService::transliterate(uaccumulator,urules,errs);
+								results.append(uaccumulator,di_utext);
+								if (!errs.empty()) {
+									*Logger::log << Log::error << Log::LI << "Error. ICU transform. failed:"  << errs << Log::LO;
+									trace();
+									*Logger::log << Log::blockend;
+								} 
+							} else {
+								*Logger::log << Log::error << Log::LI << "Error. ICU is not available for transform." << Log::LO;
+								trace();
+								*Logger::log << Log::blockend;
 							}
 						}
 					} break;
@@ -1045,6 +1070,7 @@ void Instruction::startup() {
 	op_types.insert(op_type_map::value_type(UCS2(L"shell"), shell_command));
 	op_types.insert(op_type_map::value_type(UCS2(L"sort"), obyx::sort));
 	op_types.insert(op_type_map::value_type(UCS2(L"substring"), substring));
+	op_types.insert(op_type_map::value_type(UCS2(L"transform"), obyx::transform));
 	op_types.insert(op_type_map::value_type(UCS2(L"subtract"), subtract));
 	op_types.insert(op_type_map::value_type(UCS2(L"unique"), obyx::unique));
 	op_types.insert(op_type_map::value_type(UCS2(L"upper"), obyx::upper));	

@@ -37,7 +37,7 @@ namespace String {
 	void* TransliterationService::uc= NULL;
 	void* TransliterationService::tu= NULL;
 	
-	UTransliterator* TransliterationService::transservice = NULL;
+	UTransliterator* TransliterationService::asciiservice = NULL;
 	UErrorCode TransliterationService::errcode;
 
 	void (*TransliterationService::u_init)(UErrorCode*);
@@ -95,7 +95,8 @@ namespace String {
 				if ( errors.empty() ) {
 					loaded = true;
 					u_init(&errcode);
-					transservice = utrans_openU((const UChar*)(L"Any-NFKD;Any-Latin;Latin-ASCII;[\\u007F-\\uFB02] Remove;"),-1,UTRANS_FORWARD,NULL,0,NULL,&errcode);
+					//early versions don't support Any-NFKD;Any-Latin;Latin-ASCII;[\\u007F-\\uFB02] Remove;
+					asciiservice = utrans_openU((const UChar*)(L"Any-NFKD;Any-Latin;[\\u007F-\\uFB02] Remove;"),-1,UTRANS_FORWARD,NULL,0,NULL,&errcode);
 					if (errcode != 0) {
 						errors.append("Transliteration service found and loaded but the service failed with the error: ");
 						errors.append(u_errorName(errcode));
@@ -107,8 +108,8 @@ namespace String {
 		return loaded;
 	}
 	bool TransliterationService::shutdown() {		//necessary IFF script uses pcre.
-		if (loaded && transservice != NULL) {
-			utrans_close(transservice);
+		if (loaded && asciiservice != NULL) {
+			utrans_close(asciiservice);
 			u_cleanup();
 		}
 		if ( i18n != NULL ) {
@@ -117,13 +118,41 @@ namespace String {
 		}
 		return true;
 	}
-	void TransliterationService::transliterate(u_str& basis,string& errstr) {
+	void TransliterationService::transliterate(u_str& basis,u_str& rules,string& errstr) {
+		if (loaded) {
+			UTransliterator* transservice = utrans_openU((const UChar*)(L"Any-Null"),-1,UTRANS_FORWARD,(const UChar*)(rules.c_str()),-1,NULL,&errcode);
+			if (errcode != 0) {
+				errstr.append("Transform service found but the rules composition failed with the error: ");
+				errstr.append(u_errorName(errcode));
+			} else {
+				UChar buffer[4*basis.size()+1]; 				//16 bit mem-array buffer single chars can transliterate to 4 ascii.
+				memcpy(buffer,basis.c_str(),2*basis.size());	//memcpy uses 1 byte for size
+				buffer[basis.size()] = 0;
+				int32_t length=(int32_t)basis.size(),size=(int32_t)(4*basis.size()),limit=length;
+				utrans_transUChars(transservice,buffer,&length,size,0,&limit,&errcode);
+				if (errcode == U_ZERO_ERROR) {
+					basis.clear();//
+					basis.append(buffer,length);
+				} else {
+					errstr.append("Transform service found and rules compiled but the service failed with the error: ");
+					errstr.append(u_errorName(errcode));
+				}
+			}
+			if (transservice != NULL) {
+				utrans_close(transservice);
+			}
+		} else {
+			errstr.append("Transliteration service was not loaded or is not available.  ");
+		}
+	};
+	
+	void TransliterationService::ascii(u_str& basis,string& errstr) {
 		if (loaded) {
 			UChar buffer[4*basis.size()+1]; 				//16 bit mem-array buffer single chars can transliterate to 4 ascii.
 			memcpy(buffer,basis.c_str(),2*basis.size());	//memcpy uses 1 byte for size
 			buffer[basis.size()] = 0;
 			int32_t length=(int32_t)basis.size(),size=(int32_t)(4*basis.size()),limit=length;
-			utrans_transUChars(transservice,buffer,&length,size,0,&limit,&errcode);
+			utrans_transUChars(asciiservice,buffer,&length,size,0,&limit,&errcode);
 			if (errcode == U_ZERO_ERROR) {
 				basis.clear();//
 				basis.append(buffer,length);

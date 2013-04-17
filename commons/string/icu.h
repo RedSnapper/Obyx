@@ -52,7 +52,7 @@ namespace String {
 
 			static bool loadattempted;	//used to show if the service is up or down.
 			static bool loaded;			//used to show if the service is up or down.
-			static UTransliterator* transservice;
+			static UTransliterator* asciiservice;
 			static UErrorCode errcode;
 
 			static void (*u_init)(UErrorCode*);
@@ -77,7 +77,8 @@ namespace String {
 			static bool startup(string&);
 			static bool available();
 			static bool shutdown();
-			static void transliterate(u_str&,string&);
+			static void ascii(u_str&,string&);
+			static void transliterate(u_str&,u_str&,string&);
 			
 		};
 }

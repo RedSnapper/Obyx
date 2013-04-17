@@ -18,6 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 ------------------------------------------------------------------------------------
 CHANGELOG file
 v1.130417
+	Enh.		ICU-based 'transform' instruction operation which takes an icu-ruleset in the first parameter.
 	Bug.		Dynamic library initialisation bug resolved (affected fastcgi builds).
 v1.130416
 	Enh.		ICU-based ASCII transliteration for arbitrary non-ascii strings implemented with encoder="ascii"
@@ -807,3 +808,4 @@ v9.10.13
  v6.09.22 Added escape=name to output
  v6.09.07 Added httpd::code for eg 500 http head returns
  v6.09.07 Changelog started.
+ 

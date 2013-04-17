@@ -1,6 +1,6 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:o="http://www.obyx.org"
 	targetNamespace="http://www.obyx.org" elementFormDefault="qualified"
-	attributeFormDefault="unqualified" version="v1.121126" >
+	attributeFormDefault="unqualified" version="v1.130417" >
 	<xs:annotation><xs:documentation>
 		obyx.xsd is authored and maintained by Ben Griffin of Red Snapper Ltd.
 		obyx.xsd is a part of Obyx - see http://www.obyx.org .
@@ -81,6 +81,7 @@
 								<xs:enumeration value="sort"/>
 								<xs:enumeration value="substring"/>
 								<xs:enumeration value="subtract"/>
+								<xs:enumeration value="transform"/>								
 								<xs:enumeration value="unique"/>
 								<xs:enumeration value="upper"/>
 							</xs:restriction>
