@@ -119,32 +119,34 @@ namespace String {
 		return true;
 	}
 	void TransliterationService::transliterate(u_str& basis,u_str& rules,string& errstr) {
-		if (loaded) {
-			UTransliterator* transservice = utrans_openU((const UChar*)(L"Any-Null"),-1,UTRANS_FORWARD,(const UChar*)(rules.c_str()),-1,NULL,&errcode);
-			if (errcode != 0) {
-				errstr.append("Transform service found but the rules composition failed with the error: ");
-				errstr.append(u_errorName(errcode));
-			} else {
-				UChar buffer[4*basis.size()+1]; 				//16 bit mem-array buffer single chars can transliterate to 4 ascii.
-				memcpy(buffer,basis.c_str(),2*basis.size());	//memcpy uses 1 byte for size
-				buffer[basis.size()] = 0;
-				int32_t length=(int32_t)basis.size(),size=(int32_t)(4*basis.size()),limit=length;
-				utrans_transUChars(transservice,buffer,&length,size,0,&limit,&errcode);
-				if (errcode == U_ZERO_ERROR) {
-					basis.clear();//
-					basis.append(buffer,length);
-				} else {
-					errstr.append("Transform service found and rules compiled but the service failed with the error: ");
+		if (!basis.empty()) {
+			if (loaded) {
+				UTransliterator* transservice = utrans_openU((const UChar*)(L"Any-Null"),-1,UTRANS_FORWARD,(const UChar*)(rules.c_str()),-1,NULL,&errcode);
+				if (errcode != 0) {
+					errstr.append("Transform service found but the rules composition failed with the error: ");
 					errstr.append(u_errorName(errcode));
+				} else {
+					UChar buffer[4*basis.size()+1]; 				//16 bit mem-array buffer single chars can transliterate to 4 ascii.
+					memcpy(buffer,basis.c_str(),2*basis.size());	//memcpy uses 1 byte for size
+					buffer[basis.size()] = 0;
+					int32_t length=(int32_t)basis.size(),size=(int32_t)(4*basis.size()),limit=length;
+					utrans_transUChars(transservice,buffer,&length,size,0,&limit,&errcode);
+					if (errcode == U_ZERO_ERROR) {
+						basis.clear();//
+						basis.append(buffer,length);
+					} else {
+						errstr.append("Transform service found and rules compiled but the service failed with the error: ");
+						errstr.append(u_errorName(errcode));
+					}
 				}
+				if (transservice != NULL) {
+					utrans_close(transservice);
+				}
+			} else {
+				errstr.append("Transliteration service was not loaded or is not available.  ");
 			}
-			if (transservice != NULL) {
-				utrans_close(transservice);
-			}
-		} else {
-			errstr.append("Transliteration service was not loaded or is not available.  ");
 		}
-	};
+	}
 	
 	void TransliterationService::ascii(u_str& basis,string& errstr) {
 		if (loaded) {
