@@ -1110,7 +1110,7 @@ void Environment::setbenvmap() {//per box/process environment
 			string n = parmstring.substr(0,split);
 			string v = parmstring.substr(split+1,string::npos);
 #ifdef FAST
-			if(v.size() > 0 && v[v.size()-1] == '=') { //weird fastcgi shite.
+			while(v.size() > 0 && v[v.size()-1] == '=') { //weird fastcgi shite.
 				v.resize(v.size()-1);
 			}
 #endif
