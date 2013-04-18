@@ -126,10 +126,10 @@ namespace String {
 					errstr.append("Transform service found but the rules composition failed with the error: ");
 					errstr.append(u_errorName(errcode));
 				} else {
-					UChar buffer[4*basis.size()+1]; 				//16 bit mem-array buffer single chars can transliterate to 4 ascii.
+					UChar buffer[10*basis.size()+1]; 				//16 bit mem-array buffer single chars can transliterate to 10 bytes or more.
 					memcpy(buffer,basis.c_str(),2*basis.size());	//memcpy uses 1 byte for size
 					buffer[basis.size()] = 0;
-					int32_t length=(int32_t)basis.size(),size=(int32_t)(4*basis.size()),limit=length;
+					int32_t length=(int32_t)basis.size(),size=(int32_t)(10*basis.size()),limit=length;
 					utrans_transUChars(transservice,buffer,&length,size,0,&limit,&errcode);
 					if (errcode == U_ZERO_ERROR) {
 						basis.clear();//

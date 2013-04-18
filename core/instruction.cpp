@@ -814,6 +814,7 @@ bool Instruction::evaluate_this() {
 						}
 					} break;
 					case obyx::transform: {
+#ifndef DISALLOW_ICU
 						if (first_value != NULL) {
 							u_str urules = *first_value;
 							if (String::TransliterationService::available()) {
@@ -831,6 +832,11 @@ bool Instruction::evaluate_this() {
 								*Logger::log << Log::blockend;
 							}
 						}
+#else
+						*Logger::log << Log::error << Log::LI << "Error. ICU support was disabled at compile time." << Log::LO;
+						trace();
+						*Logger::log << Log::blockend;				
+#endif
 					} break;
 					case quotient: {
 						if (n < 2) {
