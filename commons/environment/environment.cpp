@@ -1109,11 +1109,12 @@ void Environment::setbenvmap() {//per box/process environment
 		if (split != string::npos && split > 0 ) {
 			string n = parmstring.substr(0,split);
 			string v = parmstring.substr(split+1,string::npos);
-#ifdef FAST
-			while(v.size() > 0 && v[v.size()-1] == '=') { //weird fastcgi shite.
-				v.resize(v.size()-1);
-			}
-#endif
+//#ifdef FAST
+//Apache doesn't use 'name=value'. it uses 'name value'
+//			while(v.size() > 0 && v[v.size()-1] == '=') { //weird fastcgi shite.
+//				v.resize(v.size()-1);
+//			}
+//#endif
 			setbenv(n,v);
 			if (n.compare("OBYX_CONFIG_FILE") == 0) { //for virtual hosts shouldn't be set here.
 				do_config_file(v);
@@ -1216,11 +1217,12 @@ void Environment::setienvmap(char ** environment) {
 		if (split != string::npos && split > 0 ) {
 			string n = parmstring.substr(0,split);
 			string v = parmstring.substr(split+1,string::npos);
-#ifdef FAST
-			if(v.size() > 0 && v[v.size()-1] == '=') { //weird fastcgi shite.
-				v.resize(v.size()-1);
-			}
-#endif
+//#ifdef FAST
+//apache doesn't use 'name=value'. it uses 'name value'
+//			if(v.size() > 0 && v[v.size()-1] == '=') { //weird fastcgi shite.
+//				v.resize(v.size()-1);
+//			}
+//#endif
 			setienv(n,v);
 			var_map_type::iterator it = cgi_rfc_map.find(n);
 			if (it != cgi_rfc_map.end()) {

@@ -201,21 +201,21 @@ AddHandler  fcgid-script	.fcgi .obyx
 FcgidWrapper /WWW_ROOT/cgi/obyx.fcgi .obyx
 
 #The following are global. though OBYX_CONFIG_FILE can be done at virtualhost level.
-FcgidInitialEnv OBYX_CONFIG_FILE=/WWW_ROOT/include/obyx.cf
-FcgidInitialEnv OBYX_SQLSERVICE=mysql
+FcgidInitialEnv OBYX_CONFIG_FILE /WWW_ROOT/include/obyx.cf
+FcgidInitialEnv OBYX_SQLSERVICE mysql
 #This following line should be false when serving just one website.
-FcgidInitialEnv OBYX_SQLPER_REQUEST=true
-FcgidInitialEnv OBYX_DEVELOPMENT=true
-FcgidInitialEnv OBYX_VALIDATE_ALWAYS=true
-FcgidInitialEnv OBYX_AUTO_UTF8_CHECK=true
+FcgidInitialEnv OBYX_SQLPER_REQUEST true
+FcgidInitialEnv OBYX_DEVELOPMENT true
+FcgidInitialEnv OBYX_VALIDATE_ALWAYS true
+FcgidInitialEnv OBYX_AUTO_UTF8_CHECK true
 
 #The following are only necessary if used libraries are in custom directories.
-FcgidInitialEnv OBYX_LIBCURLDIR=/usr/local/lib
-FcgidInitialEnv OBYX_LIBPCREDIR=/usr/local/lib
-FcgidInitialEnv OBYX_LIBMYSQLDIR=/usr/local/mysql/lib
-FcgidInitialEnv OBYX_LIBPQDIR=/usr/local/pgsql/lib
-#FcgidInitialEnv OBYX_LIBZIPDIR=/usr/lib
-FcgidInitialEnv OBYX_LIBGMPDIR=/usr/local/lib
+FcgidInitialEnv OBYX_LIBCURLDIR /usr/local/lib
+FcgidInitialEnv OBYX_LIBPCREDIR /usr/local/lib
+FcgidInitialEnv OBYX_LIBMYSQLDIR /usr/local/mysql/lib
+FcgidInitialEnv OBYX_LIBPQDIR /usr/local/pgsql/lib
+#FcgidInitialEnv OBYX_LIBZIPDIR /usr/lib
+FcgidInitialEnv OBYX_LIBGMPDIR /usr/local/lib
 #**********************************************
 
 ###############################################################
@@ -230,18 +230,18 @@ AddType		 application/obyx+xml	.obyx
 
 #Fast obyx fcgi
 AddHandler  fcgid-script		 .fcgi .fbyx
-FcgidInitialEnv OBYX_CONFIG_FILE=/Library/WebServer/include/obyx.fcf
-FcgidInitialEnv OBYX_SQLSERVICE=mysql
-FcgidInitialEnv OBYX_DEVELOPMENT=true
-FcgidInitialEnv OBYX_VALIDATE_ALWAYS=true
-FcgidInitialEnv OBYX_AUTO_UTF8_CHECK=true
+FcgidInitialEnv OBYX_CONFIG_FILE /Library/WebServer/include/obyx.fcf
+FcgidInitialEnv OBYX_SQLSERVICE mysql
+FcgidInitialEnv OBYX_DEVELOPMENT true
+FcgidInitialEnv OBYX_VALIDATE_ALWAYS true
+FcgidInitialEnv OBYX_AUTO_UTF8_CHECK true
 #The following are only necessary if used libraries are in custom directories.
-FcgidInitialEnv OBYX_LIBCURLDIR=/usr/local/lib
-FcgidInitialEnv OBYX_LIBPCREDIR=/usr/local/lib
-FcgidInitialEnv OBYX_LIBMYSQLDIR=/usr/local/mysql/lib
-FcgidInitialEnv OBYX_LIBPQDIR=/usr/local/pgsql/lib
-#FcgidInitialEnv OBYX_LIBZIPDIR=/usr/lib
-FcgidInitialEnv OBYX_LIBGMPDIR=/usr/local/lib
+FcgidInitialEnv OBYX_LIBCURLDIR /usr/local/lib
+FcgidInitialEnv OBYX_LIBPCREDIR /usr/local/lib
+FcgidInitialEnv OBYX_LIBMYSQLDIR /usr/local/mysql/lib
+FcgidInitialEnv OBYX_LIBPQDIR /usr/local/pgsql/lib
+#FcgidInitialEnv OBYX_LIBZIPDIR /usr/lib
+FcgidInitialEnv OBYX_LIBGMPDIR /usr/local/lib
 FcgidWrapper /Library/WebServer/CGI-Executables/obyx.fcgi .fbyx
 ###############################################################
 
