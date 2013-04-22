@@ -18,7 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 ------------------------------------------------------------------------------------
 CHANGELOG file
 v1.130422
-	Enh.		Suppressing initialisation messages. Activate by setting DEBUG.
+	Mod.		Suppressing initialisation messages. Activate by setting DEBUG.
 v1.130419
 	Doc.Bug.	FcgidInitialEnv OBYX_SQLSERVICE=mysql  (WRONG - no equals signs)
 v1.130417
