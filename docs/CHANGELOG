@@ -17,6 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.130422
+	Enh.		Suppressing initialisation messages. Activate by setting DEBUG.
 v1.130419
 	Doc.Bug.	FcgidInitialEnv OBYX_SQLSERVICE=mysql  (WRONG - no equals signs)
 v1.130417

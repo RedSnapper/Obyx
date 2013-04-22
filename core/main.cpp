@@ -56,7 +56,7 @@ void finalise();
 void shutdown();
 
 int main(int argc, char *argv[]) {
-	string v_number = "1.130419"; //Do NOT put the v here!
+	string v_number = "1.130422"; //Do NOT put the v here!
 #ifdef FAST
 #ifdef PROFILING
 	int  profilecount = 40;
@@ -166,7 +166,8 @@ void startup(std::string& version,std::string& v_number,int argc,char** argv) {
 	DataItem::startup();
 	ItemStore::startup();
 	Fetch::HTTPFetch::startup(errs);
-	if (!errs.empty()) {
+//This works fine - but in general library errors aren't really fatal.
+	if (!errs.empty() && Logger::debugging()) {
 		*Logger::log << Log::fatal << Log::LI << "Error during startup. " << errs << Log::LO << Log::blockend;
 	}
 }
