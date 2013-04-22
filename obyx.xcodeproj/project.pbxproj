@@ -367,11 +367,13 @@
 		08FB7794FE84155DC02AAC07 /* RSRebuild */ = {
 			isa = PBXGroup;
 			children = (
-				B50F2E9E0990ED6D00A5E408 /* Makefile */,
-				B509B96B098E4D180001B5AD /* commons */,
 				B5E31FE309BC584A00F7FC96 /* core */,
+				B541F16511940E3E0099F07C /* DataItem */,
+				B541F16F11940E6E0099F07C /* OSI */,
+				B509B96B098E4D180001B5AD /* commons */,
 				B5E1A7BE0CDA33BF00E7415B /* grammars */,
 				B5D99D4B0D992EF80093325B /* docs */,
+				B50F2E9E0990ED6D00A5E408 /* Makefile */,
 				1AB674ADFE9D54B511CA2CBB /* Products */,
 				0249A662FF388D9811CA2CEA /* External Frameworks and Libraries */,
 			);
@@ -523,6 +525,7 @@
 				B555978A0F8A0D3E003C3BE0 /* xmlobject.cpp */,
 			);
 			name = DataItem;
+			path = core;
 			sourceTree = "<group>";
 		};
 		B541F16811940E4B0099F07C /* Function */ = {
@@ -566,6 +569,7 @@
 				B546CACC10DA3E6300BC151A /* osimessage.cpp */,
 			);
 			name = OSI;
+			path = core;
 			sourceTree = "<group>";
 		};
 		B541F1D3119414330099F07C /* fast */ = {
@@ -702,8 +706,6 @@
 		B5E31FE309BC584A00F7FC96 /* core */ = {
 			isa = PBXGroup;
 			children = (
-				B541F16F11940E6E0099F07C /* OSI */,
-				B541F16511940E3E0099F07C /* DataItem */,
 				B560FC1211980DC800D2C92B /* ObyxElem */,
 				B5E320D009BC666A00F7FC96 /* filer.h */,
 				B5E320D109BC666A00F7FC96 /* filer.cpp */,
