@@ -17,12 +17,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.130501		Changed 'transform' to 'transliterate' - which is what it does.
 v1.130422
 	Mod.		Suppressing initialisation messages. Activate by setting DEBUG.
 v1.130419
 	Doc.Bug.	FcgidInitialEnv OBYX_SQLSERVICE=mysql  (WRONG - no equals signs)
 v1.130417
-	Enh.		ICU-based 'transform' instruction operation which takes an icu-ruleset in the first parameter.
+	Enh.		ICU-based 'transliterate' instruction operation which takes an icu-ruleset in the first parameter.
 	Bug.		Dynamic library initialisation bug resolved (affected fastcgi builds).
 v1.130416
 	Enh.		ICU-based ASCII transliteration for arbitrary non-ascii strings implemented with encoder="ascii"

@@ -294,7 +294,7 @@ bool Instruction::evaluate_this() {
 								case move:
 								case kind:
 								case obyx::sort:
-								case obyx::transform:
+								case obyx::transliterate:
 								case function:
 									break; //operations handled outside of this switch, or DataItem is native.
 								case bitwise: {
@@ -638,7 +638,7 @@ bool Instruction::evaluate_this() {
 										}
 									}
 								} break;
-								case obyx::transform: {
+								case obyx::transliterate: {
 									if (srcval != NULL) {
 										uaccumulator.append(*srcval);
 									}
@@ -813,7 +813,7 @@ bool Instruction::evaluate_this() {
 							}
 						}
 					} break;
-					case obyx::transform: {
+					case obyx::transliterate: {
 #ifndef DISALLOW_ICU
 						if (first_value != NULL) {
 							u_str urules = *first_value;
@@ -822,12 +822,12 @@ bool Instruction::evaluate_this() {
 								String::TransliterationService::transliterate(uaccumulator,urules,errs);
 								results.append(uaccumulator,di_utext);
 								if (!errs.empty()) {
-									*Logger::log << Log::error << Log::LI << "Error. ICU transform. failed:"  << errs << Log::LO;
+									*Logger::log << Log::error << Log::LI << "Error. ICU transliterate. failed:"  << errs << Log::LO;
 									trace();
 									*Logger::log << Log::blockend;
 								} 
 							} else {
-								*Logger::log << Log::error << Log::LI << "Error. ICU is not available for transform." << Log::LO;
+								*Logger::log << Log::error << Log::LI << "Error. ICU is not available for transliterate." << Log::LO;
 								trace();
 								*Logger::log << Log::blockend;
 							}
@@ -1076,7 +1076,7 @@ void Instruction::startup() {
 	op_types.insert(op_type_map::value_type(UCS2(L"shell"), shell_command));
 	op_types.insert(op_type_map::value_type(UCS2(L"sort"), obyx::sort));
 	op_types.insert(op_type_map::value_type(UCS2(L"substring"), substring));
-	op_types.insert(op_type_map::value_type(UCS2(L"transform"), obyx::transform));
+	op_types.insert(op_type_map::value_type(UCS2(L"transliterate"), obyx::transliterate));
 	op_types.insert(op_type_map::value_type(UCS2(L"subtract"), subtract));
 	op_types.insert(op_type_map::value_type(UCS2(L"unique"), obyx::unique));
 	op_types.insert(op_type_map::value_type(UCS2(L"upper"), obyx::upper));	

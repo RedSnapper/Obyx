@@ -123,7 +123,7 @@ namespace String {
 			if (loaded) {
 				UTransliterator* transservice = utrans_openU((const UChar*)(L"Any-Null"),-1,UTRANS_FORWARD,(const UChar*)(rules.c_str()),-1,NULL,&errcode);
 				if (errcode != 0) {
-					errstr.append("Transform service found but the rules composition failed with the error: ");
+					errstr.append("Transliteration service found but the rules composition failed with the error: ");
 					errstr.append(u_errorName(errcode));
 				} else {
 					UChar buffer[10*basis.size()+1]; 				//16 bit mem-array buffer single chars can transliterate to 10 bytes or more.
@@ -135,7 +135,7 @@ namespace String {
 						basis.clear();//
 						basis.append(buffer,length);
 					} else {
-						errstr.append("Transform service found and rules compiled but the service failed with the error: ");
+						errstr.append("Transliteration service found and rules compiled but the service failed with the error: ");
 						errstr.append(u_errorName(errcode));
 					}
 				}
