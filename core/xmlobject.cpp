@@ -37,6 +37,8 @@ unsigned long 					XMLObject::xpnsr_v = 0;			//used to indicate if the namespace
 DynamicContext*					XMLObject::xpather = NULL;		//XPath2 context.
 bool							XMLObject::modload = false;
 XMLObject::xpp_map_type			XMLObject::xpp_map;
+unsigned long long int 			XMLObject::xp_count = 0;
+
 
 /* ==================== NON virtual methods. =========== */
 /* protected */
@@ -234,6 +236,7 @@ bool XMLObject::xp_result(const u_str& xpath,Sequence& result,DynamicContext*& c
 		try {
 			XQQuery* query = xpp(xpath);
 			if (query != NULL) {
+				xp_count++;	//this is an xpath evaluation.
 				context = query->createDynamicContext();
 				context->setContextItem(((XercesConfiguration*)context->getConfiguration())->createNode(x_doc->getDocumentElement(),context));
 				result = query->execute(context)->toSequence(context);
@@ -679,6 +682,7 @@ void XMLObject::listns() {
 }
 void XMLObject::init() {
 	modload = false;
+	xp_count = 0;
 	xpather = Manager::xqilla->createContext((XQilla::Language)(XQilla::XPATH2_FULLTEXT),Manager::xc); //XQilla::XPATH3 is available, maybe.
 	setns(UCS2(L"xs"),UCS2(L"http://www.w3.org/2001/XMLSchema"));
 }

@@ -36,7 +36,7 @@ public:
 	typedef enum {immediate,none,store,file,error,xmlnamespace,xmlgrammar,cookie,field,sysparm,sysenv,url,fnparm } inp_space;
 private:
 	friend class Function;
-	typedef enum { c_object, c_name, c_request, c_response, c_osi_response, c_ts, c_time, c_timing, c_version, c_vnumber, c_point, c_cookies, c_scratch } current_type;	//what kind of dataItem
+	typedef enum { c_object, c_name, c_request, c_response, c_osi_response, c_ts, c_time, c_timing, c_version, c_vnumber, c_point, c_cookies, c_scratch, c_xpaths } current_type;	//what kind of dataItem
 	typedef std::map< u_str, current_type > current_type_map; 
 //ok - problem is that xpath is u_str, whereas keys are string (so that we can use regex without having to transliterate every key in a map).
 	bool existsinspace(u_str&,const inp_space,const bool,const bool);

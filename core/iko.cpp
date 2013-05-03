@@ -291,6 +291,10 @@ bool IKO::currentenv(const u_str& req,const usage_tests exist_test, const IKO* i
 						container = DataItem::factory(result,di_text);
 					}
 				} break;
+				case c_xpaths: {
+					result = String::tostring(XMLObject::xp_count);
+					container = DataItem::factory(result,di_text);
+				} break;
 				case c_point: {
 					result = String::tostring(ObyxElement::eval_count);
 					container = DataItem::factory(result,di_text);
@@ -1494,6 +1498,7 @@ void IKO::startup() {
 	current_types.insert(current_type_map::value_type(UCS2(L"VERSION_NUMBER"),c_vnumber));
 	current_types.insert(current_type_map::value_type(UCS2(L"RESPONSE"),c_response));
 	current_types.insert(current_type_map::value_type(UCS2(L"POINT"),c_point));
+	current_types.insert(current_type_map::value_type(UCS2(L"XPATHS"),c_xpaths));
 	current_types.insert(current_type_map::value_type(UCS2(L"COOKIES"),c_cookies));
 	
 	kind_types.insert(kind_type_map::value_type(UCS2(L"auto"), di_auto));

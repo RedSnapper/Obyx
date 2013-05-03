@@ -66,6 +66,7 @@ public:
 	static void listns();
 
 	//utility
+	static unsigned long long int xp_count;
 	static bool npsplit(const u_str&,pair<u_str,u_str>&,bool&);
 	static pair<unsigned long long,bool> hex(const u_str&);
 	static pair<unsigned long long,bool> znatural(const u_str&);
