@@ -65,19 +65,23 @@ namespace Filer {
 	
 	void output(string& finalfile,kind_type kind) {
 		Environment* env = Environment::service();
-		Httphead* http = Httphead::service();	
-		if ( ! Logger::wasfatal() ) {	  //This means there were some bugs...
-			if (! http->mime_changed() && (kind != di_object) && (!http->contentset())) {
-				http->setmime("text/plain");
-			}
-			string temp_var;
-			if (env->getenv("REQUEST_METHOD",temp_var) && temp_var.compare("HEAD") == 0) {
-				http->doheader();
-			} else {
-				if (! (http->contentset() && kind == di_null)) {
-					http->setcontent(finalfile);
+		Httphead* http = Httphead::service();
+		if ( http && ! http->done() )  {
+			string xpcount = String::tostring(XMLObject::xp_count);
+			http->addcustom("X-Obyx-XPC",xpcount);
+			if ( ! Logger::wasfatal() ) {	  //This means there were some bugs...
+				if (! http->mime_changed() && (kind != di_object) && (!http->contentset())) {
+					http->setmime("text/plain");
 				}
-				http->doheader();
+				string temp_var;
+				if (env->getenv("REQUEST_METHOD",temp_var) && temp_var.compare("HEAD") == 0) {
+					http->doheader();
+				} else {
+					if (! (http->contentset() && kind == di_null)) {
+						http->setcontent(finalfile);
+					}
+					http->doheader();
+				}
 			}
 		}
 	}
