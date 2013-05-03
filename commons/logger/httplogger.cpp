@@ -24,6 +24,7 @@
 #include "commons/httphead/httphead.h"
 #include "commons/string/strings.h"
 #include "core/obyxelement.h"
+#include "core/xmlobject.h"
 #include "httplogger.h"
 
 bool HTTPLogger::minititle = true;
@@ -41,6 +42,8 @@ void HTTPLogger::dofatal(std::string message) {
 		if ( xpath.find(rpath) == 0 ) {
 			xpath.erase(0,rpath.length());
 		}
+		string xpcount = String::tostring(XMLObject::xp_count);
+		http->addcustom("X-Obyx-XPC",xpcount);
 		http->addcustom("X-Obyx-Status","Fatal");
 		http->addcustom("X-Obyx-Signature",title);
 		http->addcustom("X-Obyx-File",xpath);
