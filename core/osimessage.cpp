@@ -145,7 +145,7 @@ void OsiMessage::do_comments(string& str,vector< comment >& comments) {
 			c.a = do_angled(c.v);
 			c.u = do_encoding(c.v);
 			ostringstream hx;
-			if (!c.v.empty()) {
+			if (!c.v.empty()) { //don't push back an empty comment...
 				hx << " value=\"" << c.v << "\"";
 				if (c.a) {
 					hx << " angled=\"true\"";
@@ -153,9 +153,9 @@ void OsiMessage::do_comments(string& str,vector< comment >& comments) {
 				if (c.u) {
 					hx << " urlencoded=\"true\"";
 				}
+				c.x = hx.str();
+				comments.push_back(c);
 			}
-			c.x = hx.str();
-			comments.push_back(c);
 			str.erase(bp,bx-bp);
 			bp = str.find_first_of("(;");
 		} else {
