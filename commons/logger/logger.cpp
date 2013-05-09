@@ -323,6 +323,7 @@ Logger& Logger::operator<< (const char* msg) {
 		if (! String::normalise(mesg)) {
 			mesg = msg;
 			String::base64encode(mesg);
+			*o << " (base64 encoded for this message) ";
 		}
 		if (msgdepth-1 == fataldepth && infatal && log->top_line) { log->syslogbuffer << mesg;}
 		if ( should_report() || debugging() )  {
@@ -340,6 +341,7 @@ Logger& Logger::operator<< (const std::string msg ) {
 		if (! String::normalise(mesg)) {
 			mesg = msg;
 			String::base64encode(mesg);
+			*o << " (base64 encoded for this message) ";
 		}
 		if (!inraw) { 
 			XMLChar::encode(mesg);
