@@ -179,7 +179,9 @@ http://httpd.apache.org/mod_fcgid/mod/mod_fcgid.html
 
 #####  Obyx configuration ########
 	<IfModule mime_module>
-		AddHandler  cgi-script				.cgi
+		<LocationMatch \.cgi$>
+			SetHandler cgi-script
+		</LocationMatch>
 
 #**********************************************
 #comment these to allow fcgi to take obyx files.
@@ -197,7 +199,10 @@ http://httpd.apache.org/mod_fcgid/mod/mod_fcgid.html
 
 #**********************************************
 #ADD these to allow fcgi to take obyx files.
-AddHandler  fcgid-script	.fcgi .obyx
+<LocationMatch \.(fcgi|obyx)$>
+	SetHandler fcgid-script
+</LocationMatch>
+
 FcgidWrapper /WWW_ROOT/cgi/obyx.fcgi .obyx
 
 #The following are global. though OBYX_CONFIG_FILE can be done at virtualhost level.
@@ -223,13 +228,18 @@ FcgidInitialEnv OBYX_LIBGMPDIR /usr/local/lib
 #### you will need a different  obyx suffix for one or the other.
 #### The following is an example:
 #Normal obyx cgi
-AddHandler    cgi-script            .cgi
+<LocationMatch \.(cgi)$>
+	SetHandler cgi-script
+</LocationMatch>
+
 ScriptAlias  /o/	/Library/WebServer/CGI-Executables/
 Action       application/obyx+xml   /o/obyx.cgi
 AddType		 application/obyx+xml	.obyx
 
 #Fast obyx fcgi
-AddHandler  fcgid-script		 .fcgi .fbyx
+	<LocationMatch \.(fcgi|obyxf)$>
+		SetHandler fcgid-script
+	</LocationMatch>
 FcgidInitialEnv OBYX_CONFIG_FILE /Library/WebServer/include/obyx.fcf
 FcgidInitialEnv OBYX_SQLSERVICE mysql
 FcgidInitialEnv OBYX_DEVELOPMENT true
