@@ -185,8 +185,10 @@ http://httpd.apache.org/mod_fcgid/mod/mod_fcgid.html
 
 #**********************************************
 #comment these to allow fcgi to take obyx files.
-#		AddType		application/obyx+xml	.obyx
-#		Action      application/obyx+xml	/o/obyx.cgi
+#	<LocationMatch \.obyx$>
+#		ForceType application/obyx+xml
+#	</LocationMatch>
+#	Action      application/obyx+xml	/o/obyx.cgi
 #**********************************************
 
 	</IfModule>
@@ -233,8 +235,11 @@ FcgidInitialEnv OBYX_LIBGMPDIR /usr/local/lib
 </LocationMatch>
 
 ScriptAlias  /o/	/Library/WebServer/CGI-Executables/
+
+<LocationMatch \.obyx$>
+	ForceType application/obyx+xml
+</LocationMatch>
 Action       application/obyx+xml   /o/obyx.cgi
-AddType		 application/obyx+xml	.obyx
 
 #Fast obyx fcgi
 	<LocationMatch \.(fcgi|obyxf)$>
