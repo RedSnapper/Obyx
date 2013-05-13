@@ -356,15 +356,21 @@ bool IKO::currentenv(const u_str& req,const usage_tests exist_test, const IKO* i
 }
 void IKO::setfilepath(const string& input_name,string& file_path) const {
 	file_path = input_name;
-	if (!file_path.empty() && file_path[0] == '/') { //we don't want to use file root, but site root.
-		file_path = Environment::service()->getpathforroot()  + file_path;
-	} else {
-		string opath = owner->filepath;
-		size_t pathpos = opath.find_last_of('/');
-		if (pathpos != string::npos) {
-			file_path = opath.substr(0,pathpos + 1) + file_path;
+	Environment* env = Environment::service();
+	FileUtils::Path scratch; scratch.cd(env->ScratchDir());
+	string scratchdir = scratch.output(true);
+	scratchdir.push_back('/');	//we want to ensure that this isn't used as a prefix!!
+	if (file_path.compare(0,scratchdir.length(),scratchdir) != 0) {
+		if (!file_path.empty() && file_path[0] == '/') { //we don't want to use file root, but site root.
+			file_path = Environment::service()->getpathforroot()  + file_path;
 		} else {
-			file_path = FileUtils::Path::wd() + "/" + file_path;
+			string opath = owner->filepath;
+			size_t pathpos = opath.find_last_of('/');
+			if (pathpos != string::npos) {
+				file_path = opath.substr(0,pathpos + 1) + file_path;
+			} else {
+				file_path = FileUtils::Path::wd() + "/" + file_path;
+			}
 		}
 	}
 }

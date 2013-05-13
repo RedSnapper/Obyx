@@ -430,6 +430,7 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 					} break;
 					case out_file: {
 						Environment* env = Environment::service();
+						bool inscratch = false;
 						FileUtils::Path scratch; scratch.cd(env->ScratchDir());
 						string scratchdir = scratch.output(true);
 						scratchdir.push_back('/');	//we want to ensure that this isn't used as a prefix!!
@@ -438,7 +439,10 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 						if (wd.empty()) wd = root;
 						string filename; if (name_part != NULL) { filename =  *name_part; }
 						string filetext; if (value_comp != NULL) { filetext = *value_comp; }
-						if ( filename.find(scratchdir) != 0) {
+						if (filename.compare(0,scratchdir.length(),scratchdir) == 0) {
+							inscratch=true;
+						}
+						if (!inscratch) {
 							if (filename[0] == '/' ) { //we don't want to use file root, but site root.
 								filename = root + filename;
 							} else {

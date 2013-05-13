@@ -952,12 +952,12 @@ void Instruction::call_system(std::string& cmd) {
 				trace();
 				*Logger::log << Log::blockend;
 			} else {
-				//base 64 with spaces plus _
-				const char pm[]="_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789=+/ ";
+				//base 64 with spaces plus _./
+				const char pm[]="._ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789=+/ ";
 				size_t endprmpos = command_parms.second.find_first_not_of(pm);
 				if (endprmpos != string::npos) {
 					*Logger::log << Log::error << Log::LI << "Error. Instruction operation shell.";
-					*Logger::log << "The shell parameter list must only be base64 characters and spaces." << Log::LO;
+					*Logger::log << "The shell parameter list must only be base64 characters and spaces, periods and slashes." << Log::LO;
 					*Logger::log << Log::LI << command_parms.second << Log::LO;
 					trace();
 					*Logger::log << Log::blockend;
