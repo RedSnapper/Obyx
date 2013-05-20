@@ -466,7 +466,7 @@ bool ItemStore::sget(const u_str& sname,const u_str& path,bool node_expected, Da
 						switch(basis_kind) {
 							case di_object: {
 								XMLObject* xml_document = (XMLObject*)basis;
-								if (!xml_document->empty()) {
+								if (xml_document != NULL && !xml_document->empty()) {
 									retval = xml_document->xp(path,item,node_expected,errorstr); //will make a copy.
 								} else {
 									if (node_expected) {
