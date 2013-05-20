@@ -308,7 +308,11 @@ bool XMLObject::xp(const u_str& path,DataItem*& container,bool node_expected,std
 								} break;
 							}
 						} else {
-							u_str xs = item->asString(context); //item is null
+							u_str xs;
+							const XMLCh* ias=item->asString(context); //item may be null. in which case the string constructor will fail.
+							if (ias != NULL) {
+								xs=ias;
+							}
 							ditem = DataItem::factory(xs);
 						}
 						DataItem::append(container,ditem); //either/both could be NULL. and we may need to convert from one type to another.
