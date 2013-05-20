@@ -308,7 +308,10 @@ bool XMLObject::xp(const u_str& path,DataItem*& container,bool node_expected,std
 								} break;
 							}
 						} else {
-							u_str xs(item->asString(context));
+							u_str ut = item->getTypeName();
+							std::string uts; XML::Manager::transcode(ut,uts);
+							int i = (uts.empty() ? 1:0);
+							u_str xs(item->asString(context)); //item is null
 							ditem = DataItem::factory(xs);
 						}
 						DataItem::append(container,ditem); //either/both could be NULL. and we may need to convert from one type to another.
