@@ -421,6 +421,7 @@ bool Iteration::operation_search() {
 					*Logger::log << Log::error;
 					trace();
 					*Logger::log << Log::blockend;
+					results.clear();
 					searchdone = false; //Just give up.
 				}
 				delete query; query = NULL;	 //reset the reference..  (used for iko type="field")
@@ -434,12 +435,14 @@ bool Iteration::operation_search() {
 			*Logger::log << Log::error << Log::LI << "Error. The iteration search operation must have a search service available." << Log::LO;
 			trace();
 			*Logger::log << Log::blockend;
+			results.clear();
 			searchdone = false;
 		}
 	} else {
 		*Logger::log << Log::error << Log::LI << "Error. The value of a search control must contain a search statement" << Log::LO;
 		trace();
 		*Logger::log << Log::blockend;
+		results.clear();
 		searchdone = false;
 	}
 	return searchdone;
@@ -475,7 +478,7 @@ bool Iteration::operation_sql() {
 								if (currentrow != numreps) {	 //now can delete original 
 									iter_input = new DefInpType(this,base_template);
 								} else {
-									iter_input = base_template;	
+									iter_input = base_template;
 									lastrow = true;
 								}
 								iter_input->evaluate();
@@ -487,6 +490,7 @@ bool Iteration::operation_sql() {
 					*Logger::log << Log::error;
 					trace();
 					*Logger::log << Log::blockend;
+					results.clear();
 					sqldone = false; //Just give up.
 				}
 				delete query; query = NULL;	 //reset the reference..  (used for iko type="field")
@@ -500,12 +504,14 @@ bool Iteration::operation_sql() {
 			*Logger::log << Log::error << Log::LI << "Error. The iteration sql operation must have an sql service available." << Log::LO;
 			trace();
 			*Logger::log << Log::blockend;
+			results.clear();
 			sqldone = false;
 		}
 	} else {
 		*Logger::log << Log::error << Log::LI << "Error. The value of an SQL control must contain an SQL statement" << Log::LO;
 		trace();
 		*Logger::log << Log::blockend;
+		results.clear();
 		sqldone = false;
 	}
 	return sqldone;
