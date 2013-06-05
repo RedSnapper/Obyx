@@ -97,8 +97,11 @@ namespace Vdb {
 	
 	bool MySQLConnection::database(const std::string& db) {
 		if ( isopen() ) {
-			tdbase = db;
-			int success = s->select_db(connectionHandle, tdbase.c_str());
+			int success = 0;
+			if (db.compare("-") != 0) {
+				tdbase = db;
+				success = s->select_db(connectionHandle, tdbase.c_str());
+			}
 			if ( success != 0) {
 				int error = s->my_errno(connectionHandle);
 				if (error == CR_SERVER_GONE_ERROR || error == CR_SERVER_LOST) {
