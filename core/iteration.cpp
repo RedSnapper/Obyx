@@ -388,7 +388,18 @@ bool Iteration::operation_search() {
 		if (scc != NULL)  {
 			query = NULL;	 //reset the reference..  (used for iko type="field") search
 			if (scc->query(query,controlstring) ) {
-				if ( query->execute() ) {
+				
+				//suppressing logging on query failure. we could try to escape the values, but for the time being
+				ostringstream* suppressor = NULL;
+				suppressor = new ostringstream();
+				Logger::set_stream(suppressor);
+				bool qex = query->execute();
+				Logger::unset_stream();
+				delete suppressor;
+				if ( qex ) {
+				
+				
+//				if ( query->execute() ) {
 					if (definputs.size() > 0) {
 						DefInpType* base_template = definputs[0];
 						definputs.clear();		//because we are recompositing this list.
@@ -457,16 +468,7 @@ bool Iteration::operation_sql() {
 		if (dbs != NULL)  {
 			query = NULL;	 //reset the reference..  (used for iko type="field")
 			if ( dbc != NULL && dbc->query(query,controlstring) ) {
-				
-//suppressing logging on query failure. we could try to escape the values, but for the time being
-				ostringstream* suppressor = NULL;
-				suppressor = new ostringstream();
-				Logger::set_stream(suppressor);
-				bool qex = query->execute();
-				Logger::unset_stream();
-				delete suppressor;
-				
-				if ( qex ) {
+				if ( query->execute() ) {
 					if (definputs.size() > 0) {
 						DefInpType* base_template = definputs[0];
 						definputs.clear();		//because we are recompositing this list.
