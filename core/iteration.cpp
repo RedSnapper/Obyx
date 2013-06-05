@@ -88,7 +88,7 @@ bool Iteration::evaluate_this() { //This can be run as an evaluated iteration wi
 	//first evaluate the control (not run it, just evaluate it!)
 	if (!evaluated && ! ctlevaluated) { //legal inputs are control
 		ctlevaluated = true;
-		if ( ! inputs.empty() && (operation==it_sql || operation==it_repeat)) {
+		if ( ! inputs.empty() && (operation==it_sql || operation==it_repeat || operation == it_search)) {
 			inputs[0]->evaluate();
 		}
 		if ( definputs.size() == 0 ) { //This is just a control string, but we must run it if it is a query.
@@ -105,6 +105,7 @@ bool Iteration::evaluate_this() { //This can be run as an evaluated iteration wi
 		switch (operation) { 
 			case it_each: { evaluated = operation_each(); } break; 
 			case it_repeat: { evaluated = operation_repeat(); } break; 
+			case it_search: { evaluated = operation_search(); } break;
 			case it_sql: { evaluated = operation_sql(); } break;
 			case it_while: { evaluated = operation_while(true); } break; 
 			case it_while_not: { evaluated = operation_while(false); } break; 
@@ -179,6 +180,7 @@ bool Iteration::fieldexists(const u_str& fname,string& errstring) const {
 		kyfound = fname.find(UCS2(L"#key"),hashpt) != string::npos;
 	}
 	switch (operation) {
+		case it_search:
 		case it_sql: {
 			if (rcfound || rfound || fcfound) {
 				retval = true;
@@ -376,6 +378,72 @@ bool Iteration::operation_repeat() {
 	lastrow = true;
 	return fully_evaluated;
 }
+bool Iteration::operation_search() {
+	bool searchdone = true;
+	string tmp_var,controlstring;
+	if ( ! inputs.empty() && inputs[0]->results.result() != NULL ) {
+		controlstring = *(inputs[0]->results.result());
+	}
+	if ( ! controlstring.empty() ) {
+		if (scc != NULL)  {
+			query = NULL;	 //reset the reference..  (used for iko type="field") search
+			if (scc->query(query,controlstring) ) {
+				if ( query->execute() ) {
+					if (definputs.size() > 0) {
+						DefInpType* base_template = definputs[0];
+						definputs.clear();		//because we are recompositing this list.
+						long long queryrows = query->getnumrows();
+						numreps = queryrows < 1 ? 0 :  queryrows;
+						unsigned long long forced_break = DEFAULT_MAX_ITERATIONS;
+						if(!owner->metastore("ITERATION_BREAK_COUNT",forced_break)) {
+							*Logger::log << Log::error << Log::LI << "Error. sql with bad ITERATION_BREAK_COUNT" << Log::LO;
+							trace();
+							*Logger::log << Log::blockend;
+						}
+						if (numreps > forced_break) numreps = forced_break;
+						if ( numreps == 0 ) {
+							delete base_template;
+						} else {
+							for (currentrow = 1; currentrow <= numreps; currentrow++) {
+								DefInpType* iter_input = NULL;
+								if (currentrow != numreps) {	 //now can delete original
+									iter_input = new DefInpType(this,base_template);
+								} else {
+									iter_input = base_template;
+									lastrow = true;
+								}
+								iter_input->evaluate();
+								definputs.push_back(iter_input);
+							}
+						}
+					}
+				} else {
+					*Logger::log << Log::error;
+					trace();
+					*Logger::log << Log::blockend;
+					searchdone = false; //Just give up.
+				}
+				delete query; query = NULL;	 //reset the reference..  (used for iko type="field")
+			} else {
+				*Logger::log << Log::error << Log::LI << "Error. Iteration operation search service was found, but the connection failed to provide a query object." << Log::LO;
+				trace();
+				scc->list();
+				*Logger::log << Log::blockend;
+			}
+		} else {
+			*Logger::log << Log::error << Log::LI << "Error. The iteration search operation must have a search service available." << Log::LO;
+			trace();
+			*Logger::log << Log::blockend;
+			searchdone = false;
+		}
+	} else {
+		*Logger::log << Log::error << Log::LI << "Error. The value of a search control must contain a search statement" << Log::LO;
+		trace();
+		*Logger::log << Log::blockend;
+		searchdone = false;
+	}
+	return searchdone;
+}
 bool Iteration::operation_sql() {
 	bool sqldone = true;
 	string tmp_var,controlstring;
@@ -531,6 +599,7 @@ void Iteration::finalise() {
 void Iteration::startup() {
 	it_types.insert(it_type_map::value_type(UCS2(L"each"),it_each));
 	it_types.insert(it_type_map::value_type(UCS2(L"repeat"),it_repeat));
+	it_types.insert(it_type_map::value_type(UCS2(L"search"),it_search));
 	it_types.insert(it_type_map::value_type(UCS2(L"sql"),it_sql));
 	it_types.insert(it_type_map::value_type(UCS2(L"while"),it_while));
 	it_types.insert(it_type_map::value_type(UCS2(L"while_not"),it_while_not));

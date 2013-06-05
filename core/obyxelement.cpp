@@ -51,8 +51,9 @@ std::stack<elemtype>	ObyxElement::eval_type;
 
 bool					ObyxElement::break_happened = false;
 nametype_map			ObyxElement::ntmap;
-Vdb::Service*			ObyxElement::dbs = NULL;				
+Vdb::Service*			ObyxElement::dbs = NULL;
 Vdb::Connection*		ObyxElement::dbc = NULL;
+Vdb::Connection*		ObyxElement::scc = NULL;
 #ifdef PROFILING
 long_map				ObyxElement::ce_map;
 #endif
@@ -489,6 +490,38 @@ void ObyxElement::get_sql_service() {
 void ObyxElement::drop_sql_service() {
 		dbs = NULL; //vdb deletes this
 }
+
+void ObyxElement::get_search_connection() {
+	if (dbs != NULL)  {
+		scc = dbs->instance();
+		if (scc != NULL) {
+			Environment* e = Environment::service();
+			string host,user,userpw,port;
+			if(!e->getenv("OBYX_SEARCH_HOST",host)) { host="localhost" ;}
+			if(!e->getenv("OBYX_SEARCH_USER",user)) { user="sphinx" ;}
+			if(!e->getenv("OBYX_SEARCH_USERPW",userpw)) { userpw="" ;}
+			if(!e->getenv("OBYX_SEARCH_PORT",port)) { port="9306" ;}
+			scc->open( host,user,String::natural(port),userpw);
+		}
+	}
+}
+void ObyxElement::drop_search_connection() {
+	Environment* env = Environment::service();
+	if (env != NULL) {
+		env->resetenv("OBYX_SEARCH_HOST");
+		env->resetenv("OBYX_SEARCH_USER");
+		env->resetenv("OBYX_SEARCH_USERPW");
+		env->resetenv("OBYX_SEARCH_PORT");
+	}
+	if (scc != NULL ) {
+		if (scc->isopen())  { //scc is managed by vdb. Just look after Connections.
+			scc->close();
+			delete scc;
+		}
+		scc = NULL;
+	}
+}
+
 void ObyxElement::get_sql_connection() {
 	if (dbs != NULL)  {
 		dbc = dbs->instance();
@@ -544,9 +577,11 @@ void ObyxElement::shutdown() {
 	string tmp;
 	if (!Environment::getbenvtf("OBYX_SQLPER_REQUEST")) {
 		drop_sql_connection();
+		drop_search_connection();
 	}
 #else
 	drop_sql_connection();
+	drop_search_connection();
 #endif
 	drop_sql_service();
 	ntmap.clear();
@@ -557,6 +592,7 @@ void ObyxElement::startup() {
 	string tmp;
 	if (!Environment::getbenvtf("OBYX_SQLPER_REQUEST")) {
 		get_sql_connection();
+		get_search_connection();
 	}
 #endif
 	Function::startup();
@@ -582,10 +618,12 @@ void ObyxElement::startup() {
 void ObyxElement::init() {
 #ifndef FAST
 	get_sql_connection();
+	get_search_connection();
 #else
 	string tmp;
 	if (Environment::getbenvtf("OBYX_SQLPER_REQUEST")) {
 		get_sql_connection();
+		get_search_connection();
 	}
 #endif
 	Environment* env = Environment::service();
@@ -613,6 +651,7 @@ void ObyxElement::finalise() {
 	string tmp;
 	if (Environment::getbenvtf("OBYX_SQLPER_REQUEST")) {
 		drop_sql_connection();
+		drop_search_connection();
 	}
 #endif
 #ifdef PROFILING

@@ -52,7 +52,7 @@ namespace obyx {
 	typedef std::map<u_str, output_type > output_type_map; 
 	
 	//four flow-functions..	
-	typedef enum {it_each,it_repeat,it_sql,it_while,it_while_not} it_type;
+	typedef enum {it_each,it_repeat,it_search,it_sql,it_while,it_while_not} it_type;
 	typedef std::map<u_str, it_type > it_type_map; 
 	
 	typedef enum { move,append,substring,transliterate,position,length,left,right,reverse,upper,lower,kind,add,subtract,multiply,divide,random,maximum,minimum,remainder,quotient,shell_command,sort,query_command,function,hmac,arithmetic,bitwise,unique} op_type;	//transform
@@ -95,6 +95,8 @@ protected:
 	static unsigned long long int 	break_point;
 	static Vdb::Service*			dbs;		//this is managed by the factory.
 	static Vdb::Connection*			dbc;		//this is generated at startup.
+	static Vdb::Connection*			scc;		//search connection.
+	
 	Document* owner;							//so we can find stuff out about the document, and access it's store.
 	ObyxElement* p;								//not const, as we append to it's results!
 	xercesc::DOMNode* node;						//should be a const (but we manipulate it in breakpoint)
@@ -105,6 +107,8 @@ protected:
 	static void drop_sql_service();		
 	static void get_sql_connection();	
 	static void drop_sql_connection();
+	static void get_search_connection();
+	static void drop_search_connection();
 	
 	//statics
 public:

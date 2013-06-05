@@ -40,6 +40,7 @@ private:
 	bool evaluated;									//have we done this one already?
 	bool may_eval_outputs() {return (numreps > 0) && lastrow && results.final();} // if lastrow is false, then there was a null result in control
 	bool evaluate_this();							//private evaluation
+	bool operation_search();						//private evaluation
 	bool operation_sql();							//private evaluation
 	bool operation_repeat();						//private evaluation
 	bool operation_each();							//private evaluation
