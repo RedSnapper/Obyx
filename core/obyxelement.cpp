@@ -498,7 +498,7 @@ void ObyxElement::get_search_connection() {
 			Environment* e = Environment::service();
 			string host,user,userpw,port;
 			if(!e->getenv("OBYX_SEARCH_HOST",host)) { host="localhost" ;}
-			if(!e->getenv("OBYX_SEARCH_USER",user)) { user="sphinx" ;}
+			if(!e->getenv("OBYX_SEARCH_USER",user)) { user="" ;}
 			if(!e->getenv("OBYX_SEARCH_USERPW",userpw)) { userpw="" ;}
 			if(!e->getenv("OBYX_SEARCH_PORT",port)) { port="9306" ;}
 			scc->open( host,user,String::natural(port),userpw);
