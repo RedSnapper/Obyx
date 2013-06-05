@@ -177,6 +177,7 @@ void PairQueue::append(PairQueue& xqueue,ObyxElement *par) {
 				queue.push_back(pqpair(qi1,qi2));
 			} else {
 				queue.push_back(pqpair(qi1,pqendthing));
+				break;
 			}
 		}
 	}

@@ -246,7 +246,7 @@ bool Iteration::while_repeat_metafield(u_str& metafield) const {
 }
 bool Iteration::field(const u_str& fname,DataItem*& container,const kind_type& kind,string& errstring) const { 
 	bool retval = false;
-	if (query != NULL && operation == it_sql) {
+	if (query != NULL && (operation == it_sql || operation == it_search)) {
 		//This is where we could do an xpath split.
 		string qkey,srepo; XML::Manager::transcode(fname,qkey);
 		retval = query->readfield(currentrow,qkey,srepo,errstring);
@@ -269,7 +269,7 @@ void Iteration::list(const ObyxElement* base) { //static.
 	*Logger::log << Log::subhead << Log::LI << "Current SQL Queries" << Log::LO;
 	for (ObyxElement* curr = base->p; curr != NULL; curr = curr->p) {
 		const Iteration* i = dynamic_cast<const Iteration *>(curr);
-		if ( (i != NULL) &&  (i->query != NULL) && (i->operation == it_sql) ) {
+		if ( (i != NULL) &&  (i->query != NULL) && (i->operation == it_sql || i->operation == it_search) ) {
 			const std::vector<std::string>& fl = i->query->fieldlist();
 			if (!fl.empty()) {
 				string qery = i->query->getquery();
