@@ -457,7 +457,16 @@ bool Iteration::operation_sql() {
 		if (dbs != NULL)  {
 			query = NULL;	 //reset the reference..  (used for iko type="field")
 			if ( dbc != NULL && dbc->query(query,controlstring) ) {
-				if ( query->execute() ) {
+				
+//suppressing logging on query failure. we could try to escape the values, but for the time being
+				ostringstream* suppressor = NULL;
+				suppressor = new ostringstream();
+				Logger::set_stream(suppressor);
+				bool qex = query->execute();
+				Logger::unset_stream();
+				delete suppressor;
+				
+				if ( qex ) {
 					if (definputs.size() > 0) {
 						DefInpType* base_template = definputs[0];
 						definputs.clear();		//because we are recompositing this list.
@@ -471,11 +480,11 @@ bool Iteration::operation_sql() {
 						}
 						if (numreps > forced_break) numreps = forced_break;
 						if ( numreps == 0 ) {
-							delete base_template; 
+							delete base_template;
 						} else {
 							for (currentrow = 1; currentrow <= numreps; currentrow++) {
-								DefInpType* iter_input = NULL;	
-								if (currentrow != numreps) {	 //now can delete original 
+								DefInpType* iter_input = NULL;
+								if (currentrow != numreps) {	 //now can delete original
 									iter_input = new DefInpType(this,base_template);
 								} else {
 									iter_input = base_template;
@@ -483,13 +492,10 @@ bool Iteration::operation_sql() {
 								}
 								iter_input->evaluate();
 								definputs.push_back(iter_input);
-							}					
+							}
 						}
 					}
 				} else {
-					*Logger::log << Log::error;
-					trace();
-					*Logger::log << Log::blockend;
 					results.clear();
 					sqldone = false; //Just give up.
 				}
