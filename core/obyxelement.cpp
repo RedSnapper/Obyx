@@ -512,10 +512,10 @@ void ObyxElement::get_search_connection() {
 void ObyxElement::drop_search_connection() {
 	Environment* env = Environment::service();
 	if (env != NULL) {
-		env->resetenv("OBYX_SEARCH_HOST");
-		env->resetenv("OBYX_SEARCH_USER");
-		env->resetenv("OBYX_SEARCH_USERPW");
-		env->resetenv("OBYX_SEARCH_PORT");
+//		env->resetenv("OBYX_SEARCH_HOST");
+//		env->resetenv("OBYX_SEARCH_USER");
+//		env->resetenv("OBYX_SEARCH_USERPW");
+//		env->resetenv("OBYX_SEARCH_PORT");
 	}
 	if (scc != NULL ) {
 		if (scc->isopen())  { //scc is managed by vdb. Just look after Connections.
