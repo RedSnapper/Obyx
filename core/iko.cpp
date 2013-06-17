@@ -608,7 +608,7 @@ void IKO::process_encoding(DataItem*& basis) {
 				}
 			} break;
 			case e_sphinx: { //cf sMagics in searchd.cpp (sphinx)
-				char const* sMagics = "<\\()|-!@~\"&/^$=";
+				char const* sMagics = "<\\()|-!@~\"&/^$='";
 				string::size_type si = encoded.find_first_of(sMagics);
 				while ( si != string::npos ) {
 					encoded.insert(encoded.begin()+si,'\\');
