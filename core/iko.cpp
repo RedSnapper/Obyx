@@ -608,11 +608,19 @@ void IKO::process_encoding(DataItem*& basis) {
 				}
 			} break;
 			case e_sphinx: { //cf sMagics in searchd.cpp (sphinx)
-				char const* sMagics = "<\\()|-!@~\"&/^$='";
+				char const* sMagics = "<\\()|-!@~&/='";
+				//$"^  all seem to kill it
 				string::size_type si = encoded.find_first_of(sMagics);
 				while ( si != string::npos ) {
 					encoded.insert(encoded.begin()+si,'\\');
 					si = encoded.find_first_of(sMagics,si+2);
+				}
+				char const* sDeath = "$\"^ ";
+				//$"^   seem to kill it
+				si = encoded.find_first_of(sDeath);
+				while ( si != string::npos ) {
+					encoded.erase(si,1);
+					si = encoded.find_first_of(sDeath,si);
 				}
 				basis = DataItem::factory(encoded,di_text); //cannot be xml.
 			} break;
