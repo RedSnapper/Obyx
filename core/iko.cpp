@@ -147,6 +147,7 @@ IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : ObyxElement
 				case e_ascii:
 				case e_digits:
 				case e_none: 
+				case e_sphinx:
 				case e_sql: {
 					encoder = e_none;
 					string err_msg; Manager::transcode(str_encoder.c_str(),err_msg);
@@ -605,6 +606,15 @@ void IKO::process_encoding(DataItem*& basis) {
 					*Logger::log << Log::blockend;
 					basis = NULL;
 				}
+			} break;
+			case e_sphinx: { //cf sMagics in searchd.cpp (sphinx)
+				char const* sMagics = "<\\()|-!@~\"&/^$=";
+				string::size_type si = encoded.find_first_of(sMagics);
+				while ( si != string::npos ) {
+					encoded.insert(encoded.begin()+si,'\\');
+					si = encoded.find_first_of(sMagics,si+2);
+				}
+				basis = DataItem::factory(encoded,di_text); //cannot be xml.
 			} break;
 			case e_sha1: {
 				if (String::Digest::available(errs)) {
@@ -1516,6 +1526,7 @@ void IKO::startup() {
 	enc_types.insert(enc_type_map::value_type(UCS2(L"none"), e_none));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"qp"), e_qp));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"sql"), e_sql));
+	enc_types.insert(enc_type_map::value_type(UCS2(L"sphinx"), e_sphinx));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"xml"), e_xml));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"url"), e_url));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"name"), e_name));

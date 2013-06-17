@@ -706,10 +706,10 @@
 		B5E31FE309BC584A00F7FC96 /* core */ = {
 			isa = PBXGroup;
 			children = (
+				B5E31FE609BC584A00F7FC96 /* main.cpp */,
 				B560FC1211980DC800D2C92B /* ObyxElem */,
 				B5E320D009BC666A00F7FC96 /* filer.h */,
 				B5E320D109BC666A00F7FC96 /* filer.cpp */,
-				B5E31FE609BC584A00F7FC96 /* main.cpp */,
 			);
 			path = core;
 			sourceTree = "<group>";
