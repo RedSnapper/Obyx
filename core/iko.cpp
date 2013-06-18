@@ -615,7 +615,7 @@ void IKO::process_encoding(DataItem*& basis) {
 					encoded.insert(encoded.begin()+si,'\\');
 					si = encoded.find_first_of(sMagics,si+2);
 				}
-				char const* sDeath = "$\"^ ";
+				char const* sDeath = "$\"^";
 				//$"^   seem to kill it
 				si = encoded.find_first_of(sDeath);
 				while ( si != string::npos ) {
