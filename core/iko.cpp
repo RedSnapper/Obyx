@@ -148,6 +148,7 @@ IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : ObyxElement
 				case e_digits:
 				case e_none: 
 				case e_sphinx:
+				case e_xpath_lit:
 				case e_sql: {
 					encoder = e_none;
 					string err_msg; Manager::transcode(str_encoder.c_str(),err_msg);
@@ -606,6 +607,14 @@ void IKO::process_encoding(DataItem*& basis) {
 					*Logger::log << Log::blockend;
 					basis = NULL;
 				}
+			} break;
+			case e_xpath_lit: { //xpath literals need to have doubled single-quotes.
+				string::size_type s = encoded.find_first_of('\'');
+				while ( s != string::npos ) {
+					encoded.insert(encoded.begin()+s,'\'');
+					s = encoded.find_first_of('\'',s+2);
+				}
+				basis = DataItem::factory(encoded,di_text); //cannot be xml.
 			} break;
 			case e_sphinx: { //cf sMagics in searchd.cpp (sphinx)
 				char const* sMagics = "<\\()|-!@~&/='";
@@ -1529,8 +1538,8 @@ void IKO::startup() {
 	kind_types.insert(kind_type_map::value_type(UCS2(L"raw"), di_raw));
 	kind_types.insert(kind_type_map::value_type(UCS2(L"text"), di_text));
 	kind_types.insert(kind_type_map::value_type(UCS2(L"object"), di_object));
-	
 	enc_types.insert(enc_type_map::value_type(UCS2(L"ascii"), e_ascii));
+	enc_types.insert(enc_type_map::value_type(UCS2(L"xpath"), e_xpath_lit));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"none"), e_none));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"qp"), e_qp));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"sql"), e_sql));

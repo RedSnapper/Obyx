@@ -17,8 +17,8 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
-v1.130617		
-	Enh.		Added sphinx encoder.
+v1.130619		Enh.	Added xpath literal encoder.
+v1.130617		Enh.	Added sphinx encoder.
 v1.130605		
 	Enh.		Added iteration operation search.
 v1.130513		
