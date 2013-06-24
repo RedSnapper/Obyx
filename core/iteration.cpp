@@ -222,20 +222,21 @@ bool Iteration::while_repeat_metafield(u_str& metafield) const {
 			if ( operation == it_repeat || operation == it_each ) {
 				u_str rowstr; XML::Manager::to_ustr(numreps,rowstr);
 				metafield.replace(hashpos,9,rowstr);
-				hashpos--;
-				retval = true; 
+				hashpos += rowstr.size()-1 ;
+				retval = true;
 			} 
 		} else {
 			if ( metafield.compare(hashpos,4,UCS2(L"#row")) == 0 ) {
 				u_str rowstr; XML::Manager::to_ustr(currentrow,rowstr);
 				metafield.replace(hashpos,4,rowstr);
-				hashpos--;
+				hashpos += rowstr.size()-1 ;
 				retval = true;
-			} else {
-				if ( metafield.compare(hashpos,4,UCS2(L"#key")) == 0 ) {
-					u_str ckey; XML::Manager::transcode(currentkey,ckey);		
+			}
+			else {
+				if ( operation==it_each && metafield.compare(hashpos,4,UCS2(L"#key")) == 0 ) {
+					u_str ckey; XML::Manager::transcode(currentkey,ckey);
 					metafield.replace(hashpos,4,ckey);
-					hashpos--;
+					hashpos += ckey.size()-1; //#key
 					retval = true;
 				}
 			}
@@ -257,8 +258,8 @@ bool Iteration::field(const u_str& fname,DataItem*& container,const kind_type& k
 		u_str metafield = fname;
 		retval = while_repeat_metafield(metafield);
 		if (!retval) {
-			string erv; XML::Manager::transcode(fname,erv);		
-			errstring = "Error. Field " + erv + " not allowed here. In while and repeat only the fields #rowcount, #row and #key are valid";
+//			string erv; XML::Manager::transcode(fname,erv);
+//			errstring = "Error. Field " + erv + " not allowed here. In while and repeat only the fields #rowcount, #row and #key are valid";
 		}  else {
 			container = DataItem::factory(metafield,kind);
 		}

@@ -1507,36 +1507,34 @@ bool Environment::getparm(string const name,string& container) {
 		if (version() >= 1.110503 && String::rsplit('#',name,result) && (!result.second.empty())) {
 			size_t index = 0;
 			if (!result.first.empty()) { // ie, a named parameter.
-				vec_map_type::iterator it = parm_map.find(result.first);
-				if (result.second.compare("count") == 0) {
-					if (it != parm_map.end()) {
-						index = it->second.size();
-					}
-					String::tostring(container,(unsigned long long)index);
-					retval = true;
-				} else {
-					//a value may be accessed via eg myparm#2  myparm#v[2]				
-					if (result.second.size() >= 4 && (result.second[1] == '[') &&(result.second[0] == 'n' || result.second[0] == 'v')) {
-						if (result.second[0] == 'n') {
-							container = result.first;
-							retval = true;
-						} else { //value.
-							if (it != parm_map.end()) {
+				vec_map_type::iterator ip = parm_map.find(result.first);
+				if (ip != parm_map.end()) {
+					if (result.second.compare("count") == 0) {
+							index = ip->second.size();
+						String::tostring(container,(unsigned long long)index);
+						retval = true;
+					} else {
+						//a value may be accessed via eg myparm#2  myparm#v[2]				
+						if (result.second.size() >= 4 && (result.second[1] == '[') &&(result.second[0] == 'n' || result.second[0] == 'v')) {
+							if (result.second[0] == 'n') {
+								container = result.first;
+								retval = true;
+							} else { //value.
 								string::const_iterator numit = result.second.begin()+2;
 								index = String::natural(numit);
-								if (index - 1 < it->second.size()) {
+								if (index - 1 < ip->second.size()) {
+									container = ip->second[index-1];
 									retval = true;
-									container = it->second[index-1];
 								} //else false.
 							}
-						}
-					} else { // a direct number?
-						pair<unsigned long long,bool> idx = String::znatural(result.second);
-						if (idx.second && (size_t)(idx.first - 1) < it->second.size()) {
-							retval = true;
-							container = it->second[(size_t)idx.first - 1];
-						}
-					} //else false.
+						} else { // a direct number?
+							pair<unsigned long long,bool> idx = String::znatural(result.second);
+							if (idx.second && (size_t)(idx.first - 1) < ip->second.size()) {
+								container = ip->second[(size_t)idx.first - 1];
+								retval = true;								
+							}
+						} //else false.
+					}
 				}
 			} else { //This starts with a #
 				if (!result.second.empty()) {

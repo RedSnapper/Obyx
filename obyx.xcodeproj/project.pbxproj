@@ -1141,7 +1141,7 @@
 					"-DALLOW_MYSQL",
 					"-fshort-wchar",
 					"-ferror-limit=0",
-					"-DPRXXXXPROFILING",
+					"-DXXXPROFILING",
 					"-fmax-errors=0",
 				);
 				PRODUCT_NAME = obyx.cgi;
