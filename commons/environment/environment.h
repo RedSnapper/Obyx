@@ -26,6 +26,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <stack>
 #include <string>
 #include <ext/hash_map>
 #include <map>
@@ -60,7 +61,9 @@ private:
 	static var_map_type cgi_rfc_map;			//CGI_NAME rfc Header map (ro)
 	static var_map_type benv_map;				//Base     System environment (ro)
 	static bool config_file_done;
-	static double runtime_version;
+	static stack<double> runtime_version; 		//current version of document.
+	static size_t vsize;						 		//size of version stack
+
 	var_map_type ienv_map;				//Instance System environment (ro)
 	
 	int gArgc;
@@ -80,7 +83,6 @@ private:
 	long double basetime;	//used for timing.
 #endif
 	std::string empty;
-//	std::string parmprefix;
 	//-- The following are RESPONSE cookies
 	var_map_type ck_map;								//store the cookie values  (rw)
 	var_map_type ck_expires_map;						//store the cookie expires  (rw)
@@ -103,10 +105,7 @@ private:
 	void doparms(int argc, char *argv[]);
 	void dopostparms();
 	void setqsparm(string,unsigned long long);
-	
-//	buildarea_type do_area();
 	void do_request_cookies();
-	
 	void setcookie_req(string,string);
 	void setcookie_req_path(string,string);
 	void setcookie_req_domain(string,string);
@@ -143,7 +142,7 @@ public:
 	static void finalise();
 	static double version();
 	
-	static Environment* service(); 
+	static Environment* service();
 	 
 	static bool getbenvtf(string const,const bool=false);
 	static bool getbenv(string const,string&);
@@ -167,6 +166,9 @@ public:
 	void setcookie_res_path(string,string);
 	void setcookie_res_domain(string,string);
 	void setcookie_res_expires(string,string);
+
+	void version_push(double);
+	void version_pop();
 	
 	void setparm(string,string);
 	void setienv(string,string);

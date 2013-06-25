@@ -651,9 +651,10 @@ std::string const Document::currenthttpreq() {
 bool Document::eval() {
 	bool retval = false;
 	if ( xdoc != NULL && root_node != NULL ) {
-		u_str doc_ns; 
+		u_str doc_ns;
 		const XMLCh* doc_nsp = root_node->getNamespaceURI();
-		if (doc_nsp != NULL) { 
+		Environment* env = Environment::service();
+		if (doc_nsp != NULL) {
 			doc_ns = doc_nsp;
 			const XMLCh* rn = root_node->getPrefix();
 			if (rn != NULL) {ownprefix = rn;}
@@ -661,7 +662,8 @@ bool Document::eval() {
 			prefix(doc_prefix); //discard the test.
 			if ( (doc_ns.compare(UCS2(L"http://www.obyx.org")) == 0) ) {
 				retval = true;
-				doc_version = Environment::version();
+				bool versioned=false;
+				doc_version = env->version();
 				std::string version_str,err_string;
 				XML::Manager::attribute(root_node,UCS2(L"version"),version_str);
 				XML::Manager::attribute(root_node,UCS2(L"signature"),signature);
@@ -669,6 +671,8 @@ bool Document::eval() {
 					double version_val=String::real(version_str); 
 					if (!isnan(version_val) && version_val > 0) {
 						doc_version = version_val;
+						versioned = true;
+						env->version_push(doc_version);
 					}
 				}
 				if (!signature.empty()) {
@@ -687,6 +691,9 @@ bool Document::eval() {
 					popprefix();
 				} else {
  					process(root_node,this);
+				}
+				if (versioned) {
+					env->version_pop();
 				}
 			} else { //NOT obyx...
 				if (doc_par != NULL) { //maybe main file isn't obyx.

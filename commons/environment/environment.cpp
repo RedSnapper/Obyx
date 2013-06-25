@@ -1,5 +1,5 @@
 /*
- * environment.cpp is authored and maintained by Ben Griffin of Red Snapper Ltd 
+ * environment.cpp is authored and maintained by Ben Griffin of Red Snapper Ltd
  * environment.cpp is a part of Obyx - see http://www.obyx.org .
  * Obyx is protected as a trade mark (2483369) in the name of Red Snapper Ltd.
  * This file is Copyright (C) 2006-2010 Red Snapper Ltd. http://www.redsnapper.net
@@ -62,10 +62,12 @@ var_map_type Environment::benv_map;
 var_map_type Environment::cgi_rfc_map;
 Environment* Environment::instance;
 //bool Environment::config_file_done;
-double Environment::runtime_version = 999999.99999;
+stack<double> Environment::runtime_version;
+size_t Environment::vsize = 0;						 		//size of version stack
+
 #ifdef __MACH__
-	struct mach_timebase_info Environment::time_info;
-	long double Environment::nano;
+struct mach_timebase_info Environment::time_info;
+long double Environment::nano;
 #endif
 
 Environment::Environment()  : gDevelop(false),do_auto_utf8check(true),gSQLport(0),gRootDir(""),gScriptsDir(""),gScratchDir("/tmp/"),basetime(0)  {
@@ -73,9 +75,8 @@ Environment::Environment()  : gDevelop(false),do_auto_utf8check(true),gSQLport(0
 	gArgc=0;
 	gArgv=NULL;
 }
-
 Environment::~Environment() {
-	ienv_map.clear();	
+	ienv_map.clear();
 	ck_map.clear();								//store the cookie values  (rw)
 	ck_expires_map.clear();						//store the cookie expires  (rw)
 	ck_path_map.clear();						//store the cookie values  (rw)
@@ -92,19 +93,17 @@ void Environment::startup(string& v,string& vn,int argc, char **argv) {					//ev
 	init_cgi_rfc_map();
 	do_conf_from_args(argc,argv);
 	setbenvmap();
-	runtime_version = String::real(vn);
+	runtime_version.push(String::real(vn));
 	setbenv("OBYX_VERSION",v);			//Let coders know what version we are in!
 	setbenv("OBYX_VERSION_NUMBER",vn);	//Let coders know what version number we are in!
 	string tmp("");						//The following settings only have an effect at startup!
 	getbenv("OBYX_NO_EXTERNAL_GRAMMARS",tmp);
+	vsize = runtime_version.size();
 }
-
 void Environment::shutdown() {
 	cgi_rfc_map.clear();
 	benv_map.clear();
 }
-
-
 //only called if not fastcgi.
 void Environment::init_httphead() {
 	for(var_map_type::iterator bi = benv_map.begin(); bi != benv_map.end(); bi++) {
@@ -116,11 +115,10 @@ void Environment::init_httphead() {
 				string special=bi->first.substr(5,string::npos);
 				String::cgi_to_http(special);
 				httphead_map.insert(var_map_type::value_type(special,bi->second));
-			} 
+			}
 		}
 	}
 }
-
 void Environment::do_conf_from_args(int argc, char **argv) {
 	if (argc > 0) {
 		bool this_one = false;
@@ -137,7 +135,6 @@ void Environment::do_conf_from_args(int argc, char **argv) {
 		}
 	}
 }
-
 //so this now sends out the header AFTER the xml.
 void Environment::init(int argc, char **argv, char** env) {
 	if (instance == NULL) {
@@ -152,83 +149,83 @@ void Environment::init(int argc, char **argv, char** env) {
 		instance->getenvvars();			//args
 		instance->getenvvars_base();	//environment
 		instance->setbasetime();
-	} 
-}	
-void Environment::finalise() {	
+	}
+	vsize = runtime_version.size();
+}
+void Environment::finalise() {
 	if (instance != NULL) {
 		delete instance;
 		instance = NULL;
 	}
+	while (runtime_version.size() > vsize) {
+		runtime_version.pop();
+	}
 }
-
-Environment* Environment::service() { 
+Environment* Environment::service() {
 	return instance;
 }
-
-double Environment::version() { 
-	double e_version = 0;
-	string version_str;
-	if (instance->getenv("OBYX_DEFAULT_VERSION",version_str)) {
-		e_version=String::real(version_str);
-	}
-	if (isnan(e_version)) {
-		e_version = runtime_version;
-	}
-	return e_version; 
+double Environment::version() {
+	return runtime_version.top();
 }
-
-
+void Environment::version_push(double v) {
+	runtime_version.push(v);
+}
+void Environment::version_pop() {
+	if (!runtime_version.empty()) {
+		runtime_version.pop();
+	}
+}
 #pragma mark COOKIE MANAGEMENT FUNCTIONS
 //Request cookies: GET
 bool Environment::getcookie_req(string const name,string& container) {	//only pre-existing cookies
 	bool retval = false; container.clear();
 	var_map_type::iterator it = cke_map.find(name); //check request cookies first.
-	if (it != cke_map.end()) { container = ((*it).second); retval = true; } 
+	if (it != cke_map.end()) { container = ((*it).second); retval = true; }
 	return retval;
 }
 bool Environment::getcookie_req_domain(string const name,string& container) {	//only pre-existing cookies
 	bool retval = false; container.clear();
 	var_map_type::iterator it = cke_domain_map.find(name); //check request cookies first.
-	if (it != cke_domain_map.end()) { container = ((*it).second); retval = true; } 
+	if (it != cke_domain_map.end()) { container = ((*it).second); retval = true; }
 	return retval;
 }
 bool Environment::getcookie_req_path(string const name,string& container) {	//only pre-existing cookies
 	bool retval = false; container.clear();
 	var_map_type::iterator it = cke_path_map.find(name); //check request cookies first.
-	if (it != cke_path_map.end()) { container = ((*it).second); retval = true; } 
+	if (it != cke_path_map.end()) { container = ((*it).second); retval = true; }
 	return retval;
 }
 bool Environment::getcookie_req_expires(string const name,string& container) {	//only pre-existing cookies
 	bool retval = false; container.clear();
 	var_map_type::iterator it = cke_expires_map.find(name); //check request cookies first.
-	if (it != cke_expires_map.end()) { container = ((*it).second); retval = true; } 
+	if (it != cke_expires_map.end()) { container = ((*it).second); retval = true; }
 	return retval;
 }
 //Request cookies: SET
 void Environment::setcookie_req(string name,string value) {
 	pair<var_map_type::iterator, bool> ins = cke_map.insert(var_map_type::value_type(name, value));
-	if (!ins.second) { 
+	if (!ins.second) {
 		cke_map.erase(ins.first);
 		cke_map.insert(var_map_type::value_type(name, value));
 	}
 }
 void Environment::setcookie_req_path(string name,string value) {
 	pair<var_map_type::iterator, bool> ins = cke_path_map.insert(var_map_type::value_type(name, value));
-	if (!ins.second) { 
+	if (!ins.second) {
 		cke_path_map.erase(ins.first);
 		cke_path_map.insert(var_map_type::value_type(name, value));
 	}
 }
 void Environment::setcookie_req_domain(string name,string value) {
 	pair<var_map_type::iterator, bool> ins = cke_domain_map.insert(var_map_type::value_type(name, value));
-	if (!ins.second) { 
+	if (!ins.second) {
 		cke_domain_map.erase(ins.first);
 		cke_domain_map.insert(var_map_type::value_type(name, value));
 	}
 }
 void Environment::setcookie_req_expires(string name,string value) {
 	pair<var_map_type::iterator, bool> ins = cke_expires_map.insert(var_map_type::value_type(name, value));
-	if (!ins.second) { 
+	if (!ins.second) {
 		cke_expires_map.erase(ins.first);
 		cke_expires_map.insert(var_map_type::value_type(name, value));
 	}
@@ -236,44 +233,44 @@ void Environment::setcookie_req_expires(string name,string value) {
 //--------------------------Response cookie GET functions
 void Environment::delcookie_res(string name) {
 	var_map_type::iterator it;
-	it = ck_map.find(name); if (it != ck_map.end()) ck_map.erase(it);  
-	it = ck_domain_map.find(name); if (it != ck_domain_map.end()) ck_domain_map.erase(it);  
-	it = ck_path_map.find(name); if (it != ck_path_map.end()) ck_path_map.erase(it);  
-	it = ck_expires_map.find(name); if (it != ck_expires_map.end()) ck_expires_map.erase(it);  
+	it = ck_map.find(name); if (it != ck_map.end()) ck_map.erase(it);
+	it = ck_domain_map.find(name); if (it != ck_domain_map.end()) ck_domain_map.erase(it);
+	it = ck_path_map.find(name); if (it != ck_path_map.end()) ck_path_map.erase(it);
+	it = ck_expires_map.find(name); if (it != ck_expires_map.end()) ck_expires_map.erase(it);
 }
 bool Environment::getcookie_res(string const name,string& container) {	//only pre-existing cookies
 	bool retval = false; container.clear();
 	var_map_type::iterator it = ck_map.find(name); //check request cookies first.
-	if (it != ck_map.end()) { container = ((*it).second); retval = true; } 
+	if (it != ck_map.end()) { container = ((*it).second); retval = true; }
 	return retval;
 }
 bool Environment::getcookie_res_domain(string const name,string& container) {	//only pre-existing cookies
 	bool retval = false; container.clear();
 	var_map_type::iterator it = ck_domain_map.find(name); //check request cookies first.
-	if (it != ck_domain_map.end()) { container = ((*it).second); retval = true; } 
+	if (it != ck_domain_map.end()) { container = ((*it).second); retval = true; }
 	return retval;
 }
 bool Environment::getcookie_res_path(string const name,string& container) {	//only pre-existing cookies
 	bool retval = false; container.clear();
 	var_map_type::iterator it = ck_path_map.find(name); //check request cookies first.
-	if (it != ck_path_map.end()) { container = ((*it).second); retval = true; } 
+	if (it != ck_path_map.end()) { container = ((*it).second); retval = true; }
 	return retval;
 }
 bool Environment::getcookie_res_expires(string const name,string& container) {	//only pre-existing cookies
 	bool retval = false; container.clear();
 	var_map_type::iterator it = ck_expires_map.find(name); //check request cookies first.
-	if (it != ck_expires_map.end()) { 
+	if (it != ck_expires_map.end()) {
 		container = ((*it).second); retval = true;
-	} 
+	}
 	return retval;
 }
 //Response cookies: SET
 void Environment::setcookie_res(string name,string value) {
-	if ( value.empty() ) { 
-		delcookie_res(name); 
+	if ( value.empty() ) {
+		delcookie_res(name);
 	} else {
 		pair<var_map_type::iterator, bool> ins = ck_map.insert(var_map_type::value_type(name, value));
-		if (!ins.second) { 
+		if (!ins.second) {
 			ck_map.erase(ins.first);
 			ck_map.insert(var_map_type::value_type(name, value));
 		}
@@ -281,14 +278,14 @@ void Environment::setcookie_res(string name,string value) {
 }
 void Environment::setcookie_res_path(string name,string value) {
 	pair<var_map_type::iterator, bool> ins = ck_path_map.insert(var_map_type::value_type(name, value));
-	if (!ins.second) { 
+	if (!ins.second) {
 		ck_path_map.erase(ins.first);
 		ck_path_map.insert(var_map_type::value_type(name, value));
 	}
 }
 void Environment::setcookie_res_domain(string name,string value) {
 	pair<var_map_type::iterator, bool> ins = ck_domain_map.insert(var_map_type::value_type(name, value));
-	if (!ins.second) { 
+	if (!ins.second) {
 		ck_domain_map.erase(ins.first);
 		ck_domain_map.insert(var_map_type::value_type(name, value));
 	}
@@ -313,57 +310,55 @@ void Environment::setcookie_res_expires(string name,string value) {
 	}
 	if (do_insert) {
 		pair<var_map_type::iterator, bool> ins = ck_expires_map.insert(var_map_type::value_type(name, value));
-		if (!ins.second) { 
+		if (!ins.second) {
 			ck_expires_map.erase(ins.first);
 			ck_expires_map.insert(var_map_type::value_type(name, value));
-		}		
+		}
 	}
 }
 //--------------------------------------------------
 //Gets either request cookies or response cookies.
 bool Environment::getcookie(string const name,string& container) {
 	bool retval = getcookie_req(name,container);
-	if (!retval) { 
+	if (!retval) {
 		retval = getcookie_res(name,container);
 	}
 	return retval;
 }
 bool Environment::getcookie_domain(string const name,string& container) {
 	bool retval = getcookie_req_domain(name,container);
-	if (!retval) { 
+	if (!retval) {
 		retval = getcookie_res_domain(name,container);
 	}
 	return retval;
 }
 bool Environment::getcookie_path(string const name,string& container) {
 	bool retval = getcookie_req_path(name,container);
-	if (!retval) { 
+	if (!retval) {
 		retval = getcookie_res_path(name,container);
 	}
 	return retval;
 }
 bool Environment::getcookie_expires(string const name,string& container) {
 	bool retval = getcookie_req_expires(name,container);
-	if (!retval) { 
+	if (!retval) {
 		retval = getcookie_res_expires(name,container);
 	}
 	return retval;
 }
-
 //--- GENERAL Cookie functions
 void Environment::do_response_cookies(string& result) {
 	result = "<m:message xmlns:m=\"http://www.obyx.org/message\">";
 	result.append(response_cookies(true));
 	result.append("</m:message>");
-} 
-
+}
 string Environment::response_cookies(bool explaining) {
 	var_map_type::iterator it;
 	ostringstream cookiestream;
 	string yearahead,yearago;
 	string this_cookie_name,this_cookie_value,this_cookie_expires;
-	DateUtils::Date::getCookieDateStr(yearahead);	    //for expires='persist' 
-	DateUtils::Date::getCookieExpiredDateStr(yearago);  //for expires='discard' 
+	DateUtils::Date::getCookieDateStr(yearahead);	    //for expires='persist'
+	DateUtils::Date::getCookieExpiredDateStr(yearago);  //for expires='discard'
 	for(var_map_type::iterator imt = ck_map.begin(); imt != ck_map.end(); imt++) {
 		this_cookie_name = imt->first;
 		this_cookie_value = imt->second;
@@ -371,7 +366,7 @@ string Environment::response_cookies(bool explaining) {
 			if ( ! this_cookie_value.empty() ) {		//EMPTY cookie values break browsers like safari.
 				it = ck_expires_map.find(imt->first);   //cookies may have been set elsewhere so pass them over.
 				if (it != ck_expires_map.end()) {
-					this_cookie_expires = it->second; 
+					this_cookie_expires = it->second;
 				} else {
 					this_cookie_expires.clear();
 				}
@@ -390,46 +385,46 @@ string Environment::response_cookies(bool explaining) {
 				}
 				if ( ( !this_cookie_expires.empty() ) && ( this_cookie_expires.compare("session") != 0) ) {
 					if (this_cookie_expires.compare("persist") == 0) {
-						this_cookie_expires = yearahead; 
-					} 
+						this_cookie_expires = yearahead;
+					}
 					if (explaining) {
 						cookiestream << "<m:subhead name=\"expires\" value=\"" << this_cookie_expires << "\"/>";
 					} else {
 						cookiestream << "; expires=" << this_cookie_expires;
 					}
 				}
-				it = ck_domain_map.find(imt->first); 
+				it = ck_domain_map.find(imt->first);
 				if (it != ck_domain_map.end()) {
 					if (explaining) {
-						cookiestream << "<m:subhead name=\"domain\" value=\"" << (*it).second << "\"/>";						
+						cookiestream << "<m:subhead name=\"domain\" value=\"" << (*it).second << "\"/>";
 					} else {
 						cookiestream << "; domain=" << (*it).second;
-					}						
-				}			
-				//do the path component - defaults to /		
-				it = ck_path_map.find(imt->first); 
+					}
+				}
+				//do the path component - defaults to /
+				it = ck_path_map.find(imt->first);
 				if (explaining) {
 					if (it != ck_path_map.end()) {
-						cookiestream << "<m:subhead name=\"path\" value=\"" << (*it).second << "\"/>";						
-					} 
+						cookiestream << "<m:subhead name=\"path\" value=\"" << (*it).second << "\"/>";
+					}
 				} else {
 					if (it != ck_path_map.end()) {
 						cookiestream << "; path=" << (*it).second;
 					} else {
 						cookiestream << "; path=/";
 					}
-				}						
+				}
 				if (explaining) {
 					cookiestream << "</m:header>";
 				} else {
 					cookiestream << Httphead::crlf;
 				}
-			} 
+			}
 		}
-	} 
+	}
 	//now do request cookies where their expiry date has changed..
 	for(var_map_type::iterator imd = ck_expires_map.begin(); imd != ck_expires_map.end(); imd++) {
-		this_cookie_name = imd->first; 
+		this_cookie_name = imd->first;
 		this_cookie_expires = imd->second;
 		if (!getcookie_res(this_cookie_name,this_cookie_value)) { //We don't want to rewrite cookies that have been composited as responses already.
 			if (getcookie_req(this_cookie_name,this_cookie_value)) {
@@ -437,7 +432,7 @@ string Environment::response_cookies(bool explaining) {
 					bool urlenc = true;
 					std::string ck_val = this_cookie_value;
 					String::urlencode(ck_val);
-					if (this_cookie_value.compare(ck_val) == 0) { 
+					if (this_cookie_value.compare(ck_val) == 0) {
 						urlenc = false;
 					} else {
 						this_cookie_value = ck_val;
@@ -455,11 +450,11 @@ string Environment::response_cookies(bool explaining) {
 					}
 					if ( ( !this_cookie_expires.empty() ) && ( this_cookie_expires.compare("session") != 0) ) {
 						if (this_cookie_expires.compare("persist") == 0) {
-							this_cookie_expires = yearahead; 
+							this_cookie_expires = yearahead;
 						} else {
 							if (this_cookie_expires.compare("discard") == 0) {
-								this_cookie_expires = yearago; 
-							} 
+								this_cookie_expires = yearago;
+							}
 						}
 						if (explaining) {
 							cookiestream << "<m:subhead name=\"expires\" value=\"" << this_cookie_expires << "\"/>";
@@ -479,13 +474,12 @@ string Environment::response_cookies(bool explaining) {
 	}
 	return cookiestream.str();
 }
-
 //  Cookie: CUSTOMER=WILE_E_COYOTE; PART_NUMBER=ROCKET_LAUNCHER_0001; SHIPPING=FEDEX
 // http://www.ietf.org/rfc/rfc2965.txt
 // http://wp.netscape.com/newsref/std/cookie_spec.html
 void Environment::do_request_cookies() {
 	string cook;
-	string ckname,ckattr,ckvar;        
+	string ckname,ckattr,ckvar;
 	size_t start=0;
 	size_t find = string::npos;
 	bool finished = false;
@@ -494,13 +488,13 @@ void Environment::do_request_cookies() {
 			ckname.clear();
 			ckattr.clear();
 			ckvar.clear();
-			find = cook.find_first_of(";\"",start); 
+			find = cook.find_first_of(";\"",start);
 			if (find != string::npos ) {
 				if (cook[find] == '\"' ) {
 					size_t qfind = cook.find('\"', find+1);
-					find = cook.find(";",qfind); 
+					find = cook.find(";",qfind);
 				}
-			}        
+			}
 			string cknamvar(cook.substr(start, find - start));
 			if (! cknamvar.empty() ) {
 				size_t cknaml = cknamvar.find_first_not_of("\t\r\n ");
@@ -512,7 +506,7 @@ void Environment::do_request_cookies() {
 				if (nvfind != string::npos ) {
 					if (cknamvar[nvfind] == '\"' ) {
 						size_t qfind = cknamvar.find('\"', nvfind+1);
-						nvfind = cknamvar.find("=",qfind); 
+						nvfind = cknamvar.find("=",qfind);
 					}
 				}
 				if (nvfind != string::npos ) { //retest because of quotes above.
@@ -543,8 +537,8 @@ void Environment::do_request_cookies() {
 					ckname.append(cnvar);
 					ckattr=ckname;
 				}
-				String::urldecode(ckattr); 
-				String::urldecode(ckvar); 
+				String::urldecode(ckattr);
+				String::urldecode(ckvar);
 				setcookie_req(ckattr, ckvar);
 			}
 			if (find == string::npos ) {
@@ -554,7 +548,7 @@ void Environment::do_request_cookies() {
 				ckvar.clear();
 			}
 		}
-	} 
+	}
 }
 #pragma mark PARAMETER (UTILITY)
 void Environment::dopostparms() {
@@ -572,12 +566,7 @@ void Environment::dopostparms() {
 					size_t xmltestB = contenttype.find("application/xml");
 					size_t xmltest1_2 = contenttype.find("application/soap+xml");
 					if ( (xmltest != string::npos) || (xmltestB != string::npos) || (xmltest1_2 != string::npos) ) {
-						if (version() < 1.110503 ) {
-							setparm("_n[1]","XML_DOCUMENT"); 
-							setparm("_v[1]",input); 
-						} else {
-							setparm("","XML_DOCUMENT"); 
-						}
+						setparm("","XML_DOCUMENT");
 						setparm("XML_DOCUMENT",input);
 						return;
 					} else {
@@ -588,16 +577,8 @@ void Environment::dopostparms() {
 						} else { // unknown or empty
 							setparm("POST_MIME",contenttype);
 							setparm("THIS_REQ_BODY",input);
-							if (version() < 1.110503 ) {
-								setparm("_n[1]","POST_MIME"); 
-								setparm("_v[1]",contenttype); 
-								setparm("_n[2]","THIS_REQ_BODY"); 
-								setparm("_v[2]",input); 
-								setparm("_count","2");
-							} else {
-								setparm("","POST_MIME"); 
-								setparm("","THIS_REQ_BODY"); 
-							}
+							setparm("","POST_MIME");
+							setparm("","THIS_REQ_BODY");
 							return;
 						}
 					}
@@ -622,7 +603,7 @@ void Environment::dopostparms() {
 					if (boundary[0] == '"' || boundary[0] == '\'') {
 						boundary = boundary.substr(1, boundary.length() - 2);
 					}
-					startboundary = "--" + boundary; 
+					startboundary = "--" + boundary;
 					endboundary = startboundary + "--";
 				}
 				size_t blockstart = 0;
@@ -631,7 +612,7 @@ void Environment::dopostparms() {
 				// BLOCK LOOP
 				bool postfinished = false;
 				while(! postfinished) {
-					string name(""), number(""), value(""), filename(""), mimetype(""); 
+					string name(""), number(""), value(""), filename(""), mimetype("");
 					blockstart = input.find(startboundary, blockend);  // find the boundary at blockend (intis at 0)
 					if (blockstart == string::npos) {
 						//						*Logger::log << Log::LI << "Finished Post" << Log::LO << Log::blockend;
@@ -643,26 +624,26 @@ void Environment::dopostparms() {
 					if (blockend == string::npos) {
 						//						*Logger::log << Log::LI << "Finished Post" << Log::LO << Log::blockend;
 						postfinished = true;
-					} 
+					}
 					if (! postfinished ) {
 						string block = input.substr(blockstart + startboundary.length() + 2, blockend - blockstart - startboundary.length() - 4);
 						//						*Logger::log << Log::info << Log::LI << "Input block" << Log::LO;
 						//A typical block is below.
 						//
-//						 --#312999087#multipart#boundary#1049282996#
-//						Content-Disposition: form-data; name="id:2"
-//						 
-//						 106
-//						 
+						//						 --#312999087#multipart#boundary#1049282996#
+						//						Content-Disposition: form-data; name="id:2"
+						//
+						//						 106
+						//
 						
 						//A typical file block is below.
-//						 --#312999087#multipart#boundary#1049282996#
-//						 Content-Disposition: form-data; name="img:1"; filename="p.gif"
-//						 Content-Type: image/gif
-//						 
-//						 GIF89a\001\000\001\000\304\000\000\u02c7\u02c7\u02c7\000\000\000!\u02d8\004\001\000\000\000\000,\000\000\000\000\001\000\001\000\000\002\002D\001\000;
-//						 
-						// FIRST LINE -- The Content-Disposition line  
+						//						 --#312999087#multipart#boundary#1049282996#
+						//						 Content-Disposition: form-data; name="img:1"; filename="p.gif"
+						//						 Content-Type: image/gif
+						//
+						//						 GIF89a\001\000\001\000\304\000\000\u02c7\u02c7\u02c7\000\000\000!\u02d8\004\001\000\000\000\000,\000\000\000\000\001\000\001\000\000\002\002D\001\000;
+						//
+						// FIRST LINE -- The Content-Disposition line
 						size_t lineend = block.find("\x0d\x0a");
 						if (lineend == string::npos) {
 							*Logger::log << Log::error << Log::LI << "Newlines should be crlf in a POST" << Log::LO << Log::blockend;
@@ -678,8 +659,8 @@ void Environment::dopostparms() {
 								namestart += 6;
 								size_t namep = line.find_first_of("\"", namestart) - namestart;
 								name.append(line.substr(namestart,namep));
-//								namestart += namep; notused.
-								// Now see if we have a filename.		
+								// namestart += namep; notused.
+								// Now see if we have a filename.
 								// find filename name-value
 								size_t fnstart = line.find("filename=\"");
 								if (fnstart != string::npos) {
@@ -709,13 +690,8 @@ void Environment::dopostparms() {
 									value = block.substr(lineend + 2, block.npos );  //The rest of the block is the value.
 									//									*Logger::log <<  name <<" value:[" << value << "]" << Log::LO;
 									if ( value.length() > 0 ) {
-										//									*Logger::log << LI << "Posting parm:[" << name << "]=[" << value << "]" << LO; //should be in debug here..
-										if (version() < 1.110503 ) {
-											setparm("_n["+String::tostring(numparms+1)+"]",name); 
-											setparm("_v["+String::tostring(numparms+1)+"]",value); 
-										} else {
-											setparm("",name); 
-										}
+										//								*Logger::log << LI << "Posting parm:[" << name << "]=[" << value << "]" << LO; //should be in debug here..
+										setparm("",name);
 										setparm(name,value);
 										numparms++;
 										if (! filename.empty()) {
@@ -737,51 +713,26 @@ void Environment::dopostparms() {
 											string fext(name+"_ext");
 											string fname(name+"_name");
 											//										*Logger::log << Log::LI << "Posting parm:[" << fname << "]=[" << fbase << "." << fext << "] file:[" << filename << "]=[" << base << "].[" << ext << "]" << Log::LO;
-											if (version() < 1.110503 ) {
-												string metadelim="_";
-												setparm(metadelim+"n["+String::tostring(numparms+1)+"]",fname); 
-												setparm(metadelim+"v["+String::tostring(numparms+1)+"]",filename); 
-												setparm(fname,filename);
-												setparm(metadelim+"n["+String::tostring(numparms+1)+"]",fbase); 
-												setparm(metadelim+"v["+String::tostring(numparms+1)+"]",base); 
-												setparm(fbase,base);
-												setparm(metadelim+"n["+String::tostring(numparms+1)+"]",fext); 
-												setparm(metadelim+"v["+String::tostring(numparms+1)+"]",ext); 
-												setparm(fext,ext);
-												numparms+=3;
-											} else {
-												setparm("",fname);
-												setparm("",fbase);
-												setparm("",fext);
-												setparm(fname,filename);
-												setparm(fbase,base);
-												setparm(fext,ext);
-												numparms+=3;
-											}
+											setparm("",fname);
+											setparm("",fbase);
+											setparm("",fext);
+											setparm(fname,filename);
+											setparm(fbase,base);
+											setparm(fext,ext);
+											numparms+=3;
 										}
 										if (! mimetype.empty() ) {
 											string lenval = String::tostring(static_cast<long long>(value.length()));
-											//											*Logger::log << Log::LI <<  name <<" Length of file:[" << lenval << "]" << Log::LO;
 											string flength(name+"_length");
-											if (version() < 1.110503 ) {
-												setparm("_n["+String::tostring(numparms+1)+"]",flength); 
-												setparm("_v["+String::tostring(numparms+1)+"]",lenval); 
-											} else {
-												setparm("",flength); 
-											}
+											setparm("",flength);
 											setparm(flength,lenval);
 											numparms++;
 											string fmime(name+"_mime");
-											if (version() < 1.110503 ) {
-												setparm("_n["+String::tostring(numparms+1)+"]",fmime); 
-												setparm("_v["+String::tostring(numparms+1)+"]",mimetype); 
-											} else {
-												setparm("",fmime); 
-											}
+											setparm("",fmime);
 											setparm(fmime,mimetype);
 											numparms++;
-											//This requires the Info structure								
-											//Now get any media information.. 
+											//This requires the Info structure
+											//Now get any media information..
 											int width=0;
 											int height=0;
 											istringstream ist(value);
@@ -796,68 +747,46 @@ void Environment::dopostparms() {
 													String::tostring(swidth,width);
 													string sheight;
 													String::tostring(sheight,height);
-													//													*Logger::log << Log::LI << "Posting parm width: " << fwidth << "=" << swidth <<  Log::LO;
-													if (version() < 1.110503 ) {
-														setparm("_n["+String::tostring(numparms+1)+"]",fwidth); 
-														setparm("_v["+String::tostring(numparms+1)+"]",swidth); 
-													} else {
-														setparm("",fwidth); 
-													}
+													setparm("",fwidth);
 													setparm(fwidth,swidth);
 													numparms++;
-													//													*Logger::log <<  Log::LI << "Posting parm height: " << fheight << "=" << sheight <<  Log::LO;
-													if (version() < 1.110503 ) {
-														setparm("_n["+String::tostring(numparms+1)+"]",fheight); 
-														setparm("_v["+String::tostring(numparms+1)+"]",sheight); 
-													} else {
-														setparm("",fheight); 
-													}
+													setparm("",fheight);
 													setparm(fheight,sheight);
 													numparms++;
 												} else {
-													//													*Logger::log << Log::LI << "File failed media info.check " << Log::LO;													
+													//*Logger::log << Log::LI << "File failed media info.check " << Log::LO;
 												}
 											} catch ( exception e ) {
-												//												*Logger::log << Log::LI << "Media Error exception : " << e.what() << Log::LO;
 												// Need to be silent here generally. Except for debugging..
 											}
-											//----- media info finishes.									
+											//----- media info finishes.
 										} else {
-											//											*Logger::log <<"Content-Type is empty, so no file details were discovered." << Log::LO;											
+											//*Logger::log <<"Content-Type is empty, so no file details were discovered." << Log::LO;
 										}
 									} else { // still add empty, if it isn't a file.
 										if ( mimetype.empty() && filename.empty() ) {
-											//											*Logger::log << LI << "Empty Field:[" << name << "]=[" << value << "]" << LO;
-											if (version() < 1.110503 ) {
-												setparm("_n["+String::tostring(numparms+1)+"]",name); 
-												setparm("_v["+String::tostring(numparms+1)+"]",value); 
-											} else {
-												setparm("",name); 
-											}
+											setparm("",name);
 											setparm(name,value);
 											numparms++;
 										}
 									}
 								}
 							} //end of find name test
-						} else { 
+						} else {
 							setienv("POST_NON_FORM_DATA",line);
 						}
 						//						*Logger::log << Log::LO << Log::blockend;;
 					} // end of postfinished test
 				} // end of while
-				if (version() < 1.110503 ) {
-					setparm("_count",String::tostring(numparms)); 
-				}
 				if ( Logger::debugging() ) {
 					*Logger::log << Log::info << Log::LI << "POST Processing Completed" << Log::LO << Log::blockend; //
 				}
 			} //if CONTENT_TYPE
-		} 
-	} 
+		}
+	}
 }
 //ok so here it can either be a 'name=value' or just 'value'
-void Environment::setqsparm(string parmstring,unsigned long long pnum) {
+void Environment::setqsparm(string parmstring,unsigned long long) {
 	size_t split =  parmstring.find('=');
 	ostringstream parmnv;
 	string parmn,parmv;
@@ -868,18 +797,9 @@ void Environment::setqsparm(string parmstring,unsigned long long pnum) {
 		parmn = parmstring;
 		parmv = "";
 	}
-	if (version() < 1.110503 ) {
-		ostringstream parmnstr,parmvstr;
-		parmnstr << "_n[" << pnum+1 << "]";
-		parmvstr << "_v[" << pnum+1 << "]";
-		setparm(parmn,parmv); 			//foo=bar
-		setparm(parmnstr.str(),parmn);	//foo#n[1]=foo
-		setparm(parmvstr.str(),parmv); 	//foo#v[1]=bar
-	} else {
-		setparm(parmn,parmv); 			//foo=bar
-		setparm("࿅",parmn);	// #n[1]=foo
-		setparm("࿄",parmv);	// #v[1]=bar
-	}
+	setparm(parmn,parmv); 			//foo=bar
+	setparm("࿅",parmn);	// #n[1]=foo
+	setparm("࿄",parmv);	// #v[1]=bar
 }
 void Environment::doparms(int argc, char *argv[]) {
 	string qstr;
@@ -928,7 +848,7 @@ void Environment::doparms(int argc, char *argv[]) {
 		}
 	}
 }
-void Environment::do_query_string(string& qstr) {	
+void Environment::do_query_string(string& qstr) {
 	size_t start = 0;
 	size_t find = 0;
 	unsigned long long count = 0;
@@ -946,9 +866,6 @@ void Environment::do_query_string(string& qstr) {
 		setqsparm(raw,count);
 		count++;
 	}
-	if (version() < 1.110503 ) {
-		setparm("_count",String::tostring(count)); //This is correct for query_String
-	}
 }
 void Environment::setparm(string name,string value) {
 	vector<string> tiny;
@@ -956,7 +873,7 @@ void Environment::setparm(string name,string value) {
 	if (it != parm_map.end()) {
 		tiny = it->second;
 		parm_map.erase(it);
-	} 
+	}
 	tiny.push_back(value);
 	pair<vec_map_type::iterator, bool> ins = parm_map.insert(vec_map_type::value_type(name, tiny));
 	if (!ins.second)	{ // Should never happen
@@ -983,11 +900,11 @@ void Environment::dodocument() { //for POST values
 				iss->read(content, clen);
 				cfound = iss->gcount();
 				input = string(content,cfound);
-				setparm("THIS_REQ_BODY",input);	
+				setparm("THIS_REQ_BODY",input);
 				delete content;
 			} catch (...) { }
 		}
-	} else { 
+	} else {
 		if (! envexists("GATEWAY_INTERFACE")) { //not cgi.
 			const ssize_t buffsize=1024;
 			ostringstream sb;
@@ -1007,10 +924,7 @@ void Environment::dodocument() { //for POST values
 	if (test_file != NULL) { delete test_file;}
 }
 #pragma mark ENVIRONMENT (UTILITY)
-void Environment::init_cgi_rfc_map() { 
-	//	cgi_rfc_map.insert(var_map_type::value_type("REQUEST_METHOD","Method"));					//meta
-	//	cgi_rfc_map.insert(var_map_type::value_type("AUTH_TYPE","Authorization_T"));				//partial
-	//	cgi_rfc_map.insert(var_map_type::value_type("REMOTE_USER","Authorization_U"));				//partial
+void Environment::init_cgi_rfc_map() {
 	cgi_rfc_map.insert(var_map_type::value_type("CONTENT_TYPE","Content-Type"));				//precise
 	cgi_rfc_map.insert(var_map_type::value_type("CONTENT_LENGTH","Content-Length"));			//precise
 	cgi_rfc_map.insert(var_map_type::value_type("HTTP_HOST","Host"));							//precise
@@ -1023,9 +937,6 @@ void Environment::init_cgi_rfc_map() {
 	cgi_rfc_map.insert(var_map_type::value_type("HTTP_USER_AGENT","User-Agent"));				//precise
 }
 void Environment::initwlogger() {
-	if (version() < 1.110503 ) {
-		setparm("_count","0");
-	}
 	doparms(gArgc,gArgv);
 	string fn;
 	if (getenv("PATH_TRANSLATED",fn)) {
@@ -1037,48 +948,47 @@ void Environment::initwlogger() {
 	}
 	dodocument();
 	do_request_cookies();
-	dopostparms();	
+	dopostparms();
 }
 void Environment::do_config_file(string& filepathstring) {
-//	if (!config_file_done) {
-//		config_file_done=true;
-		string filecontainer;
-		if (filepathstring[0] != '/') {
-			filepathstring = FileUtils::Path::wd() + '/' +filepathstring;
-		}
-		FileUtils::Path destination; 
-		destination.cd(filepathstring);
-		string final_file_path = destination.output(true);
-		FileUtils::File file(final_file_path);
-		if (file.exists()) {
-			off_t flen = file.getSize();
-			if ( flen != 0 ) {
-				file.readFile(filecontainer);
-				istringstream iss(filecontainer);
-				string env_setting;
-				//Format is ENV_VAR(wspace)(ENV_SETTING)(newline)+
-				while( getline(iss,env_setting) ) {
-					string envname,envval;
-					String::trim(env_setting);
-					string::size_type pos = env_setting.find_first_of("\t \r\n");
-					if (pos != string::npos) {
-						envname = env_setting.substr(0, pos);
-						if (!envname.empty() && envname[0] != '#') {
-							envval = env_setting.substr(env_setting.find_first_not_of("\t \r\n",pos+1), string::npos);
-							String::strip(envval);
-							setbenv(envname,envval);
-						}
+	//	if (!config_file_done) {
+	//		config_file_done=true;
+	string filecontainer;
+	if (filepathstring[0] != '/') {
+		filepathstring = FileUtils::Path::wd() + '/' +filepathstring;
+	}
+	FileUtils::Path destination;
+	destination.cd(filepathstring);
+	string final_file_path = destination.output(true);
+	FileUtils::File file(final_file_path);
+	if (file.exists()) {
+		off_t flen = file.getSize();
+		if ( flen != 0 ) {
+			file.readFile(filecontainer);
+			istringstream iss(filecontainer);
+			string env_setting;
+			//Format is ENV_VAR(wspace)(ENV_SETTING)(newline)+
+			while( getline(iss,env_setting) ) {
+				string envname,envval;
+				String::trim(env_setting);
+				string::size_type pos = env_setting.find_first_of("\t \r\n");
+				if (pos != string::npos) {
+					envname = env_setting.substr(0, pos);
+					if (!envname.empty() && envname[0] != '#') {
+						envval = env_setting.substr(env_setting.find_first_not_of("\t \r\n",pos+1), string::npos);
+						String::strip(envval);
+						setbenv(envname,envval);
 					}
 				}
 			}
 		}
-		
-//	}
+	}
+	
+	//	}
 }
 bool Environment::sortvps(pair<string,string> n1,pair<string,string> n2) {
 	return (n1.first.compare(n2.first) < 0) ? true : false;
 }
-
 bool Environment::sortvvps(pair<string,vector<string>* > n1,pair<string,vector<string>* > n2) {
 	return (n1.first.compare(n2.first) < 0) ? true : false;
 }
@@ -1086,9 +996,9 @@ void Environment::setbasetime() {
 #ifdef __MACH__
 	basetime = mach_absolute_time();
     mach_timebase_info(&time_info);
-	nano = 1e-9 * ( (long double) time_info.numer) / ((long double) time_info.denom);	
+	nano = 1e-9 * ( (long double) time_info.numer) / ((long double) time_info.denom);
 #else
-	clockid_t clock_id; clock_getcpuclockid(pid,&clock_id);	
+	clockid_t clock_id; clock_getcpuclockid(pid,&clock_id);
 	timespec tb; clock_gettime(clock_id,&tb);
 	basetime = ((unsigned)tb.tv_sec + (0.000000001 * (unsigned)tb.tv_nsec));
 #endif
@@ -1109,16 +1019,16 @@ void Environment::setbenvmap() {//per box/process environment
 		if (split != string::npos && split > 0 ) {
 			string n = parmstring.substr(0,split);
 			string v = parmstring.substr(split+1,string::npos);
-//#ifdef FAST
-//Apache doesn't use 'name=value'. it uses 'name value'
-//			while(v.size() > 0 && v[v.size()-1] == '=') { //weird fastcgi shite.
-//				v.resize(v.size()-1);
-//			}
-//#endif
+			//#ifdef FAST
+			//Apache doesn't use 'name=value'. it uses 'name value'
+			//			while(v.size() > 0 && v[v.size()-1] == '=') { //weird fastcgi shite.
+			//				v.resize(v.size()-1);
+			//			}
+			//#endif
 			setbenv(n,v);
 			if (n.compare("OBYX_CONFIG_FILE") == 0) { //for virtual hosts shouldn't be set here.
 				do_config_file(v);
-			} 
+			}
 		}
 	}
 }
@@ -1203,11 +1113,7 @@ void Environment::resetenv(const string name) { //? used to reset per-request va
 	var_map_type::iterator i = ienv_map.find(name);
 	if (i != ienv_map.end()) {
 		ienv_map.erase(i);
-	} 
-//	i = benv_map.find(name);
-//	if (i != benv_map.end()) {
-//		benv_map.erase(i);
-//	}
+	}
 }
 void Environment::setienvmap(char ** environment) {
 	unsigned int eit = 0;
@@ -1217,12 +1123,12 @@ void Environment::setienvmap(char ** environment) {
 		if (split != string::npos && split > 0 ) {
 			string n = parmstring.substr(0,split);
 			string v = parmstring.substr(split+1,string::npos);
-//#ifdef FAST
-//apache doesn't use 'name=value'. it uses 'name value'
-//			if(v.size() > 0 && v[v.size()-1] == '=') { //weird fastcgi shite.
-//				v.resize(v.size()-1);
-//			}
-//#endif
+			//#ifdef FAST
+			//apache doesn't use 'name=value'. it uses 'name value'
+			//			if(v.size() > 0 && v[v.size()-1] == '=') { //weird fastcgi shite.
+			//				v.resize(v.size()-1);
+			//			}
+			//#endif
 			setienv(n,v);
 			var_map_type::iterator it = cgi_rfc_map.find(n);
 			if (it != cgi_rfc_map.end()) {
@@ -1243,7 +1149,7 @@ void Environment::getenvvars_base() {
 	pair<unsigned long long,bool> tmp;
 	if (getenv("OBYX_CONFIG_FILE",envtmp)) {
 		do_config_file(envtmp);
-	} 
+	}
 	if (getenv("OBYX_ROOT_DIR",gRootDir)) {
 		if ( gRootDir[gRootDir.size()-1] != '/') gRootDir+='/';
 	} else {
@@ -1263,7 +1169,14 @@ void Environment::getenvvars_base() {
 	if (getenvd("OBYX_SCRATCH_DIR",gScratchDir,"/tmp/")) { //defaults to /tmp/.
 		if ( gScratchDir[gScratchDir.size()-1] != '/') gScratchDir+='/';
 	}
-//	getenv("OBYX_PARM_PREFIX",parmprefix); //Used to prevent ambiguity - someone may need parmxxx
+	
+	string version_str;
+	if (getenv("OBYX_DEFAULT_VERSION",version_str)) {
+		double e_version=String::real(version_str);
+		if (! isnan(e_version)) {
+			runtime_version.push(e_version);
+		}
+	}
 }
 void Environment::getenvvars() {
 	//Called before LOGGER is initialised.
@@ -1303,7 +1216,7 @@ bool Environment::getbenv(string const name,string& container) {	//used for base
 	if (it != benv_map.end()) {
 		container = ((*it).second);
 		retval = true;
-	} 
+	}
 	return retval;
 }
 bool Environment::getbenvtf(string const name,const bool undef) {	//used for base configuration settings.
@@ -1311,7 +1224,7 @@ bool Environment::getbenvtf(string const name,const bool undef) {	//used for bas
 	var_map_type::iterator it = benv_map.find(name);
 	if (it != benv_map.end()) {
 		retval= (*it).second.compare("true") == 0;
-	} 
+	}
 	return retval;
 }
 bool Environment::benvexists(const string&  name) {	//used for base configuration settings.
@@ -1325,7 +1238,6 @@ string Environment::ScratchName() {
 	string scratchname = 'p' + unique + '_';
 	return scratchname;
 }
-
 void Environment::uniq(string& basis) {
 	string errs;
 	if ( String::Digest::available(errs) ) {
@@ -1336,7 +1248,6 @@ void Environment::uniq(string& basis) {
 	}
 	String::tohex(basis);
 }
-
 bool Environment::envfind(const string& pattern) { //regex..
 	bool retval = false;
 	if ( String::Regex::available() ) {
@@ -1418,38 +1329,38 @@ void Environment::cookiekeys(const string& pattern,set<string>& keylist) {
 		}
 	}
 }
-bool Environment::parmexists(const string& name) { //regex..
+bool Environment::parmexists(const string& name_i) { //regex..
 	bool retval=false;
-	if (version() >= 1.110503) {
-		size_t veclen = 0;
-		pair<string,string> result;		
-		if ( String::rsplit('#',name,result) && (!result.second.empty()) ) {
-			if (!result.first.empty()) {
-				vec_map_type::iterator it = parm_map.find(result.first);
-				if (it != parm_map.end()) {
-					veclen = it->second.size();
-				}
-				string::const_iterator numit = result.second.begin()+2;
-				size_t index = String::natural(numit);
-				if (index <= veclen) {
-					retval = true;
-				}
-			} else {
-				vec_map_type::iterator it = parm_map.find("࿅");
-				if (it != parm_map.end()) {
-					veclen = it->second.size();
-				}
-				string::const_iterator numit = result.second.begin()+2;
-				size_t index = String::natural(numit);
-				if (index <= veclen) {
-					retval = true;
-				}
+	string name(name_i);
+	if (version() < 1.110503 && !name.empty() && name[0]=='_') {
+		name[0] = '#';
+	}
+	size_t veclen = 0;
+	pair<string,string> result;
+	if ( String::rsplit('#',name,result) && (!result.second.empty()) ) {
+		if (!result.first.empty()) {
+			vec_map_type::iterator it = parm_map.find(result.first);
+			if (it != parm_map.end()) {
+				veclen = it->second.size();
+			}
+			string::const_iterator numit = result.second.begin()+2;
+			size_t index = String::natural(numit);
+			if (index <= veclen) {
+				retval = true;
 			}
 		} else {
-			retval = (parm_map.find(name) != parm_map.end()) ;		
+			vec_map_type::iterator it = parm_map.find("࿅");
+			if (it != parm_map.end()) {
+				veclen = it->second.size();
+			}
+			string::const_iterator numit = result.second.begin()+2;
+			size_t index = String::natural(numit);
+			if (index <= veclen) {
+				retval = true;
+			}
 		}
 	} else {
-		retval = (parm_map.find(name) != parm_map.end()) ;		
+		retval = (parm_map.find(name) != parm_map.end()) ;
 	}
 	return retval;
 }
@@ -1490,12 +1401,16 @@ bool Environment::getenv(const string name,string& container) {
 		if (it != benv_map.end()) {
 			container = ((*it).second);
 			retval = true;
-		} 
+		}
 	}
 	return retval;
 }
-bool Environment::getparm(string const name,string& container) {
+bool Environment::getparm(string const name_i,string& container) {
 	bool retval = false;
+	string name(name_i);
+	if (version() < 1.110503 && !name.empty() && name[0]=='_') {
+		name[0] = '#';
+	}
 	pair<string,string> result;
 	container.clear();
 	vec_map_type::iterator it = parm_map.find(name);
@@ -1504,17 +1419,17 @@ bool Environment::getparm(string const name,string& container) {
 		container = parmvals.back();
 		retval = true;
 	} else {
-		if (version() >= 1.110503 && String::rsplit('#',name,result) && (!result.second.empty())) {
+		if (String::rsplit('#',name,result) && (!result.second.empty())) {
 			size_t index = 0;
 			if (!result.first.empty()) { // ie, a named parameter.
 				vec_map_type::iterator ip = parm_map.find(result.first);
 				if (ip != parm_map.end()) {
 					if (result.second.compare("count") == 0) {
-							index = ip->second.size();
+						index = ip->second.size();
 						String::tostring(container,(unsigned long long)index);
 						retval = true;
 					} else {
-						//a value may be accessed via eg myparm#2  myparm#v[2]				
+						//a value may be accessed via eg myparm#2  myparm#v[2]
 						if (result.second.size() >= 4 && (result.second[1] == '[') &&(result.second[0] == 'n' || result.second[0] == 'v')) {
 							if (result.second[0] == 'n') {
 								container = result.first;
@@ -1531,7 +1446,7 @@ bool Environment::getparm(string const name,string& container) {
 							pair<unsigned long long,bool> idx = String::znatural(result.second);
 							if (idx.second && (size_t)(idx.first - 1) < ip->second.size()) {
 								container = ip->second[(size_t)idx.first - 1];
-								retval = true;								
+								retval = true;
 							}
 						} //else false.
 					}
@@ -1545,7 +1460,7 @@ bool Environment::getparm(string const name,string& container) {
 						}
 						String::tostring(container,(unsigned long long)index);
 						retval = true;
-					} else { //not count. either with the 
+					} else { //not count. either with the
 						if (result.second.size() >= 4 && (result.second[1] == '[') &&(result.second[0] == 'n' || result.second[0] == 'v')) {
 							if (result.second[0] == 'n') {
 								vec_map_type::iterator it = parm_map.find("࿅"); //get the names list.
@@ -1581,7 +1496,7 @@ bool Environment::getparm(string const name,string& container) {
 					}
 				}
 			}
-		} 
+		}
 	}
 	return retval;
 }
@@ -1600,7 +1515,7 @@ void Environment::gettiming(string& result) {
 	uint64_t delta = mach_absolute_time() - basetime;
 	timing = ((double) delta) * nano;
 #else
-	clockid_t clock_id; clock_getcpuclockid(pid,&clock_id);	
+	clockid_t clock_id; clock_getcpuclockid(pid,&clock_id);
 	timespec tb; clock_gettime(clock_id,&tb);
 	timing = ((unsigned)tb.tv_sec + (0.000000001 * (unsigned)tb.tv_nsec)) - basetime;
 #endif
@@ -1608,11 +1523,11 @@ void Environment::gettiming(string& result) {
 	result = ost.str();
 }
 void Environment::getresponsehttp(string& result) {
-	Httphead* http = Httphead::service();	
+	Httphead* http = Httphead::service();
 	http->explain(result);
 }
 void Environment::getrequesthttp(string& head,string& body) {
-	//This is recomposited from environment. 
+	//This is recomposited from environment.
 	ostringstream rh;
 	string method,version,url,tmp;
 	if (!getenv("REQUEST_METHOD",method)) {
@@ -1663,7 +1578,7 @@ void Environment::listParms() {
 			}
 			*Logger::log << Log::IO << Log::LO;
 		}
-
+		
 		*Logger::log << Log::blockend << Log::LO << Log::blockend ; //even .. subhead.
 	}
 }
@@ -1675,7 +1590,7 @@ void Environment::listReqCookies() {
 	if (!vmc.empty()) {
 		*Logger::log << Log::subhead  << Log::LI << "List of request cookies" << Log::LO;
 		*Logger::log << Log::LI << Log::even;
-		std::sort(vmc.begin(), vmc.end(), sortvps); 
+		std::sort(vmc.begin(), vmc.end(), sortvps);
 		for(vector<pair<string,string> >::iterator vmci = vmc.begin(); vmci != vmc.end(); vmci++) {
 			*Logger::log << Log::LI << Log::II << vmci->first << Log::IO << Log::II << vmci->second << Log::IO << Log::LO;
 			ostringstream vck; var_map_type::iterator itd;
@@ -1685,7 +1600,7 @@ void Environment::listReqCookies() {
 			itd = cke_path_map.find(vmci->first);
 			if (itd != cke_path_map.end()) vck << " path=\"" << ((*itd).second) << "\"";
 			itd = cke_expires_map.find(vmci->first);
-			if (itd != cke_expires_map.end()) { 
+			if (itd != cke_expires_map.end()) {
 				vck << " expires=\"" << ((*itd).second) << "\"";
 			}
 			*Logger::log << Log::LI << vck.str() << Log::LO;
@@ -1699,7 +1614,7 @@ void Environment::listResCookies() {
 		vmc.push_back(pair<string,string>(imt->first,imt->second));
 	}
 	if (!vmc.empty()) {
-		std::sort(vmc.begin(), vmc.end(), sortvps); 
+		std::sort(vmc.begin(), vmc.end(), sortvps);
 		*Logger::log << Log::subhead << Log::LI << "List of response cookies" << Log::LO;
 		*Logger::log << Log::LI << Log::even;
 		for(vector<pair<string,string> >::iterator vmci = vmc.begin(); vmci != vmc.end(); vmci++) {
@@ -1710,7 +1625,7 @@ void Environment::listResCookies() {
 			itd = ck_path_map.find(vmci->first);
 			if (itd != ck_path_map.end()) vck << " path=\"" << ((*itd).second) << "\"";
 			itd = ck_expires_map.find(vmci->first);
-			if (itd != ck_expires_map.end()) { 
+			if (itd != ck_expires_map.end()) {
 				vck << " expires=\"" << ((*itd).second) << "\"";
 			}
 			*Logger::log << Log::LI << vck.str() << Log::LO;
@@ -1737,10 +1652,10 @@ void Environment::listEnv() {
 	if (!vme.empty()) {
 		*Logger::log << Log::subhead << Log::LI << "List of sysenv" << Log::LO;
 		*Logger::log << Log::LI << Log::even;
-		std::sort(vme.begin(), vme.end(), sortvps); 
+		std::sort(vme.begin(), vme.end(), sortvps);
 		for(vector<pair<string,string> >::iterator vmei = vme.begin(); vmei != vme.end(); vmei++) {
 			if (( vmei->first.find("OBYX_SQL",0,8) != 0) && (vmei->first.compare("OBYX_SALT") != 0)) {
-//			if ( vmei->first.find("OBYX_",0,5) != 0) {
+				//			if ( vmei->first.find("OBYX_",0,5) != 0) {
 				*Logger::log << Log::LI << Log::II << vmei->first << Log::IO << Log::II << vmei->second << Log::IO << Log::LO;
 			}
 		}
@@ -1757,7 +1672,7 @@ void  Environment::list(string& result) {
 	for(var_map_type::iterator imt = benv_map.begin(); imt != benv_map.end(); imt++) {
 		vme.push_back(pair<string,string>(imt->first,imt->second));
 	}
-	std::sort(vme.begin(), vme.end(), sortvps); 
+	std::sort(vme.begin(), vme.end(), sortvps);
 	for(vector<pair<string,string> >::iterator vmei = vme.begin(); vmei != vme.end(); vmei++) {
 		if (( vmei->first.find("OBYX_SQL",0,8) != 0) && (vmei->first.compare("OBYX_SALT") != 0)) {
 			buffer << Log::info << Log::LI << "Environment " << Log::II << vmei->first << Log::IO << Log::II << vmei->second << Log::IO << LO << blockend;
@@ -1770,7 +1685,7 @@ void  Environment::list(string& result) {
 			vmp.push_back(pair<string,string>(imt->first,*ivt));
 		}
 	}
-	std::sort(vmp.begin(), vmp.end(), sortvps); 
+	std::sort(vmp.begin(), vmp.end(), sortvps);
 	for(vector<pair<string,string> >::iterator vmpi = vmp.begin(); vmpi != vmp.end(); vmpi++) {
 		buffer << Log::LI << "SystemParm " << Log::II << vmpi->first << Log::IO << Log::II << vmpi->second << Log::IO << Log::LO;
 	}
@@ -1778,7 +1693,7 @@ void  Environment::list(string& result) {
 	for(var_map_type::iterator imt = ck_map.begin(); imt != ck_map.end(); imt++) {
 		vmc.push_back(pair<string,string>(imt->first,imt->second));
 	}
-	std::sort(vmc.begin(), vmc.end(), sortvps); 
+	std::sort(vmc.begin(), vmc.end(), sortvps);
 	for(vector<pair<string,string> >::iterator vmci = vmc.begin(); vmci != vmc.end(); vmci++) {
 		ostringstream vck; var_map_type::iterator itd;
 		vck << "Response Cookie name=\"" << vmci->first <<  "\" value=\"" << vmci->second << "\"";
@@ -1794,7 +1709,7 @@ void  Environment::list(string& result) {
 	for(var_map_type::iterator imt = cke_map.begin(); imt != cke_map.end(); imt++) {
 		vmc.push_back(pair<string,string>(imt->first,imt->second));
 	}
-	std::sort(vmc.begin(), vmc.end(), sortvps); 
+	std::sort(vmc.begin(), vmc.end(), sortvps);
 	for(vector<pair<string,string> >::iterator vmci = vmc.begin(); vmci != vmc.end(); vmci++) {
 		ostringstream vck; var_map_type::iterator itd;
 		vck << "Request Cookie name=\"" << vmci->first <<  "\" value=\"" << vmci->second << "\"";
