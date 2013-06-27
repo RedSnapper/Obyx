@@ -17,6 +17,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.130627		Enh.	Added csv encoder/decoder.
 v1.130625		Bug.	sysparms stored using names based on default version doesn't work
 v1.130624		Enh.	Bugfix on keys and indexed sysparms..
 v1.130619		Enh.	Added xpath literal encoder.

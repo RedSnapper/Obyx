@@ -156,6 +156,7 @@ IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : ObyxElement
 					trace();
 					*Logger::log << Log::blockend;
 				} break;
+				case e_csv:
 				case e_json:
 				case e_message:
 				case e_qp: 
@@ -476,6 +477,15 @@ void IKO::process_encoding(DataItem*& basis) {
 					OsiMessage msg;
 					msg.compile(encoded,msgres,true);
 					basis = DataItem::factory(msgres.str(),di_object); //always xml..
+				}
+			} break;
+			case e_csv: {
+				if ( process == encode) {
+					String::csvencode(encoded);
+					basis = DataItem::factory(encoded,di_text); //cannot be xml..
+				} else {
+					String::csvdecode(encoded);
+					basis = DataItem::factory(encoded,kind); //may be xml..
 				}
 			} break;
 			case e_qp: {
@@ -1539,6 +1549,7 @@ void IKO::startup() {
 	kind_types.insert(kind_type_map::value_type(UCS2(L"text"), di_text));
 	kind_types.insert(kind_type_map::value_type(UCS2(L"object"), di_object));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"ascii"), e_ascii));
+	enc_types.insert(enc_type_map::value_type(UCS2(L"csv"), e_csv));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"xpath"), e_xpath_lit));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"none"), e_none));
 	enc_types.insert(enc_type_map::value_type(UCS2(L"qp"), e_qp));

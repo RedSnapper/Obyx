@@ -80,7 +80,36 @@ namespace String {
 		qplines.clear();
 		return retval;
 	}
-/*	
+/*
+ DOS-style lines that end with (CR/LF) characters (optional for the last line)
+ Any field may be quoted (with double quotes).
+ Fields containing a 
+	line-break, double-quote, and/or commas should be quoted. (If they are not, the file will likely be impossible to process correctly).
+ A (double) quote character in a field must be represented by two (double) quote characters.
+*/	
+	void csvencode(string& basis) {
+		string::size_type d = basis.find_first_of("\",\r\n\t");	//line-break, double-quote, and/or commas should be quoted.
+		if ( d != string::npos ) {
+			string::size_type s = basis.find_first_of('\"');
+			while ( s != string::npos ) {
+				basis.insert(basis.begin()+s,'\"');
+				s = basis.find_first_of('\"',s+2);
+			}
+			basis.push_back('\"');
+			basis.insert(0,"\"");
+		}
+	}
+	
+	void csvdecode(string& basis) {
+		if (basis.size() > 0 && basis[0]=='\"') { //it's quoted.
+			basis.resize(basis.size()-1);
+			basis.erase(0,1);
+			fandr(basis,"\"\"","\"");
+		}
+	}
+	
+	
+/*
 	quoted-printable := qp-line *(CRLF qp-line)
 	
 	qp-line := *(qp-segment transport-padding CRLF)

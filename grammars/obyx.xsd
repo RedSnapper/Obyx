@@ -307,6 +307,7 @@
 				<xs:restriction base="xs:NCName">
 					<xs:enumeration value="none"/>
 					<xs:enumeration value="name"/>
+					<xs:enumeration value="csv"/>
 					<xs:enumeration value="digits"/>
 					<xs:enumeration value="xpath"/>
 					<xs:enumeration value="xml"/>

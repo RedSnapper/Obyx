@@ -45,6 +45,9 @@ namespace String {
 	void urlencode(string&);
 	
 	void cgi_to_http(string&);
+	
+	void csvencode(string&);
+	void csvdecode(string&); 
 
 	bool qpdecode(string&,const string = "\r\n");
 
