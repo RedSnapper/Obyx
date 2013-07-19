@@ -71,7 +71,7 @@
          </EnvironmentVariable>
          <EnvironmentVariable
             key = "PATH_TRANSLATED"
-            value = "/Library/WebServer/Documents/pubroot/doli.obyx"
+            value = "/Library/WebServer/Documents/pubroot/bob.obyx"
             isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable

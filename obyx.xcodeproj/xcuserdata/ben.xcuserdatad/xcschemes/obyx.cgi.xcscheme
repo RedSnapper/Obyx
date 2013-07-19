@@ -68,7 +68,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "/Library/WebServer/Documents/pubroot/forgottenpassword.obyx -c /Library/WebServer/include/obyx.cf"
+            argument = "-c &quot;/Users/ben/Library/Application Support/BBEdit/Unix Support/Unix Filters/obyx.cf&quot; /Library/WebServer/Documents/pubroot/process_wsdl.obyx"
             isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>
@@ -80,8 +80,13 @@
          </EnvironmentVariable>
          <EnvironmentVariable
             key = "PATH_TRANSLATED"
-            value = "/Library/WebServer/Documents/pubroot/wop.obyx"
+            value = "/Library/WebServer/Documents/pubroot/epub/epub.obyx"
             isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "PATH_TRANSLATED"
+            value = "/Library/WebServer/Documents/pubroot/ds_r/Address_new.obyx"
+            isEnabled = "NO">
          </EnvironmentVariable>
          <EnvironmentVariable
             key = "TEST_FILE"
@@ -100,7 +105,7 @@
          </EnvironmentVariable>
          <EnvironmentVariable
             key = "QUERY_STRING"
-            value = "dd&amp;66"
+            value = "a=b&amp;a=c&amp;x=de&amp;frid=fly"
             isEnabled = "NO">
          </EnvironmentVariable>
          <EnvironmentVariable
@@ -111,11 +116,6 @@
          <EnvironmentVariable
             key = "SCRIPT_URI"
             value = "http://bgriffin.net/search"
-            isEnabled = "NO">
-         </EnvironmentVariable>
-         <EnvironmentVariable
-            key = "PATH_TRANSLATED"
-            value = "/Library/WebServer/Documents/pubroot/regex.obyx"
             isEnabled = "NO">
          </EnvironmentVariable>
       </EnvironmentVariables>

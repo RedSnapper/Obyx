@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VariablesViewState
+   version = "1.0">
+   <ContextStates>
+      <ContextState
+         contextName = "PairQueue::setresult(PairQueue&amp;):pairqueue.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "IKO::valuefromspace(std::basic_string&lt;unsigned short, std::char_traits&lt;unsigned short&gt;, std::allocator&lt;unsigned short&gt; &gt;&amp;, IKO::inp_space, bool, bool, obyx::kind_type, DataItem*&amp;):iko.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "XQillaDocumentImpl::createNSResolver(xercesc_3_1::DOMNode const*):XQillaDocumentImpl.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "IKO::evaltype(IKO::inp_space, bool, bool, bool, obyx::kind_type, DataItem*&amp;, DataItem*&amp;):iko.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "XQillaDocumentImpl::createExpression(unsigned short const*, xercesc_3_1::DOMXPathNSResolver const*):XQillaDocumentImpl.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "UStrItem::operator std::basic_string&lt;unsigned short, std::char_traits&lt;unsigned short&gt;, std::allocator&lt;unsigned short&gt; &gt;() const:ustritem.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "main:main.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "Instruction::evaluate_this():instruction.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "Output::evaluate(unsigned long, unsigned long):output.cpp">
+         <PersistentStrings>
+            <PersistentString
+               value = "(Function *)this-&gt;p">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "XMLObject::set_pnsr():xmlobject.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "XQilla::parse(unsigned short const*, DynamicContext*, unsigned short const*, unsigned int, xercesc_3_1::MemoryManager*, XQQuery*):XQilla.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "DelayedModule::importModuleInto(XQQuery*) const:DelayedModule.cpp">
+      </ContextState>
+   </ContextStates>
+</VariablesViewState>

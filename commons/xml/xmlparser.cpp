@@ -419,7 +419,7 @@ namespace XML {
 			const XMLCh csq[]= {']',chNull};		// "]"
 			vector<basic_string<XMLCh> > bits;
 			DOMNode* n = startnode;
-			while ( n != NULL) { //horrible.
+			while ( n != NULL ) { //horrible.
 				basic_ostringstream<XMLCh> oss;
 				basic_string<XMLCh> name = n->getNodeName();
 				if (name[0] == '#' ) { 

@@ -48,6 +48,7 @@ private:
 public:
 	
 		void setGrammar(bool set) { fGrammar = set;}
+		bool getGrammar() { return fGrammar;}
 		void resetErrors();
 		bool handleError(const DOMError& domError);
 		bool hadErrors();
