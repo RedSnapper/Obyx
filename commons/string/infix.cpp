@@ -152,7 +152,14 @@ namespace String {
 				errs.append(expr);
 				errs.append("'.");
 			}
-			return valstack.back();
+			if (!valstack.empty()) {
+				return valstack.back();
+			} else {
+				errs.append(" Stack Underflow Error. Expression was '");
+				errs.append(expr);
+				errs.append("'.");
+				return NAN;
+			}
 		}
 		size_t Evaluate::name(string::const_iterator& i,string& value) {
 			string::const_iterator b(i); //Start position as copy constructor.
