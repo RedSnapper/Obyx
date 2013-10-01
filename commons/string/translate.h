@@ -53,6 +53,8 @@ namespace String {
 
 	bool base64decode(string&);
 	bool base64encode(string&,bool = true);
+
+	bool rfc1342(string&,bool = true); //bool is encode(true) or decode.
 	
 	bool mailencode(string&); //incomplete - but shell safe ( ! ` ' $ { } are stripped from localname.)
 	

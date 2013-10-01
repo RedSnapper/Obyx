@@ -901,7 +901,7 @@ void Environment::dodocument() { //for POST values
 				cfound = iss->gcount();
 				input = string(content,cfound);
 				setparm("THIS_REQ_BODY",input);
-				delete content;
+				delete[] content;
 			} catch (...) { }
 		}
 	} else {

@@ -299,16 +299,20 @@ bool Instruction::evaluate_this() {
 									break; //operations handled outside of this switch, or DataItem is native.
 								case bitwise: {
 #ifndef DISALLOW_GMP		
-									string fv; if (first_value != NULL) { fv = *first_value; }
-									expr_bit_eval->set_expression(fv);
+									if (expr_bit_eval != NULL) {
+										string fv; if (first_value != NULL) { fv = *first_value; }
+										expr_bit_eval->set_expression(fv);
+									}
 #endif
 								} break;
 								case hmac: {
 									hmac_enc = IKO::str_to_encoder(*first_value);
 								} break;
 								case arithmetic: {
-									string fv; if (first_value != NULL) { fv = *first_value; }
-									expr_eval->set_expression(fv);
+									if (expr_bit_eval != NULL) {
+										string fv; if (first_value != NULL) { fv = *first_value; }
+										expr_eval->set_expression(fv);
+									}
 								} break;
 								case query_command:		// call_sql(first_value); break;
 								case shell_command:	{	// call_system(first_value); break;
@@ -404,10 +408,12 @@ bool Instruction::evaluate_this() {
 									break; //operations handled outside of this switch.
 								case bitwise: {
 #ifndef DISALLOW_GMP											
-									string parm_key=inputs[i]->parm_name;
-									if ( ! parm_key.empty()) {
-										string fv; if (srcval != NULL) { fv = *srcval; }
-										expr_bit_eval->add_parm(parm_key,fv);
+									if (expr_bit_eval != NULL) {
+										string parm_key=inputs[i]->parm_name;
+										if ( ! parm_key.empty()) {
+											string fv; if (srcval != NULL) { fv = *srcval; }
+											expr_bit_eval->add_parm(parm_key,fv);
+										}
 									}
 #endif
 								} break;
@@ -421,13 +427,15 @@ bool Instruction::evaluate_this() {
 									}
 								} break;
 								case arithmetic: {
-									string parm_key=inputs[i]->parm_name;
-									if ( ! parm_key.empty()) {
-										string fv; if (srcval != NULL) { fv = *srcval; }
-										double dble = String::real(fv);
-										expr_eval->add_parm(parm_key,dble);
+									if (expr_bit_eval != NULL) {
+										string parm_key=inputs[i]->parm_name;
+										if ( ! parm_key.empty()) {
+											string fv; if (srcval != NULL) { fv = *srcval; }
+											double dble = String::real(fv);
+											expr_eval->add_parm(parm_key,dble);
+										}
 									}
-								} break;								
+								} break;
 								case query_command: 
 								case shell_command:	{	// call_system(first_value); break;
 									if (srcval != NULL) {
@@ -444,15 +452,17 @@ bool Instruction::evaluate_this() {
 										if (i == 1) { //base
 											uaccumulator = *srcval;
 										} else {	//xpath
-											u_str sortstr = *srcval;
-											XMLObject* xdoc = *first_value;
-											if (xdoc != NULL) {
-												string error_str;
-												xdoc->sort(uaccumulator,sortstr,inputs[i]->ascending,false,error_str);
-												if (!error_str.empty()) {
-													*Logger::log <<  Log::error  << Log::LI << "Error. " << error_str << Log::LO;
-													trace();
-													*Logger::log << Log::blockend;
+											if (first_value != NULL) {
+												u_str sortstr = *srcval;
+												XMLObject* xdoc = *first_value;
+												if (xdoc != NULL) {
+													string error_str;
+													xdoc->sort(uaccumulator,sortstr,inputs[i]->ascending,false,error_str);
+													if (!error_str.empty()) {
+														*Logger::log <<  Log::error  << Log::LI << "Error. " << error_str << Log::LO;
+														trace();
+														*Logger::log << Log::blockend;
+													}
 												}
 											}
 										}
@@ -659,54 +669,58 @@ bool Instruction::evaluate_this() {
 					case kind:
 						break;
 					case bitwise: { //expr_bit_eval (result is in hexdigits)
-#ifndef DISALLOW_GMP						
-						std::string errs,expr_result;
-						if (base_convert) {
-							expr_result = expr_bit_eval->process(errs,precision);
-						} else {
-							if (bool_convert) {
-								expr_result = expr_bit_eval->process(errs,16);
-								if (!expr_result.compare("0")) {
-									expr_result="false";
-								} else {
-									expr_result="true";
-								}
+#ifndef DISALLOW_GMP	
+						if (expr_bit_eval != NULL) {
+							std::string errs,expr_result;
+							if (base_convert) {
+								expr_result = expr_bit_eval->process(errs,precision);
 							} else {
-								expr_result = expr_bit_eval->process(errs,16);
+								if (bool_convert) {
+									expr_result = expr_bit_eval->process(errs,16);
+									if (!expr_result.compare("0")) {
+										expr_result="false";
+									} else {
+										expr_result="true";
+									}
+								} else {
+									expr_result = expr_bit_eval->process(errs,16);
+								}
 							}
+							if (!errs.empty()) {
+								*Logger::log << Log::error << Log::LI << errs << Log::LO;
+								trace();
+								*Logger::log << Log::blockend;
+							}
+							results.append(expr_result,di_text);
+							delete expr_bit_eval;
 						}
-						if (!errs.empty()) {
-							*Logger::log << Log::error << Log::LI << errs << Log::LO;
-							trace();
-							*Logger::log << Log::blockend;
-						}
-						results.append(expr_result,di_text);
-						delete expr_bit_eval;
 #endif
 					} break;
 					case arithmetic: {
-						std::string expr_result, errs;
-						long double retval = expr_eval->process(errs);
-						if (!errs.empty()) {
-							*Logger::log << Log::error << Log::LI << errs << Log::LO;
-							trace();
-							*Logger::log << Log::blockend;
-						}
-						if (base_convert) {
-							String::tobasestring(retval,precision,bitpadding,expr_result);
-						} else {
-							if (bool_convert) {
-								if (retval == 0) {
-									expr_result="false";
-								} else {
-									expr_result="true";
-								}
-							} else {
-								expr_result = String::tostring(retval,precision);
+						if (expr_eval != NULL) {
+							std::string expr_result, errs;
+							long double retval = expr_eval->process(errs);
+							if (!errs.empty()) {
+								*Logger::log << Log::error << Log::LI << errs << Log::LO;
+								trace();
+								*Logger::log << Log::blockend;
 							}
+							if (base_convert) {
+								String::tobasestring(retval,precision,bitpadding,expr_result);
+							} else {
+								if (bool_convert) {
+									if (retval == 0) {
+										expr_result="false";
+									} else {
+										expr_result="true";
+									}
+								} else {
+									expr_result = String::tostring(retval,precision);
+								}
+							}
+							results.append(expr_result,di_text);
+							delete expr_eval;
 						}
-						results.append(expr_result,di_text);
-						delete expr_eval;
 					} break;
 					case obyx::unique: {
 						std::sort(uaccumulator.begin(), uaccumulator.end());

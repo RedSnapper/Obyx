@@ -473,6 +473,7 @@ void OsiMessage::construct_header_value(header& h) {
 			do_comments(h.v,h.comments);  //will leave the value (if there is one) followed by a ;
 			split_header_value(h.v,h.s); //subheads now in h.s
 			do_header_subheads(h); //subheads are recognised by ; only
+			String::rfc1342(h.v,false);	//decode if needs be.
 			String::trim(h.v);
 			size_t sh_slsh = h.v.find('/');
 			if (sh_slsh != string::npos) { //
@@ -552,6 +553,7 @@ void OsiMessage::construct_header_value(header& h) {
 				hx << " name=\"" << h.n << "\"";
 			}
 			if (!h.v.empty()) {
+				String::rfc1342(h.v,false);	//decode if needs be.
 				h.a = do_angled(h.v);
 				h.u = do_encoding(h.v);
 				hx << " value=\"" << h.v << "\"";
@@ -572,6 +574,7 @@ void OsiMessage::construct_header_value(header& h) {
 				hx << " name=\"" << h.n << "\"";
 			}
 			if (!h.v.empty()) {
+				String::rfc1342(h.v,false);	//decode if needs be.
 				h.a = do_angled(h.v);
 				h.u=do_encoding(h.v);
 				hx << " value=\"" << h.v << "\"";
@@ -586,10 +589,12 @@ void OsiMessage::construct_header_value(header& h) {
 		} break;
 		case rescookie: { //special cookie parse.
 			h.n = "Set-Cookie";
+			String::rfc1342(h.v,false);	//decode if needs be.
 		} // no break - using reqcookie code also.
 		case reqcookie: { //special cookie parse.
 			h.x.append(" name=\"" + h.n + "\"");
 			do_comments(h.v,h.comments);  //will leave the value (if there is one) followed by a ;
+			String::rfc1342(h.v,false);	//decode if needs be.
 			h.s = h.v; h.v.clear();
 			do_header_subheads(h);
 		} break;
@@ -609,8 +614,9 @@ void OsiMessage::construct_header_value(header& h) {
 				hx << " name=\"" << h.n << "\"";
 			}
 			if (!h.v.empty()) {
+				String::rfc1342(h.v,false);	//decode if needs be.
 				h.a = do_angled(h.v);
-				h.u=do_encoding(h.v);
+				h.u = do_encoding(h.v);
 				hx << " value=\"" << h.v << "\"";
 				if (h.a) {
 					hx << " angled=\"true\"";
@@ -660,6 +666,7 @@ void OsiMessage::do_header_array() {
 			header h;
 			h.n = string(header_str,0,nvpos);
 			h.v = string(header_str,nvpos+1,string::npos);
+			
 			header_type_map::const_iterator i = header_types.find(h.n);
 			if( i != header_types.end() ) {
 				h.t = i->second; 
@@ -990,15 +997,11 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 											if (!inlatin) {
 												headv.append(shnote);
 											} else {
-												if (String::islatin(shnote)) {
-													headv.append(shnote);
-												} else {
-													String::base64encode(shnote,false);
-													headv.append("=?utf-8?B?");
-													headv.append(shnote);
-													headv.append("?=");
+												if (!String::islatin(shnote)) {
+													String::rfc1342(shnote);
 												}
-											}											
+												headv.append(shnote);
+											}
 											headv.push_back(' ');
 											headv.push_back('<');
 											headv.append(shvalue);
@@ -1087,14 +1090,10 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 					if (!inlatin) {
 						head.append(headv);
 					} else {
-						if (String::islatin(headv)) {
-							head.append(headv);
-						} else {
-							String::base64encode(headv,false);
-							head.append("=?utf-8?B?");
-							head.append(headv);
-							head.append("?=");
+						if (!String::islatin(headv)) {
+							String::rfc1342(headv);
 						}
+						head.append(headv);
 					}
 					heads.push_back(head); 
 					head.clear();

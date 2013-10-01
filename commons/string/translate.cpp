@@ -25,8 +25,10 @@
 #include <string>
 #include <sstream>
 
+#include "xml.h"
 #include "translate.h"
 #include "fandr.h"
+#include "regex.h"
 #include "convert.h"
 
 using namespace std;
@@ -37,11 +39,12 @@ namespace String {
 	// http://tools.ietf.org/html/rfc2045
 	bool qpdecode(string& quoted_printable,const string CRLF) {
 		bool retval = false;
+		size_t crsiz=CRLF.size();
 		vector<string> qplines;
 		string::size_type pos = quoted_printable.find(CRLF);
 		while (pos != string::npos) {
 			qplines.push_back(quoted_printable.substr(0, pos));
-			quoted_printable.erase(0,pos+2);
+			quoted_printable.erase(0,pos+crsiz);
 			pos = quoted_printable.find(CRLF);
 		}
 		if (!quoted_printable.empty()) {
@@ -56,7 +59,9 @@ namespace String {
 			//manage hard/soft line-breaks.
 			if (!qplines[i].empty()) {
 				if (*(qplines[i].end()-1) != '=') {
-					qplines[i].append(CRLF);
+					if (i < (qplines.size()-1)) {
+						qplines[i].append(CRLF);
+					}
 				} else {
 					qplines[i].resize(qplines[i].size() - 1);
 				}
@@ -64,6 +69,7 @@ namespace String {
 				qplines[i]=CRLF;
 			}
 			size_t x = qplines[i].find('=');
+			fandr(qplines[i],'_',' ');
 			while (x != string::npos) {
 				string code,err;
 				code.push_back(qplines[i][x+1]);
@@ -72,6 +78,7 @@ namespace String {
 					qplines[i].replace(x,3,code);
 				} else {
 					retval = false;
+					break;
 				}
 				x = qplines[i].find('=',x+1);
 			}
@@ -80,6 +87,7 @@ namespace String {
 		qplines.clear();
 		return retval;
 	}
+
 /*
  DOS-style lines that end with (CR/LF) characters (optional for the last line)
  Any field may be quoted (with double quotes).
@@ -499,6 +507,84 @@ namespace String {
 		return retval;
 	}
 
+	//---------------------------------------------------------------------------
+	//RFC 1342 encodings.
+	//=?charset?encoding?encoded-text?=(sp/nl)  (encoding is either B or Q)
+	bool rfc1342(string &s,bool enc) {
+		bool retval = false;
+		string b=s;
+		if (enc) {
+/*
+			An encoded-word may not be more than 75 characters long, including charset, encoding, encoded-text, and delimiters.
+			the bits = 12. 75-12 = 63. B64 has a ratio of 8:6. 6*(63/8)=47
+			This means we have to split the text into 47 character chunks.
+*/
+			size_t chunk=47;
+			s.clear();
+			while (! b.empty()) {
+				string c=b.substr(0,chunk);
+				b.erase(0,chunk);
+				base64encode(c,false);
+				s.append("=?utf-8?B?");
+				s.append(c);
+				s.append("?=");
+				if (!b.empty()) {
+					s.append("\r\n");
+				}
+			}
+			retval = true;
+		} else {
+			size_t pos= 0;
+			pos= b.find("=?",pos);
+			while ( pos != string::npos ) {
+				size_t coff= b.find("?",pos+2);
+				if (coff == string::npos) {
+					break;
+				} else {
+					size_t eoff= b.find("?",coff+1);
+					if (eoff == string::npos) {
+						break;
+					} else {
+						size_t soff= b.find("?=",eoff+2);
+						if (soff == string::npos) {
+							break;
+						} else {
+							string charset= b.substr(pos+2,coff-(pos+2));
+							string encoder= b.substr(coff+1,eoff-(coff+1));
+							string basis= b.substr(eoff+1,soff-(eoff+1));
+							if (encoder.compare("B") == 0) {
+								base64decode(basis);
+							} else {
+								if (encoder.compare("Q") == 0) {
+									qpdecode(basis);
+								} else {
+									break;	//unknown/broken.
+								}
+							}
+							std::basic_string<XMLCh> x_body;
+							XML::Manager::transcode(basis,x_body,charset);
+							XML::Manager::transcode(x_body.c_str(),basis);
+							size_t padd=0;
+							if (b.size() > soff+2 ) {
+								if (b[soff+2] ==' ') {
+									padd=1; //space
+								} else {
+									padd=2; //crlf
+								}
+							}
+							b.replace(pos,(soff+2+padd)-pos,basis);
+							pos = pos+basis.size();
+						}
+					}
+					pos = b.find("=?",pos);
+				}
+			}
+			s = b;
+		}
+		return retval;
+	}
+	
+	
 	//---------------------------------------------------------------------------
 	//url encoding is in uppercase.
 	string hexencode(const unsigned char& c) {

@@ -74,12 +74,15 @@ bool ImageJpeg::check() throw ( exception ) {
       in->skip( size - 14 );
     } else if ( collectComments && size > 2 && marker == 0xfffe ) { // comment
       size -= 2;
-      auto_ptr< char > chars( XMALLOC( char, size ) );
-      if ( ! chars.get() ) throw std::exception();
-      if ( ! in->read( chars.get(), size ) ) return false;
-      string comment( chars.get() );
-      comments.push_back( comment );
-
+		char* chars = new char(size);
+		if ( ! in->read( chars, size )) {
+			delete chars;
+			return false;
+		} else {
+      		string comment( chars );
+      		comments.push_back( comment );
+			delete chars;
+		}
     } else if ( marker >= 0xffc0 && marker <= 0xffcf && marker != 0xffc4 && marker != 0xffc8) {
       if ( ! in->read( data, 6 ) ) return false;
       format = FORMAT_JPEG;

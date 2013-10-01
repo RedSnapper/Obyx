@@ -108,7 +108,7 @@ namespace String {
 					RAND_pseudo_bytes(ibuff,16); //err = 1 on SUCCESS.
 					unsigned int seed = *(unsigned int *)ibuff;
 					srand((unsigned)time(0)+seed); 
-					delete ibuff;
+					delete[] ibuff;
 
 				} 
 			}
@@ -324,9 +324,9 @@ namespace String {
 						context.append(string(obuff,strm.next_out - 1));
 					}
 				}
-				delete obuff;
+				delete[] obuff;
 			}
-			delete ibuff;
+			delete[] ibuff;
 		} 
 	}
 	
@@ -367,9 +367,9 @@ namespace String {
 						context.append(string(obuff,strm.next_out));
 					}
 				}
-				delete obuff;
+				delete[] obuff;
 			}
-			delete ibuff;
+			delete[] ibuff;
 		}
 	}
 }
