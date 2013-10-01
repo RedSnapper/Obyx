@@ -25,7 +25,7 @@
 #include <string>
 #include <sstream>
 
-#include "xml.h"
+#include "commons/xml/xml.h"
 #include "translate.h"
 #include "fandr.h"
 #include "regex.h"
