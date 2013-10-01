@@ -299,20 +299,20 @@ bool Instruction::evaluate_this() {
 									break; //operations handled outside of this switch, or DataItem is native.
 								case bitwise: {
 #ifndef DISALLOW_GMP		
-									if (expr_bit_eval != NULL) {
+//									if (expr_bit_eval != NULL) {
 										string fv; if (first_value != NULL) { fv = *first_value; }
 										expr_bit_eval->set_expression(fv);
-									}
+//									}
 #endif
 								} break;
 								case hmac: {
 									hmac_enc = IKO::str_to_encoder(*first_value);
 								} break;
 								case arithmetic: {
-									if (expr_bit_eval != NULL) {
+//									if (expr_bit_eval != NULL) {
 										string fv; if (first_value != NULL) { fv = *first_value; }
 										expr_eval->set_expression(fv);
-									}
+//									}
 								} break;
 								case query_command:		// call_sql(first_value); break;
 								case shell_command:	{	// call_system(first_value); break;
@@ -408,13 +408,13 @@ bool Instruction::evaluate_this() {
 									break; //operations handled outside of this switch.
 								case bitwise: {
 #ifndef DISALLOW_GMP											
-									if (expr_bit_eval != NULL) {
+//									if (expr_bit_eval != NULL) {
 										string parm_key=inputs[i]->parm_name;
 										if ( ! parm_key.empty()) {
 											string fv; if (srcval != NULL) { fv = *srcval; }
 											expr_bit_eval->add_parm(parm_key,fv);
 										}
-									}
+//									}
 #endif
 								} break;
 								case hmac: {
@@ -427,14 +427,14 @@ bool Instruction::evaluate_this() {
 									}
 								} break;
 								case arithmetic: {
-									if (expr_bit_eval != NULL) {
+//									if (expr_bit_eval != NULL) {
 										string parm_key=inputs[i]->parm_name;
 										if ( ! parm_key.empty()) {
 											string fv; if (srcval != NULL) { fv = *srcval; }
 											double dble = String::real(fv);
 											expr_eval->add_parm(parm_key,dble);
 										}
-									}
+//									}
 								} break;
 								case query_command: 
 								case shell_command:	{	// call_system(first_value); break;
@@ -670,7 +670,7 @@ bool Instruction::evaluate_this() {
 						break;
 					case bitwise: { //expr_bit_eval (result is in hexdigits)
 #ifndef DISALLOW_GMP	
-						if (expr_bit_eval != NULL) {
+//						if (expr_bit_eval != NULL) {
 							std::string errs,expr_result;
 							if (base_convert) {
 								expr_result = expr_bit_eval->process(errs,precision);
@@ -693,7 +693,7 @@ bool Instruction::evaluate_this() {
 							}
 							results.append(expr_result,di_text);
 							delete expr_bit_eval;
-						}
+//						}
 #endif
 					} break;
 					case arithmetic: {
