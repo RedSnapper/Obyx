@@ -561,9 +561,12 @@ namespace String {
 									break;	//unknown/broken.
 								}
 							}
-							std::basic_string<XMLCh> x_body;
-							XML::Manager::transcode(basis,x_body,charset);
-							XML::Manager::transcode(x_body.c_str(),basis);
+							String::tolower(charset);
+							if (charset.compare("utf-8") !=0 ) {
+								std::basic_string<XMLCh> x_body;
+								XML::Manager::transcode(basis,x_body,charset);
+								XML::Manager::transcode(x_body.c_str(),basis);
+							}
 							size_t padd=0;
 							if (b.size() > soff+2 ) {
 								if (b[soff+2] ==' ') {

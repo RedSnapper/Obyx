@@ -31,7 +31,7 @@
 using namespace std;
 
 const std::string OsiMessage::crlf		= "\x0D\x0A";
-const std::string OsiMessage::crlft		= "\x0D\x0A\x09";
+const std::string OsiMessage::crlft		= "\x0D\x0A ";
 //const std::string OsiMessage::needsenc("\x00\x09\x0A\x0D\x20\x22\x26\x3C\x3E",9); // without the 9, due to the null the assignment fails.
 const std::string OsiMessage::needsenc("\x00\x22\x26\x3C\x3E",5); // without the 5, due to the null the assignment fails.
 const std::string OsiMessage::wss		= "\x0D\x0A\x09\x20";
@@ -908,6 +908,13 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,ostream& result,bool addlen
 	for (unsigned int i=0; i < heads.size(); i++) {
 		String::fandr(heads[i],crlf,crlft);		//crlf in heads need a tab after them to indicate that they are not heads.
 		result << heads[i] << crlf;
+	}
+	if (body.find("crlf") == string::npos) {
+		if (body.find("\x0A") != string::npos) {
+			String::fandr(body,"\x0A",crlf);		//crlf in heads need a tab after them to indicate that they are not heads.
+		} else {
+			String::fandr(body,"\x0D",crlf);		//crlf in heads need a tab after them to indicate that they are not heads.
+		}
 	}
 	result << crlf << body; 
 }
