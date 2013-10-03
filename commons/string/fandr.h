@@ -39,6 +39,7 @@ using namespace std;
 		bool position(string const,string const,unsigned long long&);	//return the character position of first string in second string.
 		bool left(string const,long long,string&);
 		bool right(string const,long long,string&);
+		bool boundedleft(string&,size_t);
 		bool reverse(string&);
 		bool substring(string const,unsigned long long,unsigned long long,string&);
 	}

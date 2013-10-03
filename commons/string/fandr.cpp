@@ -195,6 +195,25 @@ namespace String {
 		return true;
 	}
 	//• --------------------------------------------------------------------------
+	bool boundedleft(string& string_to_cut,size_t numbytes) {
+		size_t bytesused = 0;
+		string::iterator f1=string_to_cut.begin();
+		string::iterator l1=string_to_cut.end();
+		while((f1 != l1) && (bytesused < numbytes)) {
+			if ((*f1 & 0x80) == 0x00) {
+				f1++; bytesused++;
+			} else if ((*f1 & 0xe0) == 0xc0 && f1 + 1 != l1 && (f1[1] & 0xc0) == 0x80 && bytesused+2 <= numbytes) {
+				f1 += 2; bytesused+=2;
+			} else if ((*f1 & 0xf0) == 0xe0 && f1 + 1 != l1 && f1 + 2 != l1 && (f1[1] & 0xc0) == 0x80 && (f1[2] & 0xc0) == 0x80 && bytesused+3 <= numbytes) {
+				f1 += 3; bytesused+=3;
+			} else {
+				break;
+			}
+		}
+		string_to_cut = std::string(string_to_cut.begin(),f1);
+		return true;
+	}
+	//• --------------------------------------------------------------------------
 	bool left(string const string_to_cut,long long numchars,string& result) { 
 		if (numchars < 0) { 			//We want the length of the string, minus p2 for our leftstring.
 			int charcount = 0;
