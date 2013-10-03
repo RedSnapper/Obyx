@@ -1,5 +1,5 @@
-/* 
- * osimessage.cpp is authored and maintained by Ben Griffin of Red Snapper Ltd 
+/*
+ * osimessage.cpp is authored and maintained by Ben Griffin of Red Snapper Ltd
  * osimessage.cpp is a part of Obyx - see http://www.obyx.org .
  * Obyx is protected as a trade mark (2483369) in the name of Red Snapper Ltd.
  * This file is Copyright (C) 2006-2010 Red Snapper Ltd. http://www.redsnapper.net
@@ -31,7 +31,7 @@
 using namespace std;
 
 const std::string OsiMessage::crlf		= "\x0D\x0A";
-const std::string OsiMessage::crlft		= "\x0D\x0A ";
+const std::string OsiMessage::crlft		= "\x0D\x0A\x20";
 //const std::string OsiMessage::needsenc("\x00\x09\x0A\x0D\x20\x22\x26\x3C\x3E",9); // without the 9, due to the null the assignment fails.
 const std::string OsiMessage::needsenc("\x00\x22\x26\x3C\x3E",5); // without the 5, due to the null the assignment fails.
 const std::string OsiMessage::wss		= "\x0D\x0A\x09\x20";
@@ -43,7 +43,7 @@ void OsiMessage::identify_nl(string& msg) {
 	/*
 	 Given a message, identify the newline(chars) and the newline size
 	 Correct newline is crlf = "\r\n" = "\x0D\x0A";
-	 LS:    Line Separator, U+2028 = E280A8 
+	 LS:    Line Separator, U+2028 = E280A8
 	 */
 	string t_crlf(crlf);
 	size_t base = msg.find_first_of(t_crlf);	//either cr or lf
@@ -61,8 +61,8 @@ void OsiMessage::identify_nl(string& msg) {
 			} else {
 				nlsize = 1;
 				nl = msg[base];
-			}		
-		}		
+			}
+		}
 	} else {
 		if (msg.find("\xE2\x80\xA8") != string::npos ) {
 			nlsize = 3;
@@ -76,7 +76,7 @@ void OsiMessage::identify_nl(string& msg) {
 void OsiMessage::split_msg(string& msg_str) {
 	if(!msg_str.empty()) {
 		string nlnl = nl + nl;
-		string::size_type pos = msg_str.find(nlnl); 
+		string::size_type pos = msg_str.find(nlnl);
 		if (pos == string::npos) {
 			head = msg_str;
 			body = "";
@@ -87,7 +87,7 @@ void OsiMessage::split_msg(string& msg_str) {
 	}
 }
 void OsiMessage::split_header_value(string& v,string& s,string delim) { //splits value at the first ;
-	string::size_type pos = v.find_first_of(delim); 
+	string::size_type pos = v.find_first_of(delim);
 	if (pos != string::npos) {
 		s = v.substr(pos + 1, string::npos);
 		v.erase(pos,string::npos);
@@ -97,8 +97,8 @@ void OsiMessage::split_header_value(string& v,string& s,string delim) { //splits
 }
 void OsiMessage::unfold_headers() {
 	/*
-	 The process of moving from this folded multiple-line representation of a header field 
-	 to its single line representation is called "unfolding". Unfolding is accomplished by 
+	 The process of moving from this folded multiple-line representation of a header field
+	 to its single line representation is called "unfolding". Unfolding is accomplished by
 	 simply removing any CRLF that is immediately followed by WSP. Each header field should
 	 be treated in its unfolded form for further syntactic and semantic evaluation.
 	 */
@@ -122,7 +122,7 @@ bool OsiMessage::do_encoding(string& v) {
 	if ( v.find_first_of(needsenc) != string::npos ) {
 		String::urlencode(v);
 		retval = true;
-	} 
+	}
 	return retval;
 }
 void OsiMessage::do_comments(string& str,vector< comment >& comments) {
@@ -134,14 +134,14 @@ void OsiMessage::do_comments(string& str,vector< comment >& comments) {
 			while (blev != 0) {
 				bx = str.find_first_of("()",bx);
 				if (str[bx] == '(') {
-					blev++; 
+					blev++;
 				} else {
 					blev--;
 				}
 				bx++;
 			}
 			comment c;
-			c.v = str.substr(bp+1,(bx-bp)-2); //-2 cos we want to skip the brackets 
+			c.v = str.substr(bp+1,(bx-bp)-2); //-2 cos we want to skip the brackets
 			c.a = do_angled(c.v);
 			c.u = do_encoding(c.v);
 			ostringstream hx;
@@ -176,24 +176,24 @@ void OsiMessage::do_mailbox(string& str,vector< address >& addresses) {
 				str.clear();
 			} else {
 				size_t bx = str.find('>',bp+1);
-				c.n = str.substr(0,bp);     //note. 
-				c.v = str.substr(bp+1,(bx-bp)-1); //-1 cos we want to skip the brackets 
+				c.n = str.substr(0,bp);     //note.
+				c.v = str.substr(bp+1,(bx-bp)-1); //-1 cos we want to skip the brackets
 				if (bx != string::npos) {
-					str.erase(0,bx+1); 
+					str.erase(0,bx+1);
 					String::trim(str);
 				} else {
 					str.clear();
 				}
-			} 
+			}
 			String::trim(c.v);
 			c.a = do_angled(c.v);
 			c.u = do_encoding(c.v);
 			ostringstream hx;
 			if (!c.n.empty()) {
 				String::trim(c.n);
-				String::xmlencode(c.n);		//don't want it going wild on us.				
+				String::xmlencode(c.n);		//don't want it going wild on us.
 				hx << " note=\"" << c.n << "\"";
-			}			
+			}
 			if (!c.v.empty()) {
 				hx << " value=\"" << c.v << "\"";
 				if (c.a) {
@@ -209,7 +209,7 @@ void OsiMessage::do_mailbox(string& str,vector< address >& addresses) {
 	}
 }
 void OsiMessage::do_trace_subheads(header& h) {
-	//This goes name ws value ws name ws value 
+	//This goes name ws value ws name ws value
 	while (!h.s.empty()) {
 		subhead s;
 		do_comments(h.s,s.comments);
@@ -246,7 +246,7 @@ void OsiMessage::do_trace_subheads(header& h) {
 			}
 			if (s.u) {
 				hx << " urlencoded=\"true\"";
-			} 
+			}
 		}
 		s.x = hx.str();
 		h.subheads.push_back(s);
@@ -263,14 +263,14 @@ void OsiMessage::do_list_subheads(header& h) {
 			while (blev != 0) {
 				bx = h.v.find_first_of("<>",bx);
 				if (h.v[bx] == '<') {
-					blev++; 
+					blev++;
 				} else {
 					blev--;
 				}
 				bx++;
 			}
 			subhead s;
-			s.v = h.v.substr(bp+1,(bx-bp)-2); //-2 cos we want to skip the brackets 
+			s.v = h.v.substr(bp+1,(bx-bp)-2); //-2 cos we want to skip the brackets
 			s.a = true; //list items are angled.
 			s.u = do_encoding(s.v);
 			ostringstream hx;
@@ -325,7 +325,7 @@ void OsiMessage::do_address_subheads(header& h) {
 			}
 			if (s.u) {
 				hx << " urlencoded=\"true\"";
-			} 
+			}
 		}
 		s.x = hx.str();
 		h.subheads.push_back(s);
@@ -372,7 +372,7 @@ void OsiMessage::do_header_subheads(header& h,char delim) {
 				}
 				if (s.u) {
 					hx << " urlencoded=\"true\"";
-				} 
+				}
 			}
 		} else {
 			//angled/urlencoded will fail here.
@@ -389,7 +389,7 @@ void OsiMessage::analyse_cookie(header& h,char fn) {	//'q/s' (req/response)
 	//  Cookie: CUSTOMER=WILE_E_COYOTE; PART_NUMBER=ROCKET_LAUNCHER_0001; SHIPPING=FEDEX
 	// http://www.ietf.org/rfc/rfc2965.txt
 	// http://wp.netscape.com/newsref/std/cookie_spec.html
-	string ckname,ckattr,ckvar;        
+	string ckname,ckattr,ckvar;
 	size_t start=0;
 	size_t find = string::npos;
 	string cook = h.v;
@@ -399,13 +399,13 @@ void OsiMessage::analyse_cookie(header& h,char fn) {	//'q/s' (req/response)
 		ckname.clear();
 		ckattr.clear();
 		ckvar.clear();
-		find = cook.find_first_of(";\"",start); 
+		find = cook.find_first_of(";\"",start);
 		if (find != string::npos ) {
 			if (cook[find] == '\"' ) {
 				size_t qfind = cook.find('\"', find+1);
-				find = cook.find(";",qfind); 
+				find = cook.find(";",qfind);
 			}
-		}        
+		}
 		string cknamvar(cook.substr(start, find - start));
 		if (! cknamvar.empty() ) {
 			size_t cknaml = cknamvar.find_first_not_of("\t\r\n ");
@@ -417,7 +417,7 @@ void OsiMessage::analyse_cookie(header& h,char fn) {	//'q/s' (req/response)
 			if (nvfind != string::npos ) {
 				if (cknamvar[nvfind] == '\"' ) {
 					size_t qfind = cknamvar.find('\"', nvfind+1);
-					nvfind = cknamvar.find("=",qfind); 
+					nvfind = cknamvar.find("=",qfind);
 				}
 			}
 			if (nvfind != string::npos ) { //retest because of quotes above.
@@ -450,8 +450,8 @@ void OsiMessage::analyse_cookie(header& h,char fn) {	//'q/s' (req/response)
 			}
 			switch (fn) {
 				case 'q':
-				case 's': 
-				case 'x': { 
+				case 's':
+				case 'x': {
 					ostringstream x;
 					x << "<m:header name=\"Set-Cookie\" cookie=\"" << ckattr << "\">";
 					x << "<m:subhead name=\"" << ckattr << "\" value=\"" << ckvar << "\"";
@@ -515,19 +515,19 @@ void OsiMessage::construct_header_value(header& h) {
 			do_comments(h.v,h.comments);  //will leave the value (if there is one) followed by a ;
 			split_header_value(h.v,h.s); //subheads now in h.s
 			body_mechanism=h.v;
-			if (h.u) { String::urldecode(body_mechanism); }
 			String::trim(body_mechanism);
+			if (h.u) { String::urldecode(body_mechanism); }
 			h.subheads.clear();
 			h.comments.clear();
 		} break;
 		case mailbox: {
 			do_comments(h.v,h.comments);  //will leave the value (if there is one) followed by a ;
-			string::size_type pos = h.v.find_first_of(":;<,"); 
+			string::size_type pos = h.v.find_first_of(":;<,");
 			if (pos != string::npos && h.v[pos] == ':') {
 				h.s = h.v;
 				h.v.clear();
 				String::trim(h.s);
-			}			
+			}
 			do_address_subheads(h); //subheads are recognised by :; only
 			String::trim(h.v);
 			do_mailbox(h.v,h.addresses);
@@ -562,7 +562,7 @@ void OsiMessage::construct_header_value(header& h) {
 				}
 				if (h.u) {
 					hx << " urlencoded=\"true\"";
-				} 
+				}
 			}
 			h.x = hx.str();
 		} break;
@@ -583,7 +583,7 @@ void OsiMessage::construct_header_value(header& h) {
 				}
 				if (h.u) {
 					hx << " urlencoded=\"true\"";
-				} 
+				}
 			}
 			h.x = hx.str();
 		} break;
@@ -600,10 +600,10 @@ void OsiMessage::construct_header_value(header& h) {
 		} break;
 		case cdisp:
 			h.n = "Content-Disposition"; //otherwise, unstructured.
-		case qvalue: 
-		case date_time: 
-		case msg_id: 
-		case version: 
+		case qvalue:
+		case date_time:
+		case msg_id:
+		case version:
 		case unstructured: {
 			do_comments(h.v,h.comments);  //will leave the value (if there is one) followed by a ;
 			split_header_value(h.v,h.s); //subheads now in h.s
@@ -623,7 +623,7 @@ void OsiMessage::construct_header_value(header& h) {
 				}
 				if (h.u) {
 					hx << " urlencoded=\"true\"";
-				} 
+				}
 			}
 			h.x = hx.str();
 		} break;
@@ -646,7 +646,7 @@ void OsiMessage::construct_header_value(header& h) {
 				}
 				if (h.u) {
 					hx << " urlencoded=\"true\"";
-				} 
+				}
 			}
 			h.x = hx.str();
 		} break;
@@ -669,7 +669,7 @@ void OsiMessage::do_header_array() {
 			
 			header_type_map::const_iterator i = header_types.find(h.n);
 			if( i != header_types.end() ) {
-				h.t = i->second; 
+				h.t = i->second;
 			} else {
 				h.t = unstructured;
 			}
@@ -682,7 +682,7 @@ void OsiMessage::do_header_array() {
 }
 void OsiMessage::do_headers() {
 	unfold_headers();
-	do_header_array();	
+	do_header_array();
 }
 string OsiMessage::xml_val(header& h) {
 	ostringstream x;
@@ -711,7 +711,7 @@ string OsiMessage::xml_val(header& h) {
 						x << "<m:address" << h.subheads[i].addresses[j].x << "/>";
 					}
 					x << "</m:subhead>";
-				}				
+				}
 			}
 			x << "</m:header>";
 		}
@@ -741,6 +741,7 @@ void OsiMessage::compile(string& msg_str, ostringstream& res, bool do_namespace)
 				String::qpdecode(body,nl);
 			} else {
 				if (body_mechanism.compare("base64") == 0) {
+					String::trim(body);
 					String::base64decode(body);
 				} else {
 					res << " mechanism=\"" << body_mechanism << "\"";
@@ -756,15 +757,21 @@ void OsiMessage::compile(string& msg_str, ostringstream& res, bool do_namespace)
 			}
 			res << " charset=\"UTF-8\"";
 		}
-		if ( isnt_multipart ) {
-			if ( !body.empty()) {
-				if (body_subtype.compare("x-www-form-urlencoded") != 0) {
-					if ( !body_type.empty() && (body_type.compare("text")!=0)) {
-						String::urlencode(body);
-						res << " urlencoded=\"true\"";
-					} else {
-						if (do_encoding(body)) {
+		string test(body);
+		if (! String::normalise(test)) {
+			res << " urlencoded=\"true\"";
+			String::urlencode(body);
+		} else {
+			if ( isnt_multipart ) {
+				if ( !body.empty()) {
+					if (body_subtype.compare("x-www-form-urlencoded") != 0) {
+						if ( !body_type.empty() && (body_type.compare("text")!=0)) {
+							String::urlencode(body);
 							res << " urlencoded=\"true\"";
+						} else {
+							if (do_encoding(body)) {
+								res << " urlencoded=\"true\"";
+							}
 						}
 					}
 				}
@@ -826,7 +833,7 @@ void OsiMessage::compile(string& msg_str, ostringstream& res, bool do_namespace)
 				res << body;
 			}
 		} else {
-			string startboundary = "--" + body_boundary; 
+			string startboundary = "--" + body_boundary;
 			string endboundary = startboundary + "--";
 			size_t blockstart = 0;
 			size_t blockend = 0;
@@ -838,7 +845,7 @@ void OsiMessage::compile(string& msg_str, ostringstream& res, bool do_namespace)
 				if (blockstart == string::npos) bodydone = true;
 				blockend = body.find(startboundary,first_cut);
 				if (blockend == string::npos) blockend = body.find(endboundary,first_cut);
-				if (blockend == string::npos) bodydone = true;			
+				if (blockend == string::npos) bodydone = true;
 				if (! bodydone ) {
 					string msg_block = body.substr(first_cut, (blockend - first_cut) - nlsize);
 					OsiMessage msg;
@@ -916,7 +923,7 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,ostream& result,bool addlen
 			String::fandr(body,"\x0D",crlf);		//crlf in heads need a tab after them to indicate that they are not heads.
 		}
 	}
-	result << crlf << body; 
+	result << crlf << body;
 }
 void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads, string& body,bool addlength,bool inlatin) {
 	//Take an xml osi message and turn it into an RFC standard message.
@@ -959,8 +966,8 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 								usequotes=true;
 							} else {
 								usequotes=false;
-							}							
-							if (XML::Manager::attribute(ch,UCS2(L"name"),shname)) { 
+							}
+							if (XML::Manager::attribute(ch,UCS2(L"name"),shname)) {
 								headv.append(shname);
 								if (shname.compare("name") == 0) {
 									usequotes = true;
@@ -1027,8 +1034,8 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 										headv.append(shstring);
 									} break;
 									case trace: {
-										headv.push_back(' '); 
-										headv.append(shstring);	
+										headv.push_back(' ');
+										headv.append(shstring);
 									} break;
 									case commadelim:
 									default: {
@@ -1036,7 +1043,7 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 										headv.append(shstring);
 									} break;
 								}
-							} 
+							}
 							headv.append(shcomment);
 							const DOMNode* nx=ch; next_el(nx);
 							if (nx != NULL) {
@@ -1102,7 +1109,7 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 						}
 						head.append(headv);
 					}
-					heads.push_back(head); 
+					heads.push_back(head);
 					head.clear();
 					headv.clear();
 				} else { //must be body, if we are validating.
@@ -1115,13 +1122,13 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 					XML::Manager::attribute(n,UCS2(L"format"),bformat);  //optional, NOT with multiparts..
 					if (!mechanism.empty()) {
 						head.append("Content-Transfer-Encoding: ");
-						head.append(mechanism); 
+						head.append(mechanism);
 						heads.push_back(head); head.clear();
 					}
 					// Content-Type: type=multipart/mixed; boundary=boundary-002
 					if ( ! type.empty() ) {
 						head.append("Content-Type: ");
-						head.append(type); head.push_back('/'); head.append(subtype); 
+						head.append(type); head.push_back('/'); head.append(subtype);
 						if (!charset.empty()) {
 							head.append("; charset=");
 							head.append(charset);
@@ -1142,8 +1149,8 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 								for (unsigned int i=0; i < tmphds.size(); i++) {
 									tmpmsg.append(tmphds[i]);
 									tmpmsg.append(crlf);
-								} 
-								tmpmsg.append(crlf); 
+								}
+								tmpmsg.append(crlf);
 								tmpmsg.append(tmpbody);
 								bool boundary_clash = (tmpmsg.find(loc_boundary) != string::npos);
 								while (boundary_clash) {
@@ -1153,7 +1160,7 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 										boundary_clash = messages[x].find(loc_boundary) != string::npos;
 										if (boundary_clash) break;
 									}
-									if (!boundary_clash) { 
+									if (!boundary_clash) {
 										boundary_clash = (tmpmsg.find(loc_boundary) != string::npos);
 									}
 								}
@@ -1227,7 +1234,7 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 						if (encoded.compare("true") == 0 ) String::urldecode(body);
 						if (addlength) {
 							head.append("Content-Length: ");
-							head.append(String::tostring((long long unsigned int)body.size())); 
+							head.append(String::tostring((long long unsigned int)body.size()));
 							heads.push_back(head); head.clear();
 						}
 					}
@@ -1244,11 +1251,11 @@ void OsiMessage::init() {
 void OsiMessage::finalise() {
 }
 void OsiMessage::startup() { //(default is  unstructured)
-	//RFC 2822 Internet Message Format 
+	//RFC 2822 Internet Message Format
 	header_types.insert(header_type_map::value_type("Date", date_time));			//"Date:" date-time CRLF 3.6.1.
 	header_types.insert(header_type_map::value_type("From", mailbox));				//"From:" mailbox-list CRLF
 	header_types.insert(header_type_map::value_type("Sender", mailbox));			//"Sender:" mailbox CRLF
-	header_types.insert(header_type_map::value_type("Reply-To",mailbox));			//"Reply-To:" address-list CRLF	
+	header_types.insert(header_type_map::value_type("Reply-To",mailbox));			//"Reply-To:" address-list CRLF
 	header_types.insert(header_type_map::value_type("To",mailbox));					//"To:" address-list CRLF
 	header_types.insert(header_type_map::value_type("Cc",mailbox));					//"Cc:" address-list CRLF
 	header_types.insert(header_type_map::value_type("Bcc",mailbox));				//"Bcc:" (address-list / [CFWS]) CRLF
@@ -1331,10 +1338,10 @@ void OsiMessage::startup() { //(default is  unstructured)
 	//Not sure what RFC.. (common broken headers)
 	header_types.insert(header_type_map::value_type("Delivered-To",mailbox));		//
 	header_types.insert(header_type_map::value_type("Reply-to",mailbox));			//
-	header_types.insert(header_type_map::value_type("Set-Cookie",rescookie));		//Special: response cookie 
-	header_types.insert(header_type_map::value_type("Set-cookie",rescookie));		//Special: response cookie 
+	header_types.insert(header_type_map::value_type("Set-Cookie",rescookie));		//Special: response cookie
+	header_types.insert(header_type_map::value_type("Set-cookie",rescookie));		//Special: response cookie
 	header_types.insert(header_type_map::value_type("content-type",contenttype));	//Special: May be broken.
-	header_types.insert(header_type_map::value_type("Cookie",reqcookie));			//Special: request cookie 
+	header_types.insert(header_type_map::value_type("Cookie",reqcookie));			//Special: request cookie
 	header_types.insert(header_type_map::value_type("content-disposition",cdisp));	//homogenise c-d.
 	header_types.insert(header_type_map::value_type("Content-Disposition",cdisp));	//
 	header_types.insert(header_type_map::value_type("content-Disposition",cdisp));	//
