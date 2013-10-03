@@ -1,5 +1,5 @@
 /*
- * translate.cpp is authored and maintained by Ben Griffin of Red Snapper Ltd 
+ * translate.cpp is authored and maintained by Ben Griffin of Red Snapper Ltd
  * translate.cpp is a part of Obyx - see http://www.obyx.org .
  * Obyx is protected as a trade mark (2483369) in the name of Red Snapper Ltd.
  * This file is Copyright (C) 2006-2010 Red Snapper Ltd. http://www.redsnapper.net
@@ -34,7 +34,7 @@
 using namespace std;
 
 namespace String {
-
+	
 	// http://www.ietf.org/rfc/rfc1521.txt (actually made redundant by)
 	// http://tools.ietf.org/html/rfc2045
 	bool qpdecode(string& quoted_printable,const string CRLF) {
@@ -64,6 +64,9 @@ namespace String {
 					}
 				} else {
 					qplines[i].resize(qplines[i].size() - 1);
+					if (qplines[i].empty()) {
+						qplines[i]=CRLF;
+					}
 				}
 			} else {
 				qplines[i]=CRLF;
@@ -83,18 +86,18 @@ namespace String {
 				x = qplines[i].find('=',x+1);
 			}
 			quoted_printable.append(qplines[i]);
-		} 
+		}
 		qplines.clear();
 		return retval;
 	}
-
-/*
- DOS-style lines that end with (CR/LF) characters (optional for the last line)
- Any field may be quoted (with double quotes).
- Fields containing a 
-	line-break, double-quote, and/or commas should be quoted. (If they are not, the file will likely be impossible to process correctly).
- A (double) quote character in a field must be represented by two (double) quote characters.
-*/	
+	
+	/*
+	 DOS-style lines that end with (CR/LF) characters (optional for the last line)
+	 Any field may be quoted (with double quotes).
+	 Fields containing a
+	 line-break, double-quote, and/or commas should be quoted. (If they are not, the file will likely be impossible to process correctly).
+	 A (double) quote character in a field must be represented by two (double) quote characters.
+	 */
 	void csvencode(string& basis) {
 		string::size_type d = basis.find_first_of("\",\r\n\t");	//line-break, double-quote, and/or commas should be quoted.
 		if ( d != string::npos ) {
@@ -117,95 +120,84 @@ namespace String {
 	}
 	
 	
-/*
-	quoted-printable := qp-line *(CRLF qp-line)
+	/*
+	 quoted-printable := qp-line *(CRLF qp-line)
+	 
+	 qp-line := *(qp-segment transport-padding CRLF)
+	 qp-part transport-padding
+	 
+	 qp-part := qp-section
+	 ; Maximum length of 76 characters
+	 
+	 qp-segment := qp-section *(SPACE / TAB) "="
+	 ; Maximum length of 76 characters
+	 
+	 qp-section := [*(ptext / SPACE / TAB) ptext]
+	 
+	 ptext := hex-octet / safe-char
+	 
+	 safe-char := <any octet with decimal value of 33 through
+	 60 inclusive, and 62 through 126>
+	 ; Characters not listed as "mail-safe" in
+	 ; RFC 2049 are also not recommended.
+	 
+	 hex-octet := "=" 2(DIGIT / "A" / "B" / "C" / "D" / "E" / "F")
+	 ; Octet must be used for characters > 127, =,
+	 ; SPACEs or TABs at the ends of lines, and is
+	 ; recommended for any character not listed in
+	 ; RFC 2049 as "mail-safe".
+	 
+	 transport-padding := *LWSP-char
+	 ; Composers MUST NOT generate
+	 ; non-zero length transport
+	 ; padding, but receivers MUST
+	 ; be able to handle padding
+	 ; added by message transports.
+	 
+	 */
 	
-	qp-line := *(qp-segment transport-padding CRLF)
-	qp-part transport-padding
-	
-	qp-part := qp-section
-	; Maximum length of 76 characters
-	
-	qp-segment := qp-section *(SPACE / TAB) "="
-	; Maximum length of 76 characters
-	
-	qp-section := [*(ptext / SPACE / TAB) ptext]
-	
-	ptext := hex-octet / safe-char
-	
-	safe-char := <any octet with decimal value of 33 through
-	60 inclusive, and 62 through 126>
-	; Characters not listed as "mail-safe" in
-	; RFC 2049 are also not recommended.
-	
-	hex-octet := "=" 2(DIGIT / "A" / "B" / "C" / "D" / "E" / "F")
-	; Octet must be used for characters > 127, =,
-		; SPACEs or TABs at the ends of lines, and is
-		; recommended for any character not listed in
-			; RFC 2049 as "mail-safe".
-	
-	transport-padding := *LWSP-char
-	; Composers MUST NOT generate
-	; non-zero length transport
-	; padding, but receivers MUST
-	; be able to handle padding
-	; added by message transports.
-	
-*/	
-	
-//rfc2045 -- here we include a CRLF after every 72 characters.
-//"All line breaks or other characters not found in Table 1 must be ignored by decoding software"
-//---------------------------------------------------------------------------
-	bool base64decode(string& s) {
-// values 0..63 64=40  So  /=(2F) => 3F(63)
-//		[ 41---5A                ][    61---7A             ][ 30-39  ]2B2F
-//		ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-		char x[257]=
-//         0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F <LSB  V-MSB	
-		"\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40"		// 0 
-		"\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40"		// 1
-		"\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x3E\x40\x40\x40\x3F"		// 2
-		"\x34\x35\x36\x37\x38\x39\x3A\x3B\x3C\x3D\x40\x40\x40\x40\x40\x40"		// 3 -3D,'=' is 0 (padding) OR EOF...
-		"\x40\xFF\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E"		// 4 FF is going to be a null.
-		"\x0F\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x40\x40\x40\x40\x40"		// 5
-		"\x40\x1A\x1B\x1C\x1D\x1E\x1F\x20\x21\x22\x23\x24\x25\x26\x27\x28"		// 6
-		"\x29\x2A\x2B\x2C\x2D\x2E\x2F\x30\x31\x32\x33\x40\x40\x40\x40\x40"		// 7
-		"\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40"		// 8
-		"\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40"		// 9
-		"\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40"		// A
-		"\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40"		// B
-		"\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40"		// C
-		"\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40"		// D
-		"\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40"		// E
-		"\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40\x40";		// F
-		x[0x40]='\0';		//putting a null into a list as above will break it.
-		unsigned char i[4];
-		std::string source(s); 
-		s.clear(); 
-		s.reserve( 3 * (source.length() >> 2) ); 
-		string::const_iterator c = source.begin();
-		string::const_iterator n = source.end();
-		while( c < n ) {
-			unsigned int a=0;
-			while ( a < 4 && c < n) {
-				i[a] = x[(unsigned char)(*c++)]; 
-				if ( i[a] != '\x40' ) a++;
-			}
-			switch (a) {
-				case 2: //1 character
-					s.push_back(i[0] << 2 | i[1] >> 4);
-					break;
-				case 3: //2 characters
-					s.push_back(i[0] << 2 | i[1] >> 4);
-					s.push_back(i[1] << 4 | i[2] >> 2);
-					break;
-				case 4: //3 characters
-					s.push_back(i[0] << 2 | i[1] >> 4);
-					s.push_back(i[1] << 4 | i[2] >> 2);
-					s.push_back(i[2] << 6 | i[3]);
-					break;
+	//rfc2045 -- here we include a CRLF after every 72 characters.
+	//"All line breaks or other characters not found in Table 1 must be ignored by decoding software"
+	//---------------------------------------------------------------------------
+	bool base64decode(string& basis) {
+		// A correct string has a length that is multiple of four.
+		// Every 4 encoded bytes corresponds to 3 decoded bytes, (or null terminated).
+		string b64ch="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+		size_t len = basis.size();
+		size_t pos = 0;
+		int i = 0,j = 0;
+		unsigned char encbuf[4], decbuf[3];
+		std::string ret;
+		while (len-- && ( basis[pos] != '=') && (b64ch.find(basis[pos]) != string::npos)) {
+			encbuf[i++] = basis[pos]; pos++;
+			if (i ==4) {
+				for (i = 0; i <4; i++) {
+					encbuf[i] = b64ch.find(encbuf[i]);
+				}
+				decbuf[0] = (encbuf[0] << 2) + ((encbuf[1] & 0x30) >> 4);
+				decbuf[1] = ((encbuf[1] & 0xf) << 4) + ((encbuf[2] & 0x3c) >> 2);
+				decbuf[2] = ((encbuf[2] & 0x3) << 6) + encbuf[3];
+				for (i = 0; (i < 3); i++) {
+					ret.push_back(decbuf[i]);
+				}
+				i = 0;
 			}
 		}
+		if (i) {
+			for (j = i; j <4; j++) {
+				encbuf[j] = 0;
+			}
+			for (j = 0; j <4; j++) {
+				encbuf[j] = b64ch.find(encbuf[j]);
+			}
+			decbuf[0] = (encbuf[0] << 2) + ((encbuf[1] & 0x30) >> 4);
+			decbuf[1] = ((encbuf[1] & 0xf) << 4) + ((encbuf[2] & 0x3c) >> 2);
+			decbuf[2] = ((encbuf[2] & 0x3) << 6) + encbuf[3];
+			for (j = 0; (j < i - 1); j++) {
+				ret += decbuf[j];
+			}
+		}
+		basis=ret;
 		return true;
 	}
 	
@@ -214,20 +206,20 @@ namespace String {
 		const char x[65]="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 		unsigned char i[3];
 		unsigned int line_time = 0;
-		std::string source(s); 
-		s.clear(); 
+		std::string source(s);
+		s.clear();
 		s.reserve( source.length() + (source.length() >> 1) );
 		string::const_iterator c = source.begin();
 		string::const_iterator n = source.end();
 		while( c < n ) {
 			unsigned int chars=3;
 			i[0] = *c++;
-			if ( c < n ) { 
+			if ( c < n ) {
 				i[1] = *c++;
 				if ( c < n ) {
 					i[2] = *c++;
 				} else {
-					i[2] = 0; chars=2; 
+					i[2] = 0; chars=2;
 				}
 			} else {
 				i[1] = 0; i[2] = 0; chars=1;
@@ -237,11 +229,11 @@ namespace String {
 			s.push_back( chars > 1 ? x[ ( (i[1] & 0x0f) << 2) | ( (i[2] & 0xc0) >> 6) ] : '=' );
 			s.push_back( chars > 2 ? x[ i[2] & 0x3f ] : '=' );
 			if (withlf) {
-				line_time += 4; 
+				line_time += 4;
 				if ( line_time >= 72) {
-					line_time = 0; 
-					s.push_back('\r'); 
-					s.push_back('\n'); 
+					line_time = 0;
+					s.push_back('\r');
+					s.push_back('\n');
 				}
 			}
 		}
@@ -249,7 +241,7 @@ namespace String {
 	}
 	
 	//---------------------------------------------------------------------------
-	// http://www.w3.org/TR/2008/REC-xml-20081126/#sec-references 
+	// http://www.w3.org/TR/2008/REC-xml-20081126/#sec-references
 	void xmldecode(string& source) {  //XML de-escape
 		if (! source.empty() ) {	//
 			const size_t bsize = 4;	//minimum size. &lt;
@@ -280,13 +272,13 @@ namespace String {
 									} else {
 										if (! entity.compare("&gt;")) {
 											source.replace(amp_pos,entity_size,">");
-										} 
+										}
 									}
 								} break;
 								case 5: {
 									if (! entity.compare("&amp;")) {
 										source.replace(amp_pos,entity_size,"&");
-									} 
+									}
 								} break;
 								case 6: {
 									if (! entity.compare("&apos;")) {
@@ -294,7 +286,7 @@ namespace String {
 									} else {
 										if (! entity.compare("&quot;")) {
 											source.replace(amp_pos,entity_size,"\"");
-										} 
+										}
 									}
 								} break;
 								default: {
@@ -307,22 +299,22 @@ namespace String {
 						break;
 					}
 				}
-			} 
+			}
 		}
 	}
-
+	
 	void xmlencode(string& s) {  //XML de-escape
 		if (! s.empty() ) {
 			fandr(s,"&","&amp;");	//otherwise the amp will do a long double decode.
 			fandr(s,"<","&lt;");
-			fandr(s,">","&gt;"); 
-			fandr(s,"\"","&quot;"); 
+			fandr(s,">","&gt;");
+			fandr(s,"\"","&quot;");
 		}
 	}
 	//• --------------------------------------------------------------------------
-	bool normalise(string& container) { 
+	bool normalise(string& container) {
 		bool retval = true;
-		ostringstream result;	
+		ostringstream result;
 		string::const_iterator f1=container.begin();
 		string::const_iterator l1=container.end();
 		while (f1 != l1) {
@@ -361,13 +353,13 @@ namespace String {
 		}
 	}
 	
-//--------------------------------------------------------------------------------
-//xml name encoding http://www.w3.org/TR/REC-xml/#NT-Name
-//	[4]   	NameChar   ::=   	 Letter | '_' | ':' | Digit | '.' | '-' | CombiningChar | Extender
-//  [5a]    NameInit   ::=       Letter | '_' | ':'
-//	[5]   	Name	   ::=   	 (NameInit) (NameChar)*
-// This needs to support UTF8
-//---------------------------------------------------------------------------------
+	//--------------------------------------------------------------------------------
+	//xml name encoding http://www.w3.org/TR/REC-xml/#NT-Name
+	//	[4]   	NameChar   ::=   	 Letter | '_' | ':' | Digit | '.' | '-' | CombiningChar | Extender
+	//  [5a]    NameInit   ::=       Letter | '_' | ':'
+	//	[5]   	Name	   ::=   	 (NameInit) (NameChar)*
+	// This needs to support UTF8
+	//---------------------------------------------------------------------------------
 	//Letters = 'A-Za-z'
 	bool nameencode(string& s) {  //xml name encoding returns false if it can't return a valid name.
 		bool retval=true;
@@ -378,33 +370,33 @@ namespace String {
 			string::size_type p;
 			for (p=0 ; p < q; p++) { //while we don't have a good initial character, carry on
 				c=s[p];
-				if ( 
-					(c >= 'A' && c <= 'Z') || 
+				if (
+					(c >= 'A' && c <= 'Z') ||
 					(c >= 'a' && c <= 'z') ||
-					(c == '_' ) || (c == ':' ) 
-				) {
+					(c == '_' ) || (c == ':' )
+					) {
 					result += c;
 					break;
 				}
 			}
 			if ( p >= q) { //no legal initial character...
-				retval=false; 
-			} else {	
-				//we now have a NameInit 
+				retval=false;
+			} else {
+				//we now have a NameInit
 				for (p++; p < q; p++) {  //carry p on from where it left off.
 					c=s[p];
-					if ( 
-						(c >= 'A' && c <= 'Z') || 
-						(c >= 'a' && c <= 'z') || 
-						(c == '_' )  || (c == ':' ) || 
-						(c >= '0' && c <= '9') || 
-						(c == '.' ) || 
-						(c == '-' ) 
+					if (
+						(c >= 'A' && c <= 'Z') ||
+						(c >= 'a' && c <= 'z') ||
+						(c == '_' )  || (c == ':' ) ||
+						(c >= '0' && c <= '9') ||
+						(c == '.' ) ||
+						(c == '-' )
 						) {
 						result += c;
 					}
 				}
-			} 
+			}
 		} else {
 			retval=false;
 		}
@@ -412,7 +404,7 @@ namespace String {
 		s = result;
 		return retval;
 	}
-
+	
 	//--------------------------------------------------------------------------------
 	//xml name encoding http://www.w3.org/TR/REC-xml/#NT-Name
 	//	[4]   	NameChar   ::=   	 Letter | '_' | ':' | Digit | '.' | '-' | CombiningChar | Extender
@@ -428,25 +420,25 @@ namespace String {
 		string::size_type q=s.size();
 		if ( q > 0) {
 			c=s[0];
-			if ( 
-				(c >= 'A' && c <= 'Z') || 
+			if (
+				(c >= 'A' && c <= 'Z') ||
 				(c >= 'a' && c <= 'z') ||
-				(c == '_' ) || (c == ':' ) 
+				(c == '_' ) || (c == ':' )
 				) {
-					for (string::size_type p = 1; p < q; p++) {  //carry p on from where it left off.
-						c=s[p];
-						if (!( 
-							(c >= 'A' && c <= 'Z') || 
-							(c >= 'a' && c <= 'z') || 
-							(c == '_' )  || (c == ':' ) || 
-							(c >= '0' && c <= '9') || 
-							(c == '.' ) || 
-							(c == '-' ) 
-							)) {
-							retval=false;
-							break;
-						}
+				for (string::size_type p = 1; p < q; p++) {  //carry p on from where it left off.
+					c=s[p];
+					if (!(
+						  (c >= 'A' && c <= 'Z') ||
+						  (c >= 'a' && c <= 'z') ||
+						  (c == '_' )  || (c == ':' ) ||
+						  (c >= '0' && c <= '9') ||
+						  (c == '.' ) ||
+						  (c == '-' )
+						  )) {
+						retval=false;
+						break;
 					}
+				}
 			} else {
 				retval=false;
 			}
@@ -466,7 +458,7 @@ namespace String {
 		string::size_type q=mailbasis.size();
 		if ( q > 0) {
 			pair<string,string> mail_pair;
-			if ( split('@', mailbasis,mail_pair)) { 
+			if ( split('@', mailbasis,mail_pair)) {
 				char const* msafe = "#%*/?|^~&+-=_.0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 				string::size_type wsi = mail_pair.first.find_first_not_of(msafe);
 				while ( wsi != string::npos ) {
@@ -477,7 +469,7 @@ namespace String {
 				}
 				if (mail_pair.first.size() > 64) {
 					retval = false;
-					left(mail_pair.first,64,result); 
+					left(mail_pair.first,64,result);
 				} else {
 					result = mail_pair.first;
 				}
@@ -494,7 +486,7 @@ namespace String {
 				string dn;
 				if (mail_pair.second.size() > 255) {
 					retval = false;
-					left(mail_pair.second,255,dn); 
+					left(mail_pair.second,255,dn);
 				} else {
 					dn = mail_pair.second;
 				}
@@ -506,7 +498,7 @@ namespace String {
 		}
 		return retval;
 	}
-
+	
 	//---------------------------------------------------------------------------
 	//RFC 1342 encodings.
 	//=?charset?encoding?encoded-text?=(sp/nl)  (encoding is either B or Q)
@@ -514,22 +506,23 @@ namespace String {
 		bool retval = false;
 		string b=s;
 		if (enc) {
-/*
-			An encoded-word may not be more than 75 characters long, including charset, encoding, encoded-text, and delimiters.
-			the bits = 12. 75-12 = 63. B64 has a ratio of 8:6. 6*(63/8)=47
-			This means we have to split the text into 47 character chunks.
-*/
-			size_t chunk=47;
+			/*
+			 An encoded-word may not be more than 75 characters long, including charset, encoding, encoded-text, and delimiters.
+			 the bits = 12. 75-12 = 63. B64 has a ratio of 8:6. 6*(63/8)=47
+			 This means we have to split the text into 47 character chunks.
+			 */
+			size_t chunk=40; //46 is probably fine, but apple chooses a bit less.
 			s.clear();
 			while (! b.empty()) {
-				string c=b.substr(0,chunk);
-				b.erase(0,chunk);
+				string c=b;
+				boundedleft(c,chunk);		//gets the best utf-8 approximation for 46 bytes.
+				b.erase(0,c.size());
 				base64encode(c,false);
 				s.append("=?utf-8?B?");
 				s.append(c);
 				s.append("?=");
 				if (!b.empty()) {
-					s.append("\r\n");
+					s.append("\r\n"); 	//later this should be parameterised. basically suitable only for mail-headers.
 				}
 			}
 			retval = true;
@@ -562,14 +555,14 @@ namespace String {
 								}
 							}
 							String::tolower(charset);
-							if (charset.compare("utf-8") !=0 ) {
+							if (charset.compare("utf-8") != 0) {
 								std::basic_string<XMLCh> x_body;
 								XML::Manager::transcode(basis,x_body,charset);
 								XML::Manager::transcode(x_body.c_str(),basis);
 							}
 							size_t padd=0;
 							if (b.size() > soff+2 ) {
-								if (b[soff+2] ==' ') {
+								if (b[soff+2] ==' ' || b[soff+2] =='\t') {
 									padd=1; //space
 								} else {
 									padd=2; //crlf
@@ -609,16 +602,16 @@ namespace String {
 		s.reserve(sz >> 1);
 		for (string::size_type p= 0; p < sz; ++p) {
 			unsigned char v[2]= { orig[p] & 0x00F0 , orig[p] & 0x000F };
-			if (v[0] <= 0x0090 ) { 
+			if (v[0] <= 0x0090 ) {
 				s.push_back( (v[0] >> 4) + '0');
 			} else {
 				s.push_back( (v[0] >> 4) + Abase );
 			}
-			if (v[1] <= 0x0009 ) { 
+			if (v[1] <= 0x0009 ) {
 				s.push_back(v[1] + '0');
 			} else {
 				s.push_back(v[1] + Abase );
-			}			
+			}
 		}
 		return success;
 	}
@@ -676,7 +669,7 @@ namespace String {
 			}
 		}
 		return success;
-	}	
+	}
 	//---------------------------------------------------------------------------
 	void urldecode(std::string& s) {
 		std::string result;
@@ -684,7 +677,7 @@ namespace String {
 		for (unsigned int p= 0; p < s.size(); ++p) {
 			c= s[p];
 			if (c == '+') c= ' ';  // translate '+' to ' ':
-								   // translate %XX:
+			// translate %XX:
 			if ((c == '%') && (p + 2 < s.size())) {  // check length
 				unsigned char v[2];
 				for (unsigned int i= p + 1; i < p + 3; ++i)
@@ -706,76 +699,76 @@ namespace String {
 		s = result;
 	}
 	
-//---------------------------------------------------------------------------
-//	5.1.  Parameter Encoding
-//	All parameter names and values are escaped using the [RFC3986] percent-encoding (%xx) mechanism. 
-//	Characters not in the unreserved character set ([RFC3986] section 2.3) MUST be encoded.
-//  Characters in the unreserved character set MUST NOT be encoded.
-//	Hexadecimal characters in encodings MUST be upper case. 
-//	Text names and values MUST be encoded as UTF-8 octets before percent-encoding them per [RFC3629].
-//	unreserved = ALPHA, DIGIT, '-', '.', '_', '~'
-//---------------------------------------------------------------------------
-// as defined in RFCs 1738 2396
-		void urlencode(std::string& s) {
-			std::string result;
-			unsigned char c;
-			for (unsigned int p= 0; p < s.size(); ++p) {
-				c= s[p];
-				if (
-					((c >= 'a') && (c <= 'z')) ||
-					((c >= '0') && (c <= '9')) ||
-					((c >= 'A') && (c <= 'Z')) ||
-					( c == '-' || c == '.' || c == '_' || c == '~' )
-					) {  //reserved.
-					result.push_back(c);
-				} else { //unreserved.
-					result.append(hexencode(c));
-				}
-
-/*				
-				if ((c <= 31) || (c >= 127))  // CTL, >127
-					result+= hexencode(c);
-				else switch (c) {
-					case ';':
-					case '/':
-					case '?':
-					case ':':
-					case '@':
-					case '&':
-					case '=':
-					case '+':  // until here: reserved
-					case '"':
-					case '\'':
-					case '#':
-					case '%':
-					case '<':
-					case '>':  // until here: unsafe
-					case '{':
-					case '}':
-					case '|':
-					case '\\':
-					case '^':
-					case '~':
-					case '[':
-					case ']': //yet more unsafe.
-					case '!':
-					case ',':
-					case '*':
-					case '$':
-					case '(':
-					case ')': //twitts.
-					case ' ': //space may be hex encoded.
-						result+= hexencode(c);
-						break;
-						//					case ' ':  // SP
-						//						result+= '+';
-						//						break;
-					default:  // no need to encode
-						result+= c;
-						break;
-				}
- */
+	//---------------------------------------------------------------------------
+	//	5.1.  Parameter Encoding
+	//	All parameter names and values are escaped using the [RFC3986] percent-encoding (%xx) mechanism.
+	//	Characters not in the unreserved character set ([RFC3986] section 2.3) MUST be encoded.
+	//  Characters in the unreserved character set MUST NOT be encoded.
+	//	Hexadecimal characters in encodings MUST be upper case.
+	//	Text names and values MUST be encoded as UTF-8 octets before percent-encoding them per [RFC3629].
+	//	unreserved = ALPHA, DIGIT, '-', '.', '_', '~'
+	//---------------------------------------------------------------------------
+	// as defined in RFCs 1738 2396
+	void urlencode(std::string& s) {
+		std::string result;
+		unsigned char c;
+		for (unsigned int p= 0; p < s.size(); ++p) {
+			c= s[p];
+			if (
+				((c >= 'a') && (c <= 'z')) ||
+				((c >= '0') && (c <= '9')) ||
+				((c >= 'A') && (c <= 'Z')) ||
+				( c == '-' || c == '.' || c == '_' || c == '~' )
+				) {  //reserved.
+				result.push_back(c);
+			} else { //unreserved.
+				result.append(hexencode(c));
 			}
+			
+			/*
+			 if ((c <= 31) || (c >= 127))  // CTL, >127
+			 result+= hexencode(c);
+			 else switch (c) {
+			 case ';':
+			 case '/':
+			 case '?':
+			 case ':':
+			 case '@':
+			 case '&':
+			 case '=':
+			 case '+':  // until here: reserved
+			 case '"':
+			 case '\'':
+			 case '#':
+			 case '%':
+			 case '<':
+			 case '>':  // until here: unsafe
+			 case '{':
+			 case '}':
+			 case '|':
+			 case '\\':
+			 case '^':
+			 case '~':
+			 case '[':
+			 case ']': //yet more unsafe.
+			 case '!':
+			 case ',':
+			 case '*':
+			 case '$':
+			 case '(':
+			 case ')': //twitts.
+			 case ' ': //space may be hex encoded.
+			 result+= hexencode(c);
+			 break;
+			 //					case ' ':  // SP
+			 //						result+= '+';
+			 //						break;
+			 default:  // no need to encode
+			 result+= c;
+			 break;
+			 }
+			 */
+		}
 		s = result;
 	}
 	
