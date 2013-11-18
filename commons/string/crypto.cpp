@@ -31,25 +31,25 @@ namespace String {
 	
 	bool Digest::loadattempted = false;
 	bool Digest::loaded = false;
-	void* Digest::lib_handle = NULL;
-	EVP_MD_CTX* Digest::context = NULL;
-	const EVP_MD* Digest::md[16] = {NULL,NULL,NULL,NULL,NULL, NULL,NULL,NULL,NULL,NULL, NULL,NULL,NULL,NULL,NULL, NULL};
+	void* Digest::lib_handle = nullptr;
+	EVP_MD_CTX* Digest::context = nullptr;
+	const EVP_MD* Digest::md[16] = {nullptr,nullptr,nullptr,nullptr,nullptr, nullptr,nullptr,nullptr,nullptr,nullptr, nullptr,nullptr,nullptr,nullptr,nullptr, nullptr};
 	
-	void (*Digest::OpenSSL_add_all_digests)(void) = NULL;
-	EVP_MD_CTX* (*Digest::EVP_MD_CTX_create)(void) = NULL;
-	void (*Digest::EVP_MD_CTX_destroy)(EVP_MD_CTX*) = NULL;
-	const EVP_MD* (*Digest::EVP_get_digestbyname)(const char*) = NULL;
-	int (*Digest::EVP_DigestInit_ex)(EVP_MD_CTX*, const EVP_MD*,ENGINE*) = NULL;
-	int (*Digest::EVP_DigestUpdate)(EVP_MD_CTX*, const void *,size_t) = NULL;
-	int (*Digest::EVP_DigestFinal_ex)(EVP_MD_CTX*,unsigned char *,unsigned int*) = NULL;
-	int (*Digest::RAND_bytes)(unsigned char*,int) = NULL;
-	int (*Digest::RAND_pseudo_bytes)(unsigned char*,int) = NULL;
-	unsigned char* (*Digest::HMAC)(const EVP_MD *,const void *,int,const unsigned char *,int,unsigned char *,unsigned int *) = NULL;
+	void (*Digest::OpenSSL_add_all_digests)(void) = nullptr;
+	EVP_MD_CTX* (*Digest::EVP_MD_CTX_create)(void) = nullptr;
+	void (*Digest::EVP_MD_CTX_destroy)(EVP_MD_CTX*) = nullptr;
+	const EVP_MD* (*Digest::EVP_get_digestbyname)(const char*) = nullptr;
+	int (*Digest::EVP_DigestInit_ex)(EVP_MD_CTX*, const EVP_MD*,ENGINE*) = nullptr;
+	int (*Digest::EVP_DigestUpdate)(EVP_MD_CTX*, const void *,size_t) = nullptr;
+	int (*Digest::EVP_DigestFinal_ex)(EVP_MD_CTX*,unsigned char *,unsigned int*) = nullptr;
+	int (*Digest::RAND_bytes)(unsigned char*,int) = nullptr;
+	int (*Digest::RAND_pseudo_bytes)(unsigned char*,int) = nullptr;
+	unsigned char* (*Digest::HMAC)(const EVP_MD *,const void *,int,const unsigned char *,int,unsigned char *,unsigned int *) = nullptr;
 
 	
 	void Digest::dlerr(std::string& errstr) {
 		const char *err = dlerror();
-		if (err != NULL) {
+		if (err != nullptr) {
 			errstr.append(err);
 			errstr.push_back(';');
 		}
@@ -75,7 +75,7 @@ namespace String {
 			}
 			lib_handle = dlopen(libstr.c_str(),RTLD_GLOBAL | RTLD_NOW);
 			dlerr(errors); //debug only.
-			if (errors.empty() && lib_handle != NULL ) {
+			if (errors.empty() && lib_handle != nullptr ) {
 				OpenSSL_add_all_digests	=(void (*)(void)) dlsym(lib_handle,"OpenSSL_add_all_digests"); dlerr(errors);
 				EVP_MD_CTX_create		=(EVP_MD_CTX* (*)(void)) dlsym(lib_handle,"EVP_MD_CTX_create"); dlerr(errors);
 				EVP_MD_CTX_destroy		=(void (*)(EVP_MD_CTX*)) dlsym(lib_handle,"EVP_MD_CTX_destroy"); dlerr(errors);
@@ -119,7 +119,7 @@ namespace String {
 		if (loaded) {
 			EVP_MD_CTX_destroy(context);
 		}
-		if ( lib_handle != NULL ) {
+		if ( lib_handle != nullptr ) {
 			dlclose(lib_handle);
 		}
 		return true;
@@ -142,7 +142,7 @@ namespace String {
 			case mdc2: { d_touse=md[10];} break;
 			case ripemd160: { d_touse=md[11];} break;
 		}
-		EVP_DigestInit_ex(context, d_touse, NULL);
+		EVP_DigestInit_ex(context, d_touse, nullptr);
 		EVP_DigestUpdate(context,basis.c_str(),basis.size());
 		EVP_DigestFinal_ex(context, md_value, &md_len);
 		basis = string((char *)md_value,md_len);
@@ -189,20 +189,20 @@ namespace String {
 	bool Deflate::loadattempted = false;
 	bool Deflate::loaded = false;
 	
-	void* Deflate::lib_handle = NULL;
+	void* Deflate::lib_handle = nullptr;
 //loaded methods
-	const char* (*Deflate::obyx_zlibVersion)(void) = NULL;
-	int (*Deflate::obyx_deflateInit)(z_streamp,int,const char*,int) = NULL;
-	int (*Deflate::obyx_deflate)(z_streamp,int) = NULL;
-	int (*Deflate::obyx_deflateEnd)(z_streamp) = NULL;
-	int (*Deflate::obyx_inflateInit)(z_streamp,const char*,int) = NULL;
-	int (*Deflate::obyx_inflate)(z_streamp,int) = NULL;
-	int (*Deflate::obyx_inflateEnd)(z_streamp) = NULL;
-	uLong (*Deflate::obyx_deflateBound)(z_streamp,uLong) = NULL;
+	const char* (*Deflate::obyx_zlibVersion)(void) = nullptr;
+	int (*Deflate::obyx_deflateInit)(z_streamp,int,const char*,int) = nullptr;
+	int (*Deflate::obyx_deflate)(z_streamp,int) = nullptr;
+	int (*Deflate::obyx_deflateEnd)(z_streamp) = nullptr;
+	int (*Deflate::obyx_inflateInit)(z_streamp,const char*,int) = nullptr;
+	int (*Deflate::obyx_inflate)(z_streamp,int) = nullptr;
+	int (*Deflate::obyx_inflateEnd)(z_streamp) = nullptr;
+	uLong (*Deflate::obyx_deflateBound)(z_streamp,uLong) = nullptr;
 	
 	void Deflate::dlerr(std::string& errstr) {
 		const char *err = dlerror();
-		if (err != NULL) {
+		if (err != nullptr) {
 			errstr.append(err);
 			errstr.push_back(';');
 		}
@@ -228,7 +228,7 @@ namespace String {
 			}
 			lib_handle = dlopen(libstr.c_str(),RTLD_GLOBAL | RTLD_NOW);
 			dlerr(errors); //debug only.
-			if (errors.empty() && lib_handle != NULL ) {
+			if (errors.empty() && lib_handle != nullptr ) {
 				//load dl functions .
 				obyx_zlibVersion  =(const char* (*)(void)) dlsym(lib_handle,"zlibVersion"); dlerr(errors);
 				obyx_deflateInit =(int (*)(z_streamp,int,const char*,int)) dlsym(lib_handle,"deflateInit_"); dlerr(errors);
@@ -242,7 +242,7 @@ namespace String {
 				if ( errors.empty() ) {
 					loaded = true;
 					const char* zlv = obyx_zlibVersion();
-					if (zlv != NULL) { libversion = zlv; }
+					if (zlv != nullptr) { libversion = zlv; }
 				}
 			}
 			startup_errors.append(errors);
@@ -255,9 +255,9 @@ namespace String {
 		}
 		loaded=false;
 		loadattempted = false;
-		if ( lib_handle != NULL ) {
+		if ( lib_handle != nullptr ) {
 			dlclose(lib_handle);
-			lib_handle=NULL;
+			lib_handle=nullptr;
 		}
 		return true;
 	}
@@ -293,9 +293,9 @@ namespace String {
 		if (!context.empty()) {
 			uLong bsize = (uLong)context.size();
 			z_stream strm;
-			strm.zalloc = Z_NULL;
-			strm.zfree  = Z_NULL;
-			strm.opaque = Z_NULL;
+			strm.zalloc = nullptr;
+			strm.zfree  = nullptr;
+			strm.opaque = nullptr;
 			Byte *ibuff = new Byte[bsize];
 			memcpy((char *)ibuff,context.c_str(),bsize);
 			context.clear();
@@ -334,9 +334,9 @@ namespace String {
 		if (!context.empty()) {
 			z_stream strm;
 			uLong bsize = (uLong)context.size();
-			strm.zalloc = Z_NULL;
-			strm.zfree  = Z_NULL;
-			strm.opaque = Z_NULL;
+			strm.zalloc = nullptr;
+			strm.zfree  = nullptr;
+			strm.opaque = nullptr;
 			Byte *ibuff = new Byte[context.size()];
 			memcpy((char *)ibuff,context.c_str(),bsize);
 			context.clear();

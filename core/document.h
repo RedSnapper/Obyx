@@ -27,7 +27,7 @@
 #include <utility>
 #include <stack>
 #include <map>
-#include <ext/hash_map>
+#include <unordered_map>
 
 #include "commons/string/strings.h"
 #include "commons/xml/xml.h"
@@ -51,8 +51,8 @@ private:
 	friend class Iteration;
 	friend class XMLObject;
 	
-	typedef hash_map<const string, DataItem*, hash<const string&> > type_parm_map;
-	typedef hash_map<const string, ItemStore*, hash<const string&> > type_store_map;
+	typedef unordered_map<const string, DataItem*, hash<const string&> > type_parm_map;
+	typedef unordered_map<const string, ItemStore*, hash<const string&> > type_store_map;
 	
 	static XML::Manager* xmlmanager;
 	static std::string curr_http_req;
@@ -90,7 +90,7 @@ protected:
 public:
 	typedef enum {File,URL,Main,URLText} load_type;	//how to load a file		
 	Document(ObyxElement*,const Document*);//
-	Document(DataItem*,load_type,std::string,ObyxElement* par = NULL,bool = true);
+	Document(DataItem*,load_type,std::string,ObyxElement* par = nullptr,bool = true);
 	
 	virtual ~Document();
 	
@@ -126,7 +126,7 @@ public:
 	void list() const;
 	bool eval();
 	void evaluate(size_t,size_t) {}	
- 	void process(xercesc::DOMNode*&,ObyxElement* = NULL);
+ 	void process(xercesc::DOMNode*&,ObyxElement* = nullptr);
 	double version() const { return doc_version; }
 	string version_str() const { return String::tostring(doc_version,8); }
 	static void setroot(Document *doc) {root = doc;}

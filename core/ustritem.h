@@ -23,7 +23,7 @@
 #ifndef OBYX_USTR_ITEM_H
 #define OBYX_USTR_ITEM_H
 
-#include <ext/hash_map>
+#include <unordered_map>
 #include <string>
 
 #include "dataitem.h"
@@ -31,7 +31,7 @@
 
 class UStrItem : public DataItem {
 private:
-	UStrItem() : DataItem(),o_str(UCS2(L"")) {}
+	UStrItem() : DataItem(),o_str(u"") {}
 	static char bar[2];
 	
 protected:

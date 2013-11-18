@@ -40,7 +40,7 @@ void ItemStore::setowner(const std::string p) {
 	owner=p;
 }
 ItemStore::ItemStore(const ItemStore* orig) : the_item_map() {
-	if (orig != NULL && ! orig->the_item_map.empty() ) {
+	if (orig != nullptr && ! orig->the_item_map.empty() ) {
 		item_map_type::const_iterator it = orig->the_item_map.begin();
 		while ( it != orig->the_item_map.end()) {
 			the_item_map.insert(*it);
@@ -54,10 +54,10 @@ ItemStore::~ItemStore() {
 #ifdef PROFILING
 		string x= it->first;
 		DataItem*& y=it->second;
-		delete y; y=NULL;
+		delete y; y=nullptr;
 #else
 		delete (*it).second; 
-		(*it).second = NULL;
+		(*it).second = nullptr;
 #endif
 		it++;
 	}
@@ -72,9 +72,9 @@ void ItemStore::finalise() {}
 #pragma mark GRAMMAR FUNCTIONS
 bool ItemStore::setgrammar(const DataItem* sig, DataItem*& document) {
 	bool retval=false;
-	if (sig != NULL) {
+	if (sig != nullptr) {
 		u_str signature = *sig;
-		if ( !signature.empty() && document != NULL &&!document->empty() ) {
+		if ( !signature.empty() && document != nullptr &&!document->empty() ) {
 			switch (document->kind()) {
 				case di_object: {
 					XML::Manager::parser()->setGrammar(*document,signature,Grammar::SchemaGrammarType);
@@ -120,7 +120,7 @@ bool ItemStore::grammarexists(const string& signature,bool release) {
 #pragma mark NAMESPACE FUNCTIONS
 bool ItemStore::setns(const DataItem* c, DataItem*& sig) {
 	bool retval=false;
-	if (c != NULL && sig != NULL) {
+	if (c != nullptr && sig != nullptr) {
 		u_str signature = *sig; 
 		u_str code = *c; 
 		retval= XMLObject::setns(code,signature);
@@ -146,7 +146,7 @@ bool ItemStore::nsexists(const string& c,bool release) {
 bool ItemStore::exists(const u_str& namepath,bool release,std::string& errorstr) {
 	bool retval=false;
 	if (namepath.find('#') != string::npos) {
-		DataItem* xp = NULL;
+		DataItem* xp = nullptr;
 		bool node_expected = false;
 		pair<u_str,u_str> np;
 		XMLObject::npsplit(namepath,np,node_expected);	// eg foobar#/BOOK[0]      -- foobar       /BOOK[0]
@@ -168,7 +168,7 @@ bool ItemStore::exists(const u_str& namepath,bool release,std::string& errorstr)
 }
 bool ItemStore::exists(const u_str& name,const u_str& path,bool release,string& errorstr) { // name, path.
 	bool retval=false;
-	DataItem* xp = NULL;
+	DataItem* xp = nullptr;
 	retval = sget(name, path, false, xp, release, errorstr);
 	delete xp; 
 	return retval;
@@ -290,7 +290,7 @@ void ItemStore::list() const {
 			const string name= it->first;
 			if ( ! name.empty() ) {
 				*Logger::log << Log::LI << Log::II << name << Log::IO;
-				if ( it->second == NULL) {
+				if ( it->second == nullptr) {
 					*Logger::log << Log::II << "--empty--" << Log::IO;
 				} else {
 					DataItem* x= it->second;
@@ -313,7 +313,7 @@ bool ItemStore::sset(const u_str& sname,const u_str& tpath,bool node_expected, D
 	std::string name; XML::Manager::transcode(sname,name); //Our keys are actually std::strings	
 	u_str path(tpath); //we may want to manipulate the path.
 	if ( String::nametest(name)) {
-		if ( (kind != di_auto) && (item != NULL) && (kind != item->kind())) {
+		if ( (kind != di_auto) && (item != nullptr) && (kind != item->kind())) {
 			//need to upcast/downcast
 			DataItem* nitem = DataItem::factory(item,kind);
 			delete item; item=nitem;
@@ -326,56 +326,56 @@ bool ItemStore::sset(const u_str& sname,const u_str& tpath,bool node_expected, D
 				the_item_map.erase(it); //and if there is any item then insert it.
 			}
 			the_item_map.insert(item_map_type::value_type(name, item));
-			item = NULL; //this was already a document!
+			item = nullptr; //this was already a document!
 			retval = true;
 		} else {
 			item_map_type::iterator it = the_item_map.find(name);
 			if (it != the_item_map.end()) {
 				DataItem* basis = it->second; //we will use the path on the basis.
-				if (basis != NULL && basis->kind() != di_text) {
+				if (basis != nullptr && basis->kind() != di_text) {
 					XMLObject* xbase = (XMLObject *)basis;
 					if (! xbase->empty() ) {
 						insertion_type i_type=DOMLSParser::ACTION_REPLACE;				
 						size_t pathlen = path.size();
-						if (path.rfind(UCS2(L"-gap()"),pathlen-6) != string::npos) {
-							string::size_type pspoint = path.rfind(UCS2(L"/preceding"),pathlen-16);
+						if (path.rfind(u"-gap()",pathlen-6) != string::npos) {
+							string::size_type pspoint = path.rfind(u"/preceding",pathlen-16);
 							if ( pspoint != string::npos) { //we want to insert before
 								i_type = DOMLSParser::ACTION_INSERT_BEFORE; path.resize(pspoint);
 							} else {
-								string::size_type fspoint = path.rfind(UCS2(L"/following"),pathlen-16);
+								string::size_type fspoint = path.rfind(u"/following",pathlen-16);
 								if ( fspoint != string::npos) { //we want to insert after
 									i_type = DOMLSParser::ACTION_INSERT_AFTER; path.resize(fspoint);
 								} else {
-									string::size_type dpoint = path.rfind(UCS2(L"/child"),pathlen-12);
+									string::size_type dpoint = path.rfind(u"/child",pathlen-12);
 									if ( dpoint != string::npos) { //we want to insert below!
 										i_type = DOMLSParser::ACTION_APPEND_AS_CHILDREN; path.resize(dpoint);
 									}
 								}
 							}
 						} else {
-							string::size_type dpoint = path.rfind(UCS2(L"/value()"),pathlen-8);
+							string::size_type dpoint = path.rfind(u"/value()",pathlen-8);
 							if ( dpoint != string::npos) { //we want to insert below!
 								i_type = DOMLSParser::ACTION_REPLACE_CHILDREN; path.resize(dpoint);
 							}
 						}
 						try {
 							xbase->xp(item,path,i_type,node_expected,errorstr);
-							if (item!=NULL) {
-								delete item; item= NULL; //item here is a const.
+							if (item!=nullptr) {
+								delete item; item= nullptr; //item here is a const.
 							}
 						}
 						//------------------------------								
 						catch (XQException &e) {
-							XML::Manager::transcode(e.getError(),errorstr);
+							XML::Manager::transcode(pcu(e.getError()),errorstr);
 						}
 						catch (XQillaException &e) {
-							XML::Manager::transcode(e.getString(),errorstr);
+							XML::Manager::transcode(pcu(e.getString()),errorstr);
 						}					
 						catch (DOMXPathException &e) { 
-							XML::Manager::transcode(e.getMessage(),errorstr);
+							XML::Manager::transcode(pcu(e.getMessage()),errorstr);
 						}
 						catch (DOMException &e) {
-							XML::Manager::transcode(e.getMessage(),errorstr);
+							XML::Manager::transcode(pcu(e.getMessage()),errorstr);
 						}
 						catch (...) {
 							errorstr = "unknown xpath error";
@@ -389,7 +389,7 @@ bool ItemStore::sset(const u_str& sname,const u_str& tpath,bool node_expected, D
 						retval= true; //bad name/path				
 					}
 				} else {
-					if (basis == NULL) {
+					if (basis == nullptr) {
 						errorstr = "The item is empty. Maybe a parse or previous xpath failed?";
 					} else {
 						string bvalue = *basis;
@@ -425,17 +425,17 @@ bool ItemStore::sget(const u_str& sname,const u_str& path,bool node_expected, Da
 		if (it != the_item_map.end()) {
 			DataItem*& basis = it->second;
 			if (release) { 
-				if (! path.empty() && basis != NULL ) {
-					if (path.rfind(UCS2(L"-gap()"),path.length()-6) != string::npos) { //eg h:div/child-gap()
-						item = NULL;
+				if (! path.empty() && basis != nullptr ) {
+					if (path.rfind(u"-gap()",path.length()-6) != string::npos) { //eg h:div/child-gap()
+						item = nullptr;
 					} else {
 						kind_type basis_kind = basis->kind();
 						if (basis_kind == di_object) {
 							XMLObject* xml_document = (XMLObject*)basis;
-							if (xml_document != NULL) {
+							if (xml_document != nullptr) {
 								retval = xml_document->xp(path,item,node_expected,errorstr); //will put a copy into item.
 								if (retval) {
-									DataItem* mt = NULL;
+									DataItem* mt = nullptr;
 									xml_document->xp(mt,path,DOMLSParser::ACTION_REPLACE,node_expected,errorstr);
 								}
 							} else {
@@ -453,20 +453,20 @@ bool ItemStore::sget(const u_str& sname,const u_str& path,bool node_expected, Da
 					}
 				} else {
 					item = basis; 
-					basis = NULL;
+					basis = nullptr;
 					the_item_map.erase(it);
 				}
 				
 			} else { //not release!
-				if (! path.empty() && basis != NULL ) {
-					if (path.rfind(UCS2(L"-gap()"),path.length()-6) != string::npos) { //eg h:div/child-gap()
-						item = NULL;
+				if (! path.empty() && basis != nullptr ) {
+					if (path.rfind(u"-gap()",path.length()-6) != string::npos) { //eg h:div/child-gap()
+						item = nullptr;
 					} else {
 						kind_type basis_kind = basis->kind();
 						switch(basis_kind) {
 							case di_object: {
 								XMLObject* xml_document = *basis;
-								if (xml_document != NULL && !xml_document->empty()) { //it really should be
+								if (xml_document != nullptr && !xml_document->empty()) { //it really should be
 									retval = xml_document->xp(path,item,node_expected,errorstr); //will make a copy.
 								} else {
 									if (node_expected) {
@@ -475,7 +475,7 @@ bool ItemStore::sget(const u_str& sname,const u_str& path,bool node_expected, Da
 								}
 							} break;
 							case di_utext: {
-								if (path.compare(UCS2(L"text()")) == 0) {
+								if (path.compare(u"text()") == 0) {
 									item = basis; 
 								} else {
 									if (node_expected) {
@@ -491,7 +491,7 @@ bool ItemStore::sget(const u_str& sname,const u_str& path,bool node_expected, Da
 								}
 							} break;
 							case di_raw: {
-								if (path.compare(UCS2(L"text()")) == 0) {
+								if (path.compare(u"text()") == 0) {
 									item = basis; 
 								} else {
 									if (node_expected) {
@@ -507,7 +507,7 @@ bool ItemStore::sget(const u_str& sname,const u_str& path,bool node_expected, Da
 								}
 							} break;
 							case di_text: {
-								if (path.compare(UCS2(L"text()")) == 0) {
+								if (path.compare(u"text()") == 0) {
 									item = basis; 
 								} else {
 									if (node_expected) {
@@ -523,7 +523,7 @@ bool ItemStore::sget(const u_str& sname,const u_str& path,bool node_expected, Da
 								}
 							} break;
 							case di_fragment: {
-								if (path.compare(UCS2(L"text()")) == 0) {
+								if (path.compare(u"text()") == 0) {
 									item = basis; 
 								} else {
 									if (node_expected) {
@@ -547,7 +547,7 @@ bool ItemStore::sget(const u_str& sname,const u_str& path,bool node_expected, Da
 						}
 					}
 				} else {
-					if (basis != NULL) {
+					if (basis != nullptr) {
 						basis->copy(item);
 					}
 				}

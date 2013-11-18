@@ -53,7 +53,7 @@ public:
 	virtual void evaluate(size_t=0,size_t=0); 
 	void evalfind(set<string>&); 
 	InputType(ObyxElement*,const InputType*);
-	InputType(xercesc::DOMNode* const&,ObyxElement* = NULL, elemtype = input);
+	InputType(xercesc::DOMNode* const&,ObyxElement* = nullptr, elemtype = input);
 	virtual ~InputType(); 
 	static void startup(); 
 	static void shutdown();	
@@ -71,7 +71,7 @@ protected:
 	
 public:
 	DefInpType(ObyxElement*,const DefInpType* );
-	DefInpType(xercesc::DOMNode* const&,ObyxElement* = NULL, elemtype = input);
+	DefInpType(xercesc::DOMNode* const&,ObyxElement* = nullptr, elemtype = input);
 	virtual void evaluate(size_t=0,size_t=0); 
 	virtual ~DefInpType();
 };

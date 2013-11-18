@@ -25,10 +25,10 @@
 
 #include <string>
 #include <map>
-#include <ext/hash_map>
+#include <unordered_map>
 #include <pcre.h>
 using namespace std;
-using namespace __gnu_cxx; //hashmap namespace.
+//using namespace __gnu_cxx; //hashmap namespace.
 
 extern "C" {
 	typedef struct real_pcre pcre;
@@ -38,7 +38,7 @@ namespace String {
 	class Regex {
 	private:
 		typedef pair<pcre*,pcre_extra*> pccache_item;
-		typedef hash_map<const string, pccache_item, hash<const string&> > type_regex_cache;
+		typedef unordered_map<const string, pccache_item, std::hash<const string&> > type_regex_cache;
 		static type_regex_cache regex_cache;
 		
 		static void * pcre_lib_handle;

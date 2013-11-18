@@ -46,16 +46,16 @@ Output::scope_type_map		Output::scope_types;
 Output::part_type_map		Output::part_types;
 Output::http_line_type_map	Output::httplinetypes;
 
-Output::Output(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el): IKO(n,par,el),type(out_immediate),part(value),scope(branch),haderror(false),errowner(true),errs(NULL),dupe(false) {
+Output::Output(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el): IKO(n,par,el),type(out_immediate),part(value),scope(branch),haderror(false),errowner(true),errs(nullptr),dupe(false) {
 	u_str str_esc,str_encoder,str_process,str_type,str_value,str_part,str_scope;
 	
-	if ( XML::Manager::attribute(n,UCS2(L"type"),str_type)  ) {
+	if ( XML::Manager::attribute(n,u"type",str_type)  ) {
 		*Logger::log << Log::syntax << Log::LI << "Syntax Error. Output: attribute 'type' should be 'space'" << Log::LO;
 		trace();
 		*Logger::log  << Log::blockend;
 	}
 	
-	if ( XML::Manager::attribute(n,UCS2(L"space"),str_type)  ) {
+	if ( XML::Manager::attribute(n,u"space",str_type)  ) {
 		output_type_map::const_iterator j = output_types.find(str_type);
 		if( j != output_types.end() ) {
 			type = j->second;
@@ -68,7 +68,7 @@ Output::Output(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el): IKO(n,
 		}
 	}
 	
-	if ( XML::Manager::attribute(n,UCS2(L"scope"),str_scope)  ) {
+	if ( XML::Manager::attribute(n,u"scope",str_scope)  ) {
 		if (type == out_store || type == out_error) {
 			scope_type_map::const_iterator k = scope_types.find(str_scope);
 			if( k != scope_types.end() ) {
@@ -88,7 +88,7 @@ Output::Output(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el): IKO(n,
 		} 
 	}
 	
-	if ( XML::Manager::attribute(n,UCS2(L"part"),str_part)  ) {
+	if ( XML::Manager::attribute(n,u"part",str_part)  ) {
 		if (type == out_cookie) {
 			part_type_map::const_iterator k = part_types.find(str_part);
 			if( k != part_types.end() ) {
@@ -115,7 +115,7 @@ Output::Output(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el): IKO(n,
 	}
 	
 	Function* i = dynamic_cast<Function *>(p);	
-	if ( i != NULL ) {
+	if ( i != nullptr ) {
 		if (type==out_error) {
 			errs = new ostringstream();
 			i->do_catch(this); 			//This is going to be a copy-constructed and this one needs to be deleted.
@@ -131,9 +131,9 @@ Output::Output(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el): IKO(n,
 }
 Output::Output(ObyxElement* par,const Output* orig) : 
 	IKO(par,orig),type(orig->type),scope(orig->scope),
-	part(orig->part),haderror(orig->haderror),errowner(orig->errowner),errs(NULL),dupe(true) { 
+	part(orig->part),haderror(orig->haderror),errowner(orig->errowner),errs(nullptr),dupe(true) { 
 	Function* i = dynamic_cast<Function *>(par);	
-	if ( i != NULL ) {
+	if ( i != nullptr ) {
 		if (type==out_error) {
 			errs = new ostringstream();
 			i->do_catch(this);
@@ -149,9 +149,9 @@ Output::Output(ObyxElement* par,const Output* orig) :
 Output::~Output() {
 //	Function* i = dynamic_cast<Function *>(p);	
 //	i->remove_catch(this);
-	if ( errs != NULL) { //this is why actual body has to be the last iteration.
+	if ( errs != nullptr) { //this is why actual body has to be the last iteration.
 		delete errs; 
-		errs = NULL;	
+		errs = nullptr;	
 	}
 }
 void Output::sethttp(const http_line_type line_type,const string& value) {
@@ -246,14 +246,14 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 	prep_breakpoint();
 	prepcatch();
 	results.evaluate();
-	DataItem* name_part = NULL;
-	DataItem* value_part = NULL; 
+	DataItem* name_part = nullptr;
+	DataItem* value_part = nullptr; 
 	switch ( context ) {
 		case immediate: {
 			results.takeresult(name_part); 
 		} break;
 		default: {
-			DataItem* context_part = NULL; 
+			DataItem* context_part = nullptr; 
 			results.takeresult(context_part);
 			//       type    release eval	is_context	 name/ref    container 
 			evaltype(context, false, false, true, di_auto, context_part,name_part);
@@ -263,13 +263,13 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 	}
 	switch ( type ) {
 		case out_immediate: {
-			if ( name_part != NULL && ! name_part->empty() ) {
+			if ( name_part != nullptr && ! name_part->empty() ) {
 				*Logger::log << Log::syntax << Log::LI << "Syntax Error. Output space immediate cannot have a value!" << Log::LO; 
 				trace();
 				*Logger::log << Log::blockend;
 			}		
-			if ( p->results.result() != NULL ) { //we may need to copy this, cos only the final one gets to keep the original.
-				DataItem* pe = NULL;
+			if ( p->results.result() != nullptr ) { //we may need to copy this, cos only the final one gets to keep the original.
+				DataItem* pe = nullptr;
 				if (out_num == out_count) {
 					p->results.takeresult(pe);
 				} else {
@@ -280,10 +280,10 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 						pe->trim(); 
 						if ( pe->empty() ) {
 							delete pe;
-							pe = NULL;
+							pe = nullptr;
 						}
 					}
-					if ( pe != NULL && encoder != e_none ) { 
+					if ( pe != nullptr && encoder != e_none ) { 
 						process_encoding(pe);
 					}
 				} 
@@ -297,14 +297,14 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 			if (haderror) {
 				pair<u_str,u_str> np;
 				bool expected = false;
-				DataItem* err_di = NULL;
+				DataItem* err_di = nullptr;
 				string errstring;
 				ostringstream err_report;
 				if (xpath.empty()) {
 					XMLObject::npsplit(*name_part,np,expected);
 				} else {
 					if (xcontext != immediate) {
-						DataItem* xcresult = NULL;
+						DataItem* xcresult = nullptr;
 						if(valuefromspace(xpath,xcontext,true,false,di_utext,xcresult)) {
 							np.second= *xcresult;
 							delete xcresult;
@@ -333,7 +333,7 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 				String::normalise(wrapper);
 				err_di = DataItem::factory(wrapper,di_auto);
 				owner->setstore(np.first,np.second,err_di,di_auto,scope,errstring);
-				if (err_di != NULL) { delete err_di; err_di = NULL; }
+				if (err_di != nullptr) { delete err_di; err_di = nullptr; }
 				if (!errstring.empty()) {
 					string err_msg; Manager::transcode(name_v.c_str(),err_msg);
 					*Logger::log << Log::error << Log::LI << "Error while outputting an error space to store with " << err_msg << Log::LO;
@@ -342,32 +342,32 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 					*Logger::log << Log::blockend;
 				}
 			}
-			delete name_part; name_part = NULL;
+			delete name_part; name_part = nullptr;
 		} break;
 			
 		case out_none: {
-			if ( name_part != NULL && ! name_part->empty() ) {
+			if ( name_part != nullptr && ! name_part->empty() ) {
 				*Logger::log << Log::syntax << Log::LI << "Syntax Error. Output space none cannot have a value!" << Log::LO; 
 				trace();
 				*Logger::log << Log::blockend;
 			}		
 			p->results.takeresult(value_part); 
-			if (value_part != NULL) {
+			if (value_part != nullptr) {
 				delete value_part;
-				value_part = NULL;
+				value_part = nullptr;
 			}
 		} break;
 		default: {		//into some special container
-			if ( name_part != NULL && ! name_part->empty() ) {
+			if ( name_part != nullptr && ! name_part->empty() ) {
 				name_part->trim();
 			}
-			if ( name_part!= NULL && ! name_part->empty() ) { //are we in the right scope
+			if ( name_part!= nullptr && ! name_part->empty() ) { //are we in the right scope
 				Function* f = dynamic_cast<Function *>(p);	
- 				DataItem* value_comp= NULL;
-				if ((out_num == out_count) || ( f != NULL && type == out_error && !(f->outputs.empty()))) {
+ 				DataItem* value_comp= nullptr;
+				if ((out_num == out_count) || ( f != nullptr && type == out_error && !(f->outputs.empty()))) {
 					p->results.takeresult(value_comp);
 				} else {
-					if ( p->results.result() != NULL) {
+					if ( p->results.result() != nullptr) {
 						p->results.result()->copy(value_comp);
 					}
 				}
@@ -383,7 +383,7 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 							*Logger::log << Log::error << "Signature " << err_msg << " for namespace " << val_value << " cannot use colons!" << Log::LO;	
 							trace();
 							*Logger::log << Log::blockend;
-							delete value_comp; value_comp=NULL;
+							delete value_comp; value_comp=nullptr;
 						} else {
 							ItemStore::setns(name_part,value_comp);
 						}
@@ -396,7 +396,7 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 						if (!xpath.empty()) {
 							u_str name= *name_part;
 							if (xcontext != immediate) {
-								DataItem* xcresult = NULL;
+								DataItem* xcresult = nullptr;
 								if(valuefromspace(xpath,xcontext,true,false,di_utext,xcresult)) {
 									u_str xp = *xcresult;
 									owner->setstore(name,xp,value_comp,kind,scope,errstring);
@@ -416,17 +416,17 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 							string err_msg; Manager::transcode(name_v.c_str(),err_msg);
 							*Logger::log << Log::error << Log::LI << "Error while outputting to store with " << err_msg << Log::LO;	
 							*Logger::log << Log::LI << errstring << Log::LO;	
-							if (value_comp != NULL) {
+							if (value_comp != nullptr) {
 								string val_value = *value_comp;
 								*Logger::log << Log::LI << val_value << Log::LO;	
 							}
 							trace();
 							*Logger::log << Log::blockend;
-							if (value_comp != NULL) {
+							if (value_comp != nullptr) {
 								delete value_comp;
 							}
 						} 
-						value_comp=NULL;
+						value_comp=nullptr;
 					} break;
 					case out_file: {
 						Environment* env = Environment::service();
@@ -437,8 +437,8 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 						string root(env->getpathforroot());
 						string wd(FileUtils::Path::wd());
 						if (wd.empty()) wd = root;
-						string filename; if (name_part != NULL) { filename =  *name_part; }
-						string filetext; if (value_comp != NULL) { filetext = *value_comp; }
+						string filename; if (name_part != nullptr) { filename =  *name_part; }
+						string filetext; if (value_comp != nullptr) { filetext = *value_comp; }
 						if (filename.compare(0,scratchdir.length(),scratchdir) == 0) {
 							inscratch=true;
 						}
@@ -471,17 +471,17 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 						}
 					} break;
 					case out_http: { 
-						if (name_part != NULL) { 
+						if (name_part != nullptr) { 
 							u_str oname = *name_part;						
 							http_line_type_map::const_iterator i = httplinetypes.find(oname);
 							if( i != httplinetypes.end() ) {
 								http_line_type line_type = i->second;
 								if (line_type == http_object) {
-									if (value_comp != NULL) {
+									if (value_comp != nullptr) {
 										xercesc::DOMDocument* doc = *value_comp;
-										if (doc != NULL) {
+										if (doc != nullptr) {
 											xercesc::DOMNode* obj_node = doc->getDocumentElement();
-											if (obj_node != NULL) {
+											if (obj_node != nullptr) {
 												ostringstream* suppressor = new ostringstream();
 												Logger::set_stream(suppressor);
 												Httphead* http = Httphead::service();	
@@ -508,13 +508,13 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 											*Logger::log << Log::blockend;
 										}
 									} else {
-										*Logger::log << Log::error << Log::LI << "Error. Http object was NULL." << Log::LO;	
+										*Logger::log << Log::error << Log::LI << "Error. Http object was nullptr." << Log::LO;	
 										trace();
 										*Logger::log << Log::blockend;
 									}
 								} else {
 									string value=""; 
-									if (value_comp != NULL) { value = *value_comp; }
+									if (value_comp != nullptr) { value = *value_comp; }
 									sethttp(line_type,value); 
 								}
 							} else {
@@ -529,23 +529,23 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 						Environment* env = Environment::service();
 						switch (part) {
 							case value: {
-								string oname; if (name_part != NULL) { oname =  *name_part; }
-								string value; if (value_comp != NULL) { value = *value_comp; }
+								string oname; if (name_part != nullptr) { oname =  *name_part; }
+								string value; if (value_comp != nullptr) { value = *value_comp; }
 								env->setcookie_res(oname,value); 
 							} break;
 							case domain: {
-								string oname; if (name_part != NULL) { oname =  *name_part; }
-								string value; if (value_comp != NULL) { value = *value_comp; }
+								string oname; if (name_part != nullptr) { oname =  *name_part; }
+								string value; if (value_comp != nullptr) { value = *value_comp; }
 								env->setcookie_res_domain(oname,value);
 							} break;
 							case expires: {
-								string oname; if (name_part != NULL) { oname =  *name_part; }
-								string value; if (value_comp != NULL) { value = *value_comp; }
+								string oname; if (name_part != nullptr) { oname =  *name_part; }
+								string value; if (value_comp != nullptr) { value = *value_comp; }
 								env->setcookie_res_expires(oname,value);
 							} break;
 							case path: {
-								string oname; if (name_part != NULL) { oname =  *name_part; }
-								string value; if (value_comp != NULL) { value = *value_comp; }
+								string oname; if (name_part != nullptr) { oname =  *name_part; }
+								string value; if (value_comp != nullptr) { value = *value_comp; }
 								env->setcookie_res_path(oname,value);
 							} break;
 						}
@@ -556,11 +556,11 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 						*Logger::log << Log::blockend;
 					} break; //out_immediate and out_none are dealt with already.
 				}
-				if ( deleteval && value_comp != NULL ) {
+				if ( deleteval && value_comp != nullptr ) {
 					delete value_comp;
-					value_comp = NULL;
+					value_comp = nullptr;
 				}
-				delete name_part; name_part = NULL;
+				delete name_part; name_part = nullptr;
 			} else {
 				*Logger::log << Log::error << Log::LI << "Error. Output: non-immediate, value-holding outputs must have a name!" << Log::LO;							
 				trace();
@@ -572,48 +572,48 @@ void Output::evaluate(size_t out_num,size_t out_count) {
 	do_breakpoint();
 }
 void Output::startup() {
-	scope_types.insert(scope_type_map::value_type(UCS2(L"branch"), branch));
-	scope_types.insert(scope_type_map::value_type(UCS2(L"global"), global));
-	scope_types.insert(scope_type_map::value_type(UCS2(L"ancestor"), ancestor));
-	scope_types.insert(scope_type_map::value_type(UCS2(L"document"), document));
+	scope_types.insert(scope_type_map::value_type(u"branch", branch));
+	scope_types.insert(scope_type_map::value_type(u"global", global));
+	scope_types.insert(scope_type_map::value_type(u"ancestor", ancestor));
+	scope_types.insert(scope_type_map::value_type(u"document", document));
 	
-	part_types.insert(part_type_map::value_type(UCS2(L"value"), value));
-	part_types.insert(part_type_map::value_type(UCS2(L"path"), path));
-	part_types.insert(part_type_map::value_type(UCS2(L"domain"), domain));
-	part_types.insert(part_type_map::value_type(UCS2(L"expires"), expires));
+	part_types.insert(part_type_map::value_type(u"value", value));
+	part_types.insert(part_type_map::value_type(u"path", path));
+	part_types.insert(part_type_map::value_type(u"domain", domain));
+	part_types.insert(part_type_map::value_type(u"expires", expires));
 	
-	output_types.insert(output_type_map::value_type(UCS2(L"store"), out_store));
-	output_types.insert(output_type_map::value_type(UCS2(L"immediate"), out_immediate));
-	output_types.insert(output_type_map::value_type(UCS2(L"file"), out_file));
-	output_types.insert(output_type_map::value_type(UCS2(L"none"), out_none));
-	output_types.insert(output_type_map::value_type(UCS2(L"cookie"), out_cookie));
-	output_types.insert(output_type_map::value_type(UCS2(L"http"), out_http)); //elements of http header. use name for line.
-	output_types.insert(output_type_map::value_type(UCS2(L"error"), out_error));
-	output_types.insert(output_type_map::value_type(UCS2(L"namespace"), out_xmlnamespace));
-	output_types.insert(output_type_map::value_type(UCS2(L"grammar"), out_xmlgrammar));
+	output_types.insert(output_type_map::value_type(u"store", out_store));
+	output_types.insert(output_type_map::value_type(u"immediate", out_immediate));
+	output_types.insert(output_type_map::value_type(u"file", out_file));
+	output_types.insert(output_type_map::value_type(u"none", out_none));
+	output_types.insert(output_type_map::value_type(u"cookie", out_cookie));
+	output_types.insert(output_type_map::value_type(u"http", out_http)); //elements of http header. use name for line.
+	output_types.insert(output_type_map::value_type(u"error", out_error));
+	output_types.insert(output_type_map::value_type(u"namespace", out_xmlnamespace));
+	output_types.insert(output_type_map::value_type(u"grammar", out_xmlgrammar));
 	
-	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"Code"), code));
-	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"Date"), date));
-	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"Server"), server));
-	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"Expires"), h_expires));
-	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"Private"), privacy));
-	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"Cache-Control"), cache));
-	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"Pragma"), pragma));
-	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"Accept-Ranges"), range));
-	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"Content-Type"), content_type));
-	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"Location"), location));
-	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"Content-Length"), content_length));
-	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"Content-Disposition"), content_disposition));
-	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"Content-Location"), content_location));
-	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"Connection"), connection));
-	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"P3P"), p3p));
-	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"nocache"), nocache));
-	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"remove_http"), remove_http));
-	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"remove_nocache"), remove_nocache));
-	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"remove_date"), remove_date));
-	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"Custom"), custom));
-	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"custom"), custom));
-	httplinetypes.insert(http_line_type_map::value_type(UCS2(L"object"), http_object));
+	httplinetypes.insert(http_line_type_map::value_type(u"Code", code));
+	httplinetypes.insert(http_line_type_map::value_type(u"Date", date));
+	httplinetypes.insert(http_line_type_map::value_type(u"Server", server));
+	httplinetypes.insert(http_line_type_map::value_type(u"Expires", h_expires));
+	httplinetypes.insert(http_line_type_map::value_type(u"Private", privacy));
+	httplinetypes.insert(http_line_type_map::value_type(u"Cache-Control", cache));
+	httplinetypes.insert(http_line_type_map::value_type(u"Pragma", pragma));
+	httplinetypes.insert(http_line_type_map::value_type(u"Accept-Ranges", range));
+	httplinetypes.insert(http_line_type_map::value_type(u"Content-Type", content_type));
+	httplinetypes.insert(http_line_type_map::value_type(u"Location", location));
+	httplinetypes.insert(http_line_type_map::value_type(u"Content-Length", content_length));
+	httplinetypes.insert(http_line_type_map::value_type(u"Content-Disposition", content_disposition));
+	httplinetypes.insert(http_line_type_map::value_type(u"Content-Location", content_location));
+	httplinetypes.insert(http_line_type_map::value_type(u"Connection", connection));
+	httplinetypes.insert(http_line_type_map::value_type(u"P3P", p3p));
+	httplinetypes.insert(http_line_type_map::value_type(u"nocache", nocache));
+	httplinetypes.insert(http_line_type_map::value_type(u"remove_http", remove_http));
+	httplinetypes.insert(http_line_type_map::value_type(u"remove_nocache", remove_nocache));
+	httplinetypes.insert(http_line_type_map::value_type(u"remove_date", remove_date));
+	httplinetypes.insert(http_line_type_map::value_type(u"Custom", custom));
+	httplinetypes.insert(http_line_type_map::value_type(u"custom", custom));
+	httplinetypes.insert(http_line_type_map::value_type(u"object", http_object));
 }
 void Output::shutdown() {
 	part_types.clear();

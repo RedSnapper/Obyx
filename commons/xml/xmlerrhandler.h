@@ -28,7 +28,7 @@
 #include "commons/string/strings.h"
 
 #include <string>
-#include <ext/hash_map>
+#include <unordered_map>
 #include <map>
 
 namespace XML {
@@ -38,7 +38,7 @@ namespace XML {
 	using xercesc::DOMNode;
 	using namespace std;
 
-	typedef hash_map<const string,string, hash<const string&> > ss_map_type;
+	typedef unordered_map<const string,string, hash<const string&> > ss_map_type;
 	
 	class XMLErrorHandler : public DOMErrorHandler {
 private:

@@ -102,10 +102,10 @@ public:
 	static void tail(string&,bool=false);		//tail log document
 	
 	static void stripcontainer(string& contents) { log->strip(contents); }
-	static bool opened() { return (log != NULL && log->isopened);}
+	static bool opened() { return (log != nullptr && log->isopened);}
 	static bool wasfatal() { return log->hadfatal;}
 	static bool debugging() {return debugflag;}
-	static bool logging_available() {return log!= NULL && log->logging_on;}
+	static bool logging_available() {return log!= nullptr && log->logging_on;}
 	static void set_syslogging(bool t) { log->syslogging = t; }
 	
 	string errline();

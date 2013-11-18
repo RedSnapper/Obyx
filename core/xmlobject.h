@@ -23,7 +23,7 @@
 #ifndef OBYX_XML_OBJECT_H
 #define OBYX_XML_OBJECT_H
 
-#include <ext/hash_map>
+#include <unordered_map>
 #include <string>
 
 #include "dataitem.h"
@@ -41,7 +41,7 @@ namespace {
 
 class XMLObject : public DataItem {
 private:
-	typedef hash_map<const u_str,XQQuery*, hash<const u_str&> > xpp_map_type;
+	typedef unordered_map<const u_str,XQQuery*, hash<const u_str&> > xpp_map_type;
 	
 	XMLObject() : DataItem() {}
 	bool xp_result(const u_str&,Sequence&,DynamicContext*&,bool,std::string&);
@@ -58,7 +58,7 @@ protected:
 	
 public:
 	//	u_str
-	typedef hash_map<const u_str,u_str, hash<const u_str&> > u_str_map_type;
+	typedef unordered_map<const u_str,u_str, hash<const u_str&> > u_str_map_type;
 	static const u_str_map_type* get_ns_map() {return &object_ns_map;}
 	
 	static bool setns(const u_str&, const u_str&);
@@ -111,7 +111,7 @@ public:
 	static void finalise();
 	
 private:
-	unsigned int x;								//Used during debugging to see how a doc was created.
+	unsigned int dxx;								//Used during debugging to see how a doc was created.
 	xercesc::DOMDocument* 			x_doc;		//Actual document itself.
 
 	static DynamicContext*			xpather;		//XPath2 context.

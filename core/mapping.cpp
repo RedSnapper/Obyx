@@ -51,7 +51,7 @@ Mapping::Mapping(xercesc::DOMNode* const& n,ObyxElement* par) :
 Function(n,mapping,par),operation(m_switch),repeated(false),keys_evaluated(false),dom_evaluated(false),mat_evaluated(false),matched(false),sdom(""),skey("") {
 	
 	u_str do_repeat,op_string;
-	XML::Manager::attribute(n,UCS2(L"operation"),op_string);
+	XML::Manager::attribute(n,u"operation",op_string);
 	map_type_map::const_iterator i = map_types.find(op_string);
 	if( i != map_types.end() ) {
 		operation = i->second; 
@@ -74,9 +74,9 @@ Function(n,mapping,par),operation(m_switch),repeated(false),keys_evaluated(false
 			*Logger::log << Log::blockend;
 		}
 	}
-	bool had_rpt = XML::Manager::attribute(n,UCS2(L"repeat"),do_repeat);
+	bool had_rpt = XML::Manager::attribute(n,u"repeat",do_repeat);
 	if ( had_rpt ) {
-		if (do_repeat.compare(UCS2(L"true")) == 0) { 
+		if (do_repeat.compare(u"true") == 0) {
 			if (operation != m_switch) {
 				repeated = true;
 			} else {
@@ -85,7 +85,7 @@ Function(n,mapping,par),operation(m_switch),repeated(false),keys_evaluated(false
 				*Logger::log << Log::blockend;
 			}
 		} else {
-			if (do_repeat.compare(UCS2(L"false")) != 0) {
+			if (do_repeat.compare(u"false") != 0) {
 				*Logger::log <<  Log::syntax << Log::LI << "Syntax Error. repeat attribute must be either 'true' or 'false'" << Log::LO; 
 				trace();
 				*Logger::log << Log::blockend;
@@ -124,23 +124,23 @@ bool Mapping::evaluate_this() {
 	if (keys_evaluated && dom_evaluated && definputs.size() > 1) {
 		bool error_sent = false;
 		unsigned long long forced_break = 100;
-		DataItem* the_domain = NULL;
+		DataItem* the_domain = nullptr;
 		definputs[0]->results.takeresult(the_domain);
 		if (repeated) {
 			owner->metastore("REPEAT_BREAK_COUNT",forced_break);
 		}
 		bool t_deferred=false;
-		DefInpType *def_match = NULL;
+		DefInpType *def_match = nullptr;
 		do {
 			forced_break--;
 			matched = false;
-			def_match = NULL;
+			def_match = nullptr;
 			for ( unsigned int j = 1; j < definputs.size() && !t_deferred; j++ ) {
 				t_deferred = false;
 				DefInpType *match = definputs[j];
 				InputType *key = match->key;
-				if ( key == NULL) { // this is a default value - so just replace 
-					if (def_match == NULL) {
+				if ( key == nullptr) { // this is a default value - so just replace 
+					if (def_match == nullptr) {
 						def_match = match;
 					} else {
 						if (!error_sent) {
@@ -152,7 +152,7 @@ bool Mapping::evaluate_this() {
 					}
 					break;  //do not continue processing this set.
 				} else {
-					if ( the_domain != NULL ) {
+					if ( the_domain != nullptr ) {
 						kind_type dom_kind = the_domain->kind();
 						switch (match->k_format) { 
 							case 'l': { //literal
@@ -189,27 +189,27 @@ bool Mapping::evaluate_this() {
 									} break;
 									case m_substitute: { // m_substitute uses partial-matching and changes the domain.
 										sdom = *the_domain;
-										if (key->results.result() != NULL) {
+										if (key->results.result() != nullptr) {
 											skey = *key->results.result();
 										}
-										if ( (key->results.result() == NULL) || (sdom.find(skey) != string::npos) ) { // do the match
+										if ( (key->results.result() == nullptr) || (sdom.find(skey) != string::npos) ) { // do the match
 											delete the_domain;
 											std::string insert("");
 											bool the_scope = match->k_scope;
 											if (repeated) {
 												DefInpType* tmp_input = new DefInpType(this,match);
 												tmp_input->evaluate();
-												if (tmp_input->results.result() != NULL) {
+												if (tmp_input->results.result() != nullptr) {
 													insert = *tmp_input->results.result();
 												}
 												delete tmp_input;
 											} else {
 												match->evaluate();
-												if (match->results.result() != NULL) {
+												if (match->results.result() != nullptr) {
 													insert = *match->results.result();
 												}
 											}									
-											if (key->results.result() == NULL) {
+											if (key->results.result() == nullptr) {
 												matched = true;
 												sdom = insert;
 											} else {
@@ -222,7 +222,7 @@ bool Mapping::evaluate_this() {
 							} break;
 							case 'r': {
 								if ( String::Regex::available() ) {
-									if (key->results.result() != NULL) { //no worries about this one.
+									if (key->results.result() != nullptr) { //no worries about this one.
 										skey = *key->results.result();
 									}
 									sdom = *the_domain;
@@ -267,17 +267,17 @@ bool Mapping::evaluate_this() {
 												if (repeated) {
 													DefInpType* tmp_input = new DefInpType(this,match);
 													tmp_input->evaluate();
-													if (tmp_input->results.result() != NULL) {
+													if (tmp_input->results.result() != nullptr) {
 														insert = *tmp_input->results.result();
 													}
 													delete tmp_input;
 												} else {
 													match->evaluate();
-													if (match->results.result() != NULL) {
+													if (match->results.result() != nullptr) {
 														insert = *match->results.result();
 													}
 												}									
-												if (key->results.result() == NULL) {
+												if (key->results.result() == nullptr) {
 													sdom = insert;
 												} else {
 													String::Regex::replace(skey,insert,sdom,the_scope);
@@ -298,8 +298,8 @@ bool Mapping::evaluate_this() {
 								*Logger::log << Log::blockend;
 							}
 						} //end switch
-					} else { //the format doesn't really matter for NULL matching.
-						if ( key->results.result() == NULL ) {
+					} else { //the format doesn't really matter for nullptr matching.
+						if ( key->results.result() == nullptr ) {
 							match->evaluate();
 							matched = true;
 							match->results.takeresult(the_domain);
@@ -309,11 +309,11 @@ bool Mapping::evaluate_this() {
 				} //end if null...
 			} //end for
 		} while ( !t_deferred && repeated && matched && forced_break > 0 );
-		if (!matched && !t_deferred && def_match != NULL) {
+		if (!matched && !t_deferred && def_match != nullptr) {
 			def_match->evaluate();
 			matched = true;
 			if (operation == m_switch) {
-				DataItem* tmp = NULL;
+				DataItem* tmp = nullptr;
 				def_match->results.takeresult(tmp);
 				results.setresult(tmp,def_match->wsstrip);
 			} else {
@@ -326,7 +326,7 @@ bool Mapping::evaluate_this() {
 			mat_evaluated = true;
 			if (operation == m_switch) { 
 				delete the_domain;
-				the_domain = NULL;
+				the_domain = nullptr;
 			} else {
 				results.setresult(the_domain);
 			}
@@ -369,9 +369,9 @@ bool Mapping::field(const u_str& field_name,string& container) const {
 /*
 void Mapping::list(const ObyxElement* base) { //static.
 	*Logger::log << Log::subhead << Log::LI << "Current Substitution Domains" << Log::LO;
-	for (ObyxElement* curr = base->p; curr != NULL; curr = curr->p) {
+	for (ObyxElement* curr = base->p; curr != nullptr; curr = curr->p) {
 		const Mapping* m = dynamic_cast<const Mapping *>(curr);
-		if ( (m != NULL) && ! m->sdom.empty() && (m->operation == m_substitute) ) {
+		if ( (m != nullptr) && ! m->sdom.empty() && (m->operation == m_substitute) ) {
 			*Logger::log << Log::LI << m->sdom << Log::LO;   //even
 		}
 	}
@@ -387,9 +387,9 @@ void Mapping::init() {
 void Mapping::finalise() {
 }
 void Mapping::startup() {
-	map_types.insert(map_type_map::value_type(UCS2(L"state"), m_state));
-	map_types.insert(map_type_map::value_type(UCS2(L"substitute"), m_substitute));
-	map_types.insert(map_type_map::value_type(UCS2(L"switch"), m_switch));
+	map_types.insert(map_type_map::value_type(u"state", m_state));
+	map_types.insert(map_type_map::value_type(u"substitute", m_substitute));
+	map_types.insert(map_type_map::value_type(u"switch", m_switch));
 }
 void Mapping::shutdown() {
 	map_types.clear();

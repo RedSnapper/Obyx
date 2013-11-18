@@ -107,14 +107,13 @@ bool Reader::read( char* a, streamsize num, int offset ) throw ( exception ) {
 
 /** Reads a whole line from the stream and returns it as a string. */
 string Reader::readLine() throw ( exception ) {
-  char aChar;
+  char aChar=' ';
   string line;
-
   if ( input.fail() )
     throw exception();
   while ( true ) {
     input.get( aChar );
-    if ( aChar == '\n' ||  input.eof() ) return line;
+    if ( input.eof() || aChar == '\n' ) return line;
     if ( input.fail() )
       throw exception();
     line += aChar;

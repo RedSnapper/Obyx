@@ -94,7 +94,7 @@ void RawItem::append(DataItem*& s) {
 }
 
 bool RawItem::find(const DataItem* o,std::string&)  {
-	if ( o != NULL) {
+	if ( o != nullptr) {
 		return o_str.find(*o) != string::npos;
 	} else {
 		return false;
@@ -106,8 +106,8 @@ bool RawItem::find(const char* o,std::string&)  {
 }
 
 bool RawItem::find(const XMLCh* s,std::string&)  {
-	if (s!=NULL) {
-		u_str tmp(s);
+	if (s!=nullptr) {
+		u_str tmp(pcu(s));
 		string srch;
 		XML::Manager::transcode(tmp,srch);
 		return o_str.find(srch) != string::npos;
@@ -117,7 +117,7 @@ bool RawItem::find(const XMLCh* s,std::string&)  {
 }
 
 bool RawItem::same(const DataItem* o) const {
-	if (o != NULL) {
+	if (o != nullptr) {
 		return o_str.compare(*o) == 0;
 	} else {
 		return false;

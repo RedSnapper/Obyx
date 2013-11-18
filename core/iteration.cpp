@@ -48,10 +48,10 @@ using namespace Vdb;
 it_type_map Iteration::it_types;
 
 Iteration::Iteration(xercesc::DOMNode* const& n,ObyxElement* par) : 
-Function(n,iteration,par),ctlevaluated(false),evaluated(false),query(NULL),
+Function(n,iteration,par),ctlevaluated(false),evaluated(false),query(nullptr),
 operation(it_repeat),lastrow(false),expanded(false),currentrow(1),numreps(1),currentkey("") {
 	u_str op_string;
-	Manager::attribute(n,UCS2(L"operation"),op_string);
+	Manager::attribute(n,u"operation",op_string);
 	it_type_map::const_iterator j = it_types.find(op_string);
 	if( j != it_types.end() ) {
 		operation = j->second; 
@@ -126,7 +126,7 @@ bool Iteration::evaluate_this() { //This can be run as an evaluated iteration wi
 					DefInpType*& x = definputs[i];
 					*Logger::log << Log::error << Log::LI << "Error. SQL Evaluation failed." << Log::LO; 
 					trace();
-					if (x != NULL) {
+					if (x != nullptr) {
 						*Logger::log << Log::error << Log::LI;
 						x->explain();
 						*Logger::log << Log::LO;
@@ -153,7 +153,7 @@ bool Iteration::evaluate_this() { //This can be run as an evaluated iteration wi
 bool Iteration::fieldfind(const u_str& pattern) const { //regex..
 	bool retval = false;
 	if ( String::Regex::available() ) {
-		if (query != NULL) {
+		if (query != nullptr) {
 			string rexpr; XML::Manager::transcode(pattern,rexpr);		
 			retval = query->findfield(rexpr);
 		}
@@ -164,7 +164,7 @@ bool Iteration::fieldfind(const u_str& pattern) const { //regex..
 	return retval;
 }
 void Iteration::fieldkeys(const u_str& pattern,set<string>& keylist) const { //regex..
-	if (query != NULL) {
+	if (query != nullptr) {
 		string rexpr; XML::Manager::transcode(pattern,rexpr);
 		query->fieldkeys(rexpr,keylist);
 	}
@@ -174,10 +174,10 @@ bool Iteration::fieldexists(const u_str& fname,string& errstring) const {
 	size_t hashpt = fname.find('#');
 	if (hashpt != string::npos) {
 		if (hashpt > 0 ) { hashpt--; }
-		rcfound = fname.find(UCS2(L"#rowcount"),hashpt) != string::npos;
-		rfound = fname.find(UCS2(L"#row"),hashpt) != string::npos;
-		fcfound = fname.find(UCS2(L"#fieldcount"),hashpt) != string::npos;
-		kyfound = fname.find(UCS2(L"#key"),hashpt) != string::npos;
+		rcfound = fname.find(u"#rowcount",hashpt) != string::npos;
+		rfound = fname.find(u"#row",hashpt) != string::npos;
+		fcfound = fname.find(u"#fieldcount",hashpt) != string::npos;
+		kyfound = fname.find(u"#key",hashpt) != string::npos;
 	}
 	switch (operation) {
 		case it_search:
@@ -185,7 +185,7 @@ bool Iteration::fieldexists(const u_str& fname,string& errstring) const {
 			if (rcfound || rfound || fcfound) {
 				retval = true;
 			} else {
-				if (!kyfound && query != NULL) {
+				if (!kyfound && query != nullptr) {
 					string qkey; XML::Manager::transcode(fname,qkey);
 					retval = query->hasfield(qkey);
 				} else {
@@ -218,22 +218,24 @@ bool Iteration::while_repeat_metafield(u_str& metafield) const {
 	bool retval = false;
 	size_t hashpos = metafield.find('#');
 	while (hashpos != string::npos) {
-		if (metafield.compare(hashpos,9,UCS2(L"#rowcount")) == 0) {
+		if (metafield.compare(hashpos,9,u"#rowcount") == 0) {
 			if ( operation == it_repeat || operation == it_each ) {
-				u_str rowstr; XML::Manager::to_ustr(numreps,rowstr);
+				u_str rowstr;
+//				XML::Manager::to_ustr(numreps,rowstr);
 				metafield.replace(hashpos,9,rowstr);
 				hashpos += rowstr.size()-1 ;
 				retval = true;
 			} 
 		} else {
-			if ( metafield.compare(hashpos,4,UCS2(L"#row")) == 0 ) {
-				u_str rowstr; XML::Manager::to_ustr(currentrow,rowstr);
+			if ( metafield.compare(hashpos,4,u"#row") == 0 ) {
+				u_str rowstr;
+//				XML::Manager::to_ustr(currentrow,rowstr);
 				metafield.replace(hashpos,4,rowstr);
 				hashpos += rowstr.size()-1 ;
 				retval = true;
 			}
 			else {
-				if ( operation==it_each && metafield.compare(hashpos,4,UCS2(L"#key")) == 0 ) {
+				if ( operation==it_each && metafield.compare(hashpos,4,u"#key") == 0 ) {
 					u_str ckey; XML::Manager::transcode(currentkey,ckey);
 					metafield.replace(hashpos,4,ckey);
 					hashpos += ckey.size()-1; //#key
@@ -247,7 +249,7 @@ bool Iteration::while_repeat_metafield(u_str& metafield) const {
 }
 bool Iteration::field(const u_str& fname,DataItem*& container,const kind_type& kind,string& errstring) const { 
 	bool retval = false;
-	if (query != NULL && (operation == it_sql || operation == it_search)) {
+	if (query != nullptr && (operation == it_sql || operation == it_search)) {
 		//This is where we could do an xpath split.
 		string qkey,srepo; XML::Manager::transcode(fname,qkey);
 		retval = query->readfield(currentrow,qkey,srepo,errstring);
@@ -268,9 +270,9 @@ bool Iteration::field(const u_str& fname,DataItem*& container,const kind_type& k
 }
 void Iteration::list(const ObyxElement* base) { //static.
 	*Logger::log << Log::subhead << Log::LI << "Current SQL Queries" << Log::LO;
-	for (ObyxElement* curr = base->p; curr != NULL; curr = curr->p) {
+	for (ObyxElement* curr = base->p; curr != nullptr; curr = curr->p) {
 		const Iteration* i = dynamic_cast<const Iteration *>(curr);
-		if ( (i != NULL) &&  (i->query != NULL) && (i->operation == it_sql || i->operation == it_search) ) {
+		if ( (i != nullptr) &&  (i->query != nullptr) && (i->operation == it_sql || i->operation == it_search) ) {
 			const std::vector<std::string>& fl = i->query->fieldlist();
 			if (!fl.empty()) {
 				string qery = i->query->getquery();
@@ -306,7 +308,7 @@ bool Iteration::operation_each() {
 			if ( numreps == 0 ) {
 				delete base_template; //just let it be deleted.
 			} else {
-				DefInpType* iter_input = NULL;
+				DefInpType* iter_input = nullptr;
 				set<string>::const_iterator ski = spacekeys.begin();
 				for (currentrow = 1; currentrow <= numreps; currentrow++) {
 					currentkey = *(ski++);
@@ -318,7 +320,7 @@ bool Iteration::operation_each() {
 					}
 					iter_input->evaluate();
 					definputs.push_back(iter_input);
-					iter_input = NULL;
+					iter_input = nullptr;
 				}
 			}
 		}
@@ -332,7 +334,7 @@ bool Iteration::operation_repeat() {
 	string controlstring;
 	if ( ! inputs.empty() ) { 
 		const DataItem* res = inputs[0]->results.result();
-		if (res != NULL) {
+		if (res != nullptr) {
 			controlstring = *res;
 		}
 	}
@@ -362,7 +364,7 @@ bool Iteration::operation_repeat() {
 		if ( numreps == 0 ) {
 			delete base_template; //just let it be deleted.
 		} else {
-			DefInpType* iter_input = NULL;
+			DefInpType* iter_input = nullptr;
 			for (currentrow = 1; currentrow <= numreps; currentrow++) {
 				if (currentrow != numreps) {
 					iter_input = new DefInpType(this,base_template);
@@ -372,7 +374,7 @@ bool Iteration::operation_repeat() {
 				}
 				iter_input->evaluate();
 				definputs.push_back(iter_input);
-				iter_input = NULL;
+				iter_input = nullptr;
 			}
 		}
 	}
@@ -382,12 +384,12 @@ bool Iteration::operation_repeat() {
 bool Iteration::operation_search() {
 	bool searchdone = true;
 	string tmp_var,controlstring;
-	if ( ! inputs.empty() && inputs[0]->results.result() != NULL ) {
+	if ( ! inputs.empty() && inputs[0]->results.result() != nullptr ) {
 		controlstring = *(inputs[0]->results.result());
 	}
 	if ( ! controlstring.empty() ) {
-		if (scc != NULL)  {
-			query = NULL;	 //reset the reference..  (used for iko type="field") search
+		if (scc != nullptr)  {
+			query = nullptr;	 //reset the reference..  (used for iko type="field") search
 			if (scc->query(query,controlstring) ) {
 				if ( query->execute() ) {
 					if (definputs.size() > 0) {
@@ -406,7 +408,7 @@ bool Iteration::operation_search() {
 							delete base_template;
 						} else {
 							for (currentrow = 1; currentrow <= numreps; currentrow++) {
-								DefInpType* iter_input = NULL;
+								DefInpType* iter_input = nullptr;
 								if (currentrow != numreps) {	 //now can delete original
 									iter_input = new DefInpType(this,base_template);
 								} else {
@@ -425,7 +427,7 @@ bool Iteration::operation_search() {
 					results.clear();
 					searchdone = false; //Just give up.
 				}
-				delete query; query = NULL;	 //reset the reference..  (used for iko type="field")
+				delete query; query = nullptr;	 //reset the reference..  (used for iko type="field")
 			} else {
 				*Logger::log << Log::error << Log::LI << "Error. Iteration operation search service was found, but the connection failed to provide a query object." << Log::LO;
 				trace();
@@ -451,13 +453,13 @@ bool Iteration::operation_search() {
 bool Iteration::operation_sql() {
 	bool sqldone = true;
 	string tmp_var,controlstring;
-	if ( ! inputs.empty() && inputs[0]->results.result() != NULL ) { 
+	if ( ! inputs.empty() && inputs[0]->results.result() != nullptr ) { 
 		controlstring = *(inputs[0]->results.result());
 	}
 	if ( ! controlstring.empty() ) {
-		if (dbs != NULL)  {
-			query = NULL;	 //reset the reference..  (used for iko type="field")
-			if ( dbc != NULL && dbc->query(query,controlstring) ) {
+		if (dbs != nullptr)  {
+			query = nullptr;	 //reset the reference..  (used for iko type="field")
+			if ( dbc != nullptr && dbc->query(query,controlstring) ) {
 				if ( query->execute() ) {
 					if (definputs.size() > 0) {
 						DefInpType* base_template = definputs[0];
@@ -475,7 +477,7 @@ bool Iteration::operation_sql() {
 							delete base_template;
 						} else {
 							for (currentrow = 1; currentrow <= numreps; currentrow++) {
-								DefInpType* iter_input = NULL;
+								DefInpType* iter_input = nullptr;
 								if (currentrow != numreps) {	 //now can delete original
 									iter_input = new DefInpType(this,base_template);
 								} else {
@@ -491,7 +493,7 @@ bool Iteration::operation_sql() {
 					results.clear();
 					sqldone = false; //Just give up.
 				}
-				delete query; query = NULL;	 //reset the reference..  (used for iko type="field")
+				delete query; query = nullptr;	 //reset the reference..  (used for iko type="field")
 			} else {
 				*Logger::log << Log::error << Log::LI << "Error. Iteration operation sql needs a database selected. An sql service was found, but the sql connection failed." << Log::LO;
 				trace();
@@ -527,7 +529,7 @@ bool Iteration::operation_while(bool existence) {
 	if (definputs.size() > 0) {
 		DefInpType* base_template = definputs[0];
 		definputs.clear();
-		DefInpType* iter_input = NULL;
+		DefInpType* iter_input = nullptr;
 		bool loopdone=false;
 		if (inputs.size() == 1) {
 			for (currentrow = 1; currentrow < forced_break && !loopdone ; currentrow++ ) {
@@ -541,7 +543,7 @@ bool Iteration::operation_while(bool existence) {
 					iter_input = new DefInpType(this,base_template);
 					iter_input->evaluate();
 					definputs.push_back(iter_input);
-					iter_input = NULL;
+					iter_input = nullptr;
 				}
 				delete it_input;
 			}
@@ -601,12 +603,12 @@ void Iteration::init() {
 void Iteration::finalise() {
 }
 void Iteration::startup() {
-	it_types.insert(it_type_map::value_type(UCS2(L"each"),it_each));
-	it_types.insert(it_type_map::value_type(UCS2(L"repeat"),it_repeat));
-	it_types.insert(it_type_map::value_type(UCS2(L"search"),it_search));
-	it_types.insert(it_type_map::value_type(UCS2(L"sql"),it_sql));
-	it_types.insert(it_type_map::value_type(UCS2(L"while"),it_while));
-	it_types.insert(it_type_map::value_type(UCS2(L"while_not"),it_while_not));
+	it_types.insert(it_type_map::value_type(u"each",it_each));
+	it_types.insert(it_type_map::value_type(u"repeat",it_repeat));
+	it_types.insert(it_type_map::value_type(u"search",it_search));
+	it_types.insert(it_type_map::value_type(u"sql",it_sql));
+	it_types.insert(it_type_map::value_type(u"while",it_while));
+	it_types.insert(it_type_map::value_type(u"while_not",it_while_not));
 }
 void Iteration::shutdown() {
 	it_types.clear();

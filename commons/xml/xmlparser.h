@@ -104,7 +104,7 @@ namespace XML {
 		DOMDocument* loadDoc(const u_str&);
 		DOMDocument* newDoc(const DOMNode*);
 		DOMDocumentFragment* newDocFrag(DOMDocument*);
-		basic_string<XMLCh> xpath(DOMNode* );
+		u_str xpath(DOMNode* );
 		void insertContext(DOMDocument*&,DOMNode*&,const u_str&,DOMLSParser::ActionType);
 		void insertContext(DOMDocument*&,DOMNode*&,DOMNode* const,DOMLSParser::ActionType);
 		bool loadURI(const std::string&, DOMDocument*&);

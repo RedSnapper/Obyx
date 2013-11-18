@@ -35,7 +35,7 @@
 using namespace std;
 using namespace Log;
 
-Function* PairQueue::pqendthing = NULL; 
+Function* PairQueue::pqendthing = nullptr; 
 
 void PairQueue::startup() {
 	//startup once per process..
@@ -43,30 +43,30 @@ void PairQueue::startup() {
 }
 void PairQueue::shutdown() {
 	//shutdown once per process..
-	if (PairQueue::pqendthing != NULL) {
+	if (PairQueue::pqendthing != nullptr) {
 		delete PairQueue::pqendthing;  
-		PairQueue::pqendthing = NULL;  
+		PairQueue::pqendthing = nullptr;  
 	}
 }
-PairQueue::PairQueue(bool pb) : queue(),theresult(NULL),finalised(false) {
+PairQueue::PairQueue(bool pb) : queue(),theresult(nullptr),finalised(false) {
 	if (pb) {
-		queue.push_back(pqpair(NULL,pqendthing));
+		queue.push_back(pqpair(nullptr,pqendthing));
 	}
 }
 PairQueue::~PairQueue() {
 	clear(false);
-	if (theresult != NULL) {
+	if (theresult != nullptr) {
 		delete theresult;
-		theresult = NULL;
+		theresult = nullptr;
 	}
 }
 void PairQueue::clear(bool add_endthing) { 
 	size_t n = queue.size();
 	if (n == 1 && queue[0].second == pqendthing) {
 		DataItem*& di = queue[0].first;	
-		if ( di != NULL ) {
+		if ( di != nullptr ) {
 			delete di;
-			di = NULL;
+			di = nullptr;
 		}
 		if (!add_endthing) {
 			queue.clear(); 
@@ -74,44 +74,44 @@ void PairQueue::clear(bool add_endthing) {
 	} else {
 		for ( size_t i = 0; i < n; i++) {
 			DataItem* di = queue[i].first;	
-			queue[i].first = NULL;
-			if ( di != NULL ) {
+			queue[i].first = nullptr;
+			if ( di != nullptr ) {
 				delete di;
 			}
 			Function* qic = queue[i].second; 
-			queue[i].second = NULL;
-			if (qic != NULL && qic != pqendthing) { //Not really sure why this is NULL sometimes.
+			queue[i].second = nullptr;
+			if (qic != nullptr && qic != pqendthing) { //Not really sure why this is nullptr sometimes.
 				delete qic; //should get here when paths aren't followed...
 			}
 		}
 		queue.clear(); 
 		if (add_endthing) {
-			queue.push_back(pqpair(NULL,pqendthing));
+			queue.push_back(pqpair(nullptr,pqendthing));
 	//		finalised = false; //DID CAUSE TROUBLE
 		}
 	}
 }
 
 void PairQueue::setresult(PairQueue& other) {
-	if (theresult != NULL) {
+	if (theresult != nullptr) {
 		delete theresult;
-		theresult = NULL;
+		theresult = nullptr;
 	}
 	theresult=other.theresult;
-	other.theresult = NULL;
+	other.theresult = nullptr;
 	finalised=true; 
 	clear(true);
 }
 
 void PairQueue::setresult(DataItem*& res, bool wsstrip) { 
-	if (theresult != NULL) {
+	if (theresult != nullptr) {
 		delete theresult;
-		theresult = NULL;
+		theresult = nullptr;
 	}
-	if (res != NULL) {
+	if (res != nullptr) {
 		trim(res,wsstrip);
 		theresult=res;
-		res = NULL;
+		res = nullptr;
 	}
 	finalised=true; 
 	clear(true);
@@ -121,7 +121,7 @@ const DataItem* PairQueue::result() const {
 } 
 void PairQueue::takeresult(DataItem*& container) { 
 	container = theresult;
-	theresult = NULL;
+	theresult = nullptr;
 	clear(true);
 } 
 void PairQueue::copy(ObyxElement* mypar,const PairQueue& orig) {	//Pointers are not shared
@@ -129,16 +129,16 @@ void PairQueue::copy(ObyxElement* mypar,const PairQueue& orig) {	//Pointers are 
 	//This is the new unique record. The orig is what I am copying from.
 	finalised = orig.finalised;
 	queue.clear();	//remove even the endthing - because we will be adding it here..
-	if (theresult != NULL) {
-		delete theresult; theresult = NULL;
+	if (theresult != nullptr) {
+		delete theresult; theresult = nullptr;
 	}	
-	if ( orig.theresult != NULL ) {
+	if ( orig.theresult != nullptr ) {
 		theresult = DataItem::factory(orig.theresult); //copy construction
 	}
 	size_t n = orig.queue.size();
 	for ( size_t i = 0 ; i < n ; i++ ) {
-		DataItem* qi1 = NULL;
-		if (orig.queue[i].first != NULL) {
+		DataItem* qi1 = nullptr;
+		if (orig.queue[i].first != nullptr) {
 			orig.queue[i].first->copy(qi1);
 		}
 		if ( orig.queue[i].second != pqendthing) {
@@ -152,7 +152,7 @@ void PairQueue::copy(ObyxElement* mypar,const PairQueue& orig) {	//Pointers are 
 void PairQueue::append(PairQueue& xqueue,ObyxElement *par) {
 	//when we do this, are we taking, or copying? let's assume taking. (used by iteration)
 	if ( xqueue.final() ) {
-		DataItem* fn = NULL;
+		DataItem* fn = nullptr;
 		xqueue.takeresult(fn);
 		append(fn);
 	} else {
@@ -161,7 +161,7 @@ void PairQueue::append(PairQueue& xqueue,ObyxElement *par) {
 				*Logger::log << Log::info << Log::LI << "Finalised result has a non empty queue in append result!" << Log::LO << Log::blockend; 
 			} else {
 				queue.push_back(pqpair(theresult,pqendthing));
-				theresult = NULL;
+				theresult = nullptr;
 			}
 			finalised = false;
 		}
@@ -170,7 +170,7 @@ void PairQueue::append(PairQueue& xqueue,ObyxElement *par) {
 		size_t n = xqueue.size();
 		for ( size_t i = 1; i < n; i++) { //will copy new endthing from xqueue
 			DataItem*& qi1 = xqueue.queue[i].first;  //grab this!
-			xqueue.queue[i].first = NULL;
+			xqueue.queue[i].first = nullptr;
 			if ( xqueue.queue[i].second != pqendthing) {
 				Function* qi2 = Function::FnFactory(par,xqueue.queue[i].second);
 				delete xqueue.queue[i].second; //delete old.
@@ -189,10 +189,10 @@ void PairQueue::append(pqpair& new_pair,ObyxElement *par) {
 		if ( new_pair.second != pqendthing) {
 			queue.back().first = theresult;
 			queue.back().second = Function::FnFactory(par,new_pair.second); 		
-			queue.push_back(pqpair(NULL,pqendthing));
-			if (theresult != NULL ) {
+			queue.push_back(pqpair(nullptr,pqendthing));
+			if (theresult != nullptr ) {
 				delete theresult;
-				theresult = NULL;
+				theresult = nullptr;
 			}
 			finalised = false;
 		}
@@ -200,7 +200,7 @@ void PairQueue::append(pqpair& new_pair,ObyxElement *par) {
 		DataItem::append(queue.back().first,new_pair.first);
 		if ( new_pair.second != pqendthing) {
 			queue.back().second = Function::FnFactory(par,new_pair.second); 		
-			queue.push_back(pqpair(NULL,pqendthing));
+			queue.push_back(pqpair(nullptr,pqendthing));
 		}
 	}
 }
@@ -214,14 +214,14 @@ void PairQueue::append(DataItem*& stuff) { //stuff is taken from here.
 void PairQueue::append(u_str stuff,kind_type kind) { //from xmlnode / xmleelement
 	//used by instruction etc.
 	if (finalised) {
-		if (theresult == NULL) {
+		if (theresult == nullptr) {
 			theresult = DataItem::factory(stuff,kind);
 		} else {
 			DataItem* tmp = DataItem::factory(stuff,kind);
 			DataItem::append(theresult,tmp);
 		}
 	} else {
-		if (queue.back().first == NULL) {
+		if (queue.back().first == nullptr) {
 			queue.back().first = DataItem::factory(stuff,kind);
 		} else {
 			DataItem* tmp = DataItem::factory(stuff,kind);
@@ -232,14 +232,14 @@ void PairQueue::append(u_str stuff,kind_type kind) { //from xmlnode / xmleelemen
 void PairQueue::append(std::string stuff,kind_type kind) { //from xmlnode / xmleelement
 	//used by instruction etc.
 	if (finalised) {
-		if (theresult == NULL) {
+		if (theresult == nullptr) {
 			theresult = DataItem::factory(stuff,kind);
 		} else {
 			DataItem* tmp = DataItem::factory(stuff,kind);
 			DataItem::append(theresult,tmp);
 		}
 	} else {
-		if (queue.back().first == NULL) {
+		if (queue.back().first == nullptr) {
 			queue.back().first = DataItem::factory(stuff,kind);
 		} else {
 			DataItem* tmp = DataItem::factory(stuff,kind);
@@ -254,31 +254,31 @@ void PairQueue::append(Function* ins,std::string& errs) { //used a lot.
 				errs = "There is already a value set for the result."; 
 			} else {
 				queue.push_back(pqpair(theresult,ins));
-				queue.push_back(pqpair(NULL,pqendthing));
-				theresult = NULL;
+				queue.push_back(pqpair(nullptr,pqendthing));
+				theresult = nullptr;
 				finalised = false;
 			}
 		} else {
 			queue.back().second = ins; //->unique(); //This should NOT be unique. this is the join for the instructiontypes
-			queue.push_back(pqpair(NULL,pqendthing));
+			queue.push_back(pqpair(nullptr,pqendthing));
 		}
 	}
 }
 void PairQueue::clearresult() { 
-	if (theresult != NULL) {
+	if (theresult != nullptr) {
 		delete theresult;
-		theresult = NULL;
+		theresult = nullptr;
 		finalised=true; 
 	}	
 }
 bool PairQueue::trim(DataItem*& item,bool strip) {
-	if (item != NULL) {
+	if (item != nullptr) {
 		if (strip) {
 			item->trim();
 		}
 		if (item->empty()) {
 			delete item;
-			item = NULL;
+			item = nullptr;
 			return false;
 		} else {
 			return true;
@@ -293,7 +293,7 @@ void PairQueue::evaluate(bool wsstrip) {
 		while (  i < queue.size() ) {
 			bool qif = trim(queue[i].first,wsstrip);
 			Function*  qi2 = queue[i].second;
-			if ( qi2 != pqendthing && qi2 != NULL) {
+			if ( qi2 != pqendthing && qi2 != nullptr) {
 				if ( qi2->final() ) {
 					bool qjf = trim(qi2->results.theresult,wsstrip);
 					if (qjf) {
@@ -303,7 +303,7 @@ void PairQueue::evaluate(bool wsstrip) {
 							queue[i].first = qi2->results.theresult;
 							qif = true;
 						}
-						qi2->results.theresult = NULL;
+						qi2->results.theresult = nullptr;
 					}
 					delete qi2;	
 					bool qp2  = trim(queue[i+1].first,wsstrip);
@@ -324,7 +324,7 @@ void PairQueue::evaluate(bool wsstrip) {
 							DataItem::append(queue[i].first,qi2->results.theresult);
 						} else {
 							queue[i].first = qi2->results.theresult;
-							qi2->results.theresult = NULL;
+							qi2->results.theresult = nullptr;
 							qif = true;
 						}
 					}
@@ -346,7 +346,7 @@ void PairQueue::evaluate(bool wsstrip) {
 		}
 		if ( queue.size() == 1 ) {
 			theresult=queue.front().first;
-			queue.front().first = NULL;
+			queue.front().first = nullptr;
 			queue.clear(); 
 			finalised=true; 
 		}
@@ -372,7 +372,7 @@ bool PairQueue::undefer(ObyxElement*) {
 void PairQueue::normalise(bool wsstrip) {
 	if ( !finalised && queue.size() == 1) {
 		theresult=queue.front().first;
-		if (theresult != NULL && wsstrip) {
+		if (theresult != nullptr && wsstrip) {
 			theresult->trim();
 		}
 		finalised=true; 
@@ -383,7 +383,7 @@ void PairQueue::explain() {
 	*Logger::log << Log::subhead  << Log::LI << "result" << Log::LO;	
 	if ( finalised ) {
 		string res_to_show;
-		if (theresult != NULL) {
+		if (theresult != nullptr) {
 			res_to_show = *theresult;
 			*Logger::log << Log::LI << res_to_show << Log::LO; 
 		} else {
@@ -394,7 +394,7 @@ void PairQueue::explain() {
 		if ( n > 1 ) {
 			*Logger::log << Log::LI ;
 			for ( size_t i = 0; i < n; i++) {
-				if ( queue[i].first != NULL && ! queue[i].first->empty() ) {
+				if ( queue[i].first != nullptr && ! queue[i].first->empty() ) {
 					*Logger::log << Log::II << std::string(*(queue[i].first)) << Log::IO;
 				}
 				Function* it = queue[i].second;
@@ -407,7 +407,7 @@ void PairQueue::explain() {
 			*Logger::log << Log::LO; 
 		} else {
 			string res_to_show;
-			if (theresult != NULL) {
+			if (theresult != nullptr) {
 				res_to_show = *theresult;
 				*Logger::log << Log::LI << Log::II << "Not finalised " << Log::IO << Log::II << res_to_show << Log::IO << Log::LO; 
 			} else {

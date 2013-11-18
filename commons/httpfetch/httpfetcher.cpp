@@ -62,9 +62,9 @@ namespace Fetch {
 						u_str relUri,xpage;
 						XML::Manager::transcode(relativeUri,relUri);
 						XML::Manager::transcode(page,xpage);
-						XMLUri base(xpage.c_str());
-						XMLUri uri(&base,relUri.c_str());
-						XML::Manager::transcode(uri.getUriText(),page);
+						XMLUri base(pcx(xpage.c_str()));
+						XMLUri uri(&base,pcx(relUri.c_str()));
+						XML::Manager::transcode(pcu(uri.getUriText()),page);
 						if (Logger::debugging()) {
 							*Logger::log << Log::info << Log::LI << "Redirecting to: " << page << Log::LO << Log::blockend;
 						}

@@ -35,16 +35,16 @@
 
 namespace Vdb {
 
-	MySQLConnection::MySQLConnection(MySQLService* service) : s(service),connectionHandle(NULL),conn_open(false),db_open(false) {
-		s->library_init(0,NULL,NULL);
-		connectionHandle = s->init(NULL);
-		if (connectionHandle == NULL && Logger::log != NULL) {
+	MySQLConnection::MySQLConnection(MySQLService* service) : s(service),connectionHandle(nullptr),conn_open(false),db_open(false) {
+		s->library_init(0,nullptr,nullptr);
+		connectionHandle = s->init(nullptr);
+		if (connectionHandle == nullptr && Logger::log != nullptr) {
 			*Logger::log <<  Log::fatal << Log::LI << "MySQLConnection error:: Failed to initialise a MySQL client connection handle" << Log::LO << Log::blockend; 
 		}
 	};
 
 	MySQLConnection::~MySQLConnection() {
-		if (connectionHandle != NULL) { 
+		if (connectionHandle != nullptr) { 
 			s->close(connectionHandle);
 		}
 		s->library_end();
@@ -52,14 +52,14 @@ namespace Vdb {
 
 	bool MySQLConnection::open(const std::string& host, const std::string& user, const unsigned int port,const std::string& password) {
 		if ( ! isopen() ) {	
-			const char* tsocket = NULL;
+			const char* tsocket = nullptr;
 			thost = host;
 			tuser = user;
 			tpasswd = password;
 			tport = port;
-			if (s->real_connect(connectionHandle, thost.c_str(), tuser.c_str(), tpasswd.c_str(), NULL, tport, tsocket, 0) == NULL) {
+			if (s->real_connect(connectionHandle, thost.c_str(), tuser.c_str(), tpasswd.c_str(), nullptr, tport, tsocket, 0) == nullptr) {
 				string errorMessage = s->error(connectionHandle);
-				if (Logger::debugging() && Logger::log != NULL) {
+				if (Logger::debugging() && Logger::log != nullptr) {
 					*Logger::log << Log::info << Log::LI << "MySQLConnection error:: Connection failed with '" << errorMessage << "'" << Log::LO << Log::blockend; 
 				}
 				conn_open = false;
@@ -67,28 +67,28 @@ namespace Vdb {
 				conn_open = true;
 				const char* charset_c= s->character_set_name(connectionHandle);
 				string charset="unknown";
-				if (charset_c != NULL) {
+				if (charset_c != nullptr) {
 					charset = charset_c;
-					if (Logger::debugging() && Logger::log != NULL) {
+					if (Logger::debugging() && Logger::log != nullptr) {
 						*Logger::log << Log::info << Log::LI << "MySQLConnection:: Connection default charset:'" << charset_c << "'" << Log::LO << Log::blockend; 
 					}
 				}
-				if ( charset.compare("utf8") != 0 && (void *)(s->set_character_set) != NULL ) { // set_character_set only available from mysql 5.07
+				if ( charset.compare("utf8") != 0 && (void *)(s->set_character_set) != nullptr ) { // set_character_set only available from mysql 5.07
 					int scs_result = s->set_character_set(connectionHandle,"utf8");
 					if (scs_result != 0 )  {
 						string errorMessage = s->error(connectionHandle);
-						if (Logger::debugging() && Logger::log != NULL) {
+						if (Logger::debugging() && Logger::log != nullptr) {
 							*Logger::log << Log::info << Log::LI << "MySQLConnection:: Connection failed to set utf-8 charset. Error:" << scs_result << " Msg:" << errorMessage << Log::LO << Log::blockend;  
 						}
 					} else {
-						if (Logger::debugging() && Logger::log != NULL) {
+						if (Logger::debugging() && Logger::log != nullptr) {
 							*Logger::log << Log::info << Log::LI << "MySQLConnection:: Connection set to charset utf-8." << Log::LO << Log::blockend;  
 						}
 					}
 				}
 			}
 		} else {
-			if (Logger::log != NULL) {
+			if (Logger::log != nullptr) {
 				*Logger::log << Log::fatal << Log::LI << "MySQLConnection error: Each connection can only be opened once. Instantiate a new connection." << Log::LO << Log::blockend; 
 			}
 		}
@@ -107,7 +107,7 @@ namespace Vdb {
 				if (error == CR_SERVER_GONE_ERROR || error == CR_SERVER_LOST) {
 					close();
 				}
-				if (Logger::log != NULL) {
+				if (Logger::log != nullptr) {
 					string errstr = s->error(connectionHandle);
 					*Logger::log << Log::fatal << Log::LI << "MySQLConnection error: While attempting to open database: " << errstr <<  Log::LO << Log::blockend; 
 				}
@@ -117,7 +117,7 @@ namespace Vdb {
 				return true;
 			}
 		} else {
-			if (Logger::log != NULL) {
+			if (Logger::log != nullptr) {
 				*Logger::log << Log::fatal << Log::LI << "MySQLConnection error: Open a connection before selecting a database!" << Log::LO << Log::blockend; 
 			}
 			return false;
@@ -129,14 +129,14 @@ namespace Vdb {
 		if ( isopen() ) { 
 			if ( db_open ) {
 				q = new MySQLQuery(s, this, connectionHandle, query_str);
-				if (q != NULL) { 
+				if (q != nullptr) { 
 					retval = true;
 				}
 			} else {
-				q = NULL;
+				q = nullptr;
 			}
 		} else {
-			q = NULL;
+			q = nullptr;
 		}
 		return retval;
 	}
@@ -146,16 +146,16 @@ namespace Vdb {
 			if ( db_open ) {
 				return new MySQLQuery(s, this, connectionHandle, query_str);
 			} else {
-				return NULL;
+				return nullptr;
 			}
 		} else {
-			return NULL;
+			return nullptr;
 		}
 	}
 	
 //	"Note that MYSQL* must be a valid, open connection. This is needed because the escaping depends on the character set in use by the server."
 	void MySQLConnection::escape(std::string& text) {
-		if ( ! text.empty() && 	conn_open && connectionHandle != NULL) { 
+		if ( ! text.empty() && 	conn_open && connectionHandle != nullptr) { 
 			char* tbuf = new char[text.length()*2+1];
 			size_t size = s->real_escape_string(connectionHandle, tbuf, text.c_str(), text.length());
 			std::string escapedString(tbuf, size);
@@ -164,14 +164,14 @@ namespace Vdb {
 		}
 	}
 	void MySQLConnection::list() {
-		if (Logger::log != NULL) {
+		if (Logger::log != nullptr) {
 			*Logger::log << Log::info << Log::LI << "mysql;" << thost << ";" << tuser << ";" << tport << ";" << tdbase << ";" << Log::LO << Log::blockend; 
 		}
 	}
 	void MySQLConnection::close() {
-		if (conn_open && connectionHandle != NULL) { 
+		if (conn_open && connectionHandle != nullptr) { 
 			s->close(connectionHandle);
-			connectionHandle = NULL;
+			connectionHandle = nullptr;
 			conn_open = false;
 			db_open = false;
 		}

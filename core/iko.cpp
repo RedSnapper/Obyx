@@ -77,7 +77,7 @@ enc_type IKO::str_to_encoder(const u_str str_encoder) {
 
 IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : ObyxElement(par,el,parm,n),kind(di_auto),encoder(e_none),context(immediate),xcontext(immediate),process(obyx::encode),wsstrip(true),exists(false),name_v(),xpath() {
 	u_str str_context;
-	if ( XML::Manager::attribute(n,UCS2(L"context"),str_context) ) {
+	if ( XML::Manager::attribute(n,u"context",str_context) ) {
 		inp_space_map::const_iterator j = ctx_types.find(str_context);
 		if( j != ctx_types.end() ) {
 			context = j->second; 
@@ -89,7 +89,7 @@ IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : ObyxElement
 			*Logger::log << Log::blockend;
 		}
 	}
-	if ( XML::Manager::attribute(n,UCS2(L"xcontext"),str_context) ) {
+	if ( XML::Manager::attribute(n,u"xcontext",str_context) ) {
 		inp_space_map::const_iterator j = ctx_types.find(str_context);
 		if( j != ctx_types.end() ) {
 			xcontext = j->second;
@@ -103,10 +103,10 @@ IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : ObyxElement
 	}
 	if (context == immediate) exists=true;
 	u_str str_encoder,str_process,str_kind;
-	XML::Manager::attribute(n,UCS2(L"kind"),str_kind);
-	XML::Manager::attribute(n,UCS2(L"encoder"),str_encoder);
-	XML::Manager::attribute(n,UCS2(L"process"),str_process);
-  	XML::Manager::attribute(n,UCS2(L"xpath"),xpath);
+	XML::Manager::attribute(n,u"kind",str_kind);
+	XML::Manager::attribute(n,u"encoder",str_encoder);
+	XML::Manager::attribute(n,u"process",str_process);
+  	XML::Manager::attribute(n,u"xpath",xpath);
 	
     if ( ! str_kind.empty() ) {
 		kind_type_map::const_iterator j = kind_types.find(str_kind);
@@ -131,7 +131,7 @@ IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : ObyxElement
 	}
 	
 	if ( ! str_process.empty() ) {
-		if( str_process.compare(UCS2(L"decode")) == 0 ) {
+		if( str_process.compare(u"decode") == 0 ) {
 			switch (encoder) {
 				case e_name:
 				case e_md5:
@@ -172,7 +172,7 @@ IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : ObyxElement
 				} break;
 			}
 		} else {
-			if (str_process.compare(UCS2(L"encode")) !=0) {
+			if (str_process.compare(u"encode") !=0) {
 				*Logger::log << Log::syntax << Log::LI << "Syntax Error. process not recognised: needs to be one of: encode,decode" << Log::LO;	
 				trace();
 				*Logger::log << Log::blockend;
@@ -188,12 +188,12 @@ IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : ObyxElement
 		}
 	} 
 	u_str svalue,wsstrp;
-	bool has_val_attr = Manager::attribute(n,UCS2(L"value"),svalue);
-	if (XML::Manager::attribute(n,UCS2(L"wsstrip"),wsstrp)) {
-		if ( wsstrp.compare(UCS2(L"false")) == 0 ) { 
+	bool has_val_attr = Manager::attribute(n,u"value",svalue);
+	if (XML::Manager::attribute(n,u"wsstrip",wsstrp)) {
+		if ( wsstrp.compare(u"false") == 0 ) {
 			wsstrip = false;
 		} else {
-			if ( wsstrp.compare(UCS2(L"true")) == 0 ) { 
+			if ( wsstrp.compare(u"true") == 0 ) {
 				wsstrip = true;
 			} else {
 				*Logger::log << Log::syntax << Log::LI << "Syntax Error. wsstrip must be either 'true' or 'false'." << Log::LO;	
@@ -222,7 +222,7 @@ bool IKO::currentenv(const u_str& req,const usage_tests exist_test, const IKO* i
 	Environment* env = Environment::service();
 	bool exists = false;
 	std::string result;
-	container = NULL;
+	container = nullptr;
 	current_type_map::const_iterator j = current_types.find(req);
 	if( j != current_types.end() ) {
 		if (exist_test == ut_existence || exist_test == ut_found) {
@@ -251,7 +251,7 @@ bool IKO::currentenv(const u_str& req,const usage_tests exist_test, const IKO* i
 					if (exist_test == ut_significant) {
 						container = DataItem::factory(req,di_text);
 					} else { //ut_value
-						if (iko != NULL) {
+						if (iko != nullptr) {
 							const xercesc::DOMDocument* self = iko->owner->doc();
 							container = DataItem::factory(self,di_object);
 						} else {
@@ -265,7 +265,7 @@ bool IKO::currentenv(const u_str& req,const usage_tests exist_test, const IKO* i
 					} else { //ut_value
 						pair <string,string> namepair;
 						string name;
-						if (iko != NULL) {
+						if (iko != nullptr) {
 							name = iko->owner->currentname();
 						} else {
 							name = Document::currentname();
@@ -313,7 +313,7 @@ bool IKO::currentenv(const u_str& req,const usage_tests exist_test, const IKO* i
 				case c_osi_response: {
 					result = OsiAPP::last_osi_response();
 					container = DataItem::factory(result,di_object);
-					if (container == NULL) {
+					if (container == nullptr) {
 						log(Log::error,"Error. OSI Response [" + result + "] was malformed.");
 						container = DataItem::factory("",di_text);
 					}
@@ -379,9 +379,9 @@ void IKO::setfilepath(const string& input_name,string& file_path) const {
 }
 bool IKO::legalsysenv(const u_str& envname) const {
 	bool legal = false;
-	if ( envname.find(UCS2(L"OBYX_"),0,5) != string::npos) {
+	if ( envname.find(u"OBYX_",0,5) != string::npos) {
 		string erv; XML::Manager::transcode(envname,erv);		
-		if ( envname.compare(UCS2(L"OBYX_VERSION")) == 0 ) {
+		if ( envname.compare(u"OBYX_VERSION") == 0 ) {
 			log(Log::error,"Error. Sysenv " + erv + " is restricted. Use CURRENT_VERSION instead");
 		} else {
 			log(Log::error,"Error. Sysenv " + erv + " is restricted.");
@@ -447,18 +447,18 @@ void IKO::doerrspace(const u_str& input_name) const {
 	}
 }
 void IKO::process_encoding(DataItem*& basis) {
-	if (basis != NULL && encoder != e_none) {
+	if (basis != nullptr && encoder != e_none) {
 		u_str uencoded;
 		string errs,encoded;
 		if (!((process == encode && (encoder == e_message || encoder == e_ascii ) ) || (encoder == e_json) )) {
 			encoded = *basis;		//xml cannot survive an encoding. (except for json)
 			delete basis;			//now it is no longer.
-			basis = NULL;			//default for non-implemented encodings.
+			basis = nullptr;			//default for non-implemented encodings.
 		} else {
 			if (process == encode && encoder == e_ascii) {
 				uencoded = *basis;
 				delete basis;			//now it is no longer.
-				basis = NULL;			//default for non-implemented encodings.
+				basis = nullptr;			//default for non-implemented encodings.
 			}
 		}
 		switch ( encoder ) {
@@ -466,10 +466,10 @@ void IKO::process_encoding(DataItem*& basis) {
 				if ( process == encode) { //This uses a node rather than a string.
 					ostringstream msgres;
 					xercesc::DOMDocument* doc = *basis;
-					if (doc != NULL) {
+					if (doc != nullptr) {
 						xercesc::DOMNode* node = doc->getDocumentElement();
 						OsiMessage::decompile(node,msgres,false,true);
-						delete basis; basis = NULL;	doc=NULL;
+						delete basis; basis = nullptr;	doc=nullptr;
 						basis = DataItem::factory(msgres.str(),di_text); //always xml..
 					}
 				} else {
@@ -519,8 +519,8 @@ void IKO::process_encoding(DataItem*& basis) {
 					*Logger::log << Log::error << Log::LI << "Error. In '" << name() << "', json failed. " << errstr << Log::LO;
 					trace();
 					*Logger::log << Log::blockend;
-					if (basis != NULL) { 
-						delete basis; basis = NULL;
+					if (basis != nullptr) { 
+						delete basis; basis = nullptr;
 					}
 				}
 			} break;			
@@ -603,19 +603,19 @@ void IKO::process_encoding(DataItem*& basis) {
 						*Logger::log << Log::error << Log::LI << "Error. In '" << name() << "', hex decoding failed. " << errstr << Log::LO;
 						trace();
 						*Logger::log << Log::blockend;
-						basis = NULL;
+						basis = nullptr;
 					}
 				}
 			} break;
 			case e_sql: {
-				if (dbc != NULL)  {
+				if (dbc != nullptr)  {
 					dbc->escape(encoded);
 					basis = DataItem::factory(encoded,di_text); //MAY be text, maybe RAW.
 				} else {
 					*Logger::log << Log::error << Log::LI << "Error. In '" << name() << "', sql encoding depends on there being an sql connection, and there isn't one." << Log::LO;
 					trace();
 					*Logger::log << Log::blockend;
-					basis = NULL;
+					basis = nullptr;
 				}
 			} break;
 			case e_xpath_lit: { //xpath literals need to have doubled single-quotes.
@@ -726,7 +726,7 @@ void IKO::process_encoding(DataItem*& basis) {
 							*Logger::log << Log::error << Log::LI << "Error. In '" << name() << "', deflate failed. " << errs << Log::LO;
 							trace();
 							*Logger::log << Log::blockend;
-							basis = NULL;
+							basis = nullptr;
 						}
 					} else {
 						String::Deflate::inflate(encoded,errs);
@@ -736,7 +736,7 @@ void IKO::process_encoding(DataItem*& basis) {
 							*Logger::log << Log::error << Log::LI << "Error. In '" << name() << "', inflate failed. " << errs << Log::LO;
 							trace();
 							*Logger::log << Log::blockend;
-							basis = NULL;
+							basis = nullptr;
 						}
 					}
 				}
@@ -765,7 +765,7 @@ void IKO::evaltype(inp_space the_space, bool release, bool eval,bool is_context,
 	//exists is evaluated. significant is tested by comparision and will be looking for a value.
 	exists = false; 
 	usage_tests exist_test = ut_value; //we need to identify the way in which this is to be evaluated.
-	if (container != NULL) {
+	if (container != nullptr) {
 		*Logger::log << Log::error << Log::LI << "Internal Error. container should be empty!" << Log::LO; 
 		trace();
 		*Logger::log << Log::blockend;
@@ -774,9 +774,9 @@ void IKO::evaltype(inp_space the_space, bool release, bool eval,bool is_context,
 		if (the_space == immediate ) {
 			exists = true; 
 			container = name_item;
-			name_item = NULL; 
+			name_item = nullptr; 
 		} else {
-			if (name_item != NULL && !name_item->empty()) {
+			if (name_item != nullptr && !name_item->empty()) {
 				*Logger::log << Log::syntax << Log::LI << "Syntax Error. Space none cannot have a value!" << Log::LO; 
 				trace();
 				*Logger::log << Log::blockend;
@@ -784,13 +784,13 @@ void IKO::evaltype(inp_space the_space, bool release, bool eval,bool is_context,
 		}
 	} else {
 		u_str input_name;
-		if (name_item != NULL && !name_item->empty()) {
+		if (name_item != nullptr && !name_item->empty()) {
 			input_name = *name_item;
 		}
 		if (!is_context) { //if evaluating this IKO's context, then don't worry about exist_test. yet!
 			name_v = input_name;
 			Comparison* cmp = dynamic_cast<Comparison *>(p);
-			if ((cmp != NULL) && (wotzit == obyx::comparate)) {
+			if ((cmp != nullptr) && (wotzit == obyx::comparate)) {
 				switch (cmp->op()) {
 					case obyx::exists: exist_test=ut_existence; break;
 					case obyx::significant: exist_test= ut_significant; break;
@@ -800,7 +800,7 @@ void IKO::evaltype(inp_space the_space, bool release, bool eval,bool is_context,
 			} else {
 				if (wotzit == control) {
 					Iteration* ite = dynamic_cast<Iteration *>(p);
-					if ( ite != NULL) {
+					if ( ite != nullptr) {
 						switch (ite->op()) {
 							case obyx::it_while: exist_test=ut_existence; break;
 							case obyx::it_while_not: exist_test= ut_existence; break;
@@ -832,7 +832,7 @@ void IKO::evaltype(inp_space the_space, bool release, bool eval,bool is_context,
 	}
 	if (eval) {
 		if (exists) {
-			if (container != NULL ) {
+			if (container != nullptr ) {
 				string filestring,dirstring;
 				if (! name_v.empty() ) { 
 					Manager::transcode(name_v.c_str(),filestring);
@@ -847,7 +847,7 @@ void IKO::evaltype(inp_space the_space, bool release, bool eval,bool is_context,
 					}
 				}
 				DataItem* doc_to_eval = container; //This is just a ptr copy.
-				container = NULL;
+				container = nullptr;
 				Document eval_doc(doc_to_eval,Document::File,filestring,this); //evaluate immediately!
 				if (eval_doc.results.final()) { 
 					if (exist_test == ut_significant && !is_context ) {
@@ -859,7 +859,7 @@ void IKO::evaltype(inp_space the_space, bool release, bool eval,bool is_context,
 					trace();
 					*Logger::log << Log::blockend;
 				}
-				delete doc_to_eval; doc_to_eval = NULL;
+				delete doc_to_eval; doc_to_eval = nullptr;
 				if (the_space == file && !dirstring.empty() ) { FileUtils::Path::pop_wd(); }
 			} else {
 				if (exist_test != ut_significant) {
@@ -876,9 +876,9 @@ void IKO::evaltype(inp_space the_space, bool release, bool eval,bool is_context,
 			}
 		}
 	}
-	if (name_item != NULL) {
+	if (name_item != nullptr) {
 		delete name_item;
-		name_item = NULL; 
+		name_item = nullptr; 
 	}
 }
 bool IKO::foundinspace(const u_str& input_name,const inp_space the_space,const bool release) {
@@ -901,14 +901,14 @@ bool IKO::foundinspace(const u_str& input_name,const inp_space the_space,const b
 				const ObyxElement* par = p;
 				const Iteration* ite = dynamic_cast<const Iteration *>(par);
 				const Mapping* mpp = dynamic_cast<const Mapping *>(par);
-				while (par != NULL && !exists) {
-					if (ite != NULL && ite->active() && cur->wotzit==body ) {
+				while (par != nullptr && !exists) {
+					if (ite != nullptr && ite->active() && cur->wotzit==body ) {
 						exists = ite->fieldfind(input_name);
 					}
-					if (mpp != NULL && mpp->active() && cur->wotzit==match) {
+					if (mpp != nullptr && mpp->active() && cur->wotzit==match) {
 						exists = mpp->field(input_name,discarded_result); 
 					}
-					if (par != NULL && !exists) {
+					if (par != nullptr && !exists) {
 						cur = par;
 						par = par->p;
 						ite = dynamic_cast<const Iteration *>(par);
@@ -958,8 +958,8 @@ bool IKO::foundinspace(const u_str& input_name,const inp_space the_space,const b
 		} break;
 		case sysenv: {
 			if (legalsysenv(input_name)) {
-				if ( input_name.find(UCS2(L"CURRENT_"),0,8) == !string::npos) {
-					DataItem* dummy = NULL;
+				if ( input_name.find(u"CURRENT_",0,8) == !string::npos) {
+					DataItem* dummy = nullptr;
 					exists = currentenv(input_name.substr(8,string::npos),ut_found,this,dummy);
 				} else {
 					string iname; XML::Manager::transcode(input_name,iname);
@@ -993,14 +993,14 @@ bool IKO::existsinspace(u_str& input_name,const inp_space the_space,const bool i
 				const ObyxElement* par = p;
 				const Iteration* ite = dynamic_cast<const Iteration *>(par);
 				const Mapping* mpp = dynamic_cast<const Mapping *>(par);
-				while (par != NULL && !exists ) {
-					if (ite != NULL && ite->active()) {
+				while (par != nullptr && !exists ) {
+					if (ite != nullptr && ite->active()) {
 						exists = ite->fieldexists(input_name,errstring);
 					}
-					if (mpp != NULL && mpp->active()) {
+					if (mpp != nullptr && mpp->active()) {
 						exists = mpp->field(input_name,discarded_result); 
 					}
-					if (par != NULL && !exists) {
+					if (par != nullptr && !exists) {
 						par = par->p;
 						ite = dynamic_cast<const Iteration *>(par);
 						mpp = dynamic_cast<const Mapping *>(par);
@@ -1022,14 +1022,14 @@ bool IKO::existsinspace(u_str& input_name,const inp_space the_space,const bool i
 		} break;
 		case store: {
             if (!is_context && !xpath.empty()) {
-				if (owner->doc_store != NULL) {
+				if (owner->doc_store != nullptr) {
 					exists = owner->doc_store->exists(input_name,xpath,false,errstring);
 				}
 				if (!exists) {
 					exists = owner->storeexists(input_name,xpath,release,errstring);
 				}
             } else {
-				if (owner->doc_store != NULL) {
+				if (owner->doc_store != nullptr) {
 					exists = owner->doc_store->exists(input_name,false,errstring);
 				}
 				if (!exists) {
@@ -1077,8 +1077,8 @@ bool IKO::existsinspace(u_str& input_name,const inp_space the_space,const bool i
 		} break;
 		case sysenv: {
 			if (legalsysenv(input_name)) {
-				if ( input_name.find(UCS2(L"CURRENT_"),0,8) == !string::npos) {
-					DataItem* dummy = NULL;
+				if ( input_name.find(u"CURRENT_",0,8) == !string::npos) {
+					DataItem* dummy = nullptr;
 					exists = currentenv(input_name.substr(8,string::npos),ut_existence,this,dummy);
 				} else { 
 					string iname; XML::Manager::transcode(input_name,iname);		
@@ -1105,7 +1105,7 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 	if (!is_context && !xpath.empty()) { //we only ever evaluate xpath after context is evaluated.
 		namepath.first=input_name;
 		if (xcontext != immediate) { // evaluate the xcontext(xpath) -> store.xpath; 
-			DataItem* xcresult = NULL;
+			DataItem* xcresult = nullptr;
 			if(valuefromspace(xpath,xcontext,true,false,di_utext,xcresult)) {
 				namepath.second= *xcresult;
 				delete xcresult;
@@ -1141,14 +1141,14 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 				const ObyxElement* par = p;
 				const Iteration* ite = dynamic_cast<const Iteration *>(par);
 				const Mapping* mpp = dynamic_cast<const Mapping *>(par);
-				while (par != NULL && !exists ) {
-					if (ite != NULL && ite->active() && (cur->wotzit==body)) {
+				while (par != nullptr && !exists ) {
+					if (ite != nullptr && ite->active() && (cur->wotzit==body)) {
 						exists = ite->field(namepath.first,container,ikind,errstring);
 					}
-					if (mpp != NULL && mpp->active() && (cur->wotzit==match)) {
+					if (mpp != nullptr && mpp->active() && (cur->wotzit==match)) {
 						exists = mpp->field(namepath.first,fresult);
 					}
-					if (par != NULL && !exists) {
+					if (par != nullptr && !exists) {
 						cur = par;
 						par = par->p;
 						ite = dynamic_cast<const Iteration *>(par);
@@ -1185,10 +1185,10 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 			}
 		} break;
 		case fnparm: {
-			const DataItem* ires = NULL; // we need to copy the parm from owner, not adopt it.
+			const DataItem* ires = nullptr; // we need to copy the parm from owner, not adopt it.
 			exists = owner->getparm(namepath.first,ires);
 			if (exists) {
-				if (ires != NULL) { //it can be empty and exist.
+				if (ires != nullptr) { //it can be empty and exist.
 					ires->copy(container);
 				}
 			} else {
@@ -1251,7 +1251,7 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 		case sysenv: {
 			if (legalsysenv(namepath.first)) {
 				string errmsg = " does not exist.";
-				if ( namepath.first.find(UCS2(L"CURRENT_"),0,8) == !string::npos) {
+				if ( namepath.first.find(u"CURRENT_",0,8) == !string::npos) {
 					exists = currentenv(namepath.first.substr(8,string::npos),ut_value,this,container);
 				} else { //it's not a CURRENT_
 					XML::Manager::transcode(namepath.first,ikoname);
@@ -1268,7 +1268,7 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 			exists = true;
 		} break;
 	}
-	if ( exists && container == NULL ) {
+	if ( exists && container == nullptr ) {
 		if (!fresult.empty()) {
 			kind_type fkind = ikind;
 			switch ( encoder ) {
@@ -1300,8 +1300,8 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 		}
 	}
 	
-	if (!namepath.second.empty() && the_space != store && container != NULL) {
-		DataItem* tmp = container; container=NULL;
+	if (!namepath.second.empty() && the_space != store && container != nullptr) {
+		DataItem* tmp = container; container=nullptr;
 		if (tmp->kind() == di_object) {
 			string xp_errors;
 			XMLObject* xobj = *tmp;
@@ -1338,14 +1338,14 @@ bool IKO::sigfromspace(const u_str& input_name,const inp_space the_space,const b
 				const ObyxElement* par = p;
 				const Iteration* ite = dynamic_cast<const Iteration *>(par);
 				const Mapping* mpp = dynamic_cast<const Mapping *>(par);
-				while (par != NULL && !exists ) {
-					if (ite != NULL && ite->active() && cur->wotzit==body ) {
+				while (par != nullptr && !exists ) {
+					if (ite != nullptr && ite->active() && cur->wotzit==body ) {
 						exists = ite->field(input_name,container,ikind,errstring);
 					}
-					if (mpp != NULL && mpp->active() && cur->wotzit==match) {
+					if (mpp != nullptr && mpp->active() && cur->wotzit==match) {
 						exists = mpp->field(input_name,fresult); 
 					}
-					if (par != NULL && !exists) {
+					if (par != nullptr && !exists) {
 						cur = par;
 						par = par->p;
 						ite = dynamic_cast<const Iteration *>(par);
@@ -1378,9 +1378,9 @@ bool IKO::sigfromspace(const u_str& input_name,const inp_space the_space,const b
 			} 
 		} break;
 		case fnparm: {
-			const DataItem* ires = NULL; // we need to copy the parm from owner, not adopt it.
+			const DataItem* ires = nullptr; // we need to copy the parm from owner, not adopt it.
 			exists = owner->getparm(input_name,ires);
-			if (exists && ires != NULL) {
+			if (exists && ires != nullptr) {
 				ires->copy(container);
 			} 
 		} break;		
@@ -1431,7 +1431,7 @@ bool IKO::sigfromspace(const u_str& input_name,const inp_space the_space,const b
 		} break;
 		case sysenv: {
 			if (legalsysenv(input_name)) {
-				if ( input_name.find(UCS2(L"CURRENT_"),0,8) == !string::npos) {
+				if ( input_name.find(u"CURRENT_",0,8) == !string::npos) {
 					exists = currentenv(input_name.substr(8,string::npos),ut_significant,this,container);
 				} else { //it's a CURRENT_
 					string skey; XML::Manager::transcode(input_name,skey);		
@@ -1444,7 +1444,7 @@ bool IKO::sigfromspace(const u_str& input_name,const inp_space the_space,const b
 			exists = true;
 		} break;
 	}	
-	if ( exists && container == NULL ) {
+	if ( exists && container == nullptr ) {
 		if (!fresult.empty()) {
 			container = DataItem::factory(fresult,di_text); //test for xml if needs be.
 		} else {
@@ -1467,11 +1467,11 @@ void IKO::keysinspace(const u_str& input_name,const inp_space the_space,set<stri
 			const ObyxElement* cur = this;
 			const ObyxElement* par = p;
 			const Iteration* ite = dynamic_cast<const Iteration *>(par);
-			while (par != NULL ) {
-				if (ite != NULL && ite->active() && cur->wotzit==body ) {
+			while (par != nullptr ) {
+				if (ite != nullptr && ite->active() && cur->wotzit==body ) {
 					ite->fieldkeys(input_name,keylist);
 				}
-				if (par != NULL) {
+				if (par != nullptr) {
 					cur = par;
 					par = par->p;
 					ite = dynamic_cast<const Iteration *>(par);
@@ -1529,64 +1529,64 @@ void IKO::finalise() {
 void IKO::startup() {
 	InputType::startup();
 	Output::startup();
-	current_types.insert(current_type_map::value_type(UCS2(L"OBJECT"),c_object));
-	current_types.insert(current_type_map::value_type(UCS2(L"NAME"),c_name));
-	current_types.insert(current_type_map::value_type(UCS2(L"REQUEST"),c_request));
-	current_types.insert(current_type_map::value_type(UCS2(L"OSI_RESPONSE"),c_osi_response));
-	current_types.insert(current_type_map::value_type(UCS2(L"TIMING"),c_timing));
-	current_types.insert(current_type_map::value_type(UCS2(L"TIME"),c_time));
-	current_types.insert(current_type_map::value_type(UCS2(L"TS"),c_ts));
-	current_types.insert(current_type_map::value_type(UCS2(L"VERSION"),c_version));
-	current_types.insert(current_type_map::value_type(UCS2(L"SCRATCH"),c_scratch));
-	current_types.insert(current_type_map::value_type(UCS2(L"VERSION_NUMBER"),c_vnumber));
-	current_types.insert(current_type_map::value_type(UCS2(L"RESPONSE"),c_response));
-	current_types.insert(current_type_map::value_type(UCS2(L"POINT"),c_point));
-	current_types.insert(current_type_map::value_type(UCS2(L"XPATHS"),c_xpaths));
-	current_types.insert(current_type_map::value_type(UCS2(L"COOKIES"),c_cookies));
+	current_types.insert(current_type_map::value_type(u"OBJECT",c_object));
+	current_types.insert(current_type_map::value_type(u"NAME",c_name));
+	current_types.insert(current_type_map::value_type(u"REQUEST",c_request));
+	current_types.insert(current_type_map::value_type(u"OSI_RESPONSE",c_osi_response));
+	current_types.insert(current_type_map::value_type(u"TIMING",c_timing));
+	current_types.insert(current_type_map::value_type(u"TIME",c_time));
+	current_types.insert(current_type_map::value_type(u"TS",c_ts));
+	current_types.insert(current_type_map::value_type(u"VERSION",c_version));
+	current_types.insert(current_type_map::value_type(u"SCRATCH",c_scratch));
+	current_types.insert(current_type_map::value_type(u"VERSION_NUMBER",c_vnumber));
+	current_types.insert(current_type_map::value_type(u"RESPONSE",c_response));
+	current_types.insert(current_type_map::value_type(u"POINT",c_point));
+	current_types.insert(current_type_map::value_type(u"XPATHS",c_xpaths));
+	current_types.insert(current_type_map::value_type(u"COOKIES",c_cookies));
 	
-	kind_types.insert(kind_type_map::value_type(UCS2(L"auto"), di_auto));
-	kind_types.insert(kind_type_map::value_type(UCS2(L"raw"), di_raw));
-	kind_types.insert(kind_type_map::value_type(UCS2(L"text"), di_text));
-	kind_types.insert(kind_type_map::value_type(UCS2(L"object"), di_object));
-	enc_types.insert(enc_type_map::value_type(UCS2(L"ascii"), e_ascii));
-	enc_types.insert(enc_type_map::value_type(UCS2(L"csv"), e_csv));
-	enc_types.insert(enc_type_map::value_type(UCS2(L"xpath"), e_xpath_lit));
-	enc_types.insert(enc_type_map::value_type(UCS2(L"none"), e_none));
-	enc_types.insert(enc_type_map::value_type(UCS2(L"qp"), e_qp));
-	enc_types.insert(enc_type_map::value_type(UCS2(L"sql"), e_sql));
-	enc_types.insert(enc_type_map::value_type(UCS2(L"sphinx"), e_sphinx));
-	enc_types.insert(enc_type_map::value_type(UCS2(L"xml"), e_xml));
-	enc_types.insert(enc_type_map::value_type(UCS2(L"url"), e_url));
-	enc_types.insert(enc_type_map::value_type(UCS2(L"name"), e_name));
-	enc_types.insert(enc_type_map::value_type(UCS2(L"digits"), e_digits));
-	enc_types.insert(enc_type_map::value_type(UCS2(L"btwoc"), e_btwoc));
-	enc_types.insert(enc_type_map::value_type(UCS2(L"base16"), e_10to16));
-	enc_types.insert(enc_type_map::value_type(UCS2(L"base64"), e_base64));
-	enc_types.insert(enc_type_map::value_type(UCS2(L"base64s"), e_base64S));
-	enc_types.insert(enc_type_map::value_type(UCS2(L"hex"), e_hex));
-	enc_types.insert(enc_type_map::value_type(UCS2(L"message"), e_message));
-	enc_types.insert(enc_type_map::value_type(UCS2(L"md5"), e_md5));
-	enc_types.insert(enc_type_map::value_type(UCS2(L"sha1"), e_sha1));
-	enc_types.insert(enc_type_map::value_type(UCS2(L"sha224"), e_sha224));
-	enc_types.insert(enc_type_map::value_type(UCS2(L"sha256"), e_sha256));
-	enc_types.insert(enc_type_map::value_type(UCS2(L"sha384"), e_sha384));
-	enc_types.insert(enc_type_map::value_type(UCS2(L"sha512"), e_sha512));
-	enc_types.insert(enc_type_map::value_type(UCS2(L"dss1"), e_dss1));
-	enc_types.insert(enc_type_map::value_type(UCS2(L"mdc2"), e_mdc2));
-	enc_types.insert(enc_type_map::value_type(UCS2(L"ripemd160"), e_ripemd160));
-	enc_types.insert(enc_type_map::value_type(UCS2(L"secret"), e_secret));
-	enc_types.insert(enc_type_map::value_type(UCS2(L"deflate"), e_deflate));
-	enc_types.insert(enc_type_map::value_type(UCS2(L"json"), e_json));
-	ctx_types.insert(inp_space_map::value_type(UCS2(L"none"), immediate));
-	ctx_types.insert(inp_space_map::value_type(UCS2(L"field"), field ));
-	ctx_types.insert(inp_space_map::value_type(UCS2(L"url"), url ));
-	ctx_types.insert(inp_space_map::value_type(UCS2(L"file"), file ));
-	ctx_types.insert(inp_space_map::value_type(UCS2(L"parm"), fnparm));
-	ctx_types.insert(inp_space_map::value_type(UCS2(L"sysparm"), sysparm));
-	ctx_types.insert(inp_space_map::value_type(UCS2(L"sysenv"), sysenv));
-	ctx_types.insert(inp_space_map::value_type(UCS2(L"cookie"), cookie)); 
-	ctx_types.insert(inp_space_map::value_type(UCS2(L"store"), store));
-	ctx_types.insert(inp_space_map::value_type(UCS2(L"namespace"), xmlnamespace));
+	kind_types.insert(kind_type_map::value_type(u"auto", di_auto));
+	kind_types.insert(kind_type_map::value_type(u"raw", di_raw));
+	kind_types.insert(kind_type_map::value_type(u"text", di_text));
+	kind_types.insert(kind_type_map::value_type(u"object", di_object));
+	enc_types.insert(enc_type_map::value_type(u"ascii", e_ascii));
+	enc_types.insert(enc_type_map::value_type(u"csv", e_csv));
+	enc_types.insert(enc_type_map::value_type(u"xpath", e_xpath_lit));
+	enc_types.insert(enc_type_map::value_type(u"none", e_none));
+	enc_types.insert(enc_type_map::value_type(u"qp", e_qp));
+	enc_types.insert(enc_type_map::value_type(u"sql", e_sql));
+	enc_types.insert(enc_type_map::value_type(u"sphinx", e_sphinx));
+	enc_types.insert(enc_type_map::value_type(u"xml", e_xml));
+	enc_types.insert(enc_type_map::value_type(u"url", e_url));
+	enc_types.insert(enc_type_map::value_type(u"name", e_name));
+	enc_types.insert(enc_type_map::value_type(u"digits", e_digits));
+	enc_types.insert(enc_type_map::value_type(u"btwoc", e_btwoc));
+	enc_types.insert(enc_type_map::value_type(u"base16", e_10to16));
+	enc_types.insert(enc_type_map::value_type(u"base64", e_base64));
+	enc_types.insert(enc_type_map::value_type(u"base64s", e_base64S));
+	enc_types.insert(enc_type_map::value_type(u"hex", e_hex));
+	enc_types.insert(enc_type_map::value_type(u"message", e_message));
+	enc_types.insert(enc_type_map::value_type(u"md5", e_md5));
+	enc_types.insert(enc_type_map::value_type(u"sha1", e_sha1));
+	enc_types.insert(enc_type_map::value_type(u"sha224", e_sha224));
+	enc_types.insert(enc_type_map::value_type(u"sha256", e_sha256));
+	enc_types.insert(enc_type_map::value_type(u"sha384", e_sha384));
+	enc_types.insert(enc_type_map::value_type(u"sha512", e_sha512));
+	enc_types.insert(enc_type_map::value_type(u"dss1", e_dss1));
+	enc_types.insert(enc_type_map::value_type(u"mdc2", e_mdc2));
+	enc_types.insert(enc_type_map::value_type(u"ripemd160", e_ripemd160));
+	enc_types.insert(enc_type_map::value_type(u"secret", e_secret));
+	enc_types.insert(enc_type_map::value_type(u"deflate", e_deflate));
+	enc_types.insert(enc_type_map::value_type(u"json", e_json));
+	ctx_types.insert(inp_space_map::value_type(u"none", immediate));
+	ctx_types.insert(inp_space_map::value_type(u"field", field ));
+	ctx_types.insert(inp_space_map::value_type(u"url", url ));
+	ctx_types.insert(inp_space_map::value_type(u"file", file ));
+	ctx_types.insert(inp_space_map::value_type(u"parm", fnparm));
+	ctx_types.insert(inp_space_map::value_type(u"sysparm", sysparm));
+	ctx_types.insert(inp_space_map::value_type(u"sysenv", sysenv));
+	ctx_types.insert(inp_space_map::value_type(u"cookie", cookie));
+	ctx_types.insert(inp_space_map::value_type(u"store", store));
+	ctx_types.insert(inp_space_map::value_type(u"namespace", xmlnamespace));
 }
 void IKO::shutdown() {
 	InputType::shutdown();

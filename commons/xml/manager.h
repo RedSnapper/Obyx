@@ -32,12 +32,16 @@
 
 namespace XML {
 	
+
+
+//	x_str ux(u_str);
+	
 	class XercesInitExn { };
 	
 	class Manager {
 	private:
-		typedef hash_map<const std::string,u_str, hash<const string&> > su_map_type;
-		typedef hash_map<const u_str,std::string, hash<const u_str&> > us_map_type;
+		typedef unordered_map<const std::string,u_str, std::hash<const string&> > su_map_type;
+		typedef unordered_map<const u_str,std::string, std::hash<const u_str&> > us_map_type;
 
 		friend class XMLObject;
 
@@ -52,6 +56,7 @@ namespace XML {
 		
 		static void transcode(const u_str&, std::string&);
 		static void transcode(const std::string&,u_str&,const std::string = "UTF-8");
+
 		static void to_ustr(const long,u_str&);
 
 		static bool attribute(const DOMNode*,const u_str,std::string&);

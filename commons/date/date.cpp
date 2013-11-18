@@ -36,7 +36,7 @@ namespace DateUtils {
 	//-------------------------------------------------------------------------
 	// Constructor inits Date to now
 	//-------------------------------------------------------------------------
-	Date::Date() : tt(0),local(NULL),utc(NULL) {
+	Date::Date() : tt(0),local(nullptr),utc(nullptr) {
 		tt = time(&tt);
 		local = localtime(&tt);
 		utc = gmtime(&tt);
@@ -45,7 +45,7 @@ namespace DateUtils {
 	//-------------------------------------------------------------------------
 	// Constructor inits Date to specified UTC in seconds
 	//-------------------------------------------------------------------------
-	Date::Date(time_t ttime) : tt(ttime), local(NULL),utc(NULL) {
+	Date::Date(time_t ttime) : tt(ttime), local(nullptr),utc(nullptr) {
 		utc = gmtime(&tt);
 		local = localtime(&tt);
 	}
@@ -55,7 +55,7 @@ namespace DateUtils {
 		struct tm utc_time;
 		size_t buffsz = 257;
 		char* buff = (char *)malloc(buffsz+1);
-		the_time = time(NULL);
+		the_time = time(nullptr);
 		gmtime_r(&the_time,&utc_time);
 		strftime(buff, buffsz, "%Y-%m-%d %H:%M:%S",&utc_time);
 		result = buff;
@@ -64,8 +64,8 @@ namespace DateUtils {
 	
 	
 	Date::~Date() {
-		//			if (utc != NULL) free(utc);	 //"not stack'd or malloc'd"
-		//			if (local != NULL) free(local);  //??
+		//			if (utc != nullptr) free(utc);	 //"not stack'd or malloc'd"
+		//			if (local != nullptr) free(local);  //??
 	}
 	
 	//-------------------------------------------------------------------------

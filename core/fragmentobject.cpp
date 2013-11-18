@@ -28,49 +28,49 @@
 #include "xmlobject.h"
 #include "strobject.h"
 
-xercesc::DOMDocument* FragmentObject::frag_doc = NULL;
+xercesc::DOMDocument* FragmentObject::frag_doc = nullptr;
 
 /* ==================== NON virtual methods. =========== */
 /* public static */
 void FragmentObject::init() {
-	frag_doc = XML::Manager::parser()->newDoc(NULL);
+	frag_doc = XML::Manager::parser()->newDoc(nullptr);
 }
 void FragmentObject::finalise() {
-	if (frag_doc != NULL) {
+	if (frag_doc != nullptr) {
 		frag_doc->release();
-		frag_doc = NULL;
+		frag_doc = nullptr;
 	}	
 }
 void FragmentObject::startup() {}
 void FragmentObject::shutdown() {}
 
-FragmentObject::FragmentObject(const std::string s) : DataItem(),fragment(NULL) { 
+FragmentObject::FragmentObject(const std::string s) : DataItem(),fragment(nullptr) { 
 	fragment = frag_doc->createDocumentFragment();
 	if ( ! s.empty() ) {
 		u_str tt;
 		XML::Manager::transcode(s,tt);
-		DOMText* vt = frag_doc->createTextNode(tt.c_str());
+		DOMText* vt = frag_doc->createTextNode(pcx(tt.c_str()));
 		fragment->appendChild(vt);
 	}
 }
-FragmentObject::FragmentObject(u_str s) : DataItem(),fragment(NULL) { 
+FragmentObject::FragmentObject(u_str s) : DataItem(),fragment(nullptr) { 
 	fragment = frag_doc->createDocumentFragment();
 	if ( ! s.empty() ) {
-		DOMText* vt = frag_doc->createTextNode(s.c_str());
+		DOMText* vt = frag_doc->createTextNode(pcx(s.c_str()));
 		fragment->appendChild(vt);
 	}
 }
 //DOMDocumentImpl
-FragmentObject::FragmentObject(const xercesc::DOMNode* n) : DataItem(),fragment(NULL) {
+FragmentObject::FragmentObject(const xercesc::DOMNode* n) : DataItem(),fragment(nullptr) {
 	fragment = frag_doc->createDocumentFragment();
-	DOMNode* newnode = NULL;
+	DOMNode* newnode = nullptr;
 	DOMNode::NodeType nt = n->getNodeType();
 	switch (nt) {
 		case DOMNode::DOCUMENT_NODE: {
 			const DOMDocument* d = static_cast<const DOMDocument*>(n);
-			if (d != NULL) {
+			if (d != nullptr) {
 				const DOMNode* de = d->getDocumentElement();
-				if (de != NULL) {
+				if (de != nullptr) {
 					newnode = frag_doc->importNode(de,true);	 //importNode always takes a copy - returns DOMNode* inod =  new node pointer.
 				}
 			}
@@ -79,30 +79,30 @@ FragmentObject::FragmentObject(const xercesc::DOMNode* n) : DataItem(),fragment(
 			newnode = frag_doc->importNode(n,true);	 //importNode always takes a copy - returns DOMNode* inod =  new node pointer.
 		} break;
 	}
-	if (newnode != NULL) {
+	if (newnode != nullptr) {
 		fragment->appendChild(newnode);
 	}
 }
-FragmentObject::FragmentObject(const DataItem& s):DataItem(),fragment(NULL) {
+FragmentObject::FragmentObject(const DataItem& s):DataItem(),fragment(nullptr) {
 	fragment = frag_doc->createDocumentFragment();
 	DOMNode* n = s;
 	fragment->appendChild(n);
 }
 /* ====================  VIRTUAL methods. =========== */
 void FragmentObject::append(DataItem*& s) {
-	if (s != NULL) {
-		DOMNode* n = NULL;
+	if (s != nullptr) {
+		DOMNode* n = nullptr;
 		XMLObject* x = dynamic_cast<XMLObject*>(s);
-		if (x != NULL) {
+		if (x != nullptr) {
 			DOMNode* nbase;
 			x->take(nbase);
 			DOMNode::NodeType nt = nbase->getNodeType();
 			switch (nt) {
 				case DOMNode::DOCUMENT_NODE: {
 					const DOMDocument* d = static_cast<const DOMDocument*>(nbase);
-					if (d != NULL) {
+					if (d != nullptr) {
 						const DOMNode* de = d->getDocumentElement();
-						if (de != NULL) {
+						if (de != nullptr) {
 							n = frag_doc->importNode(de,true);	 //importNode always takes a copy - returns DOMNode* inod =  new node pointer.
 						}
 						delete d;
@@ -115,14 +115,14 @@ void FragmentObject::append(DataItem*& s) {
 			}
 		} else {
 			FragmentObject* y = dynamic_cast<FragmentObject*>(s);
-			if (y != NULL) {
+			if (y != nullptr) {
 				y->take(n);
 			} else {
 				std::string str = *s;
 				if ( ! str.empty() ) {
 					u_str tt;
 					XML::Manager::transcode(str,tt);
-					n = frag_doc->createTextNode(tt.c_str());
+					n = frag_doc->createTextNode(pcx(tt.c_str()));
 				}
 			}
 		}
@@ -143,7 +143,7 @@ FragmentObject::operator std::string() const {
 	return doc;
 }
 FragmentObject::operator XMLObject*() {
-	return NULL;
+	return nullptr;
 }
 FragmentObject::operator xercesc::DOMDocument*() const { //Fragments do not hold onto doctypes.
 	return XML::Manager::parser()->newDoc(fragment);
@@ -152,33 +152,33 @@ FragmentObject::operator xercesc::DOMNode*() const {
 	return fragment;	//check how this is being used?
 }
 void FragmentObject::copy(DataItem*& container) const {
-	if  ( fragment != NULL ) {
+	if  ( fragment != nullptr ) {
 		DOMNode* tmp = fragment->cloneNode(true);
 		container = DataItem::factory(tmp,di_fragment);
 	}		
 }
 long long FragmentObject::size() const {
-	if (fragment != NULL) {
+	if (fragment != nullptr) {
 		return 1;
 	} else {
 		return 0;
 	}
 }
 bool FragmentObject::empty() const {
-	return fragment == NULL;
+	return fragment == nullptr;
 }
 bool FragmentObject::same(const DataItem* xtst) const {
 	bool retval = false;
-	if (fragment == NULL && xtst == NULL) {
+	if (fragment == nullptr && xtst == nullptr) {
 		retval = true;	
 	} else {
-		if (fragment != NULL) {
+		if (fragment != nullptr) {
 			const FragmentObject* ox = dynamic_cast<const FragmentObject*>(xtst);
-			if (ox != NULL ) {
+			if (ox != nullptr ) {
 				retval = fragment->isEqualNode(*ox);
 			} else {
 				const StrObject* ox = dynamic_cast<const StrObject*>(xtst);
-				if (ox != NULL) {
+				if (ox != nullptr) {
 					string frag,text = *xtst;
 					XML::Manager::parser()->writenode(fragment,frag);
 					retval = (frag.compare(text) == 0);
@@ -193,14 +193,14 @@ bool FragmentObject::same(const DataItem* xtst) const {
 	return retval;
 }
 void FragmentObject::clear() {
-	if (fragment != NULL) {
+	if (fragment != nullptr) {
 		delete fragment;
-		fragment = NULL;
+		fragment = nullptr;
 	}
 }
 bool FragmentObject::find(const DataItem* di,std::string&)  {
 	bool retval=false;
-	if (fragment != NULL && di != NULL) {
+	if (fragment != nullptr && di != nullptr) {
 		string doc; 
 		string srch = *di;
 		XML::Manager::parser()->writenode(fragment,doc);
@@ -210,7 +210,7 @@ bool FragmentObject::find(const DataItem* di,std::string&)  {
 }
 bool FragmentObject::find(const char* str,std::string&)  {
 	bool retval=false;
-	if (fragment != NULL && str != NULL) {
+	if (fragment != nullptr && str != nullptr) {
 		string doc; 
 		XML::Manager::parser()->writenode(fragment,doc);
 		retval = doc.find(str) != string::npos;
@@ -219,8 +219,8 @@ bool FragmentObject::find(const char* str,std::string&)  {
 }
 bool FragmentObject::find(const XMLCh* s,std::string&)  {
 	bool retval = false;
-	if (s != NULL && fragment != NULL) {
-		u_str srch(s);
+	if (s != nullptr && fragment != nullptr) {
+		u_str srch(pcu(s));
 		u_str doc; 
 		XML::Manager::parser()->writenode(fragment,doc);
 		retval = doc.find(srch) != string::npos;
@@ -235,11 +235,11 @@ void FragmentObject::trim() {
 }
 void FragmentObject::take(DOMNode*& container) {
 	container = fragment;
-	fragment = NULL;
+	fragment = nullptr;
 }
 FragmentObject::~FragmentObject() {
-	if (fragment != NULL) {
+	if (fragment != nullptr) {
 		fragment->release();
-		fragment = NULL;
+		fragment = nullptr;
 	}	
 }

@@ -64,16 +64,16 @@ DataItem::~DataItem() {
 #endif 
 }
 
-//results of b go into a, b is DELETED and set to null. Both may start off as NULL!
+//results of b go into a, b is DELETED and set to null. Both may start off as nullptr!
 void DataItem::append(DataItem*& a,DataItem*& b) { //this is static
-	if (a != NULL) {
-		if (b != NULL) { //if b is null, then we are appending nothing.
+	if (a != nullptr) {
+		if (b != nullptr) { //if b is null, then we are appending nothing.
 			if (a->kind() == di_raw || b->kind() == di_raw) { //raw + xxx == raw.
 				std::string x = *a; delete a;
 				a = new RawItem(x);
 			} else {
 				XMLObject* x = dynamic_cast<XMLObject*>(a);
-				if (x != NULL) {
+				if (x != nullptr) {
 					DOMNode* n;
 					x->take(n); delete a;
 					a = new FragmentObject(n);
@@ -81,11 +81,11 @@ void DataItem::append(DataItem*& a,DataItem*& b) { //this is static
 				} 
 			}
 			a->append(b); //does the delete.
-			b = NULL;	
+			b = nullptr;	
 		} 
 	} else {
 		a = b;
-		b = NULL;	
+		b = nullptr;	
 	}
 }
 
@@ -93,9 +93,9 @@ void DataItem::append(DataItem*&) { //Do nothing
 }
 
 DataItem* DataItem::autoItem(const std::string& s) {
-	DataItem* retval = NULL;
+	DataItem* retval = nullptr;
 	if ( s.empty() ) {
-		retval=NULL;
+		retval=nullptr;
 	} else {
 		if (!Environment::service()->auto_utf8() || XMLChar::isutf8(s)) {
 			string::size_type b = s.find_first_not_of(" \r\n\t" ); //Test for first non-ws is a '<'
@@ -132,13 +132,13 @@ DataItem* DataItem::autoItem(const std::string& s) {
 							}
 						}
 						if (!xmlns_found) {  //no xml prolog, no xmlns declaration, but < and > so try a suppressed xmlobject.
-							ostringstream* suppressor = NULL;
+							ostringstream* suppressor = nullptr;
 							suppressor = new ostringstream();
 							Logger::set_stream(suppressor);
 							retval=new XMLObject(s);
 							Logger::unset_stream();
 							if (!suppressor->str().empty()) {
-								if (retval != NULL) { delete retval; }
+								if (retval != nullptr) { delete retval; }
 								retval=new StrObject(s);
 							}
 							delete suppressor;
@@ -153,37 +153,37 @@ DataItem* DataItem::autoItem(const std::string& s) {
 	return retval;
 }
 DataItem* DataItem::autoItem(const u_str& s) {
-	DataItem* retval = NULL;
+	DataItem* retval = nullptr;
 	if ( s.empty() ) {
-		retval=NULL;
+		retval=nullptr;
 	} else {
-		u_str::size_type b = s.find_first_not_of(UCS2(L" \r\n\t" )); //Test for first non-ws is a '<'
+		u_str::size_type b = s.find_first_not_of(u" \r\n\t" ); //Test for first non-ws is a '<'
 		if(s[b] != '<') {  
 			retval=new UStrItem(s);
 		} else {
-			string::size_type e = s.find_last_not_of(UCS2(L" \r\n\t" )); //Test for last non-ws is a '>'
+			string::size_type e = s.find_last_not_of(u" \r\n\t" ); //Test for last non-ws is a '>'
 			if(s[e] != '>') { 
 				retval=new UStrItem(s);
 			} else {
 				bool xml_dt_prolog_found = false;
-				if(s.substr(b,6).compare(UCS2(L"<?xml "))==0) { 
+				if(s.substr(b,6).compare(u"<?xml ")==0) {
 					xml_dt_prolog_found = true;
 					retval=new XMLObject(s);
 				}
 				if(!xml_dt_prolog_found) {  
 					bool xmlns_found = false;
-					if (s.find(UCS2(L"xmlns")) != string::npos) {
+					if (s.find(u"xmlns") != string::npos) {
 						xmlns_found = true;
 						retval=new XMLObject(s);
 					}
 					if (!xmlns_found) {  //no xml prolog, no xmlns declaration, but < and > so try a suppressed xmlobject.
-						ostringstream* suppressor = NULL;
+						ostringstream* suppressor = nullptr;
 						suppressor = new ostringstream();
 						Logger::set_stream(suppressor);
 						retval=new XMLObject(s);
 						Logger::unset_stream();
 						if (!suppressor->str().empty()) {
-							if (retval != NULL) { delete retval; }
+							if (retval != nullptr) { delete retval; }
 							retval=new UStrItem(s);
 						}
 						delete suppressor;
@@ -196,7 +196,7 @@ DataItem* DataItem::autoItem(const u_str& s) {
 }
 
 DataItem* DataItem::factory(std::string& s,kind_type kind_it_is) {
-	DataItem* retval = NULL;
+	DataItem* retval = nullptr;
 	if ( !s.empty() ) {
 		if ((kind_it_is != di_raw) && (!Environment::service()->auto_utf8() || XMLChar::isutf8(s))) {
 			switch (kind_it_is) {
@@ -219,7 +219,7 @@ DataItem* DataItem::factory(std::string& s,kind_type kind_it_is) {
 					retval= new XMLObject(s);
 				} break;
 				case di_null: {
-					retval=NULL;
+					retval=nullptr;
 				}
 			}
 		} else {
@@ -230,7 +230,7 @@ DataItem* DataItem::factory(std::string& s,kind_type kind_it_is) {
 }
 
 DataItem* DataItem::factory(const string& s,kind_type kind_it_is) {
-	DataItem* retval = NULL;
+	DataItem* retval = nullptr;
 	if ( !s.empty() ) {
 		if ((kind_it_is != di_raw) && (!Environment::service()->auto_utf8() || XMLChar::isutf8(s))) {
 			switch (kind_it_is) {
@@ -253,7 +253,7 @@ DataItem* DataItem::factory(const string& s,kind_type kind_it_is) {
 					retval= new XMLObject(s);
 				} break;
 				case di_null: {
-					retval=NULL;
+					retval=nullptr;
 				}
 			}
 		} else {
@@ -263,23 +263,23 @@ DataItem* DataItem::factory(const string& s,kind_type kind_it_is) {
 	return retval;
 }
 DataItem* DataItem::factory(const char* s,kind_type kind_it_is) {
-	if (s != NULL) {
+	if (s != nullptr) {
 		string test(s);
 		return factory(test,kind_it_is);
 	} else {
-		return NULL;
+		return nullptr;
 	}
 }
 DataItem* DataItem::factory(const XMLCh* s,kind_type kind_it_is) {
-	if (s != NULL) {
-		u_str test(s);
+	if (s != nullptr) {
+		u_str test(pcu(s));
 		return factory(test,kind_it_is);
 	} else {
-		return NULL;
+		return nullptr;
 	}
 }
 DataItem* DataItem::factory(xercesc::DOMDocument*& s,kind_type kind_it_is) {
-	DataItem* retval = NULL;
+	DataItem* retval = nullptr;
 	switch (kind_it_is) {
 		case di_object:
 		case di_auto: {
@@ -298,13 +298,13 @@ DataItem* DataItem::factory(xercesc::DOMDocument*& s,kind_type kind_it_is) {
 			retval= new StrObject(s);
 		} break;
 		case di_null: {
-			retval=NULL;
+			retval=nullptr;
 		}
 	}
 	return retval;
 }
 DataItem* DataItem::factory(const xercesc::DOMDocument*& s,kind_type kind_it_is) {
-	DataItem* retval = NULL;
+	DataItem* retval = nullptr;
 	switch (kind_it_is) {
 		case di_object:
 		case di_auto: {
@@ -323,22 +323,22 @@ DataItem* DataItem::factory(const xercesc::DOMDocument*& s,kind_type kind_it_is)
 			retval= new StrObject(s);
 		} break;
 		case di_null: {
-			retval=NULL;
+			retval=nullptr;
 		}
 	}
 	return retval;
 }
 DataItem* DataItem::factory(DataItem* s,kind_type kind_it_is) {
-	DataItem* retval = NULL;
+	DataItem* retval = nullptr;
 	switch (kind_it_is) {
 		case di_auto: {
-			if ( s != NULL) { s->copy(retval); }
+			if ( s != nullptr) { s->copy(retval); }
 		} break;
 		case di_fragment: {
 			retval= new FragmentObject(*s);
 		} break;
 		case di_object: {
-			if ( s != NULL) { 
+			if ( s != nullptr) { 
 				if (s->kind() == di_object) {
 					s->copy(retval);
 				} else { //upcast
@@ -351,19 +351,19 @@ DataItem* DataItem::factory(DataItem* s,kind_type kind_it_is) {
 			}			
 		} break;
 		case di_utext: {
-			if ( s != NULL) {
+			if ( s != nullptr) {
 				u_str x = *s;
 				retval = new UStrItem(x);
 			}
 		} break;
 		case di_text: {
-			if ( s != NULL) {
+			if ( s != nullptr) {
 				std::string x = *s;
 				retval = new StrObject(x);
 			}
 		} break;
 		case di_raw: { 
-			if ( s != NULL) {
+			if ( s != nullptr) {
 				std::string x = *s;
 				if (s->kind() == di_raw) {
 					retval = new RawItem(x);
@@ -373,14 +373,14 @@ DataItem* DataItem::factory(DataItem* s,kind_type kind_it_is) {
 			}
 		} break;
 		case di_null: {
-			retval=NULL;
+			retval=nullptr;
 		}
 	}
 	return retval;
 }
 DataItem* DataItem::factory(xercesc::DOMNode*& pt,kind_type kind_it_is) {
-	DataItem* retval = NULL;
-	if (pt != NULL) {
+	DataItem* retval = nullptr;
+	if (pt != nullptr) {
 		switch( kind_it_is ) {
 			case di_auto: {
 				switch ( pt->getNodeType() ) {
@@ -428,19 +428,19 @@ DataItem* DataItem::factory(xercesc::DOMNode*& pt,kind_type kind_it_is) {
 			} break;
 			case di_null: break;
 		}
-//		delete pt; pt = NULL;
+//		delete pt; pt = nullptr;
 	}
 	return retval;
 }
 DataItem* DataItem::factory(u_str s,kind_type kind_it_is) {
-	DataItem* retval = NULL;
+	DataItem* retval = nullptr;
 	if (! s.empty() ) {
 		switch (kind_it_is) {
 			case di_auto: {			
 				if (! s.empty() ) {
 					retval= autoItem(s); //we know that this is utf-16
 				} else {
-					retval=NULL;
+					retval=nullptr;
 				}
 			} break;
 			case di_raw: { //we don't want to lose the utf-16
@@ -459,11 +459,11 @@ DataItem* DataItem::factory(u_str s,kind_type kind_it_is) {
 				retval= new XMLObject(s);
 			} break;
 			case di_null: {
-				retval=NULL;
+				retval=nullptr;
 			}
 		}
 	} else {
-		retval=NULL;
+		retval=nullptr;
 	}
 	return retval;
 }

@@ -52,7 +52,7 @@ private:
 	string fnnote;
 	
 protected:
-	Function(elemtype el,ObyxElement* par) : ObyxElement(par,el,flowfunction, NULL) {}
+	Function(elemtype el,ObyxElement* par) : ObyxElement(par,el,flowfunction, nullptr) {}
 	deque< InputType* > inputs;		 //set by ~InputType
 	deque< DefInpType* > definputs;  //These are the inputs that need to wait until other inputs are evaluated. 
 	
@@ -61,7 +61,7 @@ public:
 	deque< Output* > catcher; 		//error stream stack.
 	
 	static Function* FnFactory(ObyxElement*,const Function*);
-	Function(xercesc::DOMNode* const&,elemtype,ObyxElement* = NULL);
+	Function(xercesc::DOMNode* const&,elemtype,ObyxElement* = nullptr);
 	Function(ObyxElement*,const Function*);// : ObyxElement(par,orig) { copy(orig); }
 	
 	virtual void addInputType(InputType*) = 0;
@@ -90,7 +90,7 @@ private:
 	
 public:
 	Endqueue(ObyxElement*,const Endqueue*); //
-	Endqueue() : Function(NULL,endqueue,NULL) {} 
+	Endqueue() : Function(nullptr,endqueue,nullptr) {} 
 	virtual void addInputType(InputType*);
 	virtual void addDefInpType(DefInpType*);	
 	virtual ~Endqueue();

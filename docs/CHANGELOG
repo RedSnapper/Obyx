@@ -17,6 +17,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.131118		Enh.	Started migrate to C++11.
 v1.131003		Bug.	Base64 Decode has very rare bug.
 v1.131001		Bug.	RFC 1341 has some problems.
 v1.130627		Enh.	Added csv encoder/decoder.
@@ -489,7 +490,7 @@ v10.01.28
 	Added span delimiters to Logger.
 	Added query information on error results.
 v10.01.26
-	Fixed bug where non result of encoder was not returning a NULL.
+	Fixed bug where non result of encoder was not returning a nullptr.
 v10.01.25
 	Added support for address boxnames in osimessage.
 v10.01.21
@@ -568,7 +569,7 @@ v9.11.05
 	Iteration operations 'while' and 'while_not' must have a control.
 	ontrue/onfalse parms do not throw error until evaluation.
 v9.11.04
-	store may be set with NULL (empty) values.
+	store may be set with nullptr (empty) values.
 	added operation 'kind' to instruction. (returns kind of first input: text|object|empty)
 v9.11.03
 	existence tests now work on xpaths.
@@ -645,7 +646,7 @@ v9.10.13
  v9.09.10 BUG: Load DTD as text, and XSD as objects.
  v9.09.08 RC2: Release Candidate 2 Branch-point 
  v9.09.08 FEA: output to new comment() now works. (64 bit support also) 
- v9.09.04 BUG: NULL access error. item->kind() when item is NULL.
+ v9.09.04 BUG: nullptr access error. item->kind() when item is nullptr.
  v9.09.03 FEA: centralised xpaths for logging. moved store errors up to handlers.
  v9.09.02 SEC: Locked BREAK_COUNT to when REMOTE_ADDRESS=SERVER_ADDRESS
  v9.09.01 BUG: xpaths mangled in logging.
@@ -687,12 +688,12 @@ v9.10.13
  v9.05.12 BUG: Adding NAN limits on maximum and minimum.
  v9.05.08 BUG: flow-function results being wstripped by the output wsstrip attribute. 
  v9.05.08 BUG: attributes being set to empty string rather than being deleted. 
- v9.05.07 BUG: Yet another NULL read of a DataItem*
+ v9.05.07 BUG: Yet another nullptr read of a DataItem*
  v9.05.05 FEA: Add scope attribute to comparison.
  v9.05.01 BUG: When including a file, using a temporay document as a parent.
  v9.04.29 BUG: DOMDocuments may not have a Document Element - eg when it has been deleted..
  v9.04.27 FEA: Added support for textarea empty elements.
- v9.04.20 BUG: Couple of NULL tests added to dataItem accessors.
+ v9.04.20 BUG: Couple of nullptr tests added to dataItem accessors.
  v9.04.17 FEA: XPath syntax extension for expecting a node result: object!#xpath
  v9.04.08 BUG: deferred causing simple immediate nests to fail..
  v9.04.08 BUG: comment nodes were not working correctly in insertContext.

@@ -34,7 +34,7 @@
 namespace Vdb {
 	
 	PostgreSQLQuery::PostgreSQLQuery(PostgreSQLService* s_in, PostgreSQLConnection* c_in, PGconn*& conn_in, std::string& qstr) :
-	Query(qstr),s(s_in),c(c_in),connectionHandle(conn_in),res(NULL),current_row(0) {
+	Query(qstr),s(s_in),c(c_in),connectionHandle(conn_in),res(nullptr),current_row(0) {
 	}
 	
 	PostgreSQLQuery::~PostgreSQLQuery() {
@@ -46,9 +46,9 @@ namespace Vdb {
 		numRows = 0;
 		numFields = 0;
 		current_row = 0;
-		if (res != NULL) {
+		if (res != nullptr) {
 			s->PQclear(res);
-			res = NULL;
+			res = nullptr;
 		}
 	}
 	
@@ -110,13 +110,13 @@ namespace Vdb {
 	}
 	
 	void PostgreSQLQuery::prepareResult() {
-		if (res != NULL) {
+		if (res != nullptr) {
 			numRows = (long long)s->PQntuples(res); //64 bit to 32 bit conversion...
 			numFields = (long long)s->PQnfields(res);
 			isactive = true;
 			prepareFieldCache();
 		} else {
-			res = NULL;
+			res = nullptr;
 			Query::reset();
 			isactive = false;
 		}
@@ -124,7 +124,7 @@ namespace Vdb {
 	
 	void PostgreSQLQuery::readFieldName(long long i, std::string& fname, std::string& tname) {
 		unsigned int idx = (unsigned int)i - 1; //PostgreSQL is zero indexed.
-		if (isactive && res != NULL && fieldRangeCheck(i)) {
+		if (isactive && res != nullptr && fieldRangeCheck(i)) {
 			fname = s->PQfname(res,idx); 
 			unsigned int table = (unsigned int) s->PQftable(res,idx);
 			ostringstream tstr;
@@ -141,12 +141,12 @@ namespace Vdb {
 		unsigned int idx = (unsigned int)i - 1;  //PostgreSQL is zero indexed.
 		bool retval = false;
 		const char* val = s->PQgetvalue(res,row_idx,idx);
-		if (val != NULL) {
+		if (val != nullptr) {
 			readString = val;
 			retval = true;
 		} else {
 			char *buff = s->PQresultErrorMessage(res);
-			if (buff != NULL) {
+			if (buff != nullptr) {
 				errstring = buff;
 			} else {
 				errstring = "field not found";

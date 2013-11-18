@@ -41,9 +41,9 @@ using namespace Log;
 using namespace xercesc;
 using namespace XML;
 
-XML::Manager* Document::xmlmanager = NULL;
+XML::Manager* Document::xmlmanager = nullptr;
 
-Document*					Document::root = NULL; //This is the opening document.
+Document*					Document::root = nullptr; //This is the opening document.
 std::stack<u_str>			Document::prefix_stack;
 std::stack<std::string>		Document::filepath_stack;
 Document::type_store_map 	Document::docstores; //Set of stores against digests.
@@ -74,7 +74,7 @@ void Document::finalise() {
 }
 void Document::shutdown() {
 	delete xmlmanager;
-	xmlmanager=NULL;
+	xmlmanager=nullptr;
 }
 const std::string Document::currentname() {
 	Environment* env = Environment::service();
@@ -99,7 +99,7 @@ const xercesc::DOMDocument* Document::doc() const {
 }				
 bool Document::setstore(const DataItem* namepath_di, DataItem*& item,kind_type kind,Output::scope_type scope,std::string& errorstr) {
 	bool retval = true;
-	if (namepath_di != NULL) {
+	if (namepath_di != nullptr) {
 		bool node_expected = false;
 		u_str namepath = *namepath_di; pair<u_str,u_str> np;
 		XMLObject::npsplit(namepath,np,node_expected);
@@ -111,16 +111,16 @@ bool Document::setstore(const DataItem* namepath_di, DataItem*& item,kind_type k
 					bool found = false;
 					Document* doc = this;
 					do {
-						if (doc->p != NULL) {
+						if (doc->p != nullptr) {
 							doc = doc->p->owner;
 						} else {
-							doc = NULL;
+							doc = nullptr;
 						}
-						if (doc != NULL) {
+						if (doc != nullptr) {
 							found = doc->store.exists(np.first,false,errorstr);
 						}
-					} while (doc != NULL && !found);
-					if (found && doc!=NULL) {
+					} while (doc != nullptr && !found);
+					if (found && doc!=nullptr) {
 						retval = doc->store.sset(np.first,np.second,node_expected,item,kind,errorstr);
 					} else {
 						retval = false;
@@ -131,26 +131,26 @@ bool Document::setstore(const DataItem* namepath_di, DataItem*& item,kind_type k
 					if ( np.second.empty()) {
 						retval = store.sset(np.first,np.second,node_expected,item,kind,errorstr);
 					} else {
-						if (doc_store != NULL && doc_store->exists(np.first,false,errorstr)) {
+						if (doc_store != nullptr && doc_store->exists(np.first,false,errorstr)) {
 							retval = doc_store->sset(np.first,np.second,node_expected,item,kind,errorstr);
 						} else { //not branch(self/ancestor/global) or document..
 							bool found = false;
 							Document* doc = this;
-							while (doc != NULL && !found) {
+							while (doc != nullptr && !found) {
 								found = doc->store.exists(np.first,false,errorstr);
 								if (!found) {
-									if (doc->p != NULL) {
+									if (doc->p != nullptr) {
 										doc = doc->p->owner;
 									} else {
-										doc = NULL;
+										doc = nullptr;
 									}
 								}
 							}
-							if (found && doc!=NULL) {
+							if (found && doc!=nullptr) {
 								retval = doc->store.sset(np.first,np.second,node_expected,item,kind,errorstr);
 							} else {
 								//not in branch, but maybe document. (remember, we have an xpath here!)
-								if (doc_store != NULL && doc_store->exists(np.first,false,errorstr)) {
+								if (doc_store != nullptr && doc_store->exists(np.first,false,errorstr)) {
 									retval = doc_store->sset(np.first,np.second,node_expected,item,kind,errorstr);
 								} else { //not branch(self/ancestor/global) or document..
 									string ervn,ervp; 
@@ -166,7 +166,7 @@ bool Document::setstore(const DataItem* namepath_di, DataItem*& item,kind_type k
 					retval = root->store.sset(np.first,np.second,node_expected,item,kind,errorstr);
 				} break;
 				case Output::document: {
-					if (doc_store == NULL) {
+					if (doc_store == nullptr) {
 						errorstr = "The document signature [" + signature + "] is empty, so output to document scope does nothing.";
 					} else {
 						retval = doc_store->sset(np.first,np.second,node_expected,item,kind,errorstr);
@@ -188,16 +188,16 @@ bool Document::setstore(u_str& name,u_str& path, DataItem*& item,kind_type kind,
 				bool found = false;
 				Document* doc = this;
 				do {
-					if (doc->p != NULL) {
+					if (doc->p != nullptr) {
 						doc = doc->p->owner;
 					} else {
-						doc = NULL;
+						doc = nullptr;
 					}
-					if (doc != NULL) {
+					if (doc != nullptr) {
 						found = doc->store.exists(name,false,errorstr);
 					}
-				} while (doc != NULL && !found);
-				if (found && doc!=NULL) {
+				} while (doc != nullptr && !found);
+				if (found && doc!=nullptr) {
 					retval = doc->store.sset(name,path,node_expected,item,kind,errorstr);
 				} else {
 					retval = false;
@@ -208,26 +208,26 @@ bool Document::setstore(u_str& name,u_str& path, DataItem*& item,kind_type kind,
 				if ( path.empty()) {
 					retval = store.sset(name,path,node_expected,item,kind,errorstr);
 				} else {
-					if (doc_store != NULL && doc_store->exists(name,false,errorstr)) {
+					if (doc_store != nullptr && doc_store->exists(name,false,errorstr)) {
 						retval = doc_store->sset(name,path,node_expected,item,kind,errorstr);
 					} else { //not branch(self/ancestor/global) or document..
 						bool found = false;
 						Document* doc = this;
-						while (doc != NULL && !found) {
+						while (doc != nullptr && !found) {
 							found = doc->store.exists(name,false,errorstr);
 							if (!found) {
-								if (doc->p != NULL) {
+								if (doc->p != nullptr) {
 									doc = doc->p->owner;
 								} else {
-									doc = NULL;
+									doc = nullptr;
 								}
 							}
 						}
-						if (found && doc!=NULL) {
+						if (found && doc!=nullptr) {
 							retval = doc->store.sset(name,path,node_expected,item,kind,errorstr);
 						} else {
 							//not in branch, but maybe document. (remember, we have an xpath here!)
-							if (doc_store != NULL && doc_store->exists(name,false,errorstr)) {
+							if (doc_store != nullptr && doc_store->exists(name,false,errorstr)) {
 								retval = doc_store->sset(name,path,node_expected,item,kind,errorstr);
 							} else { //not branch(self/ancestor/global) or document..
 								string ervn,ervp; 
@@ -243,7 +243,7 @@ bool Document::setstore(u_str& name,u_str& path, DataItem*& item,kind_type kind,
 				retval = root->store.sset(name,path,node_expected,item,kind,errorstr);
 			} break;
 			case Output::document: {
-				if (doc_store == NULL) {
+				if (doc_store == nullptr) {
 					errorstr = "The document signature [" + signature + "] is empty, so output to document scope does nothing.";
 				} else {
 					retval = doc_store->sset(name,path,node_expected,item,kind,errorstr);
@@ -258,13 +258,13 @@ bool Document::metastore(const string key,unsigned long long& container) {
 	bool retval = false;
 	pair<bool,unsigned long long> mres(false,0);
 	Document* doc = this;
-	while (doc != NULL && !mres.first) {
+	while (doc != nullptr && !mres.first) {
 		retval = doc->store.meta(key,mres);
 		if (!mres.first) {
-			if (doc->p != NULL) {
+			if (doc->p != nullptr) {
 				doc = doc->p->owner;
 			} else {
-				doc = NULL;
+				doc = nullptr;
 			}
 		} else {
 			if (retval) {
@@ -278,13 +278,13 @@ bool Document::metastore(const string key,unsigned long long& container) {
 bool Document::storeexists(const u_str& name,const u_str& xpath,bool release,std::string& errorstr) {
 	bool retval = false;
 	Document* doc = this;
-	while (doc != NULL && !retval) {
+	while (doc != nullptr && !retval) {
 		retval = doc->store.exists(name,xpath,release,errorstr);
 		if (!retval) {
-			if (doc->p != NULL) {
+			if (doc->p != nullptr) {
 				doc = doc->p->owner;
 			} else {
-				doc = NULL;
+				doc = nullptr;
 			}
 		}
 	}
@@ -294,13 +294,13 @@ bool Document::storeexists(const u_str& name,const u_str& xpath,bool release,std
 bool Document::storeexists(const u_str& obj_id,bool release,std::string& errorstr) {
 	bool retval = false;
 	Document* doc = this;
-	while (doc != NULL && !retval) {
+	while (doc != nullptr && !retval) {
 		retval = doc->store.exists(obj_id,release,errorstr);
 		if (!retval) {
-			if (doc->p != NULL) {
+			if (doc->p != nullptr) {
 				doc = doc->p->owner;
 			} else {
-				doc = NULL;
+				doc = nullptr;
 			}
 		}
 	}
@@ -310,13 +310,13 @@ bool Document::storeexists(const u_str& obj_id,bool release,std::string& errorst
 bool Document::storefind(const string& pattern,bool release,std::string& errorstr) {
 	bool retval = false;
 	Document* doc = this;
-	while (doc != NULL && !retval) {
+	while (doc != nullptr && !retval) {
 		retval = doc->store.find(pattern,release,errorstr);
 		if (!retval) {
-			if (doc->p != NULL) {
+			if (doc->p != nullptr) {
 				doc = doc->p->owner;
 			} else {
-				doc = NULL;
+				doc = nullptr;
 			}
 		}
 	}
@@ -325,13 +325,13 @@ bool Document::storefind(const string& pattern,bool release,std::string& errorst
 bool Document::storefind(const u_str& pattern,bool release,std::string& errorstr) {
 	bool retval = false;
 	Document* doc = this;
-	while (doc != NULL && !retval) {
+	while (doc != nullptr && !retval) {
 		retval = doc->store.find(pattern,release,errorstr);
 		if (!retval) {
-			if (doc->p != NULL) {
+			if (doc->p != nullptr) {
 				doc = doc->p->owner;
 			} else {
-				doc = NULL;
+				doc = nullptr;
 			}
 		}
 	}
@@ -340,13 +340,13 @@ bool Document::storefind(const u_str& pattern,bool release,std::string& errorstr
 bool Document::storefind(const u_str& pattern,const u_str& xpath,bool release,std::string& errorstr) {
 	bool retval = false;
 	Document* doc = this;
-	while (doc != NULL && !retval) {
+	while (doc != nullptr && !retval) {
 		retval = doc_store->find(pattern,xpath,release,errorstr);
 		if (!retval) {
-			if (doc->p != NULL) {
+			if (doc->p != nullptr) {
 				doc = doc->p->owner;
 			} else {
-				doc = NULL;
+				doc = nullptr;
 			}
 		}
 	}
@@ -354,36 +354,36 @@ bool Document::storefind(const u_str& pattern,const u_str& xpath,bool release,st
 }
 void Document::storekeys(const u_str& pattern,std::set<std::string>& keylist,std::string& errorstr) {
 	Document* doc = this;
-	if (doc_store != NULL) {
+	if (doc_store != nullptr) {
 		doc_store->keys(pattern,keylist,errorstr);
 	}	
-	while (doc != NULL) {
+	while (doc != nullptr) {
 		doc->store.keys(pattern,keylist,errorstr);
-		if (doc->p != NULL) {
+		if (doc->p != nullptr) {
 			doc = doc->p->owner;
 		} else {
-			doc = NULL;
+			doc = nullptr;
 		}
 	}
 }
 bool Document::getstore(const u_str& name,const u_str& path,DataItem*& item,bool node_expected,bool release,std::string& errorstr) {
 	bool retval = false;
-	if (doc_store != NULL && doc_store->exists(name,false,errorstr)) {
+	if (doc_store != nullptr && doc_store->exists(name,false,errorstr)) {
 		retval = doc_store->sget(name,path,node_expected,item,release,errorstr);
 	} else {
 		bool found = false;
 		Document* doc = this;
-		while (doc != NULL && !found) {
+		while (doc != nullptr && !found) {
 			found = doc->store.exists(name,false,errorstr);
 			if (!found) {
-				if (doc->p != NULL) {
+				if (doc->p != nullptr) {
 					doc = doc->p->owner;
 				} else {
-					doc = NULL;
+					doc = nullptr;
 				}
 			}
 		}
-		if (found && doc!=NULL) {
+		if (found && doc!=nullptr) {
 			retval = doc->store.sget(name,path,node_expected,item,release,errorstr);
 		}
 	}
@@ -393,47 +393,47 @@ bool Document::getstore(const u_str& name,const u_str& path,DataItem*& item,bool
 //private, reached when going through higher owners.
 bool Document::getparm(const string& parmkey,const DataItem*& container) const {
 	bool retval = false;
-	if (parm_map != NULL) {
-		container = NULL;
+	if (parm_map != nullptr) {
+		container = nullptr;
 		type_parm_map::const_iterator it = parm_map->find(parmkey);
 		if (it != parm_map->end()) {
 			container = ((*it).second);
 			retval = true;
 		}
 	} 
-	if (!retval && p != NULL && doc_version > 1.110120) {
+	if (!retval && p != nullptr && doc_version > 1.110120) {
 		retval = p->owner->getparm(parmkey,container); //now get the stuff above me.
 	}
 	return retval; //if we are outside of a function there is no parm.
 }
 bool Document::getparm(const u_str& parmkey,const DataItem*& container) const {
 	bool retval = false;
-	if (parm_map != NULL) {
-		container = NULL;
+	if (parm_map != nullptr) {
+		container = nullptr;
 		string pkey; XML::Manager::transcode(parmkey,pkey);		
 		type_parm_map::const_iterator it = parm_map->find(pkey);
 		if (it != parm_map->end()) {
 			container = ((*it).second);
 			retval = true;
 		} else {
-			if (p != NULL && doc_version > 1.110120) {
+			if (p != nullptr && doc_version > 1.110120) {
 				retval = p->owner->getparm(pkey,container); //now get the stuff above me.
 			}
 		}
 	} 
-	if (!retval && p != NULL && doc_version > 1.110120) {
+	if (!retval && p != nullptr && doc_version > 1.110120) {
 		retval = p->owner->getparm(parmkey,container); //now get the stuff above me.
 	}
 	return retval; //if we are outside of a function there is no parm.
 }
 bool Document::parmexists(const u_str& parmkey) const {
 	bool existent = false;
-	if (parm_map != NULL) {
+	if (parm_map != nullptr) {
 		string pkey; XML::Manager::transcode(parmkey,pkey);		
 		type_parm_map::const_iterator it = parm_map->find(pkey);
 		existent = (it != parm_map->end());
 	} 
-	if (!existent && p != NULL && doc_version > 1.110120) {
+	if (!existent && p != nullptr && doc_version > 1.110120) {
 		existent = p->owner->parmexists(parmkey); //now get the stuff above me.
 	}
 	return existent; //if we are outside of a function there is no parm.
@@ -448,7 +448,7 @@ bool Document::parmfind(const u_str& pattern) const {
 	} else {
 		retval = parmexists(pattern);
 	}
-	if (!retval && p != NULL && doc_version > 1.110120) {
+	if (!retval && p != nullptr && doc_version > 1.110120) {
 		retval = p->owner->parmfind(pattern); //now get the stuff above me.
 	}
 	return retval;
@@ -467,7 +467,7 @@ void Document::parmkeys(const u_str& pattern,set<string>& keylist) const {
 			keylist.insert(rexpr);
 		}
 	}
-	if (p != NULL && doc_version > 1.110120) {
+	if (p != nullptr && doc_version > 1.110120) {
 		p->owner->parmkeys(pattern,keylist); //now get the stuff above me.
 	}
 }
@@ -476,18 +476,18 @@ void Document::innerstore_list() const {
 		*Logger::log << Log::LI << Log::info << Log::LI << Log::II << "Branch " << name() << Log::IO << Log::LO;
 		store.list();
 		*Logger::log << Log::blockend << Log::LO;
-	if (doc_store != NULL) {
+	if (doc_store != nullptr) {
 		*Logger::log << Log::LI << Log::info << Log::LI << Log::II << "Document " << name() << Log::IO << Log::LO;
 		doc_store->list();
 		*Logger::log << Log::blockend << Log::LO;
 	}
-	if (p != NULL) {
+	if (p != nullptr) {
 		p->owner->innerstore_list(); //now get the stuff above me.
 	}
 }
 
 void Document::inner_list() const {
- 	if (parm_map != NULL && ! parm_map->empty() ) {
+ 	if (parm_map != nullptr && ! parm_map->empty() ) {
         *Logger::log << Log::LI << Log::II << name() << Log::IO << Log::LO;
 		type_parm_map::iterator it = parm_map->begin();
 		*Logger::log << Log::LI << Log::even;
@@ -495,8 +495,8 @@ void Document::inner_list() const {
 			if ( ! it->first.empty() ) {
 				string value;
 				DataItem* x= it->second;
-				if ( x == NULL) {
-					value = "[NULL]"; 
+				if ( x == nullptr) {
+					value = "[nullptr]"; 
 				} else {
 					value = *x;
 				}
@@ -506,7 +506,7 @@ void Document::inner_list() const {
 		}
 		*Logger::log << Log::blockend << Log::LO;
 	}
-	if (p != NULL && doc_version > 1.110120) {
+	if (p != nullptr && doc_version > 1.110120) {
 		p->owner->inner_list(); //now get the stuff above me.
 	}
 }
@@ -522,13 +522,13 @@ void Document::liststore() const {
 }
 
 Document::Document(ObyxElement* par,const Document* orig) :
-ObyxElement(par,orig), xdoc(NULL),root_node(NULL),filepath(),signature(orig->signature),doc_version(HUGE_VALF),ownprefix(),parm_map(NULL),store(orig->store),doc_store(orig->doc_store),doc_par(NULL) { 
+ObyxElement(par,orig), xdoc(nullptr),root_node(nullptr),filepath(),signature(orig->signature),doc_version(HUGE_VALF),ownprefix(),parm_map(nullptr),store(orig->store),doc_store(orig->doc_store),doc_par(nullptr) { 
 	xdoc = XML::Manager::parser()->newDoc(orig->xdoc);
 	root_node = xdoc->getDocumentElement();
 	filepath  = orig->filepath;
 	doc_version = orig->doc_version;	
 	ownprefix = orig->ownprefix;	
-	if (orig->parm_map != NULL) {
+	if (orig->parm_map != nullptr) {
 		Document::type_parm_map* pm_instance = new Document::type_parm_map();
 		parm_map = pm_instance;
 		type_parm_map::iterator it = parm_map->begin();
@@ -540,14 +540,14 @@ ObyxElement(par,orig), xdoc(NULL),root_node(NULL),filepath(),signature(orig->sig
 	doc_par = orig->doc_par;
 }
 Document::Document(DataItem* inputfile,load_type use_loader, std::string fp, ObyxElement* par, bool evaluate_it) : 
-ObyxElement(par,xmldocument,other,NULL), xdoc(NULL),root_node(NULL),filepath(fp),signature(),ownprefix(),parm_map(NULL),store(),doc_store(NULL),doc_par(NULL) { 
+ObyxElement(par,xmldocument,other,nullptr), xdoc(nullptr),root_node(nullptr),filepath(fp),signature(),ownprefix(),parm_map(nullptr),store(),doc_store(nullptr),doc_par(nullptr) { 
 	bool loaded=false;
-	ostringstream* docerrs = NULL;
+	ostringstream* docerrs = nullptr;
 	if (use_loader == Main) { //otherwise this is handled by output type = error.
 		docerrs = new ostringstream();
 		Logger::set_stream(docerrs);
 	}
-	if (inputfile == NULL) {
+	if (inputfile == nullptr) {
 		*Logger::log << Log::error << Log::LI << "Error. Document " << filepath << " failed to be parsed or did not exist. " << Log::LO ;
 		trace();
 		*Logger::log << Log::blockend ;
@@ -557,12 +557,12 @@ ObyxElement(par,xmldocument,other,NULL), xdoc(NULL),root_node(NULL),filepath(fp)
 			case Main:
 			case File: {
 				const XMLObject* xif = dynamic_cast<const XMLObject*>(inputfile);
-				if (xif != NULL) {
+				if (xif != nullptr) {
 					xif->copy(xdoc);
 				} else {
 					xdoc = XML::Manager::parser()->loadDoc((string)*inputfile); 
 				}
-				if (xdoc != NULL) loaded=true;
+				if (xdoc != nullptr) loaded=true;
 			} break; //don't delete xdoc - it's owned by the parser -- hmm but get the parser to release it!!!
 			case URL:
 			case URLText:	
@@ -585,16 +585,16 @@ ObyxElement(par,xmldocument,other,NULL), xdoc(NULL),root_node(NULL),filepath(fp)
 	if ( loaded ) {
 		filepath_stack.push(fp);
 		root_node = xdoc->getDocumentElement();
-		if ( root_node != NULL ) {
+		if ( root_node != nullptr ) {
 			if (use_loader == URLText) {
 				string textstuff;
-				XML::Manager::transcode(root_node->getTextContent(),textstuff);
+				XML::Manager::transcode(pcu(root_node->getTextContent()),textstuff);
 				String::trim(textstuff);
 				results.append(textstuff,di_text);
 			} else {
 				owner = this;
 				if (evaluate_it) {
-					if (par != NULL) {
+					if (par != nullptr) {
 						doc_par = par->owner;
 					} 
 //					owner = this;
@@ -603,7 +603,7 @@ ObyxElement(par,xmldocument,other,NULL), xdoc(NULL),root_node(NULL),filepath(fp)
 			}
 		}  else {
 			if (Logger::debugging()) {
-				*Logger::log << Log::info << Log::LI << "Parser returned XML First Node as a NULL." << Log::LO << Log::blockend;
+				*Logger::log << Log::info << Log::LI << "Parser returned XML First Node as a nullptr." << Log::LO << Log::blockend;
 			}
 			results.append(inputfile);
 		}
@@ -624,7 +624,7 @@ ObyxElement(par,xmldocument,other,NULL), xdoc(NULL),root_node(NULL),filepath(fp)
 	}
 }
 Document::~Document() {
-	if (parm_map != NULL) {	
+	if (parm_map != nullptr) {	
 		type_parm_map::iterator it = parm_map->begin();
 		while ( it != parm_map->end()) {
 			delete it->second;
@@ -633,8 +633,8 @@ Document::~Document() {
 		parm_map->clear();
 		delete parm_map;
 	}
-	if (xdoc != NULL) {
-		xdoc->release(); xdoc=NULL;
+	if (xdoc != nullptr) {
+		xdoc->release(); xdoc=nullptr;
 	}
 	//	store values SHOULD be deleted when we go out of scope.
 }
@@ -650,23 +650,23 @@ std::string const Document::currenthttpreq() {
 }
 bool Document::eval() {
 	bool retval = false;
-	if ( xdoc != NULL && root_node != NULL ) {
+	if ( xdoc != nullptr && root_node != nullptr ) {
 		u_str doc_ns;
 		const XMLCh* doc_nsp = root_node->getNamespaceURI();
 		Environment* env = Environment::service();
-		if (doc_nsp != NULL) {
-			doc_ns = doc_nsp;
+		if (doc_nsp != nullptr) {
+			doc_ns = pcu(doc_nsp);
 			const XMLCh* rn = root_node->getPrefix();
-			if (rn != NULL) {ownprefix = rn;}
+			if (rn != nullptr) {ownprefix = pcu(rn);}
 			u_str doc_prefix;
 			prefix(doc_prefix); //discard the test.
-			if ( (doc_ns.compare(UCS2(L"http://www.obyx.org")) == 0) ) {
+			if ( (doc_ns.compare(u"http://www.obyx.org") == 0) ) {
 				retval = true;
 				bool versioned=false;
 				doc_version = env->version();
 				std::string version_str,err_string;
-				XML::Manager::attribute(root_node,UCS2(L"version"),version_str);
-				XML::Manager::attribute(root_node,UCS2(L"signature"),signature);
+				XML::Manager::attribute(root_node,u"version",version_str);
+				XML::Manager::attribute(root_node,u"signature",signature);
 				if (!version_str.empty()) {
 					double version_val=String::real(version_str); 
 					if (!isnan(version_val) && version_val > 0) {
@@ -696,12 +696,12 @@ bool Document::eval() {
 					env->version_pop();
 				}
 			} else { //NOT obyx...
-				if (doc_par != NULL) { //maybe main file isn't obyx.
+				if (doc_par != nullptr) { //maybe main file isn't obyx.
 					owner = doc_par->owner;
 				}
-				if ( doc_ns.compare(UCS2(L"http://www.obyx.org/osi-application-layer")) == 0 ) {
+				if ( doc_ns.compare(u"http://www.obyx.org/osi-application-layer") == 0 ) {
 					OsiAPP do_osi;
-					DataItem* osi_result = NULL;
+					DataItem* osi_result = nullptr;
 					unsigned long long max_redirects = 33, timeout_secs = 30; //GRAB FROM STORE!!
 					metastore("REDIRECT_BREAK_COUNT",max_redirects);
 					metastore("URL_TIMEOUT_SECS",timeout_secs);				
@@ -725,13 +725,13 @@ bool Document::eval() {
 				} else {
 					DataItem* result = DataItem::factory(xdoc,di_object);
 					results.setresult(result); 
-					xdoc=NULL; root_node=NULL;
+					xdoc=nullptr; root_node=nullptr;
 				} 
 			}
 		} else {
 			DataItem* result = DataItem::factory(xdoc,di_object);
 			results.setresult(result); 
-			xdoc=NULL; root_node=NULL;
+			xdoc=nullptr; root_node=nullptr;
 		}
 	} else {
 		*Logger::log << Log::error << Log::LI << "Error. eval of non-object failed." << Log::LO;	
@@ -741,29 +741,29 @@ bool Document::eval() {
 	return retval;
 }
 void Document::process( xercesc::DOMNode*& n,ObyxElement* par) {
-	if (par == NULL) par = this; //owner_document
+	if (par == nullptr) par = this; //owner_document
 	if (!ObyxElement::break_happened) {
 		ObyxElement* ce = ObyxElement::Factory(n,par);	//create the new obyxelement here
-		if ( ce != NULL ) {	
-			for (DOMNode* child=n->getFirstChild(); child != NULL; child=child->getNextSibling()) {				
+		if ( ce != nullptr ) {	
+			for (DOMNode* child=n->getFirstChild(); child != nullptr; child=child->getNextSibling()) {				
 				process(child,ce);  //carry on down..
 			}
 			if (!ObyxElement::break_happened) {			
 				Function* fn = dynamic_cast<Function*>(ce);
-				if (fn != NULL) {
+				if (fn != nullptr) {
 					string errs;
 					if (fn->pre_evaluate(errs)) {
-						delete ce; ce = NULL;
+						delete ce; ce = nullptr;
 					} // else it's deferred.
 					if (!errs.empty()) {
 						*Logger::log << Log::syntax << Log::LI << "Syntax Error. While loading flow-function. " << errs << Log::LO;	
 						par->trace();
 						*Logger::log << Log::blockend;
-						delete ce; ce = NULL;
+						delete ce; ce = nullptr;
 					}
-					fn = NULL;
+					fn = nullptr;
 				} 
-				if ( (ce != NULL) && (par == doc_par || (par == this) )) { //par = this then use results!
+				if ( (ce != nullptr) && (par == doc_par || (par == this) )) { //par = this then use results!
 					results.evaluate(false);
 				}
 			}
@@ -771,11 +771,9 @@ void Document::process( xercesc::DOMNode*& n,ObyxElement* par) {
 	}
 }
 bool const Document::prefix(u_str& container) {
-	bool retval;
-	if ( prefix_stack.empty() ) { //This can be reached if dom/sax validation is turned off.
-		retval=false;
-	} else {
-		container = prefix_stack.top(); 
+	bool retval=false;
+	if ( !prefix_stack.empty() ) { //This can be reached if dom/sax validation is turned off.
+		container = prefix_stack.top();
 		retval=true;
 	}
 	return retval;

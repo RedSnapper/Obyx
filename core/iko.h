@@ -84,7 +84,7 @@ public:
 	bool found() const {return exists;}
 	virtual void evaluate(size_t,size_t)=0;
 	IKO(ObyxElement*,const IKO*); 
-	IKO(xercesc::DOMNode* const&,ObyxElement* = NULL, elemtype = endqueue);	
+	IKO(xercesc::DOMNode* const&,ObyxElement* = nullptr, elemtype = endqueue);	
 	virtual ~IKO(); 
 };
 

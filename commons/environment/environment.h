@@ -28,14 +28,13 @@
 
 #include <stack>
 #include <string>
-#include <ext/hash_map>
+#include <unordered_map>
 #include <map>
 #include <set>
 
 #include "commons/string/strings.h"
 
 using namespace std;
-using namespace __gnu_cxx; //hashmap namespace.
 
 #ifndef ULLONG_MAX
 #define	ULLONG_MAX	0xffffffffffffffffULL	/* max unsigned long long */
@@ -52,8 +51,8 @@ public:
 //	typedef enum {Root,Public,Console,Scripts,Logs,Web} buildarea_type;
 	
 private:
-	typedef hash_map<const string,string,hash<const string&> > var_map_type;
-	typedef hash_map<const string,vector<string>,hash<const string&> > vec_map_type;
+	typedef unordered_map<const string,string,std::hash<const string&> > var_map_type;
+	typedef unordered_map<const string,vector<string>,std::hash<const string&> > vec_map_type;
 	
 	Environment();
 	~Environment();

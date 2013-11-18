@@ -47,12 +47,12 @@ namespace Vdb {
 	//	otool -Rv  /usr/local/mysql/lib/libmysqlclient_r.dylib | grep -v undefined | grep -v private | sort
 	
 	MySQLService::MySQLService(bool fatal_necessity) : 
-	Service(),mysql_lib_handle(NULL),serviceHandle(NULL),
-	library_init(NULL),library_end(NULL),select_db(NULL),close(NULL),data_seek(NULL),my_errno(NULL),error(NULL),
-	fetch_field_direct(NULL),
-	fetch_lengths(NULL),fetch_row(NULL),free_result(NULL),init(NULL),insert_id(NULL),list_fields(NULL),
-	list_tables(NULL),num_fields(NULL),num_rows(NULL),options(NULL),real_connect(NULL),real_escape_string(NULL),
-	real_query(NULL),row_seek(NULL),row_tell(NULL),character_set_name(NULL),set_character_set(NULL),store_result(NULL)
+	Service(),mysql_lib_handle(nullptr),serviceHandle(nullptr),
+	library_init(nullptr),library_end(nullptr),select_db(nullptr),close(nullptr),data_seek(nullptr),my_errno(nullptr),error(nullptr),
+	fetch_field_direct(nullptr),
+	fetch_lengths(nullptr),fetch_row(nullptr),free_result(nullptr),init(nullptr),insert_id(nullptr),list_fields(nullptr),
+	list_tables(nullptr),num_fields(nullptr),num_rows(nullptr),options(nullptr),real_connect(nullptr),real_escape_string(nullptr),
+	real_query(nullptr),row_seek(nullptr),row_tell(nullptr),character_set_name(nullptr),set_character_set(nullptr),store_result(nullptr)
 	{ 
 		if (String::Deflate::available()) {
 			string libdir,libname;
@@ -63,7 +63,7 @@ namespace Vdb {
 				libname = SO(libdir,libmysqlclient_r);
 			}
 			mysql_lib_handle = dlopen(libname.c_str(),RTLD_LAZY);
-			if (mysql_lib_handle != NULL ) {
+			if (mysql_lib_handle != nullptr ) {
 				library_init = (int (*)(int, char **,char **)) dlsym(mysql_lib_handle,"mysql_server_init");
 				library_end = (void (*)()) dlsym(mysql_lib_handle,"mysql_server_end");
 				select_db = (int (*)(MYSQL*, const char*)) dlsym(mysql_lib_handle,"mysql_select_db");
@@ -94,23 +94,23 @@ namespace Vdb {
 			} else {
 				service=false;
 				if (fatal_necessity) {
-					string msg;	char* err = dlerror(); if ( err != NULL) msg=err;
+					string msg;	char* err = dlerror(); if ( err != nullptr) msg=err;
 					*Logger::log <<  Log::fatal << Log::LI << "MySQLService error:: Failed to load the " << libname << " dynamic library. " << msg << Log::LO << Log::blockend; 
 				}
 			}
 			if (service) {
-				serviceHandle = init(NULL);
-				if (serviceHandle == NULL) {
+				serviceHandle = init(nullptr);
+				if (serviceHandle == nullptr) {
 					service=false;
 					if (fatal_necessity) {
 						*Logger::log <<  Log::fatal << Log::LI << "MySQLService error:: Failed to initialise a MySQL client service handle." << Log::LO << Log::blockend; 
 					}				
-					if ( mysql_lib_handle != NULL ) { 
+					if ( mysql_lib_handle != nullptr ) { 
 						if (fatal_necessity) {
 							*Logger::log << " mysql_lib_handle was found."; 
 						}				
 						dlclose(mysql_lib_handle);
-						mysql_lib_handle = NULL;
+						mysql_lib_handle = nullptr;
 					} else {
 						if (fatal_necessity) {
 							*Logger::log << " mysql_lib_handle was NOT found."; 
@@ -130,10 +130,10 @@ namespace Vdb {
 	}
 	
 	MySQLService::~MySQLService() {
-		if (serviceHandle != NULL) {
+		if (serviceHandle != nullptr) {
 			close(serviceHandle);
 		}
-		if ( mysql_lib_handle != NULL ) { 
+		if ( mysql_lib_handle != nullptr ) { 
 			dlclose(mysql_lib_handle);
 		}
 	}

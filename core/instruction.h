@@ -24,7 +24,7 @@
 #define OBYX_CONTEXT_INSTRUCTION_H
 
 #include "function.h"
-#include <ext/hash_map>
+#include <unordered_map>
 
 using namespace obyx;
 

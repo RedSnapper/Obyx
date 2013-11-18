@@ -79,7 +79,7 @@
 			} else {
 				char tmp[1023];
 				getcwd(tmp,200 );
-				if (tmp != NULL) {
+				if (tmp != nullptr) {
 					retval = tmp;
 				}
 			}
@@ -469,7 +469,7 @@
 		void Path::listDirs(vector<Path>& list, bool recursive) const {
 			struct dirent *dent;
 			DIR *dir = opendir(output().c_str());
-			while ((dent = readdir(dir)) != NULL) {
+			while ((dent = readdir(dir)) != nullptr) {
 				string tfilename = dent->d_name;
 				// We ignore system directories
 				if (tfilename != "." && tfilename != "..") {
@@ -493,7 +493,7 @@
 		void Path::listFilesA(vector<File>& list, const string regexp) const {
 			struct dirent *dent;
 			DIR *dir = opendir(output().c_str());
-			while ((dent = readdir(dir)) != NULL) {
+			while ((dent = readdir(dir)) != nullptr) {
 				File file1(*this,dent->d_name);
 				if (match(file1.output(), regexp)) {
 					if (file1.exists()) {

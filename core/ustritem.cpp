@@ -38,15 +38,15 @@ UStrItem::UStrItem(std::string& s) : DataItem() {
 	XML::Manager::transcode(s,o_str);
 }
 UStrItem::UStrItem(const char* s) : DataItem(),o_str() {
-	if (s!=NULL) {
+	if (s!=nullptr) {
 		string tmp(s);	
 		XML::Manager::transcode(tmp,o_str);
 	}
 }
 
 UStrItem::UStrItem(const XMLCh* s) : DataItem(),o_str() {
-	if (s!=NULL) {
-		o_str = s;
+	if (s!=nullptr) {
+		o_str = pcu(s);
 	}
 }
 
@@ -94,11 +94,11 @@ bool UStrItem::empty() const {
 void UStrItem::append(DataItem*& s) {
 	o_str.append(*s);
 	delete s;
-	s = NULL;
+	s = nullptr;
 }
 
 bool UStrItem::find(const DataItem* o,std::string&)  {
-	if ( o != NULL) {
+	if ( o != nullptr) {
 		return o_str.find(*o) != string::npos;
 	} else {
 		return false;
@@ -106,7 +106,7 @@ bool UStrItem::find(const DataItem* o,std::string&)  {
 }
 
 bool UStrItem::find(const char* o,std::string&)  {
-	if (o!=NULL) {
+	if (o!=nullptr) {
 		string tmp(o);
 		u_str srch;
 		XML::Manager::transcode(tmp,srch);
@@ -117,15 +117,15 @@ bool UStrItem::find(const char* o,std::string&)  {
 }
 
 bool UStrItem::find(const XMLCh* srch,std::string&)  {
-	if (srch!=NULL) {
-		return o_str.find(srch) != string::npos;
+	if (srch!=nullptr) {
+		return o_str.find(pcu(srch)) != string::npos;
 	} else {
 		return true; //null is always found?!
 	}
 }
 
 bool UStrItem::same(const DataItem* o) const {
-	if (o != NULL) {
+	if (o != nullptr) {
 		return o_str.compare(*o) == 0;
 	} else {
 		return false;

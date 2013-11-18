@@ -90,7 +90,7 @@ void StrObject::append(DataItem*& s) {
 }
 
 bool StrObject::find(const DataItem* o,std::string&)  {
-	if ( o != NULL) {
+	if ( o != nullptr) {
 		return o_str.find(*o) != string::npos;
 	} else {
 		return false;
@@ -102,8 +102,8 @@ bool StrObject::find(const char* o,std::string&)  {
 }
 
 bool StrObject::find(const XMLCh* s,std::string&)  {
-	if (s!=NULL) {
-		u_str tmp(s);
+	if (s!=nullptr) {
+		u_str tmp(pcu(s));
 		string srch;
 		XML::Manager::transcode(tmp,srch);
 		return o_str.find(srch) != string::npos;
@@ -113,7 +113,7 @@ bool StrObject::find(const XMLCh* s,std::string&)  {
 }
 
 bool StrObject::same(const DataItem* o) const {
-	if (o != NULL) {
+	if (o != nullptr) {
 		return o_str.compare(*o) == 0;
 	} else {
 		return false;

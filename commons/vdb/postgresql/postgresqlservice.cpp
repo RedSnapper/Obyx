@@ -45,8 +45,8 @@ namespace Vdb {
 	 */
 	
 	PostgreSQLService::PostgreSQLService(bool fatal_necessity) : 
-	Service(),postgres_lib_handle(NULL),
-	PQconnectdb(NULL)
+	Service(),postgres_lib_handle(nullptr),
+	PQconnectdb(nullptr)
 	{
 		string libdir,libname;
 		if (!Environment::getbenv("OBYX_LIBPQSO",libname)) { 	//legacy method
@@ -56,7 +56,7 @@ namespace Vdb {
 			libname = SO(libdir,libpq);
 		}
 		postgres_lib_handle = dlopen(libname.c_str(),RTLD_LAZY);
-		if (postgres_lib_handle != NULL ) {
+		if (postgres_lib_handle != nullptr ) {
 			PQconnectdb =             (PGconn* (*)(const char*)) dlsym(postgres_lib_handle,"PQconnectdb"); 
 			PQfinish =                   (void (*)(PGconn*)) dlsym(postgres_lib_handle,"PQfinish");
 			PQsetdbLogin =            (PGconn* (*)(const char*,const char*,const char*,const char*,const char*,const char*,const char*)) dlsym(postgres_lib_handle,"PQsetdbLogin");
@@ -78,14 +78,14 @@ namespace Vdb {
 		} else {
 			service=false;
 			if (fatal_necessity) {
-				string msg;	char* err = dlerror(); if ( err != NULL) msg=err;
+				string msg;	char* err = dlerror(); if ( err != nullptr) msg=err;
 				*Logger::log <<  Log::fatal << Log::LI << "PostgreSQLService error:: Failed to load the " << postgresqllib << " dynamic library. " << msg << Log::LO << Log::blockend; 
 			}
 		}
 	}
 	
 	PostgreSQLService::~PostgreSQLService() {
-		if ( postgres_lib_handle != NULL ) { 
+		if ( postgres_lib_handle != nullptr ) { 
 			dlclose(postgres_lib_handle);
 		}
 	}

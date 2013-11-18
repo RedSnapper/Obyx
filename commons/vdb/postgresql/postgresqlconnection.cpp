@@ -35,12 +35,12 @@
 
 namespace Vdb {
 	
-	PostgreSQLConnection::PostgreSQLConnection(PostgreSQLService* service) : s(service),connectionHandle(NULL),conn_open(false),db_open(false) {
+	PostgreSQLConnection::PostgreSQLConnection(PostgreSQLService* service) : s(service),connectionHandle(nullptr),conn_open(false),db_open(false) {
 // nothing happens here.
 	}
 	
 	PostgreSQLConnection::~PostgreSQLConnection() {
-		if (connectionHandle != NULL) { 
+		if (connectionHandle != nullptr) { 
 			s->PQfinish(connectionHandle);
 		}
 	}
@@ -65,8 +65,8 @@ namespace Vdb {
 	bool PostgreSQLConnection::database(const std::string& db) {
 		if ( isopen() ) {
 			dbName=db;
-			connectionHandle = s->PQsetdbLogin(pghost.c_str(),pgport.c_str(),NULL,NULL,db.c_str(),login.c_str(),pwd.c_str());
-			if (connectionHandle != NULL) {
+			connectionHandle = s->PQsetdbLogin(pghost.c_str(),pgport.c_str(),nullptr,nullptr,db.c_str(),login.c_str(),pwd.c_str());
+			if (connectionHandle != nullptr) {
 				ConnStatusType status = s->PQstatus(connectionHandle);
 				if (status == CONNECTION_OK) {
 					int result = s->PQsetClientEncoding(connectionHandle,"UTF8");
@@ -96,16 +96,16 @@ namespace Vdb {
 		if ( isopen() ) { 
 			if ( db_open ) {
 				q = new PostgreSQLQuery(s, this, connectionHandle, query_str);
-				if (q != NULL) { 
+				if (q != nullptr) { 
 					retval = true;
 				}
 			} else {
 				*Logger::log << Log::fatal << Log::LI << "PostgreSQLConnection error: select a database before creating a query!" << Log::LO << Log::blockend; 
-				q = NULL;
+				q = nullptr;
 			}
 		} else {
 			*Logger::log << Log::fatal << Log::LI << "PostgreSQLConnection error: Open a connection before creating a query!" << Log::LO << Log::blockend; 
-			q = NULL;
+			q = nullptr;
 		}
 		return retval;
 	}
@@ -116,17 +116,17 @@ namespace Vdb {
 				return new PostgreSQLQuery(s, this, connectionHandle, query_str);
 			} else {
 				*Logger::log << Log::fatal << Log::LI << "PostgreSQLConnection error: select a database before creating a query!" << Log::LO << Log::blockend; 
-				return NULL;
+				return nullptr;
 			}
 		} else {
 			*Logger::log << Log::fatal << Log::LI << "PostgreSQLConnection error: Open a connection before creating a query!" << Log::LO << Log::blockend; 
-			return NULL;
+			return nullptr;
 		}
 	}
 	
 	//	"Note that MYSQL* must be a valid, open connection. This is needed because the escaping depends on the character set in use by the server."
 	void PostgreSQLConnection::escape(std::string& text) {
-		if ( ! text.empty() && 	conn_open && connectionHandle != NULL) { 
+		if ( ! text.empty() && 	conn_open && connectionHandle != nullptr) { 
 			size_t result=0;
 			const unsigned char* source = (const unsigned char*)text.c_str();
 			unsigned char* buffer = s->PQescapeByteaConn(connectionHandle,source,text.size(),&result);
@@ -135,15 +135,15 @@ namespace Vdb {
 		}
 	}
 	void PostgreSQLConnection::list() {
-		if (Logger::log != NULL) {
+		if (Logger::log != nullptr) {
 			*Logger::log << Log::info << Log::LI << "PostgreSQL;" << pghost << ";" << login << ";" << pgport << ";" << dbName << ";" << Log::LO << Log::blockend; 
 		}
 	}
 	void PostgreSQLConnection::close() {
-		if (connectionHandle != NULL) { 
+		if (connectionHandle != nullptr) { 
 			s->PQfinish(connectionHandle);
 		}
-		connectionHandle = NULL;
+		connectionHandle = nullptr;
 		conn_open = false;
 		db_open = false;
 	}

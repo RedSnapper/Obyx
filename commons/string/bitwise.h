@@ -189,7 +189,7 @@
 			class Evaluate {
 			private:
 				typedef map<string, Op*> lut_t;
-				typedef hash_map<const string,Num,hash<const string&> > parm_map_t;
+				typedef unordered_map<const string,Num,std::hash<const string&> > parm_map_t;
 				static lut_t lut;
 				
 				string expr;

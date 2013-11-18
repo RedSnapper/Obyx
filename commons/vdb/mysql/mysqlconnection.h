@@ -49,8 +49,8 @@ private:
 		
 
 public:
-		virtual bool dbselected() { return db_open && conn_open && connectionHandle != NULL; }
-		virtual bool isopen() { return conn_open && connectionHandle != NULL; }
+		virtual bool dbselected() { return db_open && conn_open && connectionHandle != nullptr; }
+		virtual bool isopen() { return conn_open && connectionHandle != nullptr; }
 		virtual bool open(const std::string&, const std::string&,const unsigned int, const std::string&); 
 		virtual bool database(const std::string&);
 		virtual Query* query(std::string = "");

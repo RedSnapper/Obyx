@@ -26,17 +26,17 @@
 #include "fast.h"
 
 FCGX_Request Fast::request;
-streambuf* Fast::cin_streambuf  = NULL;
-streambuf* Fast::cout_streambuf = NULL;
-streambuf* Fast::cerr_streambuf = NULL;
-fcgi_streambuf* Fast::fcin_str = NULL;
-fcgi_streambuf* Fast::fcout_str = NULL;
-fcgi_streambuf* Fast::fcerr_str = NULL;
+streambuf* Fast::cin_streambuf  = nullptr;
+streambuf* Fast::cout_streambuf = nullptr;
+streambuf* Fast::cerr_streambuf = nullptr;
+fcgi_streambuf* Fast::fcin_str = nullptr;
+fcgi_streambuf* Fast::fcout_str = nullptr;
+fcgi_streambuf* Fast::fcerr_str = nullptr;
 bool Fast::ready(ostream*& out_ptr,char**& env) { //outp = 'final_out' where everything must end up being put.
 	bool retval = false;
-	if (fcin_str != NULL) {delete fcin_str; fcin_str= NULL;}
-	if (fcout_str != NULL) {delete fcout_str; fcout_str= NULL;}
-	if (fcerr_str != NULL) {delete fcerr_str; fcerr_str= NULL;}
+	if (fcin_str != nullptr) {delete fcin_str; fcin_str= nullptr;}
+	if (fcout_str != nullptr) {delete fcout_str; fcout_str= nullptr;}
+	if (fcerr_str != nullptr) {delete fcerr_str; fcerr_str= nullptr;}
 	retval = (FCGX_Accept_r(&request) >= 0);
 	if (retval) {
 		fcin_str =  new fcgi_streambuf(request.in);

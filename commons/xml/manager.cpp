@@ -20,10 +20,10 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <memory>
 #include <cassert>
-#include <istream>
 #include <ostream>
+#include <codecvt>
+
 
 #include "commons/environment/environment.h"
 #include "commons/logger/logger.h"
@@ -45,11 +45,11 @@ namespace XML {
 	// for information regarding transcoders, see
 	// http://xerces.apache.org/xerces-c/faq-parse-3.html#faq-19
 	
-	XQilla*					Manager::xqilla = NULL;
-	XercesConfiguration* 	Manager::xc = NULL;
-	Parser*					Manager::xparser = NULL;
+	XQilla*					Manager::xqilla = nullptr;
+	XercesConfiguration* 	Manager::xc = nullptr;
+	Parser*					Manager::xparser = nullptr;
 
-	ostream*				Manager::serial_ostream = NULL;
+	ostream*				Manager::serial_ostream = nullptr;
 	Manager::su_map_type 	Manager::tsu;	//transcode (str to ustr) cache.
 	Manager::us_map_type 	Manager::tus;	//transcode (ustr to str) cache.
 	
@@ -60,16 +60,16 @@ namespace XML {
 				result = (char)(source[0]); 
 			} else {
 				
-				char* buff = NULL;
+				char* buff = nullptr;
 				const XMLCh* src=(const XMLCh*)(source.c_str());
 				try {
 					buff = (char*)(TranscodeToStr(src,source.size(),"UTF-8").adopt());
 				} catch (...) { //bad UTF-8
 					*Logger::log << error << Log::LI << "Error Bad UTF-8 String found. Replaced with '[NOT UTF-8]'" << Log::LO << Log::blockend;
-					buff = NULL;
+					buff = nullptr;
 					result="[NOT UTF-8]";
 				}
-				if (buff != NULL) { 
+				if (buff != nullptr) { 
 					result = buff; 
 					XMLString::release(&buff);
 				}
@@ -79,32 +79,30 @@ namespace XML {
 	
 	void Manager::transcode(const std::string& source,u_str& result,const std::string encoding) {
 		if (!source.empty()) {
-//			tsu.clear();	//cache transcodes.
-
-			XMLCh* buf = NULL;
+			XMLCh* buf = nullptr;
 			const XMLByte* src=(const XMLByte*)(source.c_str());
 			buf=TranscodeFromStr(src,source.size(),encoding.c_str()).adopt();	
-			if (buf != NULL) { 
-				result = buf; 
+			if (buf != nullptr) { 
+				result = pcu(buf);
 				XMLString::release(&buf);
 			}
 		}
 	}
 	
 	void Manager::to_ustr(const long num,u_str& repo) {
-		XMLCh buff[64]; //sizeof long should not be more than 64 chars.
-		XMLString::binToText(num,buff,63,10);
-		repo = buff;
+		ostringstream ost;
+		ost << num;
+		transcode(ost.str(),repo);
 	}
 
 	bool Manager::attribute(const DOMNode* n,const u_str attrname, std::string& attrval) {
 		bool result=false;
-		if (n != NULL && !attrname.empty() && n->getNodeType() == DOMNode::ELEMENT_NODE ) {
+		if (n != nullptr && !attrname.empty() && n->getNodeType() == DOMNode::ELEMENT_NODE ) {
 			DOMElement* enod = (DOMElement*)n;
-			DOMAttr* enoda = enod->getAttributeNode(attrname.c_str());
-			if (enoda != NULL) {
+			DOMAttr* enoda = enod->getAttributeNode(pcx(attrname.c_str()));
+			if (enoda != nullptr) {
 				const XMLCh* x_attrval = enoda->getNodeValue();
-				if (x_attrval != NULL && x_attrval[0] != 0 ) {
+				if (x_attrval != nullptr && x_attrval[0] != 0 ) {
 					char* value = (char*)TranscodeToStr(x_attrval,"UTF-8").adopt();
 					size_t vl = strlen(value);
 					attrval.reserve(vl);
@@ -119,13 +117,13 @@ namespace XML {
 	
 	bool Manager::attribute(const DOMNode* n,const u_str attrname, u_str& attrval) {
 		bool result=false;
-		if (n != NULL && !attrname.empty() && n->getNodeType() == DOMNode::ELEMENT_NODE ) {
+		if (n != nullptr && !attrname.empty() && n->getNodeType() == DOMNode::ELEMENT_NODE ) {
 			DOMElement* enod = (DOMElement*)n;
-			DOMAttr* enoda = enod->getAttributeNode(attrname.c_str());
-			if (enoda != NULL) {
+			DOMAttr* enoda = enod->getAttributeNode(pcx(attrname.c_str()));
+			if (enoda != nullptr) {
 				const XMLCh* x_attrval = enoda->getNodeValue();
-				if (x_attrval != NULL && x_attrval[0] != 0 ) {
-					attrval = x_attrval;
+				if (x_attrval != nullptr && x_attrval[0] != 0 ) {
+					attrval = pcu(x_attrval);
 					result = true; //only true if result is not empty.
 				}
 			}
@@ -135,12 +133,12 @@ namespace XML {
 	
 	bool Manager::attribute(const DOMNode* n,const u_str attrname) {
 		bool result=false;
-		if (n != NULL && !attrname.empty() && n->getNodeType() == DOMNode::ELEMENT_NODE ) {
+		if (n != nullptr && !attrname.empty() && n->getNodeType() == DOMNode::ELEMENT_NODE ) {
 			DOMElement* enod = (DOMElement*)n;
-			DOMAttr* enoda = enod->getAttributeNode(attrname.c_str());
-			if (enoda != NULL) {
+			DOMAttr* enoda = enod->getAttributeNode(pcx(attrname.c_str()));
+			if (enoda != nullptr) {
 				const XMLCh* x_attrval = enoda->getNodeValue();
-				if (x_attrval != NULL && x_attrval[0] != 0 ) {
+				if (x_attrval != nullptr && x_attrval[0] != 0 ) {
 					result = true; //only true if result is not empty.
 				}
 			}
@@ -177,9 +175,9 @@ namespace XML {
 	}
 	
 	Manager::~Manager() {
-		delete xc; xc=NULL;
-		delete xparser; xparser=NULL;
-		delete xqilla; xqilla = NULL;
+		delete xc; xc=nullptr;
+		delete xparser; xparser=nullptr;
+		delete xqilla; xqilla = nullptr;
 		XQillaPlatformUtils::terminate();
 //		XMLPlatformUtils::Terminate();
 

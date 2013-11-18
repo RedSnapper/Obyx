@@ -131,7 +131,7 @@
 		void File::init()
 		{
 			setExtensionSeparator('.');
-			ifs = NULL;
+			ifs = nullptr;
 		}
 
 
@@ -142,9 +142,9 @@
 			Path::clear();
 			base = "";
 			extension = "";
-			if (ifs != NULL) {
+			if (ifs != nullptr) {
 				delete ifs; 
-				ifs=NULL;
+				ifs=nullptr;
 			}
 		}
 

@@ -55,7 +55,7 @@ Comparison::Comparison(xercesc::DOMNode* const& n,ObyxElement* par) :
 Function(n,comparison,par),operation(equivalent_to),cbreak(true),invert(false),logic(obyx::all),eval_found(false),
 cmp_evaluated(false),def_evaluated(false),operation_result('X') {
 	u_str op_string,invert_str,break_str,logic_str; 
-	if ( Manager::attribute(n,UCS2(L"operation"),op_string) ) {
+	if ( Manager::attribute(n,u"operation",op_string) ) {
 		cmp_type_map::const_iterator i = cmp_types.find(op_string);
 		if( i != cmp_types.end() ) {
 			operation = i->second.first; 
@@ -80,11 +80,11 @@ cmp_evaluated(false),def_evaluated(false),operation_result('X') {
 			}
 		}
 	}
-	if ( Manager::attribute(n,UCS2(L"invert"),invert_str) ) {
-		if (invert_str.compare(UCS2(L"true")) == 0) {
+	if ( Manager::attribute(n,u"invert",invert_str) ) {
+		if (invert_str.compare(u"true") == 0) {
 			invert = !invert;
 		} else {
-			if (invert_str.compare(UCS2(L"false")) != 0) {
+			if (invert_str.compare(u"false") != 0) {
 				string err_msg; Manager::transcode(invert_str.c_str(),err_msg);
 				*Logger::log << Log::syntax << Log::LI << "Syntax Error. " <<  err_msg << " is not a legal invert. It should be one of: true,false" << Log::LO; 
 				trace();
@@ -97,11 +97,11 @@ cmp_evaluated(false),def_evaluated(false),operation_result('X') {
 	} else {
 		cbreak	= true;
 	}	
-	if ( Manager::attribute(n,UCS2(L"break"),break_str) ) {
-		if (break_str.compare(UCS2(L"true")) == 0) {
+	if ( Manager::attribute(n,u"break",break_str) ) {
+		if (break_str.compare(u"true") == 0) {
 			cbreak = true;
 		} else {
-			if (break_str.compare(UCS2(L"false")) != 0) {
+			if (break_str.compare(u"false") != 0) {
 				string err_msg; Manager::transcode(break_str.c_str(),err_msg);
 				*Logger::log << Log::syntax << Log::LI << "Syntax Error. " <<  err_msg << " is not a legal break. It should be one of: true,false" << Log::LO; 
 				trace();
@@ -113,13 +113,13 @@ cmp_evaluated(false),def_evaluated(false),operation_result('X') {
 	}
 	bool logic_found = false;
 	if (owner->version() < 1.110208) { // 'scope' changed to 'logic'.
-		logic_found		= Manager::attribute(n,UCS2(L"scope"),logic_str);
+		logic_found		= Manager::attribute(n,u"scope",logic_str);
 	} else {
-		logic_found		= Manager::attribute(n,UCS2(L"logic"),logic_str);
-		if (Manager::attribute(n,UCS2(L"scope"))) {
+		logic_found		= Manager::attribute(n,u"logic",logic_str);
+		if (Manager::attribute(n,u"scope")) {
 			Environment* env = Environment::service();
 			if (env->envexists("OBYX_ALLOW_LEGACY_COMPARISON_SCOPE")) {
-				logic_found		= Manager::attribute(n,UCS2(L"scope"),logic_str);
+				logic_found		= Manager::attribute(n,u"scope",logic_str);
 			} else {
 				*Logger::log << Log::syntax << Log::LI << "Syntax Error. 'scope' is not legal for the version (" << owner->version_str() <<  ") of this document.  For versions 1.110208 or above use 'logic'." << Log::LO; 
 				trace();
@@ -128,10 +128,10 @@ cmp_evaluated(false),def_evaluated(false),operation_result('X') {
 		}
 	}
 	if ( logic_found ) {
-		if (logic_str.compare(UCS2(L"any")) == 0) {
+		if (logic_str.compare(u"any") == 0) {
 			logic = obyx::any;
 		} else {
-			if (logic_str.compare(UCS2(L"all")) != 0) {
+			if (logic_str.compare(u"all") != 0) {
 				string err_msg; Manager::transcode(logic_str.c_str(),err_msg);
 				*Logger::log << Log::syntax << Log::LI << "Syntax Error. " << err_msg << " is not a legal logic attribute. It should be one of: any,all" << Log::LO; 
 				trace();
@@ -149,7 +149,7 @@ bool Comparison::evaluate_this() {
 	pair<long long,bool> naccumulator;
 	cmp_evaluated = true;
 	if (cmp_evaluated && operation_result=='X') {	//all the comparators are evaluated but the operation is not
-		DataItem* acc = NULL;
+		DataItem* acc = nullptr;
 		bool compare_bool = (logic == obyx::all ? true : false);	//if invert, then bool must be false.
 		for ( unsigned int i = 0; (!finished  && i < inputs.size()); i++ ) {
 			if (operation != found || inputs[i]->wotzit != comparate) {
@@ -158,47 +158,47 @@ bool Comparison::evaluate_this() {
 			if ( inputs[i]->wotzit == comparate ) {
 				if (firstval) {
 					switch(operation) {
-						case found: {
+						case obyx::found: {
 							unary_op = true;
 							std::set<std::string,less<std::string> > spacekeys;
 							inputs[i]->evalfind(spacekeys);
 							compare_bool = !spacekeys.empty();
 						} break;
-						case equivalent_to: {
+						case obyx::equivalent_to: {
 							inputs[i]->results.takeresult(acc);
 						} break;
-						case exists: {  
+						case obyx::exists: {
 							inputs[i]->results.takeresult(acc);
 							unary_op = true;
 							compare_bool = inputs[i]->getexists();
 						} break;	// compare_bool is true if it does exist.
-						case is_empty: { 
+						case obyx::is_empty: {
 							inputs[i]->results.takeresult(acc);
 							unary_op = true;
-							compare_bool = (acc == NULL || acc->empty());  
+							compare_bool = (acc == nullptr || acc->empty());  
 						} break; 
-						case less_than: {
+						case obyx::less_than: {
 							inputs[i]->results.takeresult(acc);
-							string sacc; if (acc != NULL) { sacc = *acc; }
+							string sacc; if (acc != nullptr) { sacc = *acc; }
 							daccumulator = String::real(sacc);
 						} break; 
-						case greater_than: {
+						case obyx::greater_than: {
 							inputs[i]->results.takeresult(acc);
-							string sacc; if (acc != NULL) { sacc = *acc; }
+							string sacc; if (acc != nullptr) { sacc = *acc; }
 							daccumulator = String::real(sacc);
 						} break;
-						case significant: {
+						case obyx::significant: {
 							inputs[i]->results.takeresult(acc);
 							unary_op = true;
 							compare_bool = inputs[i]->getexists();  
 							if (compare_bool) {
-								compare_bool = (acc != NULL && ! acc->empty());
+								compare_bool = (acc != nullptr && ! acc->empty());
 							}
 						} break;
-						case cmp_true: { 
+						case obyx::cmp_true: { 
 							inputs[i]->results.takeresult(acc);
 							unary_op = true;
-							string sacc; if (acc != NULL) { sacc = *acc; }
+							string sacc; if (acc != nullptr) { sacc = *acc; }
 							if (sacc.compare("true") == 0) { 
 								compare_bool = true;
 							} else {
@@ -212,45 +212,45 @@ bool Comparison::evaluate_this() {
 						} break;
 					}
 				} else {
-					DataItem* inpval= NULL;
+					DataItem* inpval= nullptr;
 					if ( compare_bool || logic==obyx::any ) {
 						bool compare_test = false;
 						switch(operation) {
-							case found: {
+							case obyx::found: {
 								std::set<std::string,less<std::string> > spacekeys;
 								inputs[i]->evalfind(spacekeys);
 								compare_test = !spacekeys.empty();
 							} break;
-							case exists: { 
+							case obyx::exists: {
 								inputs[i]->results.takeresult(inpval);
 								compare_test = inputs[i]->getexists(); 
 							} break;
-							case is_empty: { 
+							case obyx::is_empty: {
 								inputs[i]->results.takeresult(inpval);
-								compare_test = ( inpval == NULL || inpval->empty() ); 
+								compare_test = ( inpval == nullptr || inpval->empty() ); 
 							} break;
-							case significant: {
+							case obyx::significant: {
 								inputs[i]->results.takeresult(inpval);
 								compare_test = inputs[i]->getexists(); 
 								if (compare_test) {
-									compare_test = (inpval != NULL && ! inpval->empty());
+									compare_test = (inpval != nullptr && ! inpval->empty());
 								}
 							} break;
-							case equivalent_to: { 
+							case obyx::equivalent_to: {
 								inputs[i]->results.takeresult(inpval);
-								if (acc == NULL) {
-									compare_test = (inpval == NULL);
+								if (acc == nullptr) {
+									compare_test = (inpval == nullptr);
 								} else {
-									if (inpval != NULL) {
+									if (inpval != nullptr) {
 										compare_test = acc->same(inpval);
 									} else {
 										compare_test = false;
 									}
 								}
 							} break;
-							case less_than: { 
+							case obyx::less_than: {
 								inputs[i]->results.takeresult(inpval);
-								string sinp; if (inpval != NULL) { sinp = *inpval; }
+								string sinp; if (inpval != nullptr) { sinp = *inpval; }
 								double dinput = String::real(sinp);
 								if (!invert) {
 									compare_test = daccumulator < dinput; 
@@ -259,9 +259,9 @@ bool Comparison::evaluate_this() {
 								}
 								daccumulator = dinput;
 							} break;
-							case greater_than: { //LTE = !GT for 773  (7 !gt 7)=T && (7 !gt 3)=F
+							case obyx::greater_than: { //LTE = !GT for 773  (7 !gt 7)=T && (7 !gt 3)=F
 								inputs[i]->results.takeresult(inpval);
-								string sinp; if (inpval != NULL) { sinp = *inpval; }
+								string sinp; if (inpval != nullptr) { sinp = *inpval; }
 								double dinput = String::real(sinp);   // (7 !gt 7) = true = ok
 								if (!invert) {
 									compare_test = daccumulator > dinput; 
@@ -270,9 +270,9 @@ bool Comparison::evaluate_this() {
 								}
 								daccumulator = dinput;
 							} break;
-							case cmp_true: {
+							case obyx::cmp_true: {
 								inputs[i]->results.takeresult(inpval);
-								string sinp; if (inpval != NULL) { sinp = *inpval; }
+								string sinp; if (inpval != nullptr) { sinp = *inpval; }
 								if (sinp.compare("true") == 0) { 
 									compare_test = true; // baccumulator = baccumulator || true => baccumulator=true;
 								} else {
@@ -327,7 +327,7 @@ bool Comparison::evaluate_this() {
 				||   (operation_result=='F' && definputs[i]->wotzit == onfalse ) ) {
 				eval_found = true;
 				definputs[i]->evaluate();
-				DataItem* defev = NULL;
+				DataItem* defev = nullptr;
 				definputs[i]->results.takeresult(defev); 
 				results.setresult(defev); 
 			}
@@ -405,14 +405,14 @@ void Comparison::init() {
 void Comparison::finalise() {
 }
 void Comparison::startup() {
-	cmp_types.insert(cmp_type_map::value_type(UCS2(L"empty"), std::pair<cmp_type,bool>(is_empty,false) ));
-	cmp_types.insert(cmp_type_map::value_type(UCS2(L"equal"), std::pair<cmp_type,bool>(equivalent_to,false) ));
-	cmp_types.insert(cmp_type_map::value_type(UCS2(L"existent"), std::pair<cmp_type,bool>(exists,false)));
-	cmp_types.insert(cmp_type_map::value_type(UCS2(L"found"), std::pair<cmp_type,bool>(found,false) ));
-	cmp_types.insert(cmp_type_map::value_type(UCS2(L"greater"), std::pair<cmp_type,bool>(greater_than,false) ));
-	cmp_types.insert(cmp_type_map::value_type(UCS2(L"lesser"), std::pair<cmp_type,bool>(less_than,false) ));
-	cmp_types.insert(cmp_type_map::value_type(UCS2(L"significant"), std::pair<cmp_type,bool>(significant,false) ));
-	cmp_types.insert(cmp_type_map::value_type(UCS2(L"true"), std::pair<cmp_type,bool>(cmp_true,false) ));
+	cmp_types.insert(cmp_type_map::value_type(u"empty", std::pair<cmp_type,bool>(obyx::is_empty,false) ));
+	cmp_types.insert(cmp_type_map::value_type(u"equal", std::pair<cmp_type,bool>(obyx::equivalent_to,false) ));
+	cmp_types.insert(cmp_type_map::value_type(u"existent", std::pair<cmp_type,bool>(obyx::exists,false)));
+	cmp_types.insert(cmp_type_map::value_type(u"found", std::pair<cmp_type,bool>(obyx::found,false) ));
+	cmp_types.insert(cmp_type_map::value_type(u"greater", std::pair<cmp_type,bool>(obyx::greater_than,false) ));
+	cmp_types.insert(cmp_type_map::value_type(u"lesser", std::pair<cmp_type,bool>(obyx::less_than,false) ));
+	cmp_types.insert(cmp_type_map::value_type(u"significant", std::pair<cmp_type,bool>(obyx::significant,false) ));
+	cmp_types.insert(cmp_type_map::value_type(u"true", std::pair<cmp_type,bool>(obyx::cmp_true,false) ));
 }
 void Comparison::shutdown() {
 	cmp_types.clear();

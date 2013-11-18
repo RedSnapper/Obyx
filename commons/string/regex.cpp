@@ -41,17 +41,17 @@ namespace String {
 	
 	bool Regex::loadattempted = false;
 	bool Regex::loaded = false;
-	void* Regex::pcre_lib_handle = NULL;
+	void* Regex::pcre_lib_handle = nullptr;
 	
 	int Regex::re_options = ( PCRE_EXTENDED | PCRE_UTF8 | PCRE_NO_UTF8_CHECK ) & 0x1FFFFFF;
 	int Regex::mt_options = ( PCRE_NO_UTF8_CHECK ) & 0x1FFFFFF;
-	pcre* (*Regex::pcre_compile)(const char*, int, const char**, int*, const unsigned char*) = NULL;
-	int (*Regex::pcre_exec)(const pcre*,const pcre_extra*,PCRE_SPTR,int,int,int,int*,int) = NULL;
-	int (*Regex::pcre_config)(int,void *)= NULL;
-	void (*Regex::pcre_free)(void *) = NULL;
+	pcre* (*Regex::pcre_compile)(const char*, int, const char**, int*, const unsigned char*) = nullptr;
+	int (*Regex::pcre_exec)(const pcre*,const pcre_extra*,PCRE_SPTR,int,int,int,int*,int) = nullptr;
+	int (*Regex::pcre_config)(int,void *)= nullptr;
+	void (*Regex::pcre_free)(void *) = nullptr;
 
-	pcre_extra* (*Regex::pcre_study)(const pcre*,int,const char**) = NULL;
-	//	void (*Regex::pcre_free)(void *) = NULL;
+	pcre_extra* (*Regex::pcre_study)(const pcre*,int,const char**) = nullptr;
+	//	void (*Regex::pcre_free)(void *) = nullptr;
 	
 	Regex::type_regex_cache Regex::regex_cache;
 
@@ -76,14 +76,14 @@ namespace String {
 			}
 			pcre_lib_handle = dlopen(libstr.c_str(),RTLD_GLOBAL | RTLD_NOW);
 			dlerr(err); //debug only.
-			if (err.empty() && pcre_lib_handle != NULL ) {
+			if (err.empty() && pcre_lib_handle != nullptr ) {
 				pcre_compile = (pcre* (*)(const char*, int, const char**, int*,const unsigned char*)) dlsym(pcre_lib_handle,"pcre_compile"); dlerr(err);
 				pcre_exec = (int (*)(const pcre*,const pcre_extra*,PCRE_SPTR,int,int,int,int*,int)) dlsym(pcre_lib_handle,"pcre_exec"); dlerr(err);
 				pcre_config = (int (*)(int,void *)) dlsym(pcre_lib_handle,"pcre_config");  dlerr(err);
 				pcre_study = (pcre_extra* (*)(const pcre*,int,const char**)) dlsym(pcre_lib_handle,"pcre_study");  dlerr(err);
 				pcre_free = (void (*)(void *)) dlsym(pcre_lib_handle,"pcre_free");  dlerr(err);
 				if ( err.empty() ) {
-					if ( pcre_config != NULL && pcre_compile != NULL && pcre_exec!=NULL) {
+					if ( pcre_config != nullptr && pcre_compile != nullptr && pcre_exec!=nullptr) {
 						int locr = 0;
 						int dobo = pcre_config(PCRE_CONFIG_UTF8, &locr);
 						if (locr != 1 || dobo != 0) { //dobo means that the flag is not supported...
@@ -102,7 +102,7 @@ namespace String {
 	
 	void Regex::dlerr(std::string& container) {
 		const char *err = dlerror();
-		if (err != NULL) {
+		if (err != nullptr) {
 			container.append(err);
 		}
 	}
@@ -115,12 +115,12 @@ namespace String {
 			type_regex_cache::iterator it = regex_cache.begin();
 			while ( it != regex_cache.end()) {
 				pccache_item* item = &(it->second);
-				if (item != NULL) {
-					if (item->first != NULL) {
+				if (item != nullptr) {
+					if (item->first != nullptr) {
 						delete item->first;
 //						pcre_free(item->first);
 					}
-					if (item->second != NULL) {
+					if (item->second != nullptr) {
 						delete item->second;
 					}
 				}
@@ -128,9 +128,9 @@ namespace String {
 			}
 			regex_cache.clear();
 		}
-		if ( pcre_lib_handle != NULL ) {
+		if ( pcre_lib_handle != nullptr ) {
 			dlclose(pcre_lib_handle);
-			pcre_lib_handle = NULL;
+			pcre_lib_handle = nullptr;
 		}
 		return true;
 	}
@@ -141,7 +141,7 @@ namespace String {
 	size_t Regex::replace(const string &pattern,const string &substitute,string &scope,bool do_all) {
 		size_t count = 0;
 		if ( ! scope.empty() ) {
-			int* ov = NULL;		// size must be a multiple of 3.
+			int* ov = nullptr;		// size must be a multiple of 3.
 			int ovc = 90;   	// size of ovector
 			ov = new int[ovc];
 			memset((int *) ov, 0, sizeof(ov));
@@ -254,7 +254,7 @@ namespace String {
 	bool Regex::field(const string &pattern,const string &basis,unsigned int fieldnum,string &scope) {
 		bool retval=false;
 		if ( ! basis.empty() ) {
-			int* ov = NULL; int ovc = 90;		// size must be a multiple of 3. //ovc size of ovector
+			int* ov = nullptr; int ovc = 90;		// size must be a multiple of 3. //ovc size of ovector
 			ov = new int[ovc];
 			memset((int *) ov, 0, sizeof(ov));
 			size_t matches = matcher(pattern, basis, 0, ov, ovc);
@@ -346,8 +346,8 @@ namespace String {
 	size_t Regex::matcher(const string& pattern,const string& scope,const int offset,int*& ov,int& ovc) {
 		size_t inner_result = 0;
 		int exec_result = 0;
-		pcre* re = NULL;
-		pcre_extra* rx = NULL;
+		pcre* re = nullptr;
+		pcre_extra* rx = nullptr;
 		type_regex_cache::const_iterator it = regex_cache.find(pattern);
 		if (it != regex_cache.end()) {
 			re = ((*it).second.first);
@@ -369,13 +369,13 @@ namespace String {
 	}
 	
 	bool Regex::compile(const string& pattern,pcre*& container,pcre_extra*& extra) {
-		const char *error = NULL;
+		const char *error = nullptr;
 		int erroffset=0;
 		bool retval = true;
-		container = pcre_compile(pattern.c_str(),re_options,&error,&erroffset,NULL);
-		if ( container == NULL) {
+		container = pcre_compile(pattern.c_str(),re_options,&error,&erroffset,nullptr);
+		if ( container == nullptr) {
 			string errmsg;
-			if (error != NULL) { 
+			if (error != nullptr) { 
 				errmsg = error;
 			} else {
 				errmsg = "Unspecified compile error";
@@ -388,7 +388,7 @@ namespace String {
 			retval = false;	//could report the actual error here.
 		} else {
 			extra = pcre_study(container,0,&error);	
-			if (error != NULL) {
+			if (error != nullptr) {
 				*Logger::log << Log::error << "Regex, while studying pattern '" << pattern << "' : " << error << Log::LO << Log::blockend; ;
 				retval = false;	//could report the actual error here.
 			}
@@ -401,7 +401,7 @@ namespace String {
 			string msg;
 			switch(errnum) {
 				case  0: msg="Internal Error: ovector is too small"; break;
-				case -2: msg="Internal Error: Either 'code' or 'subject' was passed as NULL, or ovector was NULL and ovecsize was not zero."; break;
+				case -2: msg="Internal Error: Either 'code' or 'subject' was passed as nullptr, or ovector was nullptr and ovecsize was not zero."; break;
 				case -3: msg="Internal Error: An unrecognized bit was set in the options argument."; break;
 				case -4: msg="Internal Error: Endian test magic number was missing. Probably a junk pointer was passed."; break;
 				case -5: msg="Internal Error: An unknown item in the compiled pattern was encountered during match."; break;

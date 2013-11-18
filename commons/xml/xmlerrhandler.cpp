@@ -42,25 +42,25 @@ namespace XML {
 		if (domError.getSeverity() != xercesc::DOMError::DOM_SEVERITY_WARNING) { //discard warnings?
 			fSawErrors = true;
 			string err_message; 
-			Manager::transcode(domError.getMessage(),err_message);
-			if (Logger::log != NULL) { //This can happen before the Logger is loaded.
+			Manager::transcode(pcu(domError.getMessage()),err_message);
+			if (Logger::log != nullptr) { //This can happen before the Logger is loaded.
 				*Logger::log << Log::error << Log::LI << "DOM Error:" << err_message << Log::LO;
 //				if ( ObyxElement::break_point == 0) { ObyxElement::break_point = ObyxElement::eval_count+1 ;}
 			} else {
 				cerr << err_message;
 			}
 			DOMLocator* loc = domError.getLocation(); //
-			if (loc != NULL) {
+			if (loc != nullptr) {
 				DOMNode* errnode = loc->getRelatedNode();
-				if (!fGrammar && (errnode != NULL)) { 
+				if (!fGrammar && (errnode != nullptr)) { 
 					string info_string;
-					basic_string<XMLCh> xp = Manager::parser()->xpath(errnode);
+					u_str xp = Manager::parser()->xpath(errnode);
 					Manager::transcode(xp.c_str(),info_string);
 					if (info_string.empty()) {
 						DOMDocument* errdoc = errnode->getOwnerDocument();
 						Manager::parser()->writedoc(errdoc,info_string);
 						if (!info_string.empty()) {
-							if (Logger::log != NULL) { //This can happen before the Logger is loaded.
+							if (Logger::log != nullptr) { //This can happen before the Logger is loaded.
 								*Logger::log << Log::LI << "The parser managed to get" << Log::LO ;
 								*Logger::log << Log::LI << Log::info << Log::LI << info_string << Log::LO << Log::blockend << Log::LO;
 							} else {
@@ -68,7 +68,7 @@ namespace XML {
 							}
 						}
 					} else {
-						if (Logger::log != NULL) { //This can happen before the Logger is loaded.
+						if (Logger::log != nullptr) { //This can happen before the Logger is loaded.
 							*Logger::log << Log::LI << "XPath: " << info_string << Log::LO ;
 						} else {
 							cerr << info_string;
@@ -76,7 +76,7 @@ namespace XML {
 					}
 				}
 			}
-			if (Logger::log != NULL) { //This can happen before the Logger is loaded.
+			if (Logger::log != nullptr) { //This can happen before the Logger is loaded.
 				*Logger::log << Log::blockend;
 			}
 		}

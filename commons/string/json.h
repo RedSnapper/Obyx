@@ -34,15 +34,15 @@ public:
 private:
 	typedef enum {obj,arr,val,none} state_t;
 	typedef enum { t_string,t_number,t_bool,t_null } type_t;	//what type
-	static const u_str k_name;		//= UCS2(L"name");
-	static const u_str k_object;	//= UCS2(L"object");
-	static const u_str k_array;		//= UCS2(L"array");
-	static const u_str k_value;		//= UCS2(L"value");
-	static const u_str k_type;		//= UCS2(L"type");
-	static const u_str kt_string;	//= UCS2(L"string");
-	static const u_str kt_number;	//= UCS2(L"number");
-	static const u_str kt_null;		//= UCS2(L"null");
-	static const u_str kt_bool;		//= UCS2(L"bool");
+	static const u_str k_name;		//= u"name";
+	static const u_str k_object;	//= u"object";
+	static const u_str k_array;		//= u"array";
+	static const u_str k_value;		//= u"value";
+	static const u_str k_type;		//= u"type";
+	static const u_str kt_string;	//= u"string";
+	static const u_str kt_number;	//= u"number";
+	static const u_str kt_null;		//= u"null";
+	static const u_str kt_bool;		//= u"bool";
 	void compose(const xercesc::DOMNode*,std::ostringstream &,std::ostringstream &) const;
 	void nextel(const xercesc::DOMNode*&) const;
 	//now decoding fns.

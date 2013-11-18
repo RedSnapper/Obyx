@@ -99,7 +99,7 @@ namespace Fetch {
 	int HTTPFetch::seekMemoryCallback(void *stream, curl_off_t offset, int cmd) {
 		int retval = CURL_SEEKFUNC_FAIL;
 		std::string* s = static_cast<std::string*>(stream); //this should be same as body.
-		if (s != NULL) {
+		if (s != nullptr) {
 			switch (cmd) {
 				case SEEK_SET:
 				case SEEK_CUR: if ((size_t)offset < s->size()) {
@@ -129,7 +129,7 @@ namespace Fetch {
 	 (i.e before the server expected it, like when you've told you will upload N bytes and you upload less than N bytes),
 	 you may experience that the server "hangs" waiting for the rest of the data that won't come.
 	 
-	 If you set the callback pointer to NULL, or doesn't set it at all, the default internal read 
+	 If you set the callback pointer to nullptr, or doesn't set it at all, the default internal read 
 	 function will be used. It is simply doing an fread() on the FILE * stream set with CURLOPT_READDATA.	
 	 */
 	
@@ -146,15 +146,15 @@ namespace Fetch {
 	
 	bool HTTPFetch::loadattempted = false;
 	bool HTTPFetch::loaded = false;
-	void* HTTPFetch::lib_handle = NULL;
+	void* HTTPFetch::lib_handle = nullptr;
 	
-	void (*HTTPFetch::curl_slist_free_all)(struct curl_slist *)= NULL;
-	struct curl_slist* (*HTTPFetch::curl_slist_append)(struct curl_slist*,const char *) = NULL;
-	CURL* (*HTTPFetch::curl_easy_init)() = NULL;
-	CURLcode (*HTTPFetch::curl_easy_setopt)(CURL*, CURLoption, ...) = NULL;
-	CURLcode (*HTTPFetch::curl_easy_perform)(CURL*)= NULL;
-	void (*HTTPFetch::curl_easy_cleanup)(CURL*) = NULL;
-	curl_version_info_data* (*HTTPFetch::curl_version_info)(CURLversion)  = NULL;
+	void (*HTTPFetch::curl_slist_free_all)(struct curl_slist *)= nullptr;
+	struct curl_slist* (*HTTPFetch::curl_slist_append)(struct curl_slist*,const char *) = nullptr;
+	CURL* (*HTTPFetch::curl_easy_init)() = nullptr;
+	CURLcode (*HTTPFetch::curl_easy_setopt)(CURL*, CURLoption, ...) = nullptr;
+	CURLcode (*HTTPFetch::curl_easy_perform)(CURL*)= nullptr;
+	void (*HTTPFetch::curl_easy_cleanup)(CURL*) = nullptr;
+	curl_version_info_data* (*HTTPFetch::curl_version_info)(CURLversion)  = nullptr;
 
 	bool HTTPFetch::available() {
 		if (!loadattempted) {
@@ -166,7 +166,7 @@ namespace Fetch {
 
 	void HTTPFetch::dlerr(std::string& container) {
 		const char *err = dlerror();
-		if (err != NULL) {
+		if (err != nullptr) {
 			container.append(err);
 		}
 	}
@@ -185,7 +185,7 @@ namespace Fetch {
 			}
 			lib_handle = dlopen(libstr.c_str(),RTLD_GLOBAL | RTLD_NOW);
 			dlerr(err);
-			if (err.empty() && lib_handle != NULL ) {
+			if (err.empty() && lib_handle != nullptr ) {
 				curl_easy_init = (CURL* (*)()) dlsym(lib_handle,"curl_easy_init");
 				curl_easy_setopt = (CURLcode (*)(CURL *,CURLoption,...)) dlsym(lib_handle,"curl_easy_setopt");
 				curl_easy_perform = (CURLcode (*)(CURL *)) dlsym(lib_handle,"curl_easy_perform");
@@ -195,7 +195,7 @@ namespace Fetch {
 				curl_version_info = (curl_version_info_data* (*)(CURLversion)) dlsym(lib_handle,"curl_version_info");
 				dlerr(err);
 				if ( err.empty() ) {
-					if ( curl_slist_append != NULL && curl_slist_free_all != NULL && curl_easy_init != NULL && curl_easy_setopt!=NULL && curl_easy_perform!=NULL && curl_easy_cleanup!=NULL) {
+					if ( curl_slist_append != nullptr && curl_slist_free_all != nullptr && curl_easy_init != nullptr && curl_easy_setopt!=nullptr && curl_easy_perform!=nullptr && curl_easy_cleanup!=nullptr) {
 						loaded = true;
 					}
 				} else {
@@ -209,7 +209,7 @@ namespace Fetch {
 	}
 	
 	bool HTTPFetch::shutdown() {											 //necessary IFF script uses pcre.
-		if ( lib_handle != NULL ) {
+		if ( lib_handle != nullptr ) {
 			dlclose(lib_handle);
 		}
 		return true;
@@ -228,10 +228,10 @@ namespace Fetch {
 	
 	// http://curl.haxx.se/libcurl/c/curl_easy_setopt.html
 	
-	HTTPFetch::HTTPFetch(const string& u,const string& m,const string& v,string& b,unsigned long long redirects,unsigned long long timeout, string& errstr) : headers(NULL),cookies(),body(b),handle(NULL),errorBuf(new char[CURL_ERROR_SIZE]),had_error(false) {
+	HTTPFetch::HTTPFetch(const string& u,const string& m,const string& v,string& b,unsigned long long redirects,unsigned long long timeout, string& errstr) : headers(nullptr),cookies(),body(b),handle(nullptr),errorBuf(new char[CURL_ERROR_SIZE]),had_error(false) {
 		errorBuf[0] = '\0'; 
 		handle = curl_easy_init();
-		assert(handle != NULL);
+		assert(handle != nullptr);
 		//		processErrorCode(curl_easy_setopt(handle, CURLOPT_VERBOSE, true));
 		string redirect_val,timeout_val;
 		unsigned long maxRedirects = 10,timeout_seconds=30;
@@ -250,7 +250,7 @@ namespace Fetch {
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_NOBODY, 0), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_COOKIEFILE, ""), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_ERRORBUFFER, errorBuf), errstr);
-		processErrorCode(curl_easy_setopt(handle, CURLOPT_POSTFIELDS, NULL), errstr);
+		processErrorCode(curl_easy_setopt(handle, CURLOPT_POSTFIELDS, nullptr), errstr);
 		if ( Logger::debugging() ) {
 //			processErrorCode(curl_easy_setopt(handle, CURLOPT_DEBUGDATA, &body), errstr); //
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_DEBUGFUNCTION, debugCallback), errstr);
@@ -283,12 +283,12 @@ namespace Fetch {
 	}
 	
 	//- HTTPFetch methods -//
-	HTTPFetch::HTTPFetch(std::string& errstr) : headers(NULL),cookies(),body(),handle(NULL),errorBuf(new char[CURL_ERROR_SIZE]),had_error(false) {
+	HTTPFetch::HTTPFetch(std::string& errstr) : headers(nullptr),cookies(),body(),handle(nullptr),errorBuf(new char[CURL_ERROR_SIZE]),had_error(false) {
 		Environment* env = Environment::service();
 		errorBuf[0] = '\0'; 
 		cookies = env->response_cookies(false); //We may want to think about this...
 		handle = curl_easy_init();
-		assert(handle != NULL);
+		assert(handle != nullptr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_COOKIEFILE, ""), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_ERRORBUFFER, errorBuf), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, writeMemoryCallback), errstr);
@@ -298,8 +298,8 @@ namespace Fetch {
 	}
 	
 	HTTPFetch::~HTTPFetch() {
-		if (headers != NULL) { 
-			curl_slist_free_all(headers); //crud - crashes if headers = NULL.
+		if (headers != nullptr) { 
+			curl_slist_free_all(headers); //crud - crashes if headers = nullptr.
 		}
 		curl_easy_cleanup(handle);
 		delete [] errorBuf;
@@ -312,7 +312,7 @@ namespace Fetch {
 		unsigned long maxRedirects = 0,timeout_seconds=30;
 		if ( Logger::debugging() ) {
 			curl_version_info_data* info = curl_version_info(CURLVERSION_NOW);
-			if (info != NULL) {
+			if (info != nullptr) {
 				if (Logger::debugging()) {
 					*Logger::log << Log::info << Log::LI << "libcurl/";
 					*Logger::log << info->version << " " << info->ssl_version << " libz/" << info->libz_version; //<< " " << info->libssh_version;
@@ -336,7 +336,7 @@ namespace Fetch {
 				*Logger::log << Log::LI << "There is a body to process. This will be a POST." << Log::LO;
 			}
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_POST, 1), errstr); //
-			processErrorCode(curl_easy_setopt(handle, CURLOPT_POSTFIELDS, NULL), errstr); //
+			processErrorCode(curl_easy_setopt(handle, CURLOPT_POSTFIELDS, nullptr), errstr); //
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_READFUNCTION, readMemoryCallback), errstr);
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_READDATA, &body), errstr);	//This is not a c_string- it's used by readMemoryCallback.
 			processErrorCode(curl_easy_setopt(handle, CURLOPT_POSTFIELDSIZE, body.size()), errstr);
@@ -347,7 +347,7 @@ namespace Fetch {
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_WRITEHEADER, &headerString), errstr);
 		processErrorCode(curl_easy_setopt(handle, CURLOPT_HTTPHEADER, headers), errstr);
 		processErrorCode(curl_easy_perform(handle), errstr);
-		curl_slist_free_all(headers); headers=NULL;
+		curl_slist_free_all(headers); headers=nullptr;
 		size_t codepoint = headerString.find(' ') + 1;
 		if (codepoint != string::npos) {
 			string::const_iterator cp = headerString.begin() + codepoint;

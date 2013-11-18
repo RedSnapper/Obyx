@@ -50,26 +50,26 @@ bool OsiAPP::request(const xercesc::DOMNode* n,int max_redirects,int timeout_sec
 	Environment* env = Environment::service();
 	std::string elname = "";
 	bool request_result = true;
-	XML::Manager::transcode(n->getLocalName(),elname);
+	XML::Manager::transcode(pcu(n->getLocalName()),elname);
 	if (elname.compare("http") == 0) {
 		n=n->getFirstChild();		//this is one of request|response - but we only support request here.
-		while ( n != NULL && n->getNodeType() != DOMNode::ELEMENT_NODE)  {
+		while ( n != nullptr && n->getNodeType() != DOMNode::ELEMENT_NODE)  {
 			n = n->getNextSibling();
 		}
-		if (n != NULL) {
-			XML::Manager::transcode(n->getLocalName(),elname);
+		if (n != nullptr) {
+			XML::Manager::transcode(pcu(n->getLocalName()),elname);
 			if (elname.compare("request") == 0) {
 				string req_url,req_method,req_version;
-				if ( ! XML::Manager::attribute(n,UCS2(L"url"),req_url)) {
+				if ( ! XML::Manager::attribute(n,u"url",req_url)) {
 					*Logger::log << Log::error << Log::LI << "Error. OSI 'http' request must have a url attribute." << Log::LO << Log::blockend;
 					request_result=false;
 				} else {
-					if ( ! XML::Manager::attribute(n,UCS2(L"method"),req_method)) { 
+					if ( ! XML::Manager::attribute(n,u"method",req_method)) {
 						*Logger::log << Log::error << Log::LI << "Error. OSI 'http' request must have a method attribute. Normally GET or POST." << Log::LO << Log::blockend;
 						request_result=false;
 					}
 					String::toupper(req_method);
-					if ( ! XML::Manager::attribute(n,UCS2(L"version"),req_version)) { 
+					if ( ! XML::Manager::attribute(n,u"version",req_version)) {
 						req_version="HTTP/1.0";
 					}
 					string body;		//we need to initialise this before initializing the HTTPFetch.
@@ -77,10 +77,10 @@ bool OsiAPP::request(const xercesc::DOMNode* n,int max_redirects,int timeout_sec
 					if ( HTTPFetch::available() ) {
 						vector<std::string> heads;
 						DOMNode* msg=n->getFirstChild();		//this is one of request|response - but we only support request here.
-						while ( msg != NULL && msg->getNodeType() != DOMNode::ELEMENT_NODE)  {
+						while ( msg != nullptr && msg->getNodeType() != DOMNode::ELEMENT_NODE)  {
 							msg = msg->getNextSibling();
 						}
-						if (msg != NULL) {
+						if (msg != nullptr) {
 							OsiMessage::decompile(msg,heads,body);		//this is a message...
 						}
 	//					int max_redirects = 33, timeout_secs = 30;
@@ -127,14 +127,14 @@ bool OsiAPP::request(const xercesc::DOMNode* n,int max_redirects,int timeout_sec
 	} else {
 		if (elname.compare("mta") == 0) { //mail transfer agent - using sendmail
 			n=n->getFirstChild();		  //we only support send here.
-			while ( n != NULL && n->getNodeType() != DOMNode::ELEMENT_NODE)  {
+			while ( n != nullptr && n->getNodeType() != DOMNode::ELEMENT_NODE)  {
 				n = n->getNextSibling();
 			}
-			if (n != NULL) {
-				XML::Manager::transcode(n->getLocalName(),elname);
+			if (n != nullptr) {
+				XML::Manager::transcode(pcu(n->getLocalName()),elname);
 				if (elname.compare("send") == 0) {
 					string send_path,env_sender;
-					if (XML::Manager::attribute(n,UCS2(L"sender"),env_sender)) {
+					if (XML::Manager::attribute(n,u"sender",env_sender)) {
 						String::mailencode(env_sender);
 					}
 					if ( ! env->getenv("OBYX_MTA",send_path)) {
@@ -142,7 +142,7 @@ bool OsiAPP::request(const xercesc::DOMNode* n,int max_redirects,int timeout_sec
 						request_result=false;
 					} else {
 						n=n->getFirstChild();		  //we only support send here.
-						while ( n != NULL && n->getNodeType() != DOMNode::ELEMENT_NODE)  {
+						while ( n != nullptr && n->getNodeType() != DOMNode::ELEMENT_NODE)  {
 							n = n->getNextSibling();
 						}
 						string mfil = env->ScratchDir();
@@ -160,11 +160,11 @@ bool OsiAPP::request(const xercesc::DOMNode* n,int max_redirects,int timeout_sec
 							cmd << " -f \"" << env_sender << "\""; //-r is now deprecated by sendmail.org
 						}
 						cmd << " -t > " << resf;  
-						int errno = system(cmd.str().c_str());
-						if (errno != 0) {
+						int errnum; errnum = system(cmd.str().c_str());
+						if (errnum != 0) {
 							string errmsg;
 							errmsg = strerror(errno);
-							*Logger::log << Log::error << Log::LI << "Error during system " << Log::LO << Log::LI << cmd << errmsg << Log::LO << Log::blockend;
+							*Logger::log << Log::error << Log::LI << "Error during system " << Log::LO << Log::LI << cmd.str() << errmsg << Log::LO << Log::blockend;
 						}
 						FileUtils::File file(resf);
 						if (file.exists()) {

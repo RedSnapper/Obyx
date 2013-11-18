@@ -24,7 +24,7 @@
 #define OBYX_ITEM_STORE_H
 
 #include <string>
-#include <ext/hash_map>
+#include <unordered_map>
 #include <map>
 
 #include "commons/string/strings.h"
@@ -44,7 +44,7 @@ class Iteration;
 
 namespace obyx {
 	typedef xercesc::DOMLSParser::ActionType insertion_type;
-	typedef hash_map<const string,DataItem*, hash<const string&> > item_map_type;
+	typedef unordered_map<const string,DataItem*, hash<const string&> > item_map_type;
 }	
 
 using namespace obyx;

@@ -102,7 +102,7 @@ Httphead::response_format Httphead::xml_fmt = {
 };
 
 //unsigned int Httphead::instances = 0;
-Httphead* Httphead::singleton = NULL;
+Httphead* Httphead::singleton = nullptr;
 
 
 void Httphead::nocache(bool nocach ) { 
@@ -114,7 +114,7 @@ void Httphead::doheader() {
 		if ( http_req_method ) {
 			doheader(o,false,http_fmt);
 		} else {
-			if ( o == NULL ) { 
+			if ( o == nullptr ) { 
 				cout << content << flush;
 			} else {
 				*o << content;
@@ -235,7 +235,7 @@ void Httphead::shutdown() {
 
 //so this now sends out the header AFTER the xml.
 void Httphead::init(ostream* output) {	
-	if (singleton == NULL) {
+	if (singleton == nullptr) {
 		singleton = new Httphead(output);	// instantiate singleton
 	}
 	singleton->initialise();
@@ -285,9 +285,9 @@ void Httphead::initialise() {
 }
 
 void Httphead::finalise() {
-	if (singleton != NULL) {
+	if (singleton != nullptr) {
 		delete singleton;
-		singleton = NULL;
+		singleton = nullptr;
 	} 
 }
 
@@ -326,7 +326,7 @@ Httphead::Httphead(ostream* output) {
 
 Httphead::~Httphead() {
 	customlines.clear();
-	o = NULL;
+	o = nullptr;
 }
 
 const bool Httphead::mime_changed()			{ return mime_is_changed; } 
@@ -480,42 +480,42 @@ void Httphead::doheader(ostream* x,bool explaining,const response_format& f) {
 void Httphead::objectparse(xercesc::DOMNode* const& n) {
 	Environment* env = Environment::service();
 	std::string elname;
-	XML::Manager::transcode(n->getLocalName(),elname);
+	XML::Manager::transcode(pcu(n->getLocalName()),elname);
 	if (elname.compare("header") == 0) {
 		string name_attr_val;
-		if ( XML::Manager::attribute(n,UCS2(L"name"),name_attr_val)  ) {
+		if ( XML::Manager::attribute(n,u"name",name_attr_val)  ) {
 			string value_attr_val="";
-			if ( XML::Manager::attribute(n,UCS2(L"value"),value_attr_val)  ) {
+			if ( XML::Manager::attribute(n,u"value",value_attr_val)  ) {
 				string urlenc_attr_val;
-				if ( XML::Manager::attribute(n,UCS2(L"urlencoded"),urlenc_attr_val) && (urlenc_attr_val.compare("true") == 0) ) {
+				if ( XML::Manager::attribute(n,u"urlencoded",urlenc_attr_val) && (urlenc_attr_val.compare("true") == 0) ) {
 					String::urldecode(value_attr_val); 
 				}
 			}
 			DOMNode* ch=n->getFirstChild();
-			while (ch != NULL && ch->getNodeType() != DOMNode::ELEMENT_NODE) ch=ch->getNextSibling();
-			if ( ch != NULL ) {
+			while (ch != nullptr && ch->getNodeType() != DOMNode::ELEMENT_NODE) ch=ch->getNextSibling();
+			if ( ch != nullptr ) {
 				string subhead;
-				XML::Manager::transcode(ch->getLocalName(),subhead);
+				XML::Manager::transcode(pcu(ch->getLocalName()),subhead);
 				if (subhead.compare("subhead") == 0) {
 					if ( name_attr_val.compare("Set-Cookie") == 0) {
 						std::string cookie_name = "";
-						while (ch != NULL && subhead.compare("subhead") == 0) {
+						while (ch != nullptr && subhead.compare("subhead") == 0) {
 							std::string shname,shvalue,shencoded;
-							if (XML::Manager::attribute(ch,UCS2(L"name"),shname)) {
-								if (XML::Manager::attribute(ch,UCS2(L"value"),shvalue)) {
-									if ( XML::Manager::attribute(n,UCS2(L"urlencoded"),shencoded) && (shencoded.compare("true") == 0) ) {
+							if (XML::Manager::attribute(ch,u"name",shname)) {
+								if (XML::Manager::attribute(ch,u"value",shvalue)) {
+									if ( XML::Manager::attribute(n,u"urlencoded",shencoded) && (shencoded.compare("true") == 0) ) {
 										String::urldecode(shvalue); 
 									}
 								} else {
 									DOMNode* shvo=ch->getFirstChild();
-									while ( shvo != NULL ) {
+									while ( shvo != nullptr ) {
 										if (shvo->getNodeType() == DOMNode::ELEMENT_NODE) {
 											string sh; XML::Manager::parser()->writenode(shvo,sh);
 											shvalue.append(sh);
 										}
 										shvo=shvo->getNextSibling();
 									}
-									if ( !shvalue.empty() && XML::Manager::attribute(n,UCS2(L"urlencoded"),shencoded) && (shencoded.compare("true") == 0) ) {
+									if ( !shvalue.empty() && XML::Manager::attribute(n,u"urlencoded",shencoded) && (shencoded.compare("true") == 0) ) {
 										String::urldecode(shvalue); 
 									}
 								}
@@ -542,9 +542,9 @@ void Httphead::objectparse(xercesc::DOMNode* const& n) {
 								env->setcookie_res(cookie_name,shvalue);
 							}
 							ch=ch->getNextSibling();
-							while (ch != NULL && ch->getNodeType() != DOMNode::ELEMENT_NODE) ch=ch->getNextSibling();
-							if (ch != NULL) {
-								XML::Manager::transcode(ch->getLocalName(),subhead);
+							while (ch != nullptr && ch->getNodeType() != DOMNode::ELEMENT_NODE) ch=ch->getNextSibling();
+							if (ch != nullptr) {
+								XML::Manager::transcode(pcu(ch->getLocalName()),subhead);
 							} else {
 								subhead.clear();
 							}
@@ -553,10 +553,10 @@ void Httphead::objectparse(xercesc::DOMNode* const& n) {
 						bool in_cookie = false;
 						string cookie_name;
 						string sh_name,sh_value,sh_enc;
-						while (ch != NULL && subhead.compare("subhead") == 0) {
-							if (XML::Manager::attribute(ch,UCS2(L"name"),sh_name))
-								if( XML::Manager::attribute(ch,UCS2(L"value"),sh_value) ) {
-									if( XML::Manager::attribute(ch,UCS2(L"urlencoded"),sh_enc) && (sh_enc.compare("true") == 0 )) {
+						while (ch != nullptr && subhead.compare("subhead") == 0) {
+							if (XML::Manager::attribute(ch,u"name",sh_name))
+								if( XML::Manager::attribute(ch,u"value",sh_value) ) {
+									if( XML::Manager::attribute(ch,u"urlencoded",sh_enc) && (sh_enc.compare("true") == 0 )) {
 										String::urldecode(sh_value);
 									}
 								}
@@ -581,9 +581,9 @@ void Httphead::objectparse(xercesc::DOMNode* const& n) {
 								}
 							}
 							ch=ch->getNextSibling();
-							while (ch != NULL && ch->getNodeType() != DOMNode::ELEMENT_NODE) ch=ch->getNextSibling();
-							if (ch != NULL) {
-								XML::Manager::transcode(ch->getLocalName(),subhead);
+							while (ch != nullptr && ch->getNodeType() != DOMNode::ELEMENT_NODE) ch=ch->getNextSibling();
+							if (ch != nullptr) {
+								XML::Manager::transcode(pcu(ch->getLocalName()),subhead);
 							} else {
 								subhead.clear();
 							}
@@ -631,16 +631,16 @@ void Httphead::objectparse(xercesc::DOMNode* const& n) {
 	} else {
 		if (elname.compare("body") == 0) {
 			string url_encoded,type,subtype;
-			if (! XML::Manager::attribute(n,UCS2(L"urlencoded"),url_encoded)  ) {
+			if (! XML::Manager::attribute(n,u"urlencoded",url_encoded)  ) {
 				url_encoded = "false";
 			}
-			if ( XML::Manager::attribute(n,UCS2(L"type"),type)  ) {
-				if (XML::Manager::attribute(n,UCS2(L"subtype"),subtype)  ) {
+			if ( XML::Manager::attribute(n,u"type",type)  ) {
+				if (XML::Manager::attribute(n,u"subtype",subtype)  ) {
 					mimevalue = type + "/" + subtype;
 				}
 			}
 			string bodytext;
-			for ( DOMNode* child=n->getFirstChild(); child != NULL; child=child->getNextSibling()) {
+			for ( DOMNode* child=n->getFirstChild(); child != nullptr; child=child->getNextSibling()) {
 				string childstr; XML::Manager::parser()->writenode(child,childstr);
 				bodytext.append(childstr);   
 			}
@@ -665,26 +665,26 @@ void Httphead::objectparse(xercesc::DOMNode* const& n) {
 				
 				//do the attributes version, code, reason here.
 				string code_attr_val,reason_attr_val,version_attr_val;
-				if ( XML::Manager::attribute(n,UCS2(L"code"),code_attr_val)  ) {
+				if ( XML::Manager::attribute(n,u"code",code_attr_val)  ) {
 					pair<long long,bool> code_result = String::integer(code_attr_val);
 					if (code_result.second) {
 						setcode((unsigned int)code_result.first);
 					}
 				}
-				if ( XML::Manager::attribute(n,UCS2(L"version"),version_attr_val)  ) {
+				if ( XML::Manager::attribute(n,u"version",version_attr_val)  ) {
 					if(httpsig.compare("Status") != 0) {
 						httpsig = version_attr_val;
 					}
 				}
-				if ( XML::Manager::attribute(n,UCS2(L"reason"),reason_attr_val)  ) {
+				if ( XML::Manager::attribute(n,u"reason",reason_attr_val)  ) {
 					codemessage = reason_attr_val;
 				}
 				std::string ch_elname;
-				for (DOMNode* child=n->getFirstChild(); child != NULL; child=child->getNextSibling()) {
+				for (DOMNode* child=n->getFirstChild(); child != nullptr; child=child->getNextSibling()) {
 					if (child->getNodeType() == DOMNode::ELEMENT_NODE) {
-						XML::Manager::transcode(child->getLocalName(),ch_elname);
+						XML::Manager::transcode(pcu(child->getLocalName()),ch_elname);
 						if (ch_elname.compare("message") == 0) {
-							for (DOMNode* mchild=child->getFirstChild(); mchild != NULL; mchild=mchild->getNextSibling()) {
+							for (DOMNode* mchild=child->getFirstChild(); mchild != nullptr; mchild=mchild->getNextSibling()) {
 								if (mchild->getNodeType() == DOMNode::ELEMENT_NODE) {
 									objectparse(mchild);   
 								}
@@ -695,7 +695,7 @@ void Httphead::objectparse(xercesc::DOMNode* const& n) {
 			} else {
 				if (elname.compare("http") == 0) {
 					DOMNode* kid=n->getFirstChild();		  //pass this on to response..
-					while ( kid != NULL && kid->getNodeType() != DOMNode::ELEMENT_NODE)  { //Skip whitespace.
+					while ( kid != nullptr && kid->getNodeType() != DOMNode::ELEMENT_NODE)  { //Skip whitespace.
 						kid = kid->getNextSibling();
 					}
 					objectparse(kid);   
@@ -708,7 +708,7 @@ void Httphead::objectparse(xercesc::DOMNode* const& n) {
 }
 
 void Httphead::objectwrite( DOMNode* const& n,string& result) {
-	for ( DOMNode* child=n->getFirstChild(); child != NULL; child=child->getNextSibling()) {
+	for ( DOMNode* child=n->getFirstChild(); child != nullptr; child=child->getNextSibling()) {
 		string childstr; XML::Manager::parser()->writenode(child,childstr);
 		result.append(childstr);   
 	}

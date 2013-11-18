@@ -101,10 +101,10 @@ namespace String {
 			string result;
 			unsigned int base = 16;
 			if (base_i > 1 && base_i <= 36) base= base_i;
-			char* tmp = GMP::mpz_get_str(NULL,base,value);
+			char* tmp = GMP::mpz_get_str(nullptr,base,value);
 			if (tmp) { 
 				result = tmp;
-				free(tmp); tmp=NULL;
+				free(tmp); tmp=nullptr;
 			}
 			if (base == 16 && result.size() % 2 == 1) {
 				result.insert(0,"0");
@@ -143,8 +143,8 @@ namespace String {
 		}
 		void Evaluate::shutdown() {
 			for (lut_t::iterator i = lut.begin(); i != lut.end(); i++) {
-				if (i->second != NULL) {
-					delete i->second; i->second = NULL;
+				if (i->second != nullptr) {
+					delete i->second; i->second = nullptr;
 				};
 			}
 			lut.clear();
@@ -172,19 +172,19 @@ namespace String {
 				string cur_name("");
 				size_t eaten;
 				const Op* curop = get(i,eaten); //second is for how many chars were eaten.
-				if (curop == NULL) {
+				if (curop == nullptr) {
 					name(i,cur_name);
 					if (!cur_name.empty()) {
 						char x = *i;
 						if(x == '(') {
 							curop = get(cur_name); //named fn.
-							if ( curop == NULL) {
+							if ( curop == nullptr) {
 								errs =  "Error. Unknown function '" + cur_name + "' in " + expr;
 							}
 						} 
 					}
 				}
-				if (curop != NULL) {
+				if (curop != nullptr) {
 					char csig = curop->sig();
 					if(csig == '(') {
 						opstack.push_back(curop);
@@ -255,7 +255,7 @@ namespace String {
 		}
 		const Op* Evaluate::get(string::const_iterator& i,size_t& eaten) {
 			eaten = 0;
-			const Op* retval(NULL);
+			const Op* retval(nullptr);
 			string possible_op;
 			possible_op.push_back(*i);
 			lut_t::const_iterator o = lut.find(possible_op);
@@ -267,7 +267,7 @@ namespace String {
 			return retval;
 		}
 		const Op* Evaluate::get(const string i) {
-			const Op* retval(NULL);
+			const Op* retval(nullptr);
 			lut_t::const_iterator o = lut.find(i);
 			if( o != lut.end() ) { retval = o->second; } 
 			return retval;
@@ -416,37 +416,37 @@ namespace String {
 		
 		bool GMP::loadattempted = false;
 		bool GMP::loaded = false;
-		void* GMP::lib_handle = NULL;
-		void (*GMP::mpz_init)(mpz_t) = NULL;
-		void (*GMP::mpz_clear)(mpz_t) = NULL;
-		void (*GMP::mpz_set)(mpz_t, mpz_t)= NULL;
-		void (*GMP::mpz_set_ui)(mpz_t, unsigned long int)= NULL;
-		void (*GMP::mpz_set_d)(mpz_t, double)= NULL;
-		void (*GMP::mpz_set_str)(mpz_t,const char*,int)= NULL;
-		char* (*GMP::mpz_get_str)(char*,int,mpz_t)= NULL;
-		unsigned long int (*GMP::mpz_get_ui)(mpz_t)= NULL;					 
-		void (*GMP::mpz_mul_2exp)(mpz_t,mpz_t,unsigned long int)= NULL;		
-		void (*GMP::mpz_fdiv_q_2exp)(mpz_t,mpz_t,unsigned long int)= NULL;
-		void (*GMP::mpz_and)(mpz_t,mpz_t,mpz_t)= NULL;	//Function Set rop to op1 logical-and op2.
-		void (*GMP::mpz_ior)(mpz_t,mpz_t,mpz_t)= NULL;	//Function Set rop to op1 inclusive-or op2.
-		void (*GMP::mpz_xor)(mpz_t,mpz_t,mpz_t)= NULL;	//Function Set rop to op1 exclusive-or op2.
-		void (*GMP::mpz_com)(mpz_t,mpz_t)= NULL;		//Function Set rop to the one's complement of op.
-		void (*GMP::mpz_add)(mpz_t,mpz_t,mpz_t)= NULL;
-		void (*GMP::mpz_add_ui)(mpz_t,mpz_t,unsigned long int)= NULL;
-		void (*GMP::mpz_sub)(mpz_t,mpz_t,mpz_t)= NULL;
-		void (*GMP::mpz_sub_ui)(mpz_t,mpz_t,unsigned long int)= NULL;
-		void (*GMP::mpz_mul)(mpz_t,mpz_t,mpz_t)= NULL;
-		void (*GMP::mpz_neg)(mpz_t,mpz_t)= NULL;
-		void (*GMP::mpz_abs)(mpz_t,mpz_t)= NULL;
-		void (*GMP::mpz_tdiv_q)(mpz_t,mpz_t,mpz_t)= NULL;	
-		void (*GMP::mpz_tdiv_r)(mpz_t,mpz_t,mpz_t)= NULL;	
-		void (*GMP::mpz_mod)(mpz_t,mpz_t,mpz_t)= NULL;
-		size_t (*GMP::mpz_size)(mpz_t)= NULL;
-		int (*GMP::mpz_cmp)(mpz_t,mpz_t)= NULL;
-		int (*GMP::mpz_fits_ulong_p)(mpz_t)= NULL;
-		size_t (*GMP::mpz_sizeinbase)(mpz_t,int)= NULL;		//may be used to pick up msbit
-		void (*GMP::mpz_pow_ui)(mpz_t,mpz_t,unsigned long int)= NULL;
-		int (*GMP::mpz_root)(mpz_t,mpz_t,unsigned long int)= NULL;
+		void* GMP::lib_handle = nullptr;
+		void (*GMP::mpz_init)(mpz_t) = nullptr;
+		void (*GMP::mpz_clear)(mpz_t) = nullptr;
+		void (*GMP::mpz_set)(mpz_t, mpz_t)= nullptr;
+		void (*GMP::mpz_set_ui)(mpz_t, unsigned long int)= nullptr;
+		void (*GMP::mpz_set_d)(mpz_t, double)= nullptr;
+		void (*GMP::mpz_set_str)(mpz_t,const char*,int)= nullptr;
+		char* (*GMP::mpz_get_str)(char*,int,mpz_t)= nullptr;
+		unsigned long int (*GMP::mpz_get_ui)(mpz_t)= nullptr;					 
+		void (*GMP::mpz_mul_2exp)(mpz_t,mpz_t,unsigned long int)= nullptr;		
+		void (*GMP::mpz_fdiv_q_2exp)(mpz_t,mpz_t,unsigned long int)= nullptr;
+		void (*GMP::mpz_and)(mpz_t,mpz_t,mpz_t)= nullptr;	//Function Set rop to op1 logical-and op2.
+		void (*GMP::mpz_ior)(mpz_t,mpz_t,mpz_t)= nullptr;	//Function Set rop to op1 inclusive-or op2.
+		void (*GMP::mpz_xor)(mpz_t,mpz_t,mpz_t)= nullptr;	//Function Set rop to op1 exclusive-or op2.
+		void (*GMP::mpz_com)(mpz_t,mpz_t)= nullptr;		//Function Set rop to the one's complement of op.
+		void (*GMP::mpz_add)(mpz_t,mpz_t,mpz_t)= nullptr;
+		void (*GMP::mpz_add_ui)(mpz_t,mpz_t,unsigned long int)= nullptr;
+		void (*GMP::mpz_sub)(mpz_t,mpz_t,mpz_t)= nullptr;
+		void (*GMP::mpz_sub_ui)(mpz_t,mpz_t,unsigned long int)= nullptr;
+		void (*GMP::mpz_mul)(mpz_t,mpz_t,mpz_t)= nullptr;
+		void (*GMP::mpz_neg)(mpz_t,mpz_t)= nullptr;
+		void (*GMP::mpz_abs)(mpz_t,mpz_t)= nullptr;
+		void (*GMP::mpz_tdiv_q)(mpz_t,mpz_t,mpz_t)= nullptr;	
+		void (*GMP::mpz_tdiv_r)(mpz_t,mpz_t,mpz_t)= nullptr;	
+		void (*GMP::mpz_mod)(mpz_t,mpz_t,mpz_t)= nullptr;
+		size_t (*GMP::mpz_size)(mpz_t)= nullptr;
+		int (*GMP::mpz_cmp)(mpz_t,mpz_t)= nullptr;
+		int (*GMP::mpz_fits_ulong_p)(mpz_t)= nullptr;
+		size_t (*GMP::mpz_sizeinbase)(mpz_t,int)= nullptr;		//may be used to pick up msbit
+		void (*GMP::mpz_pow_ui)(mpz_t,mpz_t,unsigned long int)= nullptr;
+		int (*GMP::mpz_root)(mpz_t,mpz_t,unsigned long int)= nullptr;
 		
 		bool GMP::available() {
 			if (!loadattempted) {
@@ -470,7 +470,7 @@ namespace String {
 				}
 				GMP::lib_handle = dlopen(libname.c_str(),RTLD_GLOBAL | RTLD_NOW);
 				dlerr(err); //debug only.
-				if (err.empty() && GMP::lib_handle != NULL ) {
+				if (err.empty() && GMP::lib_handle != nullptr ) {
 					mpz_init		= (void (*)(mpz_t))							dlsym(lib_handle,"__gmpz_init"); dlerr(err);
 					mpz_clear		= (void (*)(mpz_t))							dlsym(lib_handle,"__gmpz_clear"); dlerr(err);
 					mpz_set			= (void (*)(mpz_t,mpz_t))					dlsym(lib_handle,"__gmpz_set"); dlerr(err);
@@ -513,10 +513,10 @@ namespace String {
 						 mpz_set_str(foo,"53415315768646535895341531576864653589534153157686465358953415315768646535895341531576864653589534153157686465358953415315768646535895341531576864653589",16);
 						 mpz_set_str(bar,"01010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101",16);
 						 mpz_and(foo,foo,bar);
-						 char* baz = mpz_get_str(NULL,16,foo);
-						 if (baz) { free(baz); baz=NULL;}
-						 char* bim = mpz_get_str(NULL,16,bar);
-						 if (bim) { free(bim); bim=NULL;}
+						 char* baz = mpz_get_str(nullptr,16,foo);
+						 if (baz) { free(baz); baz=nullptr;}
+						 char* bim = mpz_get_str(nullptr,16,bar);
+						 if (bim) { free(bim); bim=nullptr;}
 						 mpz_clear(foo);
 						 mpz_clear(bar);
 						 */
@@ -530,7 +530,7 @@ namespace String {
 		
 		void GMP::dlerr(std::string& container) {
 			const char *err = dlerror();
-			if (err != NULL) {
+			if (err != nullptr) {
 				container.append(err);
 			}
 		}
@@ -538,12 +538,12 @@ namespace String {
 		bool GMP::shutdown() {											 //necessary IFF script uses pcre.
 			loadattempted = false;
 			loaded = false;
-			if ( lib_handle != NULL ) {
-				if (mpz_clear != NULL) {
+			if ( lib_handle != nullptr ) {
+				if (mpz_clear != nullptr) {
 					mpz_clear(zero);
 				}
 				dlclose(lib_handle);
-				lib_handle=NULL;
+				lib_handle=nullptr;
 			}
 			return true;
 		}

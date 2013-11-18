@@ -36,7 +36,8 @@
 namespace {
 #ifndef u_str
 	#include "xercesc/util/Xerces_autoconf_config.hpp"
-	typedef std::basic_string<XMLCh> u_str;
+	typedef std::basic_string<char16_t> u_str;
+	typedef std::basic_string<XMLCh> x_str;
 #endif
 }
 

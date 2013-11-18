@@ -226,7 +226,7 @@ namespace String {
 		class Evaluate {
 		private:
 			typedef map<string, Op*> lut_t;
-			typedef hash_map<const string,long double, hash<const string&> > parm_map_t;
+			typedef unordered_map<const string,long double, std::hash<const string&> > parm_map_t;
 			static lut_t lut;
 			
 			string expr;

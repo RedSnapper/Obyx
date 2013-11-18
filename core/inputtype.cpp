@@ -49,12 +49,12 @@ IKO::inp_space_map  InputType::inp_spaces;
 InputType::InputType(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : 
 IKO(n,par,el),eval(false),release(false),ascending(true),type(immediate),parm_name() {
 	u_str str_type,eval_str,release_str;
-	if ( Manager::attribute(n,UCS2(L"type"),str_type)  ) {
+	if ( Manager::attribute(n,u"type",str_type)  ) {
 		*Logger::log << Log::syntax << Log::LI << "Syntax Error. " << name() << ": attribute 'type' should be 'space'" << Log::LO;
 		trace();
 		*Logger::log  << Log::blockend;
 	}
-	if ( Manager::attribute(n,UCS2(L"space"),str_type) ) {
+	if ( Manager::attribute(n,u"space",str_type) ) {
 		inp_space_map::const_iterator j = inp_spaces.find(str_type);
 		if( j != inp_spaces.end() ) {
 			type = j->second;
@@ -97,11 +97,11 @@ IKO(n,par,el),eval(false),release(false),ascending(true),type(immediate),parm_na
 		trace();
 		*Logger::log << Log::blockend;
 	}
-	if ( Manager::attribute(n,UCS2(L"eval"),eval_str) ) {
-		if (eval_str.compare(UCS2(L"true")) == 0) eval = true;
+	if ( Manager::attribute(n,u"eval",eval_str) ) {
+		if (eval_str.compare(u"true") == 0) eval = true;
 	}
-	if ( Manager::attribute(n,UCS2(L"release"),release_str) ) {
-		if (release_str.compare(UCS2(L"true")) == 0) release = true;
+	if ( Manager::attribute(n,u"release",release_str) ) {
+		if (release_str.compare(u"true") == 0) release = true;
 		switch (type) {
 				//			case url:	//cache
 				//			case file:	//cache
@@ -119,29 +119,29 @@ IKO(n,par,el),eval(false),release(false),ascending(true),type(immediate),parm_na
 		}
 	}
 	Function* i = dynamic_cast<Function *>(p);
-	if (i == NULL) {
+	if (i == nullptr) {
 		if ( wotzit == obyx::key) {
 			DefInpType* m = dynamic_cast<DefInpType *>(p);
-			if (m != NULL && m->wotzit == obyx::match) {
+			if (m != nullptr && m->wotzit == obyx::match) {
 				m->key = this;
 				
 				//break="false"
 				u_str attr_val,format_str;
-				Manager::attribute(n,UCS2(L"break"),attr_val);
-				if ( (! attr_val.empty()) && (attr_val.compare(UCS2(L"true")) == 0)) { 
+				Manager::attribute(n,u"break",attr_val);
+				if ( (! attr_val.empty()) && (attr_val.compare(u"true") == 0)) {
 					m->k_break = true; 
 				}
 				attr_val.clear();
 				//scope="all|first"
-				Manager::attribute(n,UCS2(L"scope"),attr_val);
+				Manager::attribute(n,u"scope",attr_val);
 				if ( !attr_val.empty()) {
 					Mapping* mp = dynamic_cast<Mapping *>(m->p);
-					if (mp != NULL) {
+					if (mp != nullptr) {
 						if (mp->op() == m_substitute) {
-							if ( attr_val.compare(UCS2(L"first")) == 0 ) {  
+							if ( attr_val.compare(u"first") == 0 ) {
 								m->k_scope = false; 
 							} else {
-								if ( attr_val.compare(UCS2(L"all")) == 0 ) {  
+								if ( attr_val.compare(u"all") == 0 ) {
 									m->k_scope = true; 
 								} else {
 									*Logger::log << Log::syntax << Log::LI << "Syntax Error. The scope attribute of a key must have the value 'first' or 'all' "  << Log::LO;
@@ -150,7 +150,7 @@ IKO(n,par,el),eval(false),release(false),ascending(true),type(immediate),parm_na
 								}
 							}
 						} else {
-							if ( attr_val.compare(UCS2(L"first")) == 0 ) {  
+							if ( attr_val.compare(u"first") == 0 ) {
 								*Logger::log << Log::syntax << Log::LI << "Syntax Error. The scope attribute of a key is only meaningful within a substitute mapping.  ";
 								*Logger::log << "As keys within 'switch' mappings match the entire domain, the scope attribute can only be 'all'."  << Log::LO;
 								trace();
@@ -167,7 +167,7 @@ IKO(n,par,el),eval(false),release(false),ascending(true),type(immediate),parm_na
 				}
 				
 				//format="regex" // or literal... 'l' or 'r' 
-				Manager::attribute(n,UCS2(L"format"),format_str);
+				Manager::attribute(n,u"format",format_str);
 				if ( ! format_str.empty() ) { m->k_format = format_str[0]; }
 			} else {
 				*Logger::log << Log::syntax << Log::LI << "Syntax Error. " << name() << " can only be a child of match."  << Log::LO;
@@ -183,18 +183,18 @@ IKO(n,par,el),eval(false),release(false),ascending(true),type(immediate),parm_na
 		switch (wotzit) { //don't push back the definputs here..
 			case input: {
 				Instruction * ix = dynamic_cast<Instruction *>(i);
-				if (ix != NULL) {
+				if (ix != nullptr) {
 					switch (ix->op()) {
-						case function:
-						case arithmetic:
-						case bitwise: {
+						case obyx::function:
+						case obyx::arithmetic:
+						case obyx::bitwise: {
 							u_str tmp_v;
-							Manager::attribute(n,UCS2(L"name"),tmp_v);
+							Manager::attribute(n,u"name",tmp_v);
 							XML::Manager::transcode(tmp_v,parm_name);
 						} break;
 						case obyx::sort: {
 							u_str order_s;
-							Manager::attribute(n,UCS2(L"order"),order_s);
+							Manager::attribute(n,u"order",order_s);
 							ascending = (order_s[0] == 'a');
 						} break;
 						default: break;
@@ -222,7 +222,7 @@ void InputType::evalfind(std::set<std::string>& keylist) {
 		type = immediate;
 		kind = di_text;
 		evaluate();
-		DataItem* iresult= NULL; results.takeresult(iresult);
+		DataItem* iresult= nullptr; results.takeresult(iresult);
 		u_str key = *iresult;
 		if (!key.empty()) {
 			keysinspace(key,space,keylist);	//gather them keys.
@@ -240,7 +240,7 @@ void InputType::evaluate(size_t /*item_num*/,size_t /*item_count*/) {
 		results.evaluate(wsstrip);				//small leak here.
 	}
 	if (results.final()) {
-		DataItem* name_part = NULL;				  //name_part is what it normally is, unless type=immediate!
+		DataItem* name_part = nullptr;				  //name_part is what it normally is, unless type=immediate!
 		switch ( context ) {					  //do the context, including none/immediate.
 			case error:
 			case none:
@@ -248,7 +248,7 @@ void InputType::evaluate(size_t /*item_num*/,size_t /*item_count*/) {
 				results.takeresult(name_part); //this is evaluating the context. we probably want the name.
 			} break;
 			default: {
-				DataItem* context_part = NULL; 
+				DataItem* context_part = nullptr; 
 				results.takeresult(context_part);
 				//          type  release eval  context kind  name/ref container 
 				evaltype(context, false, false, true, di_text, context_part,name_part);
@@ -257,11 +257,11 @@ void InputType::evaluate(size_t /*item_num*/,size_t /*item_count*/) {
 //					xpath.clear();
 //				}
 				delete context_part; 
-				context_part=NULL;
+				context_part=nullptr;
 				context = immediate;
 			} break;
 		}
-		DataItem* value_part = NULL;  //remember - for nearly everything other than immediate, the input value is a name.
+		DataItem* value_part = nullptr;  //remember - for nearly everything other than immediate, the input value is a name.
 		if (encoder != e_none) {
 			if (process == encode) {
 				evaltype(type, release, eval, false, kind, name_part, value_part);    //Use the kind before the encoding.
@@ -274,8 +274,8 @@ void InputType::evaluate(size_t /*item_num*/,size_t /*item_count*/) {
 			evaltype(type, release, eval, false, kind, name_part, value_part); //Big memory leak here.
 		}
 		results.setresult(value_part); //name_part is generated by evaltype, so we don't need to copy.
-		if (name_part != NULL) {
-			delete name_part; name_part=NULL;
+		if (name_part != nullptr) {
+			delete name_part; name_part=nullptr;
 		}
 	}
 	dropcatch();
@@ -283,29 +283,29 @@ void InputType::evaluate(size_t /*item_num*/,size_t /*item_count*/) {
 }
 void InputType::startup() {
 	//static methods - once only thank-you very much..
-	inp_spaces.insert(inp_space_map::value_type(UCS2(L"immediate"), immediate));
-	inp_spaces.insert(inp_space_map::value_type(UCS2(L"none"), none));
-	inp_spaces.insert(inp_space_map::value_type(UCS2(L"store"), store));
-	inp_spaces.insert(inp_space_map::value_type(UCS2(L"field"), field ));
-	inp_spaces.insert(inp_space_map::value_type(UCS2(L"url"), url ));
-	inp_spaces.insert(inp_space_map::value_type(UCS2(L"file"), file ));
-	inp_spaces.insert(inp_space_map::value_type(UCS2(L"sysparm"), sysparm));
-	inp_spaces.insert(inp_space_map::value_type(UCS2(L"sysenv"), sysenv));
-	inp_spaces.insert(inp_space_map::value_type(UCS2(L"cookie"), cookie)); 
-	inp_spaces.insert(inp_space_map::value_type(UCS2(L"error"), error)); 
-	inp_spaces.insert(inp_space_map::value_type(UCS2(L"parm"), fnparm));
-	inp_spaces.insert(inp_space_map::value_type(UCS2(L"namespace"), xmlnamespace));
-	inp_spaces.insert(inp_space_map::value_type(UCS2(L"grammar"), xmlgrammar));
+	inp_spaces.insert(inp_space_map::value_type(u"immediate", immediate));
+	inp_spaces.insert(inp_space_map::value_type(u"none", none));
+	inp_spaces.insert(inp_space_map::value_type(u"store", store));
+	inp_spaces.insert(inp_space_map::value_type(u"field", field ));
+	inp_spaces.insert(inp_space_map::value_type(u"url", url ));
+	inp_spaces.insert(inp_space_map::value_type(u"file", file ));
+	inp_spaces.insert(inp_space_map::value_type(u"sysparm", sysparm));
+	inp_spaces.insert(inp_space_map::value_type(u"sysenv", sysenv));
+	inp_spaces.insert(inp_space_map::value_type(u"cookie", cookie));
+	inp_spaces.insert(inp_space_map::value_type(u"error", error));
+	inp_spaces.insert(inp_space_map::value_type(u"parm", fnparm));
+	inp_spaces.insert(inp_space_map::value_type(u"namespace", xmlnamespace));
+	inp_spaces.insert(inp_space_map::value_type(u"grammar", xmlgrammar));
 }
 void InputType::shutdown() {
 	inp_spaces.clear();
 }
 DefInpType::DefInpType(xercesc::DOMNode* const& n,ObyxElement* par,elemtype el) : 
-InputType(n,par,el),k_break(false),k_scope(true),k_format('l'),key(NULL) {
+InputType(n,par,el),k_break(false),k_scope(true),k_format('l'),key(nullptr) {
 	//this includes match and domain but not key.
 	wotspace=defparm;
 	Function* i = dynamic_cast<Function *>(par);
-	if (i != NULL) {
+	if (i != nullptr) {
 		i->addDefInpType(this);
 	} else {
 		*Logger::log << Log::error << Log::LI << "Error. " << name() << " Input types must be inside flow-functions!" << Log::LO;
@@ -314,21 +314,21 @@ InputType(n,par,el),k_break(false),k_scope(true),k_format('l'),key(NULL) {
 	}
 }
 DefInpType::DefInpType(ObyxElement* par,const DefInpType* orig) : 
-InputType(par,orig),k_break(orig->k_break),k_scope(orig->k_scope),k_format(orig->k_format),key(NULL) { 
-	if (wotzit == obyx::match && orig->key != NULL) {
+InputType(par,orig),k_break(orig->k_break),k_scope(orig->k_scope),k_format(orig->k_format),key(nullptr) { 
+	if (wotzit == obyx::match && orig->key != nullptr) {
 		key = new InputType(p,orig->key);
 	} else {
-		key = NULL;
+		key = nullptr;
 	}
 }
 void DefInpType::evaluate_key() { //result = if key is evaluated.
-	if (wotzit == obyx::match && key != NULL) {
+	if (wotzit == obyx::match && key != nullptr) {
 		key->results.undefer();
 		key->evaluate(0,0);
 		//There MAY have been a reason for this, but it is beyond me what. So it's been disabled.
 		/*		
 		 if (key->encoder != e_none) {
-		 DataItem* pe = NULL;
+		 DataItem* pe = nullptr;
 		 results.takeresult(pe);
 		 key->process_encoding(pe);
 		 results.setresult(pe);
@@ -341,6 +341,6 @@ void DefInpType::evaluate(size_t,size_t) {
 	InputType::evaluate();
 }
 DefInpType::~DefInpType() {
-	if ( key != NULL) delete key;
+	if ( key != nullptr) delete key;
 }
 

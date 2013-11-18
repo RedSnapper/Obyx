@@ -38,7 +38,7 @@ using namespace std;
 namespace Vdb {
 
 	MySQLQuery::MySQLQuery(MySQLService* const s_in, MySQLConnection* const c_in, MYSQL*& h_in, std::string& qstr) :
-		Query(qstr),s(s_in),c(c_in),queryHandle(h_in),result(NULL),row(0),start(0),end(0),mysqlRowLengths(NULL) {
+		Query(qstr),s(s_in),c(c_in),queryHandle(h_in),result(nullptr),row(0),start(0),end(0),mysqlRowLengths(nullptr) {
 	}
 	
 	MySQLQuery::~MySQLQuery() {
@@ -72,13 +72,13 @@ namespace Vdb {
 	}
 	
 	void MySQLQuery::reset() {
-			if (result != NULL) {
+			if (result != nullptr) {
 				s->free_result(result);
 			}
-			row = NULL;
-			start = NULL;
-			end = NULL;
-			result = NULL;
+			row = nullptr;
+			start = nullptr;
+			end = nullptr;
+			result = nullptr;
 			Query::reset();
 	}
 
@@ -92,9 +92,9 @@ namespace Vdb {
 				*Logger::log << Log::error << Log::LI << "Error. MySQLQuery execute error:" << errorstr << Log::LO; 
 				*Logger::log << Log::LI << Log::info << Log::LI << "Query: " << querystr << Log::LO << Log::blockend; 
 				*Logger::log << Log::LO << Log::blockend;
-				row = NULL;
-				start = NULL;
-				result = NULL;
+				row = nullptr;
+				start = nullptr;
+				result = nullptr;
 				Query::reset();
 			} else {
 				result = s->store_result(queryHandle);
@@ -109,7 +109,7 @@ namespace Vdb {
 	}
 
 	void MySQLQuery::prepareResult() {
-		if (result != NULL) {
+		if (result != nullptr) {
 			numRows = s->num_rows(result); //64 bit to 32 bit conversion...
 			numFields = s->num_fields(result);
 			if (numRows > 0) {
@@ -123,9 +123,9 @@ namespace Vdb {
 				reset();
 			}
 		} else {
-			row = NULL;
-			start = NULL;
-			result = NULL;
+			row = nullptr;
+			start = nullptr;
+			result = nullptr;
 			Query::reset();
 			isactive = false;
 		}
@@ -135,9 +135,9 @@ namespace Vdb {
 		if (isactive) {
 			if (fieldRangeCheck(i)) {
 				MYSQL_FIELD* field = s->fetch_field_direct(result,(unsigned int)(i - 1));
-				if ( field != NULL && field-> name != NULL) {
+				if ( field != nullptr && field-> name != nullptr) {
 					fname.assign(field->name);
-					if (field->table != NULL) tname.assign(field->table);
+					if (field->table != nullptr) tname.assign(field->table);
 				}
 			}
 		} else {

@@ -56,7 +56,7 @@ using namespace Log;
 using namespace FileUtils;
 using namespace ImageInfo;
 
-typedef hash_map<const string,string, hash<const string&> > var_map_type;
+typedef unordered_map<const string,string, hash<const string&> > var_map_type;
 
 var_map_type Environment::benv_map;
 var_map_type Environment::cgi_rfc_map;
@@ -73,7 +73,7 @@ long double Environment::nano;
 Environment::Environment()  : gDevelop(false),do_auto_utf8check(true),gSQLport(0),gRootDir(""),gScriptsDir(""),gScratchDir("/tmp/"),basetime(0)  {
 	pid = getpid();
 	gArgc=0;
-	gArgv=NULL;
+	gArgv=nullptr;
 }
 Environment::~Environment() {
 	ienv_map.clear();
@@ -137,11 +137,11 @@ void Environment::do_conf_from_args(int argc, char **argv) {
 }
 //so this now sends out the header AFTER the xml.
 void Environment::init(int argc, char **argv, char** env) {
-	if (instance == NULL) {
+	if (instance == nullptr) {
 		instance = new Environment();	// instantiate singleton
 		instance->gArgc=argc;
 		instance->gArgv=argv;
-		if (env != NULL) {
+		if (env != nullptr) {
 			instance->setienvmap(env);
 		} else {
 			instance->init_httphead();
@@ -153,9 +153,9 @@ void Environment::init(int argc, char **argv, char** env) {
 	vsize = runtime_version.size();
 }
 void Environment::finalise() {
-	if (instance != NULL) {
+	if (instance != nullptr) {
 		delete instance;
-		instance = NULL;
+		instance = nullptr;
 	}
 	while (runtime_version.size() > vsize) {
 		runtime_version.pop();
@@ -572,7 +572,7 @@ void Environment::dopostparms() {
 					} else {
 						size_t post_wwform = contenttype.find("application/x-www-form-urlencoded"); //just the same as if it were a GET/QUERYSTRING
 						if (post_wwform != string::npos) {
-							doparms(-1,NULL);
+							doparms(-1,nullptr);
 							return;
 						} else { // unknown or empty
 							setparm("POST_MIME",contenttype);
@@ -883,8 +883,8 @@ void Environment::setparm(string name,string value) {
 }
 void Environment::dodocument() { //for POST values
 	string input,inputlen,test_filename;
-	File* test_file = NULL;
-	std::istream *iss = NULL;
+	File* test_file = nullptr;
+	std::istream *iss = nullptr;
 	if (getenv("TEST_FILE",test_filename)) { //This shouldn't be an osi!
 		test_file = new File(test_filename);
 		test_file->open(iss);
@@ -893,7 +893,7 @@ void Environment::dodocument() { //for POST values
 	}
 	if (getenv("CONTENT_LENGTH",inputlen)) {
 		pair<unsigned long long,bool> lenpr = String::znatural(inputlen);
-		if (lenpr.second && iss != NULL && iss->good()) { //very bad if it weren't a number!!
+		if (lenpr.second && iss != nullptr && iss->good()) { //very bad if it weren't a number!!
 			streamsize cfound=0,clen = lenpr.first;
 			try {
 				char* content = new char[clen];
@@ -921,7 +921,7 @@ void Environment::dodocument() { //for POST values
 			setparm("THIS_REQ_BODY",sb.str());
 		}
 	}
-	if (test_file != NULL) { delete test_file;}
+	if (test_file != nullptr) { delete test_file;}
 }
 #pragma mark ENVIRONMENT (UTILITY)
 void Environment::init_cgi_rfc_map() {
@@ -1013,7 +1013,7 @@ void Environment::setienv(string name,string value) {
 }
 void Environment::setbenvmap() {//per box/process environment
 	unsigned int eit = 0;
-	while ( environ[eit] != NULL ) {
+	while ( environ[eit] != nullptr ) {
 		string parmstring = environ[eit++];
 		size_t split =  parmstring.find('=');
 		if (split != string::npos && split > 0 ) {
@@ -1034,7 +1034,7 @@ void Environment::setbenvmap() {//per box/process environment
 }
 string Environment::Database() {
 	string result("OBYX_SQLDATABASE");
-	if (instance != NULL) {
+	if (instance != nullptr) {
 		if (!instance->getenv("OBYX_SQLDATABASE",result)) {
 			instance->getenv("OBYX_SQLDATABASE",result);
 		}
@@ -1045,7 +1045,7 @@ string Environment::Database() {
 }
 string Environment::SQLhost() {
 	string result("");
-	if (instance != NULL) {
+	if (instance != nullptr) {
 		if (!instance->getenv("OBYX_SQLHOST",result)) {
 			instance->getenv("OBYX_SQLHOST",result);
 		}
@@ -1056,7 +1056,7 @@ string Environment::SQLhost() {
 }
 string Environment::SQLuser() {
 	string result("");
-	if (instance != NULL) {
+	if (instance != nullptr) {
 		if (!instance->getenv("OBYX_SQLUSER",result)) {
 			instance->getenv("OBYX_SQLUSER",result);
 		}
@@ -1067,7 +1067,7 @@ string Environment::SQLuser() {
 }
 string Environment::SQLuserPW() {
 	string result("");
-	if (instance != NULL) {
+	if (instance != nullptr) {
 		if (!instance->getenv("OBYX_SQLUSERPW",result)) {
 			instance->getenv("OBYX_SQLUSERPW",result);
 		}
@@ -1078,7 +1078,7 @@ string Environment::SQLuserPW() {
 }
 unsigned int Environment::SQLport() {
 	string result("");
-	if (instance != NULL) {
+	if (instance != nullptr) {
 		if (!instance->getenv("OBYX_SQLPORT",result)) {
 			instance->getenv("OBYX_SQLPORT",result);
 		}
@@ -1090,7 +1090,7 @@ unsigned int Environment::SQLport() {
 }
 string Environment::Salt() {
 	string result("[s4lt]");
-	if (instance != NULL) {
+	if (instance != nullptr) {
 		if (!instance->getenv("OBYX_SALT",result)) {
 			instance->getenv("OBYX_SALT",result);
 		}
@@ -1117,7 +1117,7 @@ void Environment::resetenv(const string name) { //? used to reset per-request va
 }
 void Environment::setienvmap(char ** environment) {
 	unsigned int eit = 0;
-	while ( environment[eit] != NULL ) {
+	while ( environment[eit] != nullptr ) {
 		string parmstring = environment[eit++];
 		size_t split =  parmstring.find('=');
 		if (split != string::npos && split > 0 ) {

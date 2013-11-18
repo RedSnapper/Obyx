@@ -56,7 +56,7 @@ void finalise();
 void shutdown();
 
 int main(int argc, char *argv[]) {
-	string v_number = "1.131003"; //Do NOT put the v here!
+	string v_number = "1.131118"; //Do NOT put the v here!
 #ifdef FAST
 #ifdef PROFILING
 	int  profilecount = 40;
@@ -72,8 +72,8 @@ int main(int argc, char *argv[]) {
 		std::cout << version << ", Build:" << compiledate << " " << compiletime;
 	} else {
 		startup(version,v_number,argc,argv);
-		ostream* f_out = NULL;
-		char** ienv = NULL;
+		ostream* f_out = nullptr;
+		char** ienv = nullptr;
 #ifdef FAST
 		while (Fast::ready(f_out,ienv)
 #ifdef PROFILING
@@ -97,18 +97,18 @@ int main(int argc, char *argv[]) {
 					DataItem* sfile = DataItem::factory(sourcefile,di_text); //will parse as object inside logging.
 					string out_str;				
 					if (true) { // used to delete document before finalising stuff
-						DataItem* result = NULL;
-						Document* obyxdoc = new Document(sfile,Document::Main,sourcefilepath,NULL,false);	//Main = called from here!
+						DataItem* result = nullptr;
+						Document* obyxdoc = new Document(sfile,Document::Main,sourcefilepath,nullptr,false);	//Main = called from here!
 						Document::setroot(obyxdoc);
 						obyxdoc->eval();
 						obyxdoc->results.evaluate(false);
 						obyxdoc->results.takeresult(result);
-						if (result != NULL) { 
+						if (result != nullptr) { 
 							out_str = *result; 
 							kind = result->kind();
 							delete result;
 						}
-						delete obyxdoc; obyxdoc=NULL;
+						delete obyxdoc; obyxdoc=nullptr;
 					}
 					Filer::output(out_str,kind);
 					delete sfile;

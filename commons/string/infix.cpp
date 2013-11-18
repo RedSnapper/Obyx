@@ -51,8 +51,8 @@ namespace String {
 		}
 		void Evaluate::shutdown() {
 			for (lut_t::iterator i = lut.begin(); i != lut.end(); i++) {
-				if (i->second != NULL) {
-					delete i->second; i->second = NULL;
+				if (i->second != nullptr) {
+					delete i->second; i->second = nullptr;
 				};
 			}
 		}
@@ -77,19 +77,19 @@ namespace String {
 				string cur_name("");
 				size_t eaten;
 				const Op* curop = get(i,eaten); //second is for how many chars were eaten.
-				if (curop == NULL) {
+				if (curop == nullptr) {
 					name(i,cur_name);
 					if (!cur_name.empty()) {
 						char x = *i;
 						if(x == '(') {
 							curop = get(cur_name); //named fn.
-							if ( curop == NULL) {
+							if ( curop == nullptr) {
 								errs =  "Error. Unknown function '" + cur_name + "'.";
 							}
 						} 
 					}
 				}
-				if (curop != NULL) {
+				if (curop != nullptr) {
 					char csig = curop->sig();
 					if(csig == '(') {
 						opstack.push_back(curop);
@@ -173,7 +173,7 @@ namespace String {
 		}
 		const Op* Evaluate::get(string::const_iterator& i,size_t& eaten) {
 			eaten = 0;
-			const Op* retval(NULL);
+			const Op* retval(nullptr);
 			string possible_op;
 			possible_op.push_back(*i);
 			lut_t::const_iterator o = lut.find(possible_op);
@@ -185,7 +185,7 @@ namespace String {
 			return retval;
 		}
 		const Op* Evaluate::get(const string i) {
-			const Op* retval(NULL);
+			const Op* retval(nullptr);
 			lut_t::const_iterator o = lut.find(i);
 			if( o != lut.end() ) { retval = o->second; } 
 			return retval;
@@ -197,19 +197,19 @@ namespace String {
 				if (pop->parms <= valstack.size()) {
 					retval = pop->sig();
 					opstack.pop_back();
-					long double w(0),x(0),y(0);
+					long double iw(0),ix(0),iy(0);
 					if (pop->parms > 0) {
-						y = valstack.back(); 
+						iy = valstack.back();
 						valstack.pop_back();
 						if (pop->parms > 1) {
-							x = valstack.back(); 
+							ix = valstack.back();
 							valstack.pop_back();
 							if (pop->parms > 2) {
-								w = valstack.back(); 
+								iw = valstack.back();
 								valstack.pop_back();
 							}
 						}
-						long double result = pop->evaluate(w,x,y);
+						long double result = pop->evaluate(iw,ix,iy);
 						valstack.push_back(result);
 					}
 				} else {

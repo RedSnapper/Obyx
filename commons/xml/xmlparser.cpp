@@ -48,15 +48,13 @@ namespace XML {
 #include "grammars/jsonxsd.h"
 
 
-	//#define u_str u_str
-	//#define UCS2(x) (const XMLCh*)(x)
 //	vector<DOMDocumentType*> Parser::doctypes;
-	const u_str Parser::memfile = UCS2(L"[xsd]"); // "[xsd]"
+	const u_str Parser::memfile = u"[xsd]";
 	
-	Parser::Parser() : errorHandler(NULL),resourceHandler(NULL),impl(NULL),writer(NULL),xfmt(NULL),parser(NULL),validation(false) {
-		const u_str imptype = UCS2(L"XPath2 3.0");	// "XPath2 3.0 for xqilla"
-//		const u_str imptype = UCS2(L"LS");	// "LS for xercesc"
-		impl = DOMImplementationRegistry::getDOMImplementation( imptype.c_str() );
+	Parser::Parser() : errorHandler(nullptr),resourceHandler(nullptr),impl(nullptr),writer(nullptr),xfmt(nullptr),parser(nullptr),validation(false) {
+		const u_str imptype = u"XPath2 3.0";	// "XPath2 3.0 for xqilla"
+//		const u_str imptype = u"LS";			// "LS for xercesc"
+		impl = DOMImplementationRegistry::getDOMImplementation( cx(imptype).c_str() );
 		errorHandler = new XMLErrorHandler();
 		resourceHandler = new XMLResourceHandler();	
 	}
@@ -67,63 +65,63 @@ namespace XML {
 	}
 	
 	void Parser::writenode(const DOMNode* const& n, u_str& result) {
-		if ( n != NULL ) {
-			AutoRelease<DOMLSOutput> output(((DOMImplementationLS*)impl)->createLSOutput());	
+		if ( n != nullptr ) {
+			DOMLSOutput* output = ((DOMImplementationLS*)impl)->createLSOutput();
 			MemBufFormatTarget* mbft = new MemBufFormatTarget();
 			output->setByteStream(mbft);
 			output->setEncoding(XMLUni::fgXMLChEncodingString); //This must be done.
 			if ( writer->write(n,output) ) {
-				XMLCh* c_result = (XMLCh*)((MemBufFormatTarget*)mbft)->getRawBuffer();
-				if (c_result != NULL) {
-					// ((MemBufFormatTarget*)mbft)->getLen() is size of buffer, not of result.
-					result = u_str(c_result,XMLString::stringLen(c_result));
+				const XMLCh* c_result = (XMLCh*)((MemBufFormatTarget*)mbft)->getRawBuffer();
+				if (c_result != nullptr) {
+					result = u_str(pcu(c_result),XMLString::stringLen(c_result));
 				}
 			}
+			delete output;
 			delete mbft;
-		} // else {} //node was NULL
+		} // else {} //node was nullptr
 	}
 	
 	void Parser::writedoc(const DOMDocument* const& n,u_str& result) {
-		if ( n != NULL ) {
+		if ( n != nullptr ) {
 			AutoRelease<DOMLSOutput> output(((DOMImplementationLS*)impl)->createLSOutput());	
 			MemBufFormatTarget* mbft = new MemBufFormatTarget();
 			output->setByteStream(mbft);
 			output->setEncoding(XMLUni::fgXMLChEncodingString); //This must be done.
 			if ( writer->write(n,output) ) {
 				XMLCh* c_result = (XMLCh*)((MemBufFormatTarget*)mbft)->getRawBuffer();
-				if (c_result != NULL) {
-					result = u_str(c_result,XMLString::stringLen(c_result));
+				if (c_result != nullptr) {
+					result = u_str(pu(c_result),XMLString::stringLen(c_result));
 				}
 			}
 			delete mbft;
-		} // else {} //node was NULL
+		} // else {} //node was nullptr
 	}
 	
 	void Parser::writenode(const DOMNode* const& n, std::string& result) {
-		if ( n != NULL ) {
+		if ( n != nullptr ) {
 			AutoRelease<DOMLSOutput> output(((DOMImplementationLS*)impl)->createLSOutput());	
 			MemBufFormatTarget* mbft = new MemBufFormatTarget();
 			output->setByteStream(mbft);
 			output->setEncoding(XMLUni::fgUTF8EncodingString); //This must be done.
 			if ( writer->write(n,output) ) {
 				char* c_result = (char*)((MemBufFormatTarget*)mbft)->getRawBuffer();
-				if (c_result != NULL) {
+				if (c_result != nullptr) {
 					result = string(c_result,XMLString::stringLen(c_result));
 				}
 			}
 			delete mbft;
-		} // else {} //node was NULL
+		} // else {} //node was nullptr
 	}
 	
 	void Parser::writedoc(const DOMDocument* const& n,std::string& result) {
-		if ( n != NULL ) {
+		if ( n != nullptr ) {
 			AutoRelease<DOMLSOutput> output(((DOMImplementationLS*)impl)->createLSOutput());	
 			MemBufFormatTarget* mbft = new MemBufFormatTarget();
 			output->setByteStream(mbft);
 			output->setEncoding(XMLUni::fgUTF8EncodingString); //This must be done.
 			if ( writer->write(n,output) ) {
 				char* c_result = (char*)((MemBufFormatTarget*)mbft)->getRawBuffer();
-				if (c_result != NULL) {
+				if (c_result != nullptr) {
 					result = string(c_result,XMLString::stringLen(c_result));
 				}
 			}
@@ -134,7 +132,7 @@ namespace XML {
 				const string textarea_repl="<textarea\\1></textarea>";
 				String::Regex::replace(textarea_find,textarea_repl,result,true);
 			}
-		} // else {} //node was NULL
+		} // else {} //node was nullptr
 	}
 	
 	Parser::~Parser() {
@@ -182,7 +180,7 @@ namespace XML {
 
 	void Parser::makeReader() {
 // Xerces-c v3.0 and up. Val_Auto 
-		parser = ((DOMImplementationLS*)impl)->createLSParser(DOMImplementationLS::MODE_SYNCHRONOUS, NULL);
+		parser = ((DOMImplementationLS*)impl)->createLSParser(DOMImplementationLS::MODE_SYNCHRONOUS, nullptr);
 		DOMConfiguration* dc = parser->getDomConfig();
 		dc->setParameter(XMLUni::fgDOMErrorHandler,errorHandler);
 		dc->setParameter(XMLUni::fgDOMResourceResolver,resourceHandler);  //This is the 'dom' way- it's 'the same' as fgXercesEntityResolver!
@@ -210,33 +208,33 @@ namespace XML {
 		//the 'SystemId' values must be the namespace urls.
 	
 		if (Environment::getbenvtf("OBYX_USING_XHTML5")) {
-			resourceHandler->setGrammar(xhtml1dtd,UCS2(L"-//W3C//DTD XHTML 1.0 Strict//EN"),Grammar::DTDGrammarType,true);      //XERCESC-1927: DTDs must be loaded before xml documents.
-			resourceHandler->setGrammar(xmlxsd,UCS2(L"http://www.w3.org/XML/1998/namespace"),Grammar::SchemaGrammarType);
-			resourceHandler->setGrammar(xlinkxsd,UCS2(L"http://www.w3.org/1999/xlink"),Grammar::SchemaGrammarType);
-			resourceHandler->setGrammar(svgxsd,UCS2(L"http://www.w3.org/2000/svg"),Grammar::SchemaGrammarType,true);
-			resourceHandler->setGrammar(xhtml5xsd,UCS2(L"http://www.w3.org/1999/xhtml"),Grammar::SchemaGrammarType,true);
+			resourceHandler->setGrammar(xhtml1dtd,u"-//W3C//DTD XHTML 1.0 Strict//EN",Grammar::DTDGrammarType,true);      //XERCESC-1927: DTDs must be loaded before xml documents.
+			resourceHandler->setGrammar(xmlxsd,u"http://www.w3.org/XML/1998/namespace",Grammar::SchemaGrammarType);
+			resourceHandler->setGrammar(xlinkxsd,u"http://www.w3.org/1999/xlink",Grammar::SchemaGrammarType);
+			resourceHandler->setGrammar(svgxsd,u"http://www.w3.org/2000/svg",Grammar::SchemaGrammarType,true);
+			resourceHandler->setGrammar(xhtml5xsd,u"http://www.w3.org/1999/xhtml",Grammar::SchemaGrammarType,true);
 		} else {
-			resourceHandler->setGrammar(xhtml1dtd,UCS2(L"http://www.w3.org/1999/xhtml"),Grammar::DTDGrammarType,true);      //XERCESC-1927: DTDs must be loaded before xml documents.
-			resourceHandler->setGrammar(xmlxsd,UCS2(L"http://www.w3.org/XML/1998/namespace"),Grammar::SchemaGrammarType);
-			resourceHandler->setGrammar(xlinkxsd,UCS2(L"http://www.w3.org/1999/xlink"),Grammar::SchemaGrammarType);
-			resourceHandler->setGrammar(svgxsd,UCS2(L"http://www.w3.org/2000/svg"),Grammar::SchemaGrammarType,true);
+			resourceHandler->setGrammar(xhtml1dtd,u"http://www.w3.org/1999/xhtml",Grammar::DTDGrammarType,true);      //XERCESC-1927: DTDs must be loaded before xml documents.
+			resourceHandler->setGrammar(xmlxsd,u"http://www.w3.org/XML/1998/namespace",Grammar::SchemaGrammarType);
+			resourceHandler->setGrammar(xlinkxsd,u"http://www.w3.org/1999/xlink",Grammar::SchemaGrammarType);
+			resourceHandler->setGrammar(svgxsd,u"http://www.w3.org/2000/svg",Grammar::SchemaGrammarType,true);
 		}
-		resourceHandler->setGrammar(obyxxsd,UCS2(L"http://www.obyx.org"),Grammar::SchemaGrammarType);      //I don't really know why this has to be preloaded..
-		resourceHandler->setGrammar(messagexsd,UCS2(L"http://www.obyx.org/message"),Grammar::SchemaGrammarType);
-		resourceHandler->setGrammar(oalxsd,UCS2(L"http://www.obyx.org/osi-application-layer"),Grammar::SchemaGrammarType);
-		resourceHandler->setGrammar(jsonxsd,UCS2(L"http://www.obyx.org/json"),Grammar::SchemaGrammarType);
+		resourceHandler->setGrammar(obyxxsd,u"http://www.obyx.org",Grammar::SchemaGrammarType);      //I don't really know why this has to be preloaded..
+		resourceHandler->setGrammar(messagexsd,u"http://www.obyx.org/message",Grammar::SchemaGrammarType);
+		resourceHandler->setGrammar(oalxsd,u"http://www.obyx.org/osi-application-layer",Grammar::SchemaGrammarType);
+		resourceHandler->setGrammar(jsonxsd,u"http://www.obyx.org/json",Grammar::SchemaGrammarType);
 
 		//These are all better handled at runtime. The performance hit of preloading them against every request is not so good
-		resourceHandler->setGrammar(soapxsd,UCS2(L"http://schemas.xmlsoap.org/soap/envelope/"),Grammar::SchemaGrammarType);
-		resourceHandler->setGrammar(soapencodingxsd,UCS2(L"http://schemas.xmlsoap.org/soap/encoding/"),Grammar::SchemaGrammarType);
-		resourceHandler->setGrammar(wsdlxsd,UCS2(L"http://schemas.xmlsoap.org/wsdl/"),Grammar::SchemaGrammarType);
-		resourceHandler->setGrammar(wsdlmimexsd,UCS2(L"http://schemas.xmlsoap.org/wsdl/mime/"),Grammar::SchemaGrammarType);
+		resourceHandler->setGrammar(soapxsd,u"http://schemas.xmlsoap.org/soap/envelope/",Grammar::SchemaGrammarType);
+		resourceHandler->setGrammar(soapencodingxsd,u"http://schemas.xmlsoap.org/soap/encoding/",Grammar::SchemaGrammarType);
+		resourceHandler->setGrammar(wsdlxsd,u"http://schemas.xmlsoap.org/wsdl/",Grammar::SchemaGrammarType);
+		resourceHandler->setGrammar(wsdlmimexsd,u"http://schemas.xmlsoap.org/wsdl/mime/",Grammar::SchemaGrammarType);
 	}
 	
 	DOMDocument* Parser::newDoc(const DOMNode* n) {
-		DOMDocument* doc = NULL;
-		const DOMNamedNodeMap*  mmn = NULL;
-		if (n != NULL) {
+		DOMDocument* doc = nullptr;
+		const DOMNamedNodeMap*  mmn = nullptr;
+		if (n != nullptr) {
 			try {
 				if (n->getNodeType() == DOMNode::DOCUMENT_NODE) {
 					doc = (DOMDocument*)n->cloneNode(true);
@@ -248,18 +246,18 @@ namespace XML {
 						doc->appendChild(inod);
 //now handle implicit namespaces as found in schemas.
 						const DOMDocument* p = n->getOwnerDocument();
-						if ( p != NULL) {
+						if ( p != nullptr) {
 							const DOMElement* pde = p->getDocumentElement();
-							if (pde != NULL) {
+							if (pde != nullptr) {
 								mmn=pde->getAttributes(); //now we have the attributes of the parent doc.
 								DOMElement* de = doc->getDocumentElement();
-								if (de != NULL && mmn != NULL ) {
+								if (de != nullptr && mmn != nullptr ) {
 									size_t n = mmn->getLength();
 									for(size_t i=0; i<n; i++) {
 										DOMAttr* ai = (DOMAttr*)(mmn->item(i));
-										const u_str ain(ai->getName());
-										if (ain.compare(0,6,UCS2(L"xmlns:")) == 0) {
-											de->removeAttribute(ain.c_str());
+										const u_str ain(pcu(ai->getName()));
+										if (ain.compare(0,6,u"xmlns:") == 0) {
+											de->removeAttribute(pcx(ain.c_str()));
 											DOMAttr* iattr = (DOMAttr*)(doc->importNode(ai,true));
 											de->setAttributeNode(iattr);
 										}
@@ -272,7 +270,7 @@ namespace XML {
 			}
 			catch (DOMException e) {
 				string err_message;
-				Manager::transcode(e.getMessage(),err_message);
+				Manager::transcode(pcu(e.getMessage()),err_message);
 				*Logger::log << error << Log::LI << "DOM Copy. Exception message is:" << Log::br << err_message << "\n" << Log::LO << Log::blockend;
 			}
 		} else {
@@ -287,7 +285,7 @@ namespace XML {
 	
 	//non-releasing the doc result is not good...
 	DOMDocument* Parser::loadDoc(const std::string& xfile) {
-		DOMDocument* rslt = NULL;
+		DOMDocument* rslt = nullptr;
 		if ( ! xfile.empty() ) {
 			std::string xmlfile = xfile;		
 			bool do_validation = validation;	//only has an effect if VALIDATE_ALWAYS is set.
@@ -317,7 +315,7 @@ namespace XML {
 			}
 			AutoRelease<DOMLSInput> input(((DOMImplementationLS*)impl)->createLSInput());	
 			XMLByte* xmlraw = (XMLByte*)(xmlfile.c_str());
-			MemBufInputSource* mbis = new MemBufInputSource(xmlraw,xmlfile.size(),memfile.c_str());
+			MemBufInputSource* mbis = new MemBufInputSource(xmlraw,xmlfile.size(),pcx(memfile.c_str()));
 			mbis->setCopyBufToStream(false);
 			input->setByteStream(mbis);
 			input->setEncoding(XMLUni::fgUTF8EncodingString); //This must be done.
@@ -326,12 +324,12 @@ namespace XML {
 			}
 			catch (DOMLSException e) {
 				string err_message;
-				Manager::transcode(e.getMessage(),err_message);			
+				Manager::transcode(pcu(e.getMessage()),err_message);
 				*Logger::log << error << Log::LI << "Error during parsing memory stream. Exception message is:" << Log::br << err_message << "\n" << Log::LO << Log::blockend;
 			}
 			catch (DOMException e) {
 				string err_message;
-				Manager::transcode(e.getMessage(),err_message);			
+				Manager::transcode(pcu(e.getMessage()),err_message);
 				*Logger::log << error << Log::LI << "Error during parsing memory stream. Exception message is:" << Log::br << err_message << "\n" << Log::LO << Log::blockend;
 			}
 			catch ( ... ) {
@@ -339,11 +337,11 @@ namespace XML {
 			}
 			if ( errorHandler->hadErrors() ) {	
 				*Logger::log << error << Log::LI << "Text that failed parse" << Log::LO << Log::LI << xmlfile << Log::LO << Log::blockend;
-				rslt=NULL;
+				rslt=nullptr;
 				errorHandler->resetErrors();
 			} 
 			delete mbis;
-			mbis=NULL;
+			mbis=nullptr;
 			if (!do_validation) {
 				validation_on();
 			}
@@ -378,11 +376,11 @@ namespace XML {
 	}
 	
 	DOMDocument* Parser::loadDoc(const u_str& xmlfile) {
-		DOMDocument* rslt = NULL;
+		DOMDocument* rslt = nullptr;
 		if ( ! xmlfile.empty() ) {
 			AutoRelease<DOMLSInput> input(((DOMImplementationLS*)impl)->createLSInput());	
 			XMLByte* xmlraw = (XMLByte*)(xmlfile.c_str());
-			MemBufInputSource* mbis = new MemBufInputSource(xmlraw,xmlfile.size()*sizeof(XMLCh),memfile.c_str());
+			MemBufInputSource* mbis = new MemBufInputSource(xmlraw,xmlfile.size()*sizeof(XMLCh),pcx(memfile.c_str()));
 			mbis->setCopyBufToStream(false);
 			input->setByteStream(mbis);
 			input->setEncoding(XMLUni::fgXMLChEncodingString); //This must be done.
@@ -396,63 +394,71 @@ namespace XML {
 				string exml_file;
 				Manager::transcode(xmlfile.c_str(),exml_file);
 				*Logger::log << error << Log::LI << "Failed to parse:" << exml_file << Log::LO << Log::blockend;
-				rslt=NULL;
+				rslt=nullptr;
 				errorHandler->resetErrors();
 			}
 			delete mbis; 
-			mbis=NULL;
+			mbis=nullptr;
 		}
 		return rslt;
 	}
 	
-	basic_string<XMLCh> Parser::xpath(DOMNode* startnode) { 
-		basic_string<XMLCh> xpath;
-		if (startnode != NULL) {
-			basic_ostringstream<XMLCh> osd;
+	u_str Parser::xpath(DOMNode* startnode) {
+		u_str xpath;
+		if (startnode != nullptr) {
+			basic_ostringstream<char16_t> osd;
 			XMLCh sibch[8];					//For number conversion.
-			const XMLCh notestr[]= {'n','o','t','e',chNull};		// "note"
-			const XMLCh attropen[]={'[','@','n','o','t','e','=','"',chNull};
-			const XMLCh attrclose[]={'"',']',chNull};
-			const XMLCh sls[]= {'/',chNull};		// "/"
-			const XMLCh bkt[]= {'(',')',chNull};	// "()"
-			const XMLCh osq[]= {'[',chNull};		// "["
-			const XMLCh csq[]= {']',chNull};		// "]"
-			vector<basic_string<XMLCh> > bits;
+			u_str notestr= u"note";
+			u_str attropen= u"[@note=\"";
+			u_str attrclose= u"\"]";
+			u_str sls= u"/";
+			u_str bkt= u"()";
+			u_str osq= u"[";
+			u_str csq= u"]";
+			vector<u_str> bits;
 			DOMNode* n = startnode;
-			while ( n != NULL ) { //horrible.
-				basic_ostringstream<XMLCh> oss;
-				basic_string<XMLCh> name = n->getNodeName();
-				if (name[0] == '#' ) { 
+			while ( n != nullptr ) { //horrible.
+				u_str oss;
+				u_str name = pcu(n->getNodeName());
+				if (name[0] == u'#' ) {
 					if (n->getNodeType() != DOMNode::DOCUMENT_NODE) {
 						name.erase(0,1); //remove the hash.
-						oss << sls << name << bkt;
+						oss.append(sls);
+						oss.append(name);
+						oss.append(bkt);
 					}
 				} else {
-					const XMLCh* note_attr = NULL; 
+					u_str note_attr;
 					if (n->getNodeType() == DOMNode::ELEMENT_NODE ) {
 						DOMElement* el = dynamic_cast<DOMElement*>(n);
-						if (el != NULL) {
-							DOMAttr* anote = el->getAttributeNode(notestr);
-							if (anote != NULL) {
-								note_attr = anote->getNodeValue();
+						if (el != nullptr) {
+							DOMAttr* anote = el->getAttributeNode(pcx(notestr.c_str()));
+							if (anote != nullptr) {
+								note_attr = pcu(anote->getNodeValue());
 							}	
 						}
 					}
 					//This is v.slow for travelling through DOMText - will loop through each char.
 					unsigned long sibnum = 1;
 					xercesc::DOMNode* s = n->getPreviousSibling();
-					while ( s != NULL) {
-						if (!name.compare(s->getNodeName())) { sibnum++ ;}
+					while ( s != nullptr) {
+						if (!name.compare(pcu(s->getNodeName()))) { sibnum++ ;}
 						s = s->getPreviousSibling();
 					} 
 					XMLString::binToText(sibnum,sibch,7,10);
-					oss << sls << name << osq << sibch << csq;
-					if (note_attr != NULL) {
-						oss << attropen << note_attr << attrclose;
+					oss.append(sls);
+					oss.append(name);
+					oss.append(osq);
+					oss.append(pcu(sibch));
+					oss.append(csq);
+					if (!note_attr.empty()) {
+						oss.append(attropen);
+						oss.append(note_attr);
+						oss.append(attrclose);
 					}
 				}
 				n = n->getParentNode(); //really shouldn't need to dynamic cast this.
-				bits.push_back(oss.str());
+				bits.push_back(oss);
 			}
 			while (bits.size() > 0) {
 				xpath.append(bits.back());
@@ -464,8 +470,8 @@ namespace XML {
 
 	// DOMDocumentFragment	
 	/* All the following could probably be replaced with parser->parseWithContext(input,pt,action); */
-	void Parser::insertContext(DOMDocument*& doc,DOMNode*& pt,const basic_string<XMLCh>& ins,DOMLSParser::ActionType action) {
-		if (pt != NULL) {
+	void Parser::insertContext(DOMDocument*& doc,DOMNode*& pt,const u_str& ins,DOMLSParser::ActionType action) {
+		if (pt != nullptr) {
 			switch ( pt->getNodeType() ) {
 				case DOMNode::ELEMENT_NODE: {
 					switch (action) {
@@ -593,9 +599,9 @@ namespace XML {
 							do_maybenode_child_gap(doc,pt,ins);
 						} break;
 						case DOMLSParser::ACTION_REPLACE: {
-							if (doc != NULL) { 
+							if (doc != nullptr) { 
 								doc->release();
-								doc = NULL;
+								doc = nullptr;
 							}
 							if (!ins.empty()) { 
 								doc = loadDoc(ins);
@@ -623,8 +629,8 @@ namespace XML {
 	}
 	
 	void Parser::insertContext(DOMDocument*& doc,DOMNode*& pt,DOMNode* const nins,DOMLSParser::ActionType action) {
-		DOMNode* ins = NULL;
-		if (nins != NULL) {		//Convert / change nins from DOMDocument to DOMNode if needs be.
+		DOMNode* ins = nullptr;
+		if (nins != nullptr) {		//Convert / change nins from DOMDocument to DOMNode if needs be.
 			DOMNode::NodeType nt = nins->getNodeType();
 			switch (nt) {
 				case DOMNode::DOCUMENT_NODE: {
@@ -636,7 +642,7 @@ namespace XML {
 				} break;
 			}
 		}
- 		if (pt != NULL) {		
+ 		if (pt != nullptr) {		
 			switch ( pt->getNodeType() ) {
 				case DOMNode::ELEMENT_NODE: {
 					switch (action) {
@@ -764,9 +770,9 @@ namespace XML {
 							do_maybenode_child_gap(doc,pt,ins);
 						} break;
 						case DOMLSParser::ACTION_REPLACE: {
-							if (doc != NULL) { 
+							if (doc != nullptr) { 
 								doc->release();
-								doc = NULL;
+								doc = nullptr;
 							}
 							doc = XML::Manager::parser()->newDoc(ins);
 						} break;
@@ -803,7 +809,7 @@ namespace XML {
 		}
 		catch (const XMLException& e) {
 			string err_message;
-			Manager::transcode(e.getMessage(),err_message);			
+			Manager::transcode(pcu(e.getMessage()),err_message);
 			*Logger::log << error << Log::LI << "Error during parsing memory stream. Exception message is:" << Log::br << err_message << "\n" << Log::LO << Log::blockend;
 		}
 		catch ( ... ) {
@@ -840,61 +846,61 @@ namespace XML {
 	// [3] S  ::=  (#x20 | #x9 | #xD | #xA)+
 	/*	XMLString::catString() doesn't do any overflow checking so malloc errors will occur.	*/
 	
-	void Parser::do_mustbetext_following_gap(DOMNode*& pt,const basic_string<XMLCh>& v) {
+	void Parser::do_mustbetext_following_gap(DOMNode*& pt,const u_str& v) {
 		if (! v.empty() ) {
-			basic_string<XMLCh> result;
+			u_str result;
 			const XMLCh* const base = pt->getNodeValue();
-			result.append(base);
+			result.append(pcu(base));
 			result.append(v);
-			pt->setNodeValue(result.c_str());
+			pt->setNodeValue(pcx(result.c_str()));
 		}
 	}
 	
-	void Parser::do_mustbetext_preceding_gap(DOMNode*& pt,const basic_string<XMLCh>& v) {
+	void Parser::do_mustbetext_preceding_gap(DOMNode*& pt,const u_str& v) {
 		if (! v.empty() ) {
-			basic_string<XMLCh> result;
+			u_str result;
 			const XMLCh* const base = pt->getNodeValue();
 			result.append(v);
-			result.append(base);
-			pt->setNodeValue(result.c_str());
+			result.append(pcu(base));
+			pt->setNodeValue(pcx(result.c_str()));
 		}
 	}
 	
-	void Parser::do_mustbetext_set(DOMNode*& pt,const basic_string<XMLCh>& v) {
+	void Parser::do_mustbetext_set(DOMNode*& pt,const u_str& v) {
 		if ( v.empty() ) {
 			if ( pt->getNodeType() == DOMNode::ATTRIBUTE_NODE ) {
 				DOMNode* ptx = pt; //
 				DOMAttr* ena = static_cast<DOMAttr*>(ptx);
 				DOMElement* en =ena->getOwnerElement();
 				DOMAttr* enx = en->removeAttributeNode(ena);
-				enx->release(); pt=NULL;
+				enx->release(); pt=nullptr;
 			}
 		} else {		
-			pt->setNodeValue(v.c_str());
+			pt->setNodeValue(pcx(v.c_str()));
 		}
 	}
 	
-	void Parser::do_maybenode_child_gap(DOMDocument*& doc,DOMNode*& pt,const basic_string<XMLCh>& v) {
+	void Parser::do_maybenode_child_gap(DOMDocument*& doc,DOMNode*& pt,const u_str& v) {
 		if (! v.empty() ) {
-			DOMText* vt = doc->createTextNode(v.c_str());
+			DOMText* vt = doc->createTextNode(pcx(v.c_str()));
 			pt->appendChild(vt);
 			doc->normalize();
 		}
  	}
 	
-	void Parser::do_maybenode_preceding_gap(DOMDocument*& doc,DOMNode*& pt,const basic_string<XMLCh>& v) {
+	void Parser::do_maybenode_preceding_gap(DOMDocument*& doc,DOMNode*& pt,const u_str& v) {
 		if (! v.empty() ) {
-			DOMText* vt = doc->createTextNode(v.c_str());
+			DOMText* vt = doc->createTextNode(pcx(v.c_str()));
 			pt->getParentNode()->insertBefore(vt,pt); 
 			doc->normalize();
 		}
 	}
 	
-	void Parser::do_maybenode_following_gap(DOMDocument*& doc,DOMNode*& pt,const basic_string<XMLCh>& v) {
+	void Parser::do_maybenode_following_gap(DOMDocument*& doc,DOMNode*& pt,const u_str& v) {
 		if (! v.empty() ) {
-			DOMText* vt = doc->createTextNode(v.c_str());
+			DOMText* vt = doc->createTextNode(pcx(v.c_str()));
 			DOMNode* ptf = pt->getNextSibling();
-			if (ptf == NULL) {
+			if (ptf == nullptr) {
 				pt->getParentNode()->appendChild(vt);
 			} else {
 				ptf->getParentNode()->insertBefore(vt,ptf); //check if pt is a descendant of doc, rather than a child.
@@ -903,11 +909,11 @@ namespace XML {
 		}
 	}
 	
-	void Parser::do_maybenode_set(DOMDocument*& doc,DOMNode*& pt,const basic_string<XMLCh>& v) {
+	void Parser::do_maybenode_set(DOMDocument*& doc,DOMNode*& pt,const u_str& v) {
 		DOMNode *xr = pt->getParentNode();
 		bool released=false;
 		if (! v.empty() ) {
-			DOMText* vt = doc->createTextNode(v.c_str());
+			DOMText* vt = doc->createTextNode(pcx(v.c_str()));
 			xr->insertBefore(vt,pt); 
 		} 
 		if (!released) {
@@ -919,36 +925,36 @@ namespace XML {
 	
 	//now DOMDocument ones..
 	void Parser::do_mustbetext_following_gap(DOMNode*& pt, DOMNode* rv) {
-		if ( rv != NULL ) {
+		if ( rv != nullptr ) {
 			u_str v; writenode(rv,v); //writedoc(rv,v);
 			if (!v.empty()) {
-				u_str nodeval = pt->getNodeValue();
+				u_str nodeval = pcu(pt->getNodeValue());
 				nodeval.append(v);
-				pt->setNodeValue(nodeval.c_str());
+				pt->setNodeValue(pcx(nodeval.c_str()));
 			}
 		}
 	}
 	
 	void Parser::do_mustbetext_preceding_gap(DOMNode*& pt, DOMNode* rv) {
-		if ( rv != NULL ) {
+		if ( rv != nullptr ) {
 			u_str v; writenode(rv,v); //writedoc(rv,v);
 			if (!v.empty()) {
-				u_str nodeval = pt->getNodeValue();
+				u_str nodeval = pcu(pt->getNodeValue());
 				v.append(nodeval);
-				pt->setNodeValue(nodeval.c_str());
+				pt->setNodeValue(pcx(nodeval.c_str()));
 			}
 		}
 	}
 	
 	void Parser::do_mustbetext_set(DOMNode*& pt, DOMNode* rv) {
-		if ( rv != NULL ) {
+		if ( rv != nullptr ) {
 			u_str v; writenode(rv,v); //writedoc(rv,v);
-			pt->setNodeValue(v.c_str());
+			pt->setNodeValue(pcx(v.c_str()));
 		}
 	}
 	
 	void Parser::do_maybenode_child_gap(DOMDocument*& doc,DOMNode*& pt,const DOMNode* vnod) {
-		if (vnod != NULL) {
+		if (vnod != nullptr) {
 			DOMNode* inod = doc->importNode(vnod,true);
 			do_attr_namespace_kludge(doc,inod);
 			pt->appendChild(inod);
@@ -957,7 +963,7 @@ namespace XML {
 	}
 	
 	void Parser::do_maybenode_preceding_gap(DOMDocument*& doc,DOMNode*& pt,const DOMNode* vnod) {
-		if (vnod != NULL) {
+		if (vnod != nullptr) {
 			DOMNode* inod = doc->importNode(vnod,true);
 			do_attr_namespace_kludge(doc,inod);
 			pt->getParentNode()->insertBefore(inod,pt); 
@@ -967,10 +973,10 @@ namespace XML {
 	
 	void Parser::do_maybenode_following_gap(DOMDocument*& doc,DOMNode*& pt,const DOMNode* vnod) {
 		DOMNode* ptf = pt->getNextSibling();
-		if (vnod != NULL) {
+		if (vnod != nullptr) {
 			DOMNode* inod = doc->importNode(vnod,true);
 			do_attr_namespace_kludge(doc,inod);
-			if (ptf == NULL) {
+			if (ptf == nullptr) {
 				pt->getParentNode()->appendChild(inod);
 			} else {
 				ptf->getParentNode()->insertBefore(inod,ptf); //check if pt is a descendant of doc, rather than a child.
@@ -981,7 +987,7 @@ namespace XML {
 	
 	void Parser::do_maybenode_set(DOMDocument*& doc,DOMNode*& pt,const DOMNode* vnod) {
 		DOMNode *xr = pt->getParentNode();
-		if (vnod != NULL) {
+		if (vnod != nullptr) {
 			DOMNode* inod = doc->importNode(vnod,true);
 			do_attr_namespace_kludge(doc,inod);
 			if (doc->getDocumentElement() == pt) {
@@ -1002,15 +1008,15 @@ namespace XML {
 	}
 	
 	void Parser::do_attr_namespace_kludge(DOMDocument*& doc,DOMNode*& inod) {
-		const XMLCh xmlns[]= {'x','m','l','n','s',chNull}; // "xmlns"
+		const u_str xmlns= u"xmlns";
 		if ( inod->getNodeType() == DOMNode::ELEMENT_NODE ) {
 			DOMElement* enod = (DOMElement*)inod;
-			DOMAttr* enoda = enod->getAttributeNode(xmlns);
-			if (enoda != NULL) {
+			DOMAttr* enoda = enod->getAttributeNode(pcx(xmlns.c_str()));
+			if (enoda != nullptr) {
 				DOMElement* dnod = doc->getDocumentElement();
-				if (dnod != NULL) {
-					DOMAttr* dnoda = dnod->getAttributeNode(xmlns);
-					if (dnoda != NULL && dnoda->isEqualNode(enoda)) {
+				if (dnod != nullptr) {
+					DOMAttr* dnoda = dnod->getAttributeNode(pcx(xmlns.c_str()));
+					if (dnoda != nullptr && dnoda->isEqualNode(enoda)) {
 						enoda = enod->removeAttributeNode(enoda);
 						enoda->release();
 					}

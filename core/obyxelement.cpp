@@ -51,9 +51,9 @@ std::stack<elemtype>	ObyxElement::eval_type;
 
 bool					ObyxElement::break_happened = false;
 nametype_map			ObyxElement::ntmap;
-Vdb::Service*			ObyxElement::dbs = NULL;
-Vdb::Connection*		ObyxElement::dbc = NULL;
-Vdb::Connection*		ObyxElement::scc = NULL;
+Vdb::Service*			ObyxElement::dbs = nullptr;
+Vdb::Connection*		ObyxElement::dbc = nullptr;
+Vdb::Connection*		ObyxElement::scc = nullptr;
 #ifdef PROFILING
 long_map				ObyxElement::ce_map;
 #endif
@@ -62,7 +62,7 @@ long_map				ObyxElement::ce_map;
 XMLNode::XMLNode(DOMNode* const& n,ObyxElement *par) : ObyxElement(par,xmlnode,other,n),doneit(false) {
 	if ( n->getNodeType() == DOMNode::CDATA_SECTION_NODE  ) { 
 		std::string nodevalue;
-		u_str u_nodevalue = n->getNodeValue();
+		u_str u_nodevalue = pcu(n->getNodeValue());
 		if ( Document::prefix_length == 0 ) {
 			if ( u_nodevalue[0] == ':' ) {  // [[: identification.
 				Manager::transcode(u_nodevalue,nodevalue);
@@ -130,7 +130,7 @@ void ObyxElement::do_alloc() {
 		}
 		oss << el_name;
 		t_node = t_node->p;		
-		while (t_node != NULL) {
+		while (t_node != nullptr) {
 			oss << "[" << t_node->name();
 			if (t_node->wotspace == flowfunction) { //grab note, if there is one..
 				const Function* i = dynamic_cast<const Function *>(t_node);
@@ -138,7 +138,7 @@ void ObyxElement::do_alloc() {
 				if (!note.empty())	oss << " '" << i->note() << "' "; 
 			}
 			oss << "]";
-			if (t_node->p == NULL) {
+			if (t_node->p == nullptr) {
 				if (t_node->wotzit == xmldocument) {
 					const Document* i = dynamic_cast<const Document *>(t_node);
 					t_node = i->doc_par;
@@ -176,8 +176,8 @@ incatch(false),owner(orig->owner),p(par),node(orig->node),results(false),wotspac
 #endif
 }
 ObyxElement::ObyxElement(ObyxElement* parent,const obyx::elemtype et,const obyx::elemclass tp,DOMNode* n) : 
-incatch(false),owner(NULL),p(parent),node(n),results(),wotspace(tp),wotzit(et) {
-	if ( p != NULL ) { owner = p->owner; }
+incatch(false),owner(nullptr),p(parent),node(n),results(),wotspace(tp),wotzit(et) {
+	if ( p != nullptr ) { owner = p->owner; }
 #ifdef PROFILING
 	do_alloc(); 
 #endif
@@ -185,9 +185,9 @@ incatch(false),owner(NULL),p(parent),node(n),results(),wotspace(tp),wotzit(et) {
 
 void ObyxElement::prepcatch() {
 	incatch = false;
-	for (const ObyxElement* node = this; node != NULL && !incatch; node = node->p) {
+	for (const ObyxElement* node = this; node != nullptr && !incatch; node = node->p) {
 		const Function* fn = dynamic_cast<const Function *>(node);
-		if (fn != NULL && !fn->catcher.empty() ) {
+		if (fn != nullptr && !fn->catcher.empty() ) {
 			incatch = true;
 			Logger::set_stream(fn->catcher.front()->errs);
 			break;
@@ -216,12 +216,12 @@ void ObyxElement::do_breakpoint() {
 			Logger::unset_stream();
 		}
 		xercesc::DOMDocument* src = node->getOwnerDocument();
-		const u_str pi_name = UCS2(L"bpi"),po_name = UCS2(L"bpo");
-		DOMProcessingInstruction* pi_nodi = src->createProcessingInstruction(pi_name.c_str(),NULL);
-		DOMProcessingInstruction* pi_nodo = src->createProcessingInstruction(po_name.c_str(),NULL);
-		if (node->getParentNode() != NULL) {
+		const u_str pi_name = u"bpi",po_name = u"bpo";
+		DOMProcessingInstruction* pi_nodi = src->createProcessingInstruction(pcx(pi_name.c_str()),nullptr);
+		DOMProcessingInstruction* pi_nodo = src->createProcessingInstruction(pcx(po_name.c_str()),nullptr);
+		if (node->getParentNode() != nullptr) {
 			node->getParentNode()->insertBefore(pi_nodi,node);
-			if (node->getNextSibling() != NULL) {
+			if (node->getNextSibling() != nullptr) {
 				node->getParentNode()->insertBefore(pi_nodo,node->getNextSibling());
 			} else {
 				node->getParentNode()->appendChild(pi_nodo);
@@ -294,12 +294,12 @@ void ObyxElement::trace() const { //always called within a block
 	const ObyxElement* t_node = this;
 	Environment* env = Environment::service();
 	vector<pair<string, pair<string, string> > > fps;
-	while (t_node != NULL) {
+	while (t_node != nullptr) {
 		string filesys = env->getpathforroot(); //need to remove this from filepath.
 		string filepath;
 		string xpath;
         string language_version;
-		if (t_node->owner != NULL) {
+		if (t_node->owner != nullptr) {
             language_version = String::tostring(t_node->owner->version(),6);
 			filepath = t_node->owner->own_filepath(); //shouldn't include the filesystem part.
 			if (filepath.find(filesys) == 0) {
@@ -308,15 +308,15 @@ void ObyxElement::trace() const { //always called within a block
 				filepath.erase(0,1+filepath.rfind('/'));
 			}
 		}
-		if (t_node->node != NULL) { 
-			basic_string<XMLCh> xp = Manager::parser()->xpath(t_node->node);
+		if (t_node->node != nullptr) { 
+			u_str xp = Manager::parser()->xpath(t_node->node);
 			Manager::transcode(xp,xpath);
 		}
 		fps.push_back(pair<string,pair<string, string> >(filepath,pair<string, string>(xpath,language_version)));
-		if (t_node->owner != NULL) {
+		if (t_node->owner != nullptr) {
 			t_node = t_node->owner->p;
 		} else {
-			t_node = NULL;
+			t_node = nullptr;
 		}
 	}
 	*Logger::log << Log::LI << Log::even ;
@@ -331,10 +331,10 @@ void ObyxElement::trace() const { //always called within a block
 }
 //------------------- static methods - once only thank-you very much -----------------------
 ObyxElement* ObyxElement::Factory(DOMNode* const& n,ObyxElement* parent) {
-	ObyxElement* result = NULL;
+	ObyxElement* result = nullptr;
 	switch (n->getNodeType()) {
 		case DOMNode::ELEMENT_NODE: {
-			u_str elname = n->getLocalName();
+			u_str elname = pcu(n->getLocalName());
 			u_str docpfx,elpfx;
 			if (!Document::prefix(docpfx)) { //This is an xml document not inside an obyx container.
 				DOMNode* tmp = n->cloneNode(true);
@@ -342,7 +342,7 @@ ObyxElement* ObyxElement::Factory(DOMNode* const& n,ObyxElement* parent) {
 				parent->results.append( elnode );
 			} else {
 				const XMLCh* px = n->getPrefix();
-				if (px != NULL) { elpfx = px; }
+				if (px != nullptr) { elpfx = pcu(px); }
 				if ( (Document::prefix_length == 0 && elpfx.empty() ) || (Document::prefix_length != 0 && (docpfx.compare(elpfx) == 0) ) ) { //this is in the namespace.
 					nametype_map::const_iterator i = ntmap.find(elname);	//It SHOULD be here..
 					if(i != ntmap.end()) {
@@ -367,7 +367,7 @@ ObyxElement* ObyxElement::Factory(DOMNode* const& n,ObyxElement* parent) {
 							case match:			result=new DefInpType(n,parent,match);				break; //inputtype - parmtype
 							case domain:		result=new DefInpType(n,parent,domain);				break; //inputtype - parmtype
 								
-							case comment:		break; //Use NULL
+							case comment:		break; //Use nullptr
 							case shortsequence: {
 								Instruction *instr=new Instruction(n,parent);
 								new InputType(n,instr,input);		//this is added to instr.
@@ -399,12 +399,12 @@ ObyxElement* ObyxElement::Factory(DOMNode* const& n,ObyxElement* parent) {
 			if (parent->wotspace != flowfunction) {
 				u_str nodevalue;
 				const XMLCh* nv = n->getNodeValue();
-				if (nv != NULL) {
-					nodevalue = nv;
+				if (nv != nullptr) {
+					nodevalue = pcu(nv);
 				}
 				if (! parent->results.final()) {
 					IKO* iko = dynamic_cast<IKO*>(parent);
-					if (iko != NULL) {
+					if (iko != nullptr) {
 						if (iko->wsstrip) {
 							XMLObject::trim(nodevalue);
 						}
@@ -419,7 +419,7 @@ ObyxElement* ObyxElement::Factory(DOMNode* const& n,ObyxElement* parent) {
 					if (!nodevalue.empty()) {
 						*Logger::log << Log::syntax << Log::LI << "Syntax Error. Value attribute is already set. Content is disallowed if there is a value attribute." << Log::LO;
 						ObyxElement* oe = dynamic_cast<ObyxElement*>(parent);
-						if (oe != NULL) { oe->trace(); } //pretty hard to see how this would be non-null - but best to check, i guess.
+						if (oe != nullptr) { oe->trace(); } //pretty hard to see how this would be non-null - but best to check, i guess.
 						*Logger::log << Log::blockend;
 					}
 				}
@@ -427,7 +427,7 @@ ObyxElement* ObyxElement::Factory(DOMNode* const& n,ObyxElement* parent) {
 		} break;
 		case DOMNode::CDATA_SECTION_NODE: {
 			std::string nodevalue;
-			u_str u_nodevalue = n->getNodeValue();
+			u_str u_nodevalue = pcu(n->getNodeValue());
 			if ( Document::prefix_length == 0 ) {
 				if ( u_nodevalue[0] == ':' ) {  // [[: identification.
 					Manager::transcode(u_nodevalue,nodevalue);
@@ -488,13 +488,13 @@ void ObyxElement::get_sql_service() {
 	dbs = Vdb::ServiceFactory::getService(dbservice);
 }
 void ObyxElement::drop_sql_service() {
-		dbs = NULL; //vdb deletes this
+		dbs = nullptr; //vdb deletes this
 }
 
 void ObyxElement::get_search_connection() {
-	if (dbs != NULL)  {
+	if (dbs != nullptr)  {
 		scc = dbs->instance();
-		if (scc != NULL) {
+		if (scc != nullptr) {
 			Environment* e = Environment::service();
 			string host,user,userpw,port;
 			if(!e->getbenv("OBYX_SEARCH_HOST",host)) { host="localhost" ;}
@@ -511,30 +511,30 @@ void ObyxElement::get_search_connection() {
 }
 void ObyxElement::drop_search_connection() {
 	Environment* env = Environment::service();
-	if (env != NULL) {
+	if (env != nullptr) {
 //		env->resetenv("OBYX_SEARCH_HOST");
 //		env->resetenv("OBYX_SEARCH_USER");
 //		env->resetenv("OBYX_SEARCH_USERPW");
 //		env->resetenv("OBYX_SEARCH_PORT");
 	}
-	if (scc != NULL ) {
+	if (scc != nullptr ) {
 		if (scc->isopen())  { //scc is managed by vdb. Just look after Connections.
 			scc->close();
 			delete scc;
 		}
-		scc = NULL;
+		scc = nullptr;
 	}
 }
 
 void ObyxElement::get_sql_connection() {
-	if (dbs != NULL)  {
+	if (dbs != nullptr)  {
 		dbc = dbs->instance();
-		if (dbc != NULL) {
+		if (dbc != nullptr) {
 			dbc->open( Environment::SQLhost(),Environment::SQLuser(),Environment::SQLport(),Environment::SQLuserPW() );
 			if (dbc->isopen())  {
 				dbc->database(Environment::Database());
 			} else {
-				if (Environment::getbenvtf("OBYX_SQLSERVICE_REQ") && Logger::log != NULL) {
+				if (Environment::getbenvtf("OBYX_SQLSERVICE_REQ") && Logger::log != nullptr) {
 					*Logger::log << Log::error << Log::LI << "SQL Service. Service library was loaded but the host connection failed." << Log::LO;
 					*Logger::log << Log::LI << Log::notify << Log::LI;
 					*Logger::log << "If the host is on another box, check the database client configuration or host that networking is enabled. " << Log::LO;
@@ -544,10 +544,10 @@ void ObyxElement::get_sql_connection() {
 					}
 					string up = Environment::SQLuserPW(); if (!up.empty()) {
 						*Logger::log << " -p";
-						string px(up.size(),'*');
-						px[0] = up[0];
-						px[px.size()-1] = up[up.size()-1];
-						*Logger::log << " -p" << px << Log::LO;
+						string pqx(up.size(),'*');
+						pqx[0] = up[0];
+						pqx[pqx.size()-1] = up[up.size()-1];
+						*Logger::log << " -p" << pqx << Log::LO;
 					}
 					*Logger::log << Log::blockend << Log::LO << Log::blockend;
 				}
@@ -558,7 +558,7 @@ void ObyxElement::get_sql_connection() {
 void ObyxElement::drop_sql_connection() {
 
 	Environment* env = Environment::service();
-	if (env != NULL) {
+	if (env != nullptr) {
 		env->resetenv("OBYX_SQLDATABASE");
 		env->resetenv("OBYX_SQLHOST");
 		env->resetenv("OBYX_SQLUSER");
@@ -566,12 +566,12 @@ void ObyxElement::drop_sql_connection() {
 		env->resetenv("OBYX_SQLPORT");
 	}
 	
-	if (dbc != NULL ) {
+	if (dbc != nullptr ) {
 		if (dbc->isopen())  { //dbs is managed by vdb. Just look after Connections.
 			dbc->close();
 			delete dbc; 
 		}
-		dbc = NULL;
+		dbc = nullptr;
 	} 
 }
 void ObyxElement::shutdown() {
@@ -601,23 +601,23 @@ void ObyxElement::startup() {
 #endif
 	Function::startup();
 	IKO::startup();
-	ntmap.insert(nametype_map::value_type(UCS2(L"iteration"), iteration));
-	ntmap.insert(nametype_map::value_type(UCS2(L"context"), iteration));
-	ntmap.insert(nametype_map::value_type(UCS2(L"control"), control));
-	ntmap.insert(nametype_map::value_type(UCS2(L"body"), body));
-	ntmap.insert(nametype_map::value_type(UCS2(L"instruction"), instruction));
-	ntmap.insert(nametype_map::value_type(UCS2(L"comparison"), comparison));
-	ntmap.insert(nametype_map::value_type(UCS2(L"output"), output));
-	ntmap.insert(nametype_map::value_type(UCS2(L"input"), input));
-	ntmap.insert(nametype_map::value_type(UCS2(L"comparate"), comparate));
-	ntmap.insert(nametype_map::value_type(UCS2(L"ontrue"), ontrue));
-	ntmap.insert(nametype_map::value_type(UCS2(L"onfalse"), onfalse));
-	ntmap.insert(nametype_map::value_type(UCS2(L"mapping"), mapping));
-	ntmap.insert(nametype_map::value_type(UCS2(L"key"), key));	
-	ntmap.insert(nametype_map::value_type(UCS2(L"match"), match));
-	ntmap.insert(nametype_map::value_type(UCS2(L"domain"), domain));
-	ntmap.insert(nametype_map::value_type(UCS2(L"s"), shortsequence));
-	ntmap.insert(nametype_map::value_type(UCS2(L"comment"), comment));
+	ntmap.insert(nametype_map::value_type(u"iteration", iteration));
+	ntmap.insert(nametype_map::value_type(u"context", iteration));
+	ntmap.insert(nametype_map::value_type(u"control", control));
+	ntmap.insert(nametype_map::value_type(u"body", body));
+	ntmap.insert(nametype_map::value_type(u"instruction", instruction));
+	ntmap.insert(nametype_map::value_type(u"comparison", comparison));
+	ntmap.insert(nametype_map::value_type(u"output", output));
+	ntmap.insert(nametype_map::value_type(u"input", input));
+	ntmap.insert(nametype_map::value_type(u"comparate", comparate));
+	ntmap.insert(nametype_map::value_type(u"ontrue", ontrue));
+	ntmap.insert(nametype_map::value_type(u"onfalse", onfalse));
+	ntmap.insert(nametype_map::value_type(u"mapping", mapping));
+	ntmap.insert(nametype_map::value_type(u"key", key));
+	ntmap.insert(nametype_map::value_type(u"match", match));
+	ntmap.insert(nametype_map::value_type(u"domain", domain));
+	ntmap.insert(nametype_map::value_type(u"s", shortsequence));
+	ntmap.insert(nametype_map::value_type(u"comment", comment));
 }
 void ObyxElement::init() {
 #ifndef FAST

@@ -25,12 +25,12 @@
 
 #include <string>
 #include <set>
-#include <ext/hash_map>
+#include <unordered_map>
 #include <map>
 
 #include "commons/string/strings.h"
 
-using namespace __gnu_cxx; //hashmap namespace.
+//using namespace __gnu_cxx; //hashmap namespace.
 using std::string;
 
 namespace Vdb {

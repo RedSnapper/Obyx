@@ -32,7 +32,7 @@
 #endif
 namespace Vdb {
 	
-	ServiceFactory* ServiceFactory::singleton = NULL;
+	ServiceFactory* ServiceFactory::singleton = nullptr;
 	unsigned int ServiceFactory::instances = 0;
 	
 	ServiceFactory::ServiceFactory(bool fatal_necessity) : serviceMap() {
@@ -63,7 +63,7 @@ namespace Vdb {
 	
 	void ServiceFactory::startup() { //fatal_necessity = true if we MUST have sql to operate.
 		instances++;
-		if (singleton == NULL) {
+		if (singleton == nullptr) {
 			singleton = new ServiceFactory(false);	// instantiate singleton
 		} 
 	}
@@ -72,13 +72,13 @@ namespace Vdb {
 		instances--;
 		if (instances == 0) {
 			delete singleton;
-			singleton = NULL;
+			singleton = nullptr;
 		}
 	}
 	
 	Service* ServiceFactory::getService(const std::string& service_name) {
-		Service* retval = NULL;
-		if (singleton != NULL) {
+		Service* retval = nullptr;
+		if (singleton != nullptr) {
 			ServiceMap::iterator it = singleton->serviceMap.find(service_name);
 			if (it != singleton->serviceMap.end()) {
 				retval = it->second;

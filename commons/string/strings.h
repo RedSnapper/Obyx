@@ -34,14 +34,28 @@
 #include "icu.h"
 
 using namespace std;
-using namespace __gnu_cxx; //hashmap namespace.
 
-#define UCS2(x) (const XMLCh*)(x)
+//Normally horrible, in this case it's fine.
+#define pu(x) (reinterpret_cast<char16_t* >(x))
+#define px(u) (reinterpret_cast<XMLCh* >(u))
+
+#define pcu(x) (reinterpret_cast<const char16_t* >(x))
+#define pcx(u) (reinterpret_cast<const XMLCh* >(u))
+
+#define u(x) (*(reinterpret_cast<std::basic_string<char16_t>* >(&x)))
+#define x(u) (*(reinterpret_cast<std::basic_string<XMLCh>* >(&u)))
+
+#define cu(x) (*(reinterpret_cast<const std::basic_string<char16_t>* >(&x)))
+#define cx(u) (*(reinterpret_cast<const std::basic_string<XMLCh>* >(&u)))
+
 namespace {
-	typedef std::basic_string<XMLCh> u_str;
-}	
+	typedef basic_ostringstream<char16_t> u_oss;
+	typedef std::basic_string<char16_t> u_str;
+	typedef std::basic_string<char16_t> u_str;
+	typedef std::basic_string<XMLCh> x_str;
+}
 
-namespace __gnu_cxx {	//used in various places..
+namespace std {	//used in various places..
 	
 	template<> struct hash<const string& > {
 		size_t operator()(const string& s) const { unsigned long h = 0	; for (string::const_iterator a = s.begin() ; a != s.end() ; h = 5*h + *a++); return size_t(h); }

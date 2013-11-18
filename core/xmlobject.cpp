@@ -32,9 +32,9 @@
 
 XMLObject::u_str_map_type XMLObject::object_ns_map;
 unsigned long XMLObject::ns_map_version = 0; //used to indicate if the namespace has changed.
-//xercesc::DOMXPathNSResolver* 	XMLObject::xpnsr = NULL;		//namespace resolver.
+//xercesc::DOMXPathNSResolver* 	XMLObject::xpnsr = nullptr;		//namespace resolver.
 unsigned long 					XMLObject::xpnsr_v = 0;			//used to indicate if the namespace has changed.
-DynamicContext*					XMLObject::xpather = NULL;		//XPath2 context.
+DynamicContext*					XMLObject::xpather = nullptr;		//XPath2 context.
 bool							XMLObject::modload = false;
 XMLObject::xpp_map_type			XMLObject::xpp_map;
 unsigned long long int 			XMLObject::xp_count = 0;
@@ -42,49 +42,49 @@ unsigned long long int 			XMLObject::xp_count = 0;
 
 /* ==================== NON virtual methods. =========== */
 /* protected */
-XMLObject::XMLObject(const XMLObject* s) : DataItem(),x(0),x_doc(NULL) { 
+XMLObject::XMLObject(const XMLObject* s) : DataItem(),dxx(0),x_doc(nullptr) {
 	x_doc = (xercesc::DOMDocument*)(s); 
 }
-XMLObject::XMLObject(const xercesc::DOMDocument* s) : DataItem(),x(1),x_doc(NULL) {
-	if  ( s != NULL ) {
+XMLObject::XMLObject(const xercesc::DOMDocument* s) : DataItem(),dxx(1),x_doc(nullptr) {
+	if  ( s != nullptr ) {
 		x_doc = XML::Manager::parser()->newDoc(s);
 	}	
 }
-XMLObject::XMLObject(xercesc::DOMDocument*& s) : DataItem(),x(2),x_doc(s) {}
-XMLObject::XMLObject(xercesc::DOMNode* s) : DataItem(),x(3),x_doc(NULL) {
-	if  ( s != NULL ) {
+XMLObject::XMLObject(xercesc::DOMDocument*& s) : DataItem(),dxx(2),x_doc(s) {}
+XMLObject::XMLObject(xercesc::DOMNode* s) : DataItem(),dxx(3),x_doc(nullptr) {
+	if  ( s != nullptr ) {
 		x_doc = XML::Manager::parser()->newDoc(s);
 	}
 }
 /* Public Errors need to be caught higher up! */
-XMLObject::XMLObject(const std::string s) : DataItem(),x(4),x_doc(NULL) { 
+XMLObject::XMLObject(const std::string s) : DataItem(),dxx(4),x_doc(nullptr) {
 	x_doc = XML::Manager::parser()->loadDoc(s);
 }
-XMLObject::XMLObject(u_str s) : DataItem(),x(7),x_doc(NULL) { 
+XMLObject::XMLObject(u_str s) : DataItem(),dxx(7),x_doc(nullptr) {
 	x_doc = XML::Manager::parser()->loadDoc(s);
 }
-XMLObject::XMLObject(const XMLObject& src) : DataItem(),x(5),x_doc(src) {}
-XMLObject::XMLObject(const DataItem& src) : DataItem(),x(6),x_doc(src) {}
+XMLObject::XMLObject(const XMLObject& src) : DataItem(),dxx(5),x_doc(src) {}
+XMLObject::XMLObject(const DataItem& src) : DataItem(),dxx(6),x_doc(src) {}
 void XMLObject::copy(XMLObject*& container) const {
-	if  ( x_doc != NULL ) {
+	if  ( x_doc != nullptr ) {
 		DOMDocument* doc = XML::Manager::parser()->newDoc(x_doc);
 		container = new XMLObject(doc);
 	}
 }
 void XMLObject::copy(DOMDocument*& container) const {
-	if  ( x_doc != NULL ) { // should really check for NULL here.
+	if  ( x_doc != nullptr ) { // should really check for nullptr here.
 		container = XML::Manager::parser()->newDoc(x_doc);
 	}		
 }
 void XMLObject::take(DOMDocument*& container) {
 //	del_cache(); // Delete the pnsr and the xpe cache.
 	container = x_doc;
-	x_doc = NULL;
+	x_doc = nullptr;
 }
 void XMLObject::take(DOMNode*& container) {
 //	del_cache(); // Delete the pnsr and the xpe cache.
 	container = x_doc;
-	x_doc = NULL;
+	x_doc = nullptr;
 }
 
 /* ====================  VIRTUAL methods. =========== */
@@ -103,7 +103,7 @@ XMLObject::operator xercesc::DOMDocument*() const {
 	return x_doc;
 }
 void XMLObject::copy(DataItem*& container) const {
-	if  ( x_doc != NULL ) {
+	if  ( x_doc != nullptr ) {
 		DOMDocument* doc = XML::Manager::parser()->newDoc(x_doc);
 		container = DataItem::factory(doc); 
 	}		
@@ -112,29 +112,29 @@ XMLObject::operator xercesc::DOMNode*() const {
 	return x_doc;	//check how this is being used?
 }
 long long XMLObject::size() const {
-	if (x_doc != NULL) {
+	if (x_doc != nullptr) {
 		return 1;
 	} else {
 		return 0;
 	}
 }
 bool XMLObject::empty() const {
-	return x_doc == NULL;
+	return x_doc == nullptr;
 }
 bool XMLObject::same(const DataItem* xtst) const {
 	bool retval = false;
 	const XMLObject* ox = dynamic_cast<const XMLObject*>(xtst);
-	if ( x_doc != NULL && ox != NULL ) {
+	if ( x_doc != nullptr && ox != nullptr ) {
 		retval = x_doc->isEqualNode(*ox);
 	} else {
-		if (x_doc == NULL && xtst == NULL) retval = true;
+		if (x_doc == nullptr && xtst == nullptr) retval = true;
 	}
 	return retval;
 }
 void XMLObject::clear() {
-	if (x_doc != NULL) {
+	if (x_doc != nullptr) {
 		x_doc->release();
-		x_doc = NULL;
+		x_doc = nullptr;
 	}
 }
 void XMLObject::trim() {
@@ -144,9 +144,9 @@ bool XMLObject::find(const DataItem* o,std::string& error_msg) {
 	//find with an xpath.
 	bool retval = false;
 	u_str xpath;
-	if (o != NULL) xpath = *o;
+	if (o != nullptr) xpath = *o;
 	Sequence pt;
-	DynamicContext* context = NULL;
+	DynamicContext* context = nullptr;
 	retval = xp_result(xpath,pt,context,false,error_msg);
 	if (retval && pt.getLength() > 0 ) {
 		retval = true;
@@ -157,9 +157,9 @@ bool XMLObject::find(const DataItem* o,std::string& error_msg) {
 bool XMLObject::find(const char* o,std::string& error_msg) {
 	bool retval = false;
 	u_str xpath;
-	if (o != NULL)  xpath = *o;
+	if (o != nullptr)  xpath = *o;
 	Sequence pt;
-	DynamicContext* context = NULL;
+	DynamicContext* context = nullptr;
 	retval = xp_result(xpath,pt,context,false,error_msg);
 	if (retval && pt.getLength()  > 0 ) {
 		retval = true;
@@ -170,10 +170,10 @@ bool XMLObject::find(const char* o,std::string& error_msg) {
 
 bool XMLObject::find(const XMLCh* srch,std::string& error_msg) {
 	bool retval = false;
-	if (srch != NULL && x_doc != NULL) {
-		u_str xpath(srch);
+	if (srch != nullptr && x_doc != nullptr) {
+		u_str xpath(pcu(srch));
 		Sequence pt;
-		DynamicContext* context = NULL;
+		DynamicContext* context = nullptr;
 		retval = xp_result(xpath,pt,context,false,error_msg);
 		if (retval && pt.getLength()  > 0 ) {
 			retval = true;
@@ -190,7 +190,7 @@ void XMLObject::set_pnsr() { /* Set the pnsr with the latest list of namespaces 
 	if (xpnsr_v != ns_map_version) {
 		for (XMLObject::u_str_map_type::const_iterator s = object_ns_map.begin(); s != object_ns_map.end(); s++) {
 			const u_str& nssig = s->first; const u_str& nsurl = s->second;
-			xpather->setNamespaceBinding(nssig.c_str(),nsurl.c_str());
+			xpather->setNamespaceBinding(pcx(nssig.c_str()),pcx(nsurl.c_str()));
 		}
 		xpnsr_v = ns_map_version;
 	}
@@ -209,7 +209,7 @@ void XMLObject::rm_cache() {
 
 //void addFunction(XQUserFunction* fnDef); Maybe useful one day for implementing (or ignoring!) gap().
 XQQuery* XMLObject::xpp(const u_str& xpath) {
-	XQQuery* retval = NULL;
+	XQQuery* retval = nullptr;
 	if (! xpath.empty() ) {
 		xpp_map_type::iterator it = xpp_map.find(xpath);
 		if (it != xpp_map.end()) {
@@ -221,7 +221,7 @@ XQQuery* XMLObject::xpp(const u_str& xpath) {
 				modload = true;
 				flags = 0x02; //load modules once.
 			}
-			retval = Manager::xqilla->parse(xpath.c_str(),xpather,NULL,flags);
+			retval = Manager::xqilla->parse(pcx(xpath.c_str()),xpather,nullptr,flags);
 			xpp_map.insert(xpp_map_type::value_type(xpath,retval));
 		}
 	}
@@ -232,10 +232,10 @@ XQQuery* XMLObject::xpp(const u_str& xpath) {
 /* private */
 bool XMLObject::xp_result(const u_str& xpath,Sequence& result,DynamicContext*& context,bool expected,std::string& err_message) {
 	bool retval = true;
-	if (x_doc && x_doc->getDocumentElement() != NULL) {
+	if (x_doc && x_doc->getDocumentElement() != nullptr) {
 		try {
 			XQQuery* query = xpp(xpath);
-			if (query != NULL) {
+			if (query != nullptr) {
 				xp_count++;	//this is an xpath evaluation.
 				context = query->createDynamicContext();
 				context->setContextItem(((XercesConfiguration*)context->getConfiguration())->createNode(x_doc->getDocumentElement(),context));
@@ -244,10 +244,10 @@ bool XMLObject::xp_result(const u_str& xpath,Sequence& result,DynamicContext*& c
 				err_message = "Unknown xpath error."; retval = false;
 			}
 		}
-		catch (XQException &e) { XML::Manager::transcode(e.getError(),err_message); retval = false; }
-		catch (XQillaException &e) { XML::Manager::transcode(e.getString(),err_message); retval = false; }					
-		catch (DOMXPathException &e) { XML::Manager::transcode(e.getMessage(),err_message); retval = false; }
-		catch (DOMException &e) {XML::Manager::transcode(e.getMessage(),err_message); retval = false;}
+		catch (XQException &e) { XML::Manager::transcode(pcu(e.getError()),err_message); retval = false; }
+		catch (XQillaException &e) { XML::Manager::transcode(pcu(e.getString()),err_message); retval = false; }
+		catch (DOMXPathException &e) { XML::Manager::transcode(pcu(e.getMessage()),err_message); retval = false; }
+		catch (DOMException &e) {XML::Manager::transcode(pcu(e.getMessage()),err_message); retval = false;}
 		catch (...) { err_message = "Unknown xpath error."; retval = false; }
 	} else {
 		if (expected) {
@@ -267,15 +267,15 @@ bool XMLObject::xp(const u_str& path,DataItem*& container,bool node_expected,std
 	// GET a value at the xpath given
 	bool retval = true; //retval represents existence not failure.
 	if (!path.empty() ) {
-		if (path.rfind(UCS2(L"-gap()"),path.length()-6) == string::npos) { //  eg //BOOK[0]/child-gap() will always return empty.
+		if (path.rfind(u"-gap()",path.length()-6) == string::npos) { //  eg //BOOK[0]/child-gap() will always return empty.
 			bool want_value = false;
 			u_str xp_path(path);
-			if (xp_path.rfind(UCS2(L"/value()"),xp_path.length()-8) != string::npos) { //eg comment()/value()
+			if (xp_path.rfind(u"/value()",xp_path.length()-8) != string::npos) { //eg comment()/value()
 				xp_path.resize(xp_path.length()-8);
 				want_value = true;
 			}
 			Sequence result;
-			DynamicContext* context = NULL;
+			DynamicContext* context = nullptr;
 			retval = xp_result(xp_path,result,context,node_expected,error_str);
 			if (retval) { //otherwise return empty.
 				XMLSize_t sslena = result.getLength();
@@ -283,7 +283,7 @@ bool XMLObject::xp(const u_str& path,DataItem*& container,bool node_expected,std
 				for ( XMLSize_t ai = 0; ai < sslena; ai++) {
 					const Item::Ptr item = result.item(ai);
 					if (item.notNull()) {
-						DataItem* ditem = NULL;
+						DataItem* ditem = nullptr;
 						if ( item->isNode() ) {
 							DOMNode *xn = (DOMNode*)item->getInterface(XercesConfiguration::gXerces);
 							DOMNode::NodeType xnt = xn->getNodeType();
@@ -291,7 +291,7 @@ bool XMLObject::xp(const u_str& path,DataItem*& container,bool node_expected,std
 								case DOMNode::PROCESSING_INSTRUCTION_NODE:
 								case DOMNode::COMMENT_NODE: {
 									if (want_value) {
-										u_str xs(xn->getNodeValue());
+										u_str xs = pcu(xn->getNodeValue());
 										ditem = DataItem::factory(xs,di_utext);
 									} else {
 										ditem = DataItem::factory(xn);
@@ -300,7 +300,7 @@ bool XMLObject::xp(const u_str& path,DataItem*& container,bool node_expected,std
 								case DOMNode::TEXT_NODE:
 								case DOMNode::CDATA_SECTION_NODE:
 								case DOMNode::ATTRIBUTE_NODE: {
-									u_str xs(xn->getNodeValue());
+									u_str xs = pcu(xn->getNodeValue());
 									ditem = DataItem::factory(xs,di_utext);
 								} break;
 								default: {
@@ -310,12 +310,12 @@ bool XMLObject::xp(const u_str& path,DataItem*& container,bool node_expected,std
 						} else {
 							u_str xs;
 							const XMLCh* ias=item->asString(context); //item may be null. in which case the string constructor will fail.
-							if (ias != NULL) {
-								xs=ias;
+							if (ias != nullptr) {
+								xs= pcu(ias);
 							}
 							ditem = DataItem::factory(xs);
 						}
-						DataItem::append(container,ditem); //either/both could be NULL. and we may need to convert from one type to another.
+						DataItem::append(container,ditem); //either/both could be nullptr. and we may need to convert from one type to another.
 					}
 				}
 				if (sslena == 0 && node_expected) {
@@ -325,9 +325,9 @@ bool XMLObject::xp(const u_str& path,DataItem*& container,bool node_expected,std
 				}
 			}
 			result.clear();
-			if (context != NULL && retval) {
+			if (context != nullptr && retval) {
 				delete context;
-				context=NULL;
+				context=nullptr;
 			}
 		} else {
 			if (node_expected) {
@@ -345,7 +345,7 @@ bool XMLObject::xp(const DataItem* ins,const u_str& path,DOMLSParser::ActionType
 	// SET a value at the xpath given
 	bool retval = true; //retval is existence, not failure.
 	Sequence xpr;
-	DynamicContext* context = NULL;
+	DynamicContext* context = nullptr;
 	if( (kind() != di_object) && node_expected) {
 		error_str.append(" Inappropriate for an xpath.");
 		std::string xpath; XML::Manager::transcode(path,xpath);
@@ -362,11 +362,11 @@ bool XMLObject::xp(const DataItem* ins,const u_str& path,DOMLSParser::ActionType
 					if (item->isNode()) {
 						DOMNode* pt = (DOMNode*)item->getInterface(XercesConfiguration::gXerces);
 						u_str insval;
-						if (ins != NULL) {
+						if (ins != nullptr) {
 							const XMLObject* ox = dynamic_cast<const XMLObject*>(ins);
-							if ( ox == NULL ) {  //ins is a string.
+							if ( ox == nullptr ) {  //ins is a string.
 								const FragmentObject* fg = dynamic_cast<const FragmentObject*>(ins);
-								if ( fg == NULL ) {  //ins is a string.
+								if ( fg == nullptr ) {  //ins is a string.
 									insval = *ins; 
 									XML::Manager::parser()->insertContext(x_doc,pt,insval,action);
 								} else { //fragment.
@@ -395,7 +395,7 @@ bool XMLObject::xp(const DataItem* ins,const u_str& path,DOMLSParser::ActionType
 					u_str apath=path.substr(0,slpoint);
 					u_str aname=path.substr(apoint+1);
 					Sequence xpra;
-					DynamicContext* xcontext = NULL;
+					DynamicContext* xcontext = nullptr;
 					retval = xp_result(apath,xpra,xcontext,node_expected,error_str);
 					if (retval) {
 						XMLSize_t sslena = xpra.getLength();
@@ -406,13 +406,13 @@ bool XMLObject::xp(const DataItem* ins,const u_str& path,DOMLSParser::ActionType
 									DOMNode* pt = (DOMNode*)item->getInterface(XercesConfiguration::gXerces);
 									if ( pt->getNodeType() == DOMNode::ELEMENT_NODE ) {
 										DOMElement* enod = (DOMElement*)pt;
-										if ( ins != NULL && ! ins->empty() ) {
+										if ( ins != nullptr && ! ins->empty() ) {
 											u_str xvalue = *ins;
-											DOMAttr* dnoda = x_doc->createAttribute(aname.c_str());
-											dnoda->setNodeValue(xvalue.c_str());
+											DOMAttr* dnoda = x_doc->createAttribute(pcx(aname.c_str()));
+											dnoda->setNodeValue(pcx(xvalue.c_str()));
 											enod->setAttributeNode(dnoda);
 										} else { //in obyx, setting an attribute to nothing deletes it.								
-											enod->removeAttribute(aname.c_str());
+											enod->removeAttribute(pcx(aname.c_str()));
 										}
 									}
 								}
@@ -438,11 +438,11 @@ bool XMLObject::xp(const DataItem* ins,const u_str& path,DOMLSParser::ActionType
 					delete xcontext;
 				} else {
 					string::size_type pathlen = path.size();
-					string::size_type com_pos = path.rfind(UCS2(L"/comment()"),pathlen-10);
+					string::size_type com_pos = path.rfind(u"/comment()",pathlen-10);
 					if (com_pos != string::npos) {
 						u_str apath=path.substr(0,com_pos);
 						Sequence xpra;
-						DynamicContext* xcontext = NULL;
+						DynamicContext* xcontext = nullptr;
 						retval = xp_result(apath,xpra,xcontext,node_expected,error_str);
 						if (retval) { //retval = existence, not failure.
 							XMLSize_t sslena = xpra.getLength();
@@ -452,10 +452,10 @@ bool XMLObject::xp(const DataItem* ins,const u_str& path,DOMLSParser::ActionType
 									DOMNode* pt = (DOMNode*)item->getInterface(XercesConfiguration::gXerces);
 									if ( pt->getNodeType() == DOMNode::ELEMENT_NODE ) {
 										DOMElement* enod = (DOMElement*)pt;
-										if ( ins != NULL && ! ins->empty() ) {
+										if ( ins != nullptr && ! ins->empty() ) {
 											u_str xvalue  = *ins;
-											DOMNode* dnoda = x_doc->createComment(xvalue.c_str());
-											dnoda->setNodeValue(xvalue.c_str());
+											DOMNode* dnoda = x_doc->createComment(pcx(xvalue.c_str()));
+											dnoda->setNodeValue(pcx(xvalue.c_str()));
 											enod->appendChild(dnoda);
 										} 
 									}
@@ -482,8 +482,8 @@ bool XMLObject::xp(const DataItem* ins,const u_str& path,DOMLSParser::ActionType
 					}
 				}			
 			}
-			if (x_doc->getDocumentElement() == NULL) {
-				x_doc->release(); x_doc = NULL;
+			if (x_doc->getDocumentElement() == nullptr) {
+				x_doc->release(); x_doc = nullptr;
 			}
 		} else {
 			if (node_expected) {
@@ -501,13 +501,13 @@ bool XMLObject::xp(const DataItem* ins,const u_str& path,DOMLSParser::ActionType
 bool XMLObject::sort(const u_str& path,const u_str& sortpath,bool ascending,bool node_expected,std::string& error_str) {
 	bool retval = true;
 	if (!path.empty() ) { //currently, this is a redundant check.
-		if (path.rfind(UCS2(L"-gap()"),path.length()-6) == string::npos) { //  eg //BOOK[0]/child-gap() will always return empty.
+		if (path.rfind(u"-gap()",path.length()-6) == string::npos) { //  eg //BOOK[0]/child-gap() will always return empty.
 			u_str xp_path(path);
-			if (xp_path.rfind(UCS2(L"/value()"),xp_path.length()-8) != string::npos) { //eg comment()/value()
+			if (xp_path.rfind(u"/value()",xp_path.length()-8) != string::npos) { //eg comment()/value()
 				xp_path.resize(xp_path.length()-8);
 			}
 			Sequence result;
-			DynamicContext* context = NULL;
+			DynamicContext* context = nullptr;
 			retval = xp_result(xp_path,result,context,node_expected,error_str);
 			if (retval) { //otherwise return empty.
 				XMLSize_t sslena = result.getLength();
@@ -519,13 +519,13 @@ bool XMLObject::sort(const u_str& path,const u_str& sortpath,bool ascending,bool
 					for ( XMLSize_t ai = 0; ai < sslena; ai++) {
 						const Item::Ptr item = result.item(ai);
 						if (item.notNull()) {
-							XMLObject* ditem = NULL;
+							XMLObject* ditem = nullptr;
 							if ( item->isNode() ) {
 								ditem = new XMLObject((DOMNode*)item->getInterface(XercesConfiguration::gXerces));
-								DataItem* sortitem = NULL;
+								DataItem* sortitem = nullptr;
 								ditem->xp(sortpath,sortitem,true,error_str);
 								u_str sstr; double dnum = NAN;
-								if (sortitem != NULL) {
+								if (sortitem != nullptr) {
 									sstr = *sortitem; delete sortitem;
 								} else {
 									if (!error_str.empty()) {
@@ -688,7 +688,7 @@ void XMLObject::init() {
 	modload = false;
 	xp_count = 0;
 	xpather = Manager::xqilla->createContext((XQilla::Language)(XQilla::XPATH2_FULLTEXT),Manager::xc); //XQilla::XPATH3 is available, maybe.
-	setns(UCS2(L"xs"),UCS2(L"http://www.w3.org/2001/XMLSchema"));
+	setns(u"xs",u"http://www.w3.org/2001/XMLSchema");
 }
 
 void XMLObject::finalise() {
@@ -696,21 +696,21 @@ void XMLObject::finalise() {
 		delete i->second;
 	}
 	xpp_map.clear();
-	delete xpather; xpather=NULL;
+	delete xpather; xpather=nullptr;
 	modload= false;
 	object_ns_map.clear();
 }
 
 XMLObject::~XMLObject() {
-	if (x_doc != NULL) {
+	if (x_doc != nullptr) {
 		x_doc->release();
-		x_doc = NULL;
+		x_doc = nullptr;
 	}	
 }
 #pragma mark static utility
 //---------------------------------------------------------------------------
 void XMLObject::trim(u_str& str) {
-	XMLCh const* delims = UCS2(L" \t\r\n");
+	u_str delims = u" \t\r\n";
 	u_str::size_type notwhite = str.find_first_not_of(delims);
 	str.erase(0,notwhite);
 	notwhite = str.find_last_not_of(delims);
@@ -718,7 +718,7 @@ void XMLObject::trim(u_str& str) {
 }
 
 void XMLObject::rtrim(u_str& str) {
-	XMLCh const* delims = UCS2(L" \t\r\n");
+	u_str delims = u" \t\r\n";
 	u_str::size_type notwhite = str.find_last_not_of(delims);
 	str.erase(notwhite+1);	
 }
@@ -775,7 +775,7 @@ double XMLObject::real(const u_str& s) {
 			}
 		} else {
 			try {
-				retval = XMLDouble(s.c_str()).getValue();
+				retval = XMLDouble(pcx(s.c_str())).getValue();
 			} catch (...) {
 				retval = NAN;
 			}

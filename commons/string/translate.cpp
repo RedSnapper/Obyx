@@ -556,7 +556,7 @@ namespace String {
 							}
 							String::tolower(charset);
 							if (charset.compare("utf-8") != 0) {
-								std::basic_string<XMLCh> x_body;
+								u_str x_body;
 								XML::Manager::transcode(basis,x_body,charset);
 								XML::Manager::transcode(x_body.c_str(),basis);
 							}
@@ -585,7 +585,8 @@ namespace String {
 	//url encoding is in uppercase.
 	string hexencode(const unsigned char& c) {
 		std::string result("%");
-		unsigned char v[2]= { c/16, c%16 };
+		unsigned char v[2];
+		v[0] = c >> 4; v[1] = c%16;
 		if (v[0] <= 9) result+= (v[0] + '0');
 		else result+= (v[0] - 10 + 'A');
 		if (v[1] <= 9) result+= (v[1] + '0');
@@ -601,7 +602,9 @@ namespace String {
 		string::size_type sz = orig.size();
 		s.reserve(sz >> 1);
 		for (string::size_type p= 0; p < sz; ++p) {
-			unsigned char v[2]= { orig[p] & 0x00F0 , orig[p] & 0x000F };
+			unsigned char v[2];
+			v[0] = orig[p] & 0x00F0;
+			v[1] = orig[p] & 0x000F;
 			if (v[0] <= 0x0090 ) {
 				s.push_back( (v[0] >> 4) + '0');
 			} else {

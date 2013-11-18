@@ -30,21 +30,21 @@ using namespace XML;
 using namespace std;
 
 /*********************************** JSON ***************************************/
-const u_str Json::k_object	= UCS2(L"object");
-const u_str Json::k_array	= UCS2(L"array");
-const u_str Json::k_name	= UCS2(L"name");
-const u_str Json::k_value	= UCS2(L"value");
-const u_str Json::k_type	= UCS2(L"type");
-const u_str Json::kt_string	= UCS2(L"string");
-const u_str Json::kt_number	= UCS2(L"number");
-const u_str Json::kt_null	= UCS2(L"null");
-const u_str Json::kt_bool	= UCS2(L"bool");
+const u_str Json::k_object	= u"object";
+const u_str Json::k_array	= u"array";
+const u_str Json::k_name	= u"name";
+const u_str Json::k_value	= u"value";
+const u_str Json::k_type	= u"type";
+const u_str Json::kt_string	= u"string";
+const u_str Json::kt_number	= u"number";
+const u_str Json::kt_null	= u"null";
+const u_str Json::kt_bool	= u"bool";
 bool Json::encode(DataItem** basis,const kind_type,string& err_str) const {
 	bool retval = true; DataItem* orig = *basis; 
-	if (orig != NULL) {
+	if (orig != nullptr) {
 		ostringstream result,errs;
 		xercesc::DOMDocument* d = *orig;
-		if (d != NULL) {
+		if (d != nullptr) {
 			xercesc::DOMNode* n=d->getFirstChild();
 			compose(n,result,errs);
 		} else {
@@ -53,7 +53,7 @@ bool Json::encode(DataItem** basis,const kind_type,string& err_str) const {
 		err_str = errs.str();
 		if (err_str.empty()) {
 			*basis = DataItem::factory(result.str(),di_text);
-			delete orig; orig = NULL; 
+			delete orig; orig = nullptr; 
 		} else {
 			retval = false;
 		}
@@ -61,19 +61,19 @@ bool Json::encode(DataItem** basis,const kind_type,string& err_str) const {
 	return retval;
 }
 void Json::nextel(const xercesc::DOMNode*& n) const {
-	if (n != NULL) {
+	if (n != nullptr) {
 		n = n->getNextSibling();
-		while ( n != NULL && n->getNodeType() != DOMNode::ELEMENT_NODE) {
+		while ( n != nullptr && n->getNodeType() != DOMNode::ELEMENT_NODE) {
 			n = n->getNextSibling(); 
 		}
 	}
 }
 void Json::compose(const xercesc::DOMNode* n ,ostringstream& o,ostringstream& e) const {
-	if ( n != NULL && n->getNodeType() == DOMNode::ELEMENT_NODE) {
-		u_str attr,eln = n->getLocalName();
+	if ( n != nullptr && n->getNodeType() == DOMNode::ELEMENT_NODE) {
+		u_str attr,eln = pcu(n->getLocalName());
 		const xercesc::DOMNode* p = n->getParentNode();
-		if (p != NULL && p->getNodeType() == DOMNode::ELEMENT_NODE) {
-			u_str pn = p->getLocalName();
+		if (p != nullptr && p->getNodeType() == DOMNode::ELEMENT_NODE) {
+			u_str pn = pcu(p->getLocalName());
 			if (pn.compare(k_object) ==0 ) {
 				Manager::attribute(n,k_name,attr);
 				if (! attr.empty()) {
@@ -88,13 +88,13 @@ void Json::compose(const xercesc::DOMNode* n ,ostringstream& o,ostringstream& e)
 		if (eln.compare(k_object) == 0) {
 			o << "{";
 			n=n->getFirstChild();
-			if (n != NULL) {
+			if (n != nullptr) {
 				if (n->getNodeType() != DOMNode::ELEMENT_NODE) {
 					nextel(n);
 				}
-				if (n != NULL) { compose(n,o,e); }
+				if (n != nullptr) { compose(n,o,e); }
 				nextel(n);
-				while (n != NULL) { 
+				while (n != nullptr) { 
 					o << ",";
 					compose(n,o,e);
 					nextel(n);
@@ -105,13 +105,13 @@ void Json::compose(const xercesc::DOMNode* n ,ostringstream& o,ostringstream& e)
 			if (eln.compare(k_array) == 0) {
 				o << "[";
 				n=n->getFirstChild();
-				if (n != NULL) {
+				if (n != nullptr) {
 					if (n->getNodeType() != DOMNode::ELEMENT_NODE) {
 						nextel(n);
 					}
-					if (n != NULL) { compose(n,o,e); }
+					if (n != nullptr) { compose(n,o,e); }
 					nextel(n);
-					while (n != NULL) { 
+					while (n != nullptr) { 
 						o << ",";
 						compose(n,o,e);
 						nextel(n);
@@ -142,8 +142,8 @@ void Json::compose(const xercesc::DOMNode* n ,ostringstream& o,ostringstream& e)
 							}
 						}
 					}
-					if (n->getTextContent() != NULL) {
-						txt = n->getTextContent();
+					if (n->getTextContent() != nullptr) {
+						txt = pcu(n->getTextContent());
 					}
 					if (! txt.empty()) {
 						switch (el_type) {
@@ -194,7 +194,7 @@ void Json::compose(const xercesc::DOMNode* n ,ostringstream& o,ostringstream& e)
 								}
 							} break;
 							case t_bool: { 
-								if (txt.compare(UCS2(L"true")) == 0) {
+								if (txt.compare(u"true") == 0) {
 									o << "true"; 
 								} else {
 									o << "false"; 
@@ -227,8 +227,8 @@ bool Json::decode(DataItem** basis,const kind_type,string& err_str) const {
 	//decode: turn from being a json thing to being an xml thing.
 	ostringstream errors;
 	bool retval = true; DataItem* orig = *basis; 
-	if (orig != NULL) {
-		string encoded = *orig; delete orig; orig = NULL;			//default for non-implemented encodings.
+	if (orig != nullptr) {
+		string encoded = *orig; delete orig; orig = nullptr;			//default for non-implemented encodings.
 		ostringstream result,errs;
 		size_t offset = encoded.find_first_of("[{");	//skip any wrap.
 		if (offset != string::npos) {
@@ -241,7 +241,7 @@ bool Json::decode(DataItem** basis,const kind_type,string& err_str) const {
 					size_t i = file.find('>');
 					file.insert(i," xmlns=\"http://www.obyx.org/json\"");
 					*basis = DataItem::factory(file,di_object);
-					delete orig; orig = NULL; 
+					delete orig; orig = nullptr; 
 				}
 				err_str = errors.str();
 				if (!err_str.empty()) {

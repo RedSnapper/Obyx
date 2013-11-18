@@ -23,7 +23,7 @@
 #ifndef OBYX_RAW_ITEM_H
 #define OBYX_RAW_ITEM_H
 
-#include <ext/hash_map>
+#include <unordered_map>
 #include <string>
 
 #include "dataitem.h"

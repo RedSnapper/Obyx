@@ -55,13 +55,13 @@ using namespace obyx;
 Function::Function(xercesc::DOMNode* const& n,elemtype el,ObyxElement* par) : 
 ObyxElement(par,el,flowfunction,n),deferred(false),finalised(false),fnnote(),outputs(),catcher(),inputs(),definputs() {
 	ObyxElement* ft = par; 
-	while (ft != NULL && ft->wotzit != xmldocument ) {
+	while (ft != nullptr && ft->wotzit != xmldocument ) {
 		if (ft->wotspace == defparm || ft->wotzit == output) {
 			deferred=true; 
 			break;
 		}
 		Function* fx = dynamic_cast<Function*>(ft);
-		if (fx!= NULL) {
+		if (fx!= nullptr) {
 			deferred = fx->deferred;
 			break;
 		} else {
@@ -69,7 +69,7 @@ ObyxElement(par,el,flowfunction,n),deferred(false),finalised(false),fnnote(),out
 		}
 	}
 	if (el != endqueue) {
-		Manager::attribute(n,UCS2(L"note"),fnnote);
+		Manager::attribute(n,u"note",fnnote);
 	}
 }
 Function::Function(ObyxElement* par,const Function* orig) : 
@@ -102,15 +102,15 @@ Endqueue::~Endqueue()  {
 bool Function::pre_evaluate(string& errs) {
 	bool retval = false; //returns true if it has been evaluated (and may be deleted)
 	if ( !deferred || p->wotzit == xmldocument ) {
-		Function* fn = NULL;
-		if (p->wotzit == key || (p->wotzit == xmldocument && p->p != NULL) ) {
+		Function* fn = nullptr;
+		if (p->wotzit == key || (p->wotzit == xmldocument && p->p != nullptr) ) {
 			fn = dynamic_cast<Function*>(p->p->p);
 		} else {
 			fn = dynamic_cast<Function*>(p->p);
 		}
-		if ( (fn != NULL && ! fn->deferred) || (p->wotzit == xmldocument && p->p == NULL)) {
+		if ( (fn != nullptr && ! fn->deferred) || (p->wotzit == xmldocument && p->p == nullptr)) {
 			evaluate();
-			DataItem* di = NULL;
+			DataItem* di = nullptr;
 			results.takeresult(di);
 			p->results.append(di);
 			retval = true; 
@@ -124,7 +124,7 @@ bool Function::pre_evaluate(string& errs) {
 	return retval;
 }
 Function* Function::FnFactory(ObyxElement* par,const Function* orig) { 
-	Function* retval = NULL;
+	Function* retval = nullptr;
 	switch (orig->wotzit) {
 		case iteration: {
 			retval = new Iteration(par,dynamic_cast<const Iteration *>(orig)); 
@@ -166,7 +166,7 @@ void Function::evaluate(size_t,size_t) {
 			if (results.final() && !outputs.empty()) {
 				if (catcher.empty() || !(catcher.front()->caughterr())) {
 					if ( may_eval_outputs()) {	
-						DataItem* imm_result = NULL; //need to keep immediate results.
+						DataItem* imm_result = nullptr; //need to keep immediate results.
 						size_t os = outputs.size();
 						for (size_t s = 0; s < os; s++) { //if nothing was caught, then do non-error outputs.
 							Output* theoutput = outputs[s];

@@ -39,7 +39,7 @@
 
 using namespace Log;
 
-Logger*					Logger::log = NULL;
+Logger*					Logger::log = nullptr;
 string					Logger::title="Logger";
 bool 					Logger::debugflag = false;
 //size_t				Logger::logdepth = 0;
@@ -48,7 +48,7 @@ bool 					Logger::debugflag = false;
 //console is set to false if we are running in cgi mode, and true if we are in commandline mode.
 //should be the only way to set log->o
 void Logger::set_stream(std::ostringstream*& errstr) { 
-	if (log != NULL && errstr != NULL ) { 
+	if (log != nullptr && errstr != nullptr ) { 
 		log->storageused=true; //not always true.. if cout is set here...
 		log->estrm_stack.push(errstr);
 		log->o = log->estrm_stack.top();
@@ -56,7 +56,7 @@ void Logger::set_stream(std::ostringstream*& errstr) {
 }	
 
 void Logger::set_stream(std::ostream*& errstr) {
-	if (log != NULL && errstr != NULL ) { 
+	if (log != nullptr && errstr != nullptr ) { 
 		log->storageused=true; //not always true.. if cout is set here...
 		log->estrm_stack.push(errstr);
 		log->o = log->estrm_stack.top();
@@ -69,7 +69,7 @@ void Logger::get_stream(ostream*& container) {
 
 //should always be paired with a set_stream..
 void Logger::unset_stream() {
-	if (log != NULL) {
+	if (log != nullptr) {
 		if (!log->estrm_stack.empty()) {
 //			cerr << "L unset_stream. Was: " << log->estrm_stack.top();
 			log->estrm_stack.pop();
@@ -89,8 +89,8 @@ void Logger::unset_stream() {
 }	
 
 Logger::Logger(int i) : syslogging(true),bdepth(i) {
-	fo = NULL;		//final output stream
-	o = NULL;		//current output stream
+	fo = nullptr;		//final output stream
+	o = nullptr;		//current output stream
 	logging_on=true;
 	storageused=false;
 	isopened=false;
@@ -113,8 +113,8 @@ Logger::~Logger() {
 	while (!type_stack.empty()) {
 		type_stack.pop();
 	}
-	fo = NULL;		//final output stream
-	o = NULL;		//current output stream
+	fo = nullptr;		//final output stream
+	o = nullptr;		//current output stream
 }
 
 void Logger::startup(string& t) {
@@ -129,13 +129,13 @@ void Logger::startup(string& t) {
 	log->open();
 }
 void Logger::shutdown() {
-	log = NULL;
+	log = nullptr;
 }
 
 ostream* Logger::init(ostream*& final_out) {
 	Environment* env = Environment::service();
 	string tmp_env;
-	if (log == NULL) { //startup creates a temporary. fastcgi will delete it on finalise
+	if (log == nullptr) { //startup creates a temporary. fastcgi will delete it on finalise
 		log = new HTTPLogger();	// create new http reporter
 		set_stream(log->lstore);	//set up storage.
 		log->open();
@@ -159,7 +159,7 @@ ostream* Logger::init(ostream*& final_out) {
 	 off			on			off				off			[no syslog]   (syslog not opened)		
 	 off			off			off				off			[no syslog]   (syslog not opened)	
 	 */
-	if (log != NULL) { //startup creates a temporary. fastcgi will delete it on finalise
+	if (log != nullptr) { //startup creates a temporary. fastcgi will delete it on finalise
 		log->syslogging = ! env->getenvtf("OBYX_SYSLOG_OFF");
 		log->logging_on =   env->getenvtf("OBYX_DEVELOPMENT");
 		if (log->logging_on) {
@@ -184,14 +184,14 @@ ostream* Logger::init(ostream*& final_out) {
 				openlog("Obyx",0,LOG_USER);
 			}
 		}
-		if (final_out != NULL) {
+		if (final_out != nullptr) {
 			log->fo = final_out;	//set final output.
 		} else {
 			log->fo = &cout;	    //set final output.
 		}
 		return log->fo;
 	} else {
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -203,9 +203,9 @@ void Logger::finalise() {
 	if (! log->hadfatal) {
 		unset_stream();			//remove.
 	}
-	log->fo = NULL;				//set final output.
+	log->fo = nullptr;				//set final output.
 	delete log;					// tidying up
-	log = NULL;
+	log = nullptr;
 }
 
 void Logger::top(string& container,bool do_gubbins,bool do_tiny) {
@@ -279,13 +279,13 @@ Logger& Logger::operator << (const msgtype mtype) {
 			hadfatal = true;
 			dofatal(syslogbuffer.str());
 			while (!estrm_stack.empty()) {
-				ostream* msgs = NULL;
+				ostream* msgs = nullptr;
 				get_stream(msgs);
 				ostringstream* txt = dynamic_cast<ostringstream*>(msgs);
-				if (txt!=NULL ) {
+				if (txt!=nullptr ) {
 					string msgtext = txt->str();
-					if (log != NULL) {
-						if (log->fo != NULL) {
+					if (log != nullptr) {
+						if (log->fo != nullptr) {
 							*(log->fo) << msgtext;
 						}
 					} else {
@@ -318,7 +318,7 @@ Logger& Logger::operator << (const extratype extrabit) {
 }	
 
 Logger& Logger::operator<< (const char* msg) { 
-	if (msg != NULL) {
+	if (msg != nullptr) {
 		string mesg = msg;
 		if (! String::normalise(mesg)) {
 			mesg = msg;
