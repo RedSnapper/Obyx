@@ -71,7 +71,8 @@ void Json::nextel(const xercesc::DOMNode*& n) const {
 }
 void Json::compose(const xercesc::DOMNode* n ,ostringstream& o,ostringstream& e) const {
 	if ( n != nullptr && n->getNodeType() == DOMNode::ELEMENT_NODE) {
-		u_str attr,eln = pcu(n->getLocalName());
+		u_str attr,eln;
+		eln = pcu(n->getLocalName());
 		const xercesc::DOMNode* p = n->getParentNode();
 		if (p != nullptr && p->getNodeType() == DOMNode::ELEMENT_NODE) {
 			u_str pn = pcu(p->getLocalName());
