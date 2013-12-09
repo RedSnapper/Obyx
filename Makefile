@@ -30,8 +30,8 @@
 CC_INCLUDES = -I/usr/include/mysql -I/usr/local/xerc/include
 LIBDIRS     = -L/lib -L/usr/lib -L/usr/local/xerc/lib
 CC_PATH     = /usr/bin/
-CC_WARNA    = -Wno-deprecated -Wswitch -Wunused-function -Wunused-label -Wunused-variable -Wunused-value
-CC_WARNB    = -Wunknown-pragmas -Wsign-compare -Wnon-virtual-dtor -Woverloaded-virtual -Wformat -Wmissing-braces -Wparentheses
+CC_WARNA    = -Wno-deprecated -Wno-unknown-pragmas -Wswitch -Wunused-function -Wunused-label -Wunused-variable -Wunused-value
+CC_WARNB    = --Wsign-compare -Wnon-virtual-dtor -Woverloaded-virtual -Wformat -Wmissing-braces -Wparentheses
 CC_FLAGS    = -x c++ -std=c++11 -DALLOW_MYSQL -fpermissive  -funsigned-char -fno-asm -Wno-trigraphs -g -O3 -fmessage-length=0 $(CC_WARNA) $(CC_WARNB)
 
 CGIHOME  = $(RPATH)/$(CGIDIR)
