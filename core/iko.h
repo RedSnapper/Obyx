@@ -25,9 +25,9 @@
 
 #include <string>
 #include "commons/xml/xml.h"
+#include "commons/string/json.h"
 #include "commons/logger/logger.h"
 #include "obyxelement.h"
-#include "json.h"
 
 using namespace obyx;
 
