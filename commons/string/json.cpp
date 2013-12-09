@@ -337,7 +337,7 @@ bool Json::do_nullbool(string::const_iterator& i,const string::const_iterator&,o
 				result << "<value type=\"null\"" << name << "></value>";
 			} else {
 				err << " 'null' expected but '" << value << "' found.";
-				retval = false;
+				retval=false;
 			}
 		} break;
 		case 't': {
@@ -346,7 +346,7 @@ bool Json::do_nullbool(string::const_iterator& i,const string::const_iterator&,o
 				result << "<value type=\"bool\"" << name << ">true</value>";
 			} else {
 				err << " 'true' expected but '" << value << "' found.";
-				retval = false;
+				retval=false;
 			}
 		} break;
 		case 'f': {
@@ -355,7 +355,7 @@ bool Json::do_nullbool(string::const_iterator& i,const string::const_iterator&,o
 				result << "<value type=\"bool\"" << name << ">false</value>";
 			} else {
 				err << " 'false' expected but '" << value << "' found.";
-				retval = false;
+				retval=false;
 			}
 		} break;
 	}
