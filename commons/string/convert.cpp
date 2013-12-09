@@ -24,10 +24,7 @@
 #include <sstream>
 #include <iomanip>
 #include <ios>
-
-
-//for NAN
-#include <math.h>
+#include <cmath>
 #include <cfloat>
 
 #include "convert.h"
