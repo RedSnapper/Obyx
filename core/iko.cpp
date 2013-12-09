@@ -24,6 +24,7 @@
 #include <string>
 #include "commons/dlso.h"
 #include "commons/string/strings.h"
+#include "commons/string/json.h"
 #include "commons/date/date.h"
 #include "commons/environment/environment.h"
 #include "commons/filing/filing.h"
