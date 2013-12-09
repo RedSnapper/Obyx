@@ -58,7 +58,7 @@ VDB_SRCS         =vdb/servicefactory.cpp vdb/connection.cpp vdb/query.cpp ${VDB_
 LOG_SRCS         =logger/logger.cpp logger/httplogger.cpp logger/clilogger.cpp
 DATE_SRCS        =date/date.cpp 
 STRING_SRCS      =string/infix.cpp string/crypto.cpp string/chars.cpp string/comparison.cpp string/convert.cpp \
-                  string/fandr.cpp string/translate.cpp string/regex.cpp string/bitwise.cpp string/icu.cpp 
+                  string/fandr.cpp string/translate.cpp string/regex.cpp string/bitwise.cpp string/icu.cpp string/json.cpp 
 ENV_SRCS         =environment/environment.cpp environment/IInfImageBase.cpp environment/IInfImageTypes.cpp environment/IInfInfo.cpp environment/IInfNetworkGraphics.cpp environment/IInfReader.cpp
 XML_SRCS         =xml/manager.cpp xml/xmlerrhandler.cpp xml/xmlparser.cpp xml/xmlrsrchandler.cpp
 HEAD_SRCS        =httphead/httphead.cpp
@@ -69,7 +69,7 @@ OBYX_LIBS =
 OBYX_SRCS = \
      fragmentobject.cpp rawitem.cpp ustritem.cpp strobject.cpp xmlobject.cpp dataitem.cpp itemstore.cpp  \
      pairqueue.cpp obyxelement.cpp function.cpp comparison.cpp instruction.cpp mapping.cpp iteration.cpp \
-     iko.cpp json.cpp output.cpp inputtype.cpp osiapp.cpp osimessage.cpp document.cpp filer.cpp main.cpp 
+     iko.cpp output.cpp inputtype.cpp osiapp.cpp osimessage.cpp document.cpp filer.cpp main.cpp
 
 FOBYX_USES =${BASE_SRCS} ${FAST_SRCS}
 FOBYX_LIBS =-lfcgi -lfcgi++
