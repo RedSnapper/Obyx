@@ -22,6 +22,7 @@
 
 #include "commons/logger/logger.h"
 #include "commons/xml/xml.h"
+#include "commons/string/strings.h"
 #include "dataitem.h"
 #include "json.h"
 
