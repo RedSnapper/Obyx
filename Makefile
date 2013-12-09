@@ -32,7 +32,7 @@ LIBDIRS     = -L/lib -L/usr/lib -L/usr/local/xerc/lib
 CC_PATH     = /usr/bin/
 CC_WARNA    = -Wno-deprecated -Wswitch -Wunused-function -Wunused-label -Wunused-variable -Wunused-value
 CC_WARNB    = -Wunknown-pragmas -Wsign-compare -Wnon-virtual-dtor -Woverloaded-virtual -Wformat -Wmissing-braces -Wparentheses
-CC_FLAGS    = -x c++ -DALLOW_MYSQL -funsigned-char -fno-asm -Wno-trigraphs -g -O3 -fmessage-length=0 $(CC_WARNA) $(CC_WARNB)
+CC_FLAGS    = -x c++ -std=c++11 -DALLOW_MYSQL -funsigned-char -fno-asm -Wno-trigraphs -g -O3 -fmessage-length=0 $(CC_WARNA) $(CC_WARNB)
 
 CGIHOME  = $(RPATH)/$(CGIDIR)
 CGIHOMEDEV  = $(RPATH)/$(CGIDIR)_dev

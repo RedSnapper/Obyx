@@ -22,7 +22,7 @@
 
 #include <algorithm>
 #include <ctype.h>
-#include <math.h>
+//#include <math.h>
 #include <cfloat>
 #include <errno.h>
 #include <float.h>

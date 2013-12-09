@@ -9,7 +9,7 @@
 
 #include "commons/environment/environment.h"
 #include "commons/string/strings.h"
-#include <math.h>
+//#include <math.h>
 
 namespace String {
 	

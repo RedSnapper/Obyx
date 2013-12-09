@@ -27,8 +27,8 @@
 #include <vector>
 #include <sstream>
 #include <cfloat>
-#include <math.h>
-#include <float.h>
+//#include <math.h>
+//#include <float.h>
 
 #ifndef DISALLOW_GMP
 

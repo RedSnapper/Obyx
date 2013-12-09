@@ -21,7 +21,7 @@
  */
 
 #include <ctype.h>
-#include <math.h>
+//#include <math.h>
 
 #include "commons/logger/logger.h"
 #include "commons/xml/xml.h"

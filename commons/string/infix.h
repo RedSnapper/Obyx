@@ -27,7 +27,7 @@
 #include <vector>
 #include <sstream>
 #include <cfloat>
-#include <math.h>
+//#include <math.h>
 #include <float.h>
 
 using namespace std;
