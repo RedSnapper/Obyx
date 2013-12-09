@@ -26,9 +26,8 @@
 #include <map>
 #include <vector>
 #include <sstream>
+#include <cmath>
 #include <cfloat>
-//#include <math.h>
-#include <float.h>
 
 using namespace std;
 
@@ -42,7 +41,9 @@ namespace String {
 			size_t parms;
 			Op(int prec,association a = left,size_t p = 2) : precedence(prec),assoc(a),parms(p) {}
 			virtual char sig() const = 0;
-			virtual long double evaluate(const long double,const long double,const long double) const { return NAN; }
+			virtual long double evaluate(const long double,const long double,const long double) const {
+				return std::numeric_limits<long double>::quiet_NaN();
+			}
 			virtual ~Op() {}
 		};
 		class same : public Op {
