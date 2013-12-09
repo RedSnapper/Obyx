@@ -20,11 +20,8 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "commons/logger/logger.h"
-#include "commons/xml/xml.h"
-#include "commons/string/strings.h"
-#include "dataitem.h"
 #include "json.h"
+#include "commons/logger/logger.h"
 
 using namespace Log;
 using namespace XML;

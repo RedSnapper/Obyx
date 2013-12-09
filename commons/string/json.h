@@ -25,7 +25,9 @@
 
 #include <string>
 #include <vector>
+#include "commons/string/strings.h"
 #include "dataitem.h"
+
 
 class Json  {
 public:
