@@ -669,7 +669,7 @@ bool Document::eval() {
 				XML::Manager::attribute(root_node,u"signature",signature);
 				if (!version_str.empty()) {
 					double version_val=String::real(version_str); 
-					if (!isnan(version_val) && version_val > 0) {
+					if (!std::isnan(version_val) && version_val > 0) {
 						doc_version = version_val;
 						versioned = true;
 						env->version_push(doc_version);

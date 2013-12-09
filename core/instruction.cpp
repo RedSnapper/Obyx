@@ -339,14 +339,14 @@ bool Instruction::evaluate_this() {
 								case obyx::maximum: {
 									string fv; if (first_value != nullptr) { fv = *first_value; }
 									daccumulator = String::real(fv);
-									if ( isnan(daccumulator) ) {
+									if ( std::isnan(daccumulator) ) {
 										daccumulator = - DBL_MAX;
 									}
 								} break;
 								case obyx::minimum: {
 									string fv; if (first_value != nullptr) { fv = *first_value; }
 									daccumulator = String::real(fv);
-									if ( isnan(daccumulator) ) {
+									if ( std::isnan(daccumulator) ) {
 										daccumulator =   DBL_MAX;
 									}
 								} break;
@@ -587,14 +587,14 @@ bool Instruction::evaluate_this() {
 								case obyx::maximum: {
 									string sv; if (srcval != nullptr) { sv = *srcval; }
 									double tst = String::real(sv);
-									if ( ! isnan(tst) ) { //testing for nan..
+									if ( ! std::isnan(tst) ) { //testing for nan..
 										daccumulator = daccumulator > tst ? daccumulator : tst; 
 									}
 								} break;
 								case obyx::minimum: {
 									string sv; if (srcval != nullptr) { sv = *srcval; }
 									double tst = String::real(sv);
-									if ( ! isnan(tst) ) { //testing for nan..
+									if ( ! std::isnan(tst) ) { //testing for nan..
 										daccumulator = daccumulator < tst ? daccumulator : tst; 
 									}
 								} break;

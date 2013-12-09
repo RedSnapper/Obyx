@@ -170,7 +170,7 @@ namespace String {
 	}
 	//---------------------------------------------------------------------------
 	void tobasestring(long double i ,unsigned int b,unsigned int d,string&r ) { 
-		if (isnan(i)) {
+		if (std::isnan(i)) {
 			r =  "NaN";
 		} else {
 			long long int p = (long long int)roundl(i); 

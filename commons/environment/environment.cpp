@@ -1173,7 +1173,7 @@ void Environment::getenvvars_base() {
 	string version_str;
 	if (getenv("OBYX_DEFAULT_VERSION",version_str)) {
 		double e_version=String::real(version_str);
-		if (! isnan(e_version)) {
+		if (! std::isnan(e_version)) {
 			runtime_version.push(e_version);
 		}
 	}

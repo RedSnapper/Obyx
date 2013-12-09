@@ -278,19 +278,19 @@ namespace String {
 			return p < q ? p : q;
 		}
 		long double bandfn::evaluate(const long double,const long double p,const long double q) const {
-			return isnan(p) || isnan(q) ? NAN : ((long long)p & (long long)q) == 0 ? 0: 1;
+			return std::isnan(p) || std::isnan(q) ? NAN : ((long long)p & (long long)q) == 0 ? 0: 1;
 //			return ((long long)p & (long long)q) == 0 ? 0: 1;
 		}
 		long double bxorfn::evaluate(const long double,const long double p,const long double q) const {
-			return isnan(p) || isnan(q) ? NAN : ((long long)p ^ (long long)q) == 0 ? 0: 1;
+			return std::isnan(p) || std::isnan(q) ? NAN : ((long long)p ^ (long long)q) == 0 ? 0: 1;
 //			return ((long long)p ^ (long long)q) == 0 ? 0: 1;
 		}
 		long double bnotfn::evaluate(const long double,const long double,const long double q) const {
-			return isnan(q) ? NAN : (long long)q == 0 ? 1: 0;
+			return std::isnan(q) ? NAN : (long long)q == 0 ? 1: 0;
 //			return (long long)q == 0 ? 1: 0;
 		}
 		long double borfn::evaluate(const long double,const long double p,const long double q) const {
-			return isnan(p) || isnan(q) ? NAN : ((long long)p | (long long)q) == 0 ? 0: 1;
+			return std::isnan(p) || std::isnan(q) ? NAN : ((long long)p | (long long)q) == 0 ? 0: 1;
 //			return ((long long)p | (long long)q) == 0 ? 0: 1;
 		}
 		long double log2fn::evaluate(const long double,const long double,const long double q) const {
@@ -310,27 +310,27 @@ namespace String {
 		}
 		// false = 0 here.
 		long double same::evaluate(const long double,const long double p,const long double q) const {
-			return isnan(p) || isnan(q) ? NAN : p == q ? 1:0;
+			return std::isnan(p) || std::isnan(q) ? NAN : p == q ? 1:0;
 //			return p == q ? 1:0;
 		}
 		long double ltfn::evaluate(const long double,const long double p,const long double q) const {
-			return isnan(p) || isnan(q) ? NAN : p < q ? 1:0;
+			return std::isnan(p) || std::isnan(q) ? NAN : p < q ? 1:0;
 //			return p < q ? 1:0;
 		}
 		long double ltefn::evaluate(const long double,const long double p,const long double q) const {
-			return isnan(p) || isnan(q) ? NAN : p <= q ? 1:0;
+			return std::isnan(p) || std::isnan(q) ? NAN : p <= q ? 1:0;
 //			return p <= q ? 1:0;
 		}
 		long double gtfn::evaluate(const long double,const long double p,const long double q) const {
-			return isnan(p) || isnan(q) ? NAN : p > q ? 1:0;
+			return std::isnan(p) || std::isnan(q) ? NAN : p > q ? 1:0;
 //			return p > q ? 1:0;
 		}
 		long double gtefn::evaluate(const long double,const long double p,const long double q) const {
-			return isnan(p) || isnan(q) ? NAN : p >= q ? 1:0;
+			return std::isnan(p) || std::isnan(q) ? NAN : p >= q ? 1:0;
 //			return p >= q ? 1:0;
 		}
 		long double iftrue::evaluate(const long double o,const long double p,const long double q) const {
-			return (o != 0 && !isnan(o)) ? p : q;
+			return (o != 0 && !std::isnan(o)) ? p : q;
 		}
 		long double rolfn::evaluate(const long double o,const long double p,const long double q) const {
 			unsigned long long x = (unsigned long long)o;	 //number to change
