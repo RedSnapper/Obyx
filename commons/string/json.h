@@ -27,8 +27,8 @@
 
 #include <string>
 #include <vector>
-#include "commons/string/strings.h"
-#include "dataitem.h"
+#include "strings.h"
+#include "core/dataitem.h"
 
 
 class Json  {
