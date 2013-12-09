@@ -42,7 +42,7 @@ namespace String {
 			Op(int prec,association a = left,size_t p = 2) : precedence(prec),assoc(a),parms(p) {}
 			virtual char sig() const = 0;
 			virtual long double evaluate(const long double,const long double,const long double) const {
-				return std::numeric_limits<long double>::quiet_NaN();
+				return nanl("");
 			}
 			virtual ~Op() {}
 		};
