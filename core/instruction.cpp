@@ -427,7 +427,7 @@ bool Instruction::evaluate_this() {
 									}
 								} break;
 								case obyx::arithmetic: {
-									if (expr_bit_eval != nullptr) {
+									if (expr_eval != nullptr) {
 										string parm_key=inputs[i]->parm_name;
 										if ( ! parm_key.empty()) {
 											string fv; if (srcval != nullptr) { fv = *srcval; }
