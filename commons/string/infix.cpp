@@ -9,7 +9,7 @@
 
 #include "commons/environment/environment.h"
 #include "commons/string/strings.h"
-//#include <math.h>
+#include <limits>
 
 namespace String {
 	
@@ -132,7 +132,7 @@ namespace String {
 						}
 					}
 				} else { //non-op - must be value.
-					long double value = NAN; //concrete number.
+					long double value = nanl(""); //concrete number.
 					if (cur_name.empty() ) {
 						if ( get(i,value) ) {
 							valstack.push_back(value);
@@ -158,7 +158,7 @@ namespace String {
 				errs.append(" Stack Underflow Error. Expression was '");
 				errs.append(expr);
 				errs.append("'.");
-				return NAN;
+				return nanl("");
 			}
 		}
 		size_t Evaluate::name(string::const_iterator& i,string& value) {
@@ -214,13 +214,13 @@ namespace String {
 					}
 				} else {
 					errs =  "Error. Stack underflow. Too few values.";
-					valstack.push_back(NAN);
+					valstack.push_back(nanl(""));
 				}
 			}
 			return retval;
 		}
 		long double Evaluate::getvalue(const string& str) {
-			long double retval(NAN);
+			long double retval(nanl(""));
 			parm_map_t::const_iterator o = parms.find(str);
 			if( o != parms.end() ) { retval = o->second; } 
 			return retval;
@@ -238,7 +238,7 @@ namespace String {
 				string valids("0123456789.");
 				while( valids.find(*x) != string::npos ) x++;
 				if ( x == y ) { 
-					v = NAN; 
+					v = nanl("");
 				} else {
 					retval = true;
 					istringstream ist(string(y,x));
@@ -278,19 +278,19 @@ namespace String {
 			return p < q ? p : q;
 		}
 		long double bandfn::evaluate(const long double,const long double p,const long double q) const {
-			return std::isnan(p) || std::isnan(q) ? NAN : ((long long)p & (long long)q) == 0 ? 0: 1;
+			return std::isnan(p) || std::isnan(q) ? nanl("") : ((long long)p & (long long)q) == 0 ? 0: 1;
 //			return ((long long)p & (long long)q) == 0 ? 0: 1;
 		}
 		long double bxorfn::evaluate(const long double,const long double p,const long double q) const {
-			return std::isnan(p) || std::isnan(q) ? NAN : ((long long)p ^ (long long)q) == 0 ? 0: 1;
+			return std::isnan(p) || std::isnan(q) ? nanl("") : ((long long)p ^ (long long)q) == 0 ? 0: 1;
 //			return ((long long)p ^ (long long)q) == 0 ? 0: 1;
 		}
 		long double bnotfn::evaluate(const long double,const long double,const long double q) const {
-			return std::isnan(q) ? NAN : (long long)q == 0 ? 1: 0;
+			return std::isnan(q) ? nanl("") : (long long)q == 0 ? 1: 0;
 //			return (long long)q == 0 ? 1: 0;
 		}
 		long double borfn::evaluate(const long double,const long double p,const long double q) const {
-			return std::isnan(p) || std::isnan(q) ? NAN : ((long long)p | (long long)q) == 0 ? 0: 1;
+			return std::isnan(p) || std::isnan(q) ? nanl("") : ((long long)p | (long long)q) == 0 ? 0: 1;
 //			return ((long long)p | (long long)q) == 0 ? 0: 1;
 		}
 		long double log2fn::evaluate(const long double,const long double,const long double q) const {
@@ -310,23 +310,23 @@ namespace String {
 		}
 		// false = 0 here.
 		long double same::evaluate(const long double,const long double p,const long double q) const {
-			return std::isnan(p) || std::isnan(q) ? NAN : p == q ? 1:0;
+			return std::isnan(p) || std::isnan(q) ? nanl("") : p == q ? 1:0;
 //			return p == q ? 1:0;
 		}
 		long double ltfn::evaluate(const long double,const long double p,const long double q) const {
-			return std::isnan(p) || std::isnan(q) ? NAN : p < q ? 1:0;
+			return std::isnan(p) || std::isnan(q) ? nanl("") : p < q ? 1:0;
 //			return p < q ? 1:0;
 		}
 		long double ltefn::evaluate(const long double,const long double p,const long double q) const {
-			return std::isnan(p) || std::isnan(q) ? NAN : p <= q ? 1:0;
+			return std::isnan(p) || std::isnan(q) ? nanl("") : p <= q ? 1:0;
 //			return p <= q ? 1:0;
 		}
 		long double gtfn::evaluate(const long double,const long double p,const long double q) const {
-			return std::isnan(p) || std::isnan(q) ? NAN : p > q ? 1:0;
+			return std::isnan(p) || std::isnan(q) ? nanl("") : p > q ? 1:0;
 //			return p > q ? 1:0;
 		}
 		long double gtefn::evaluate(const long double,const long double p,const long double q) const {
-			return std::isnan(p) || std::isnan(q) ? NAN : p >= q ? 1:0;
+			return std::isnan(p) || std::isnan(q) ? nanl("") : p >= q ? 1:0;
 //			return p >= q ? 1:0;
 		}
 		long double iftrue::evaluate(const long double o,const long double p,const long double q) const {
