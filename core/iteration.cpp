@@ -221,7 +221,7 @@ bool Iteration::while_repeat_metafield(u_str& metafield) const {
 		if (metafield.compare(hashpos,9,u"#rowcount") == 0) {
 			if ( operation == it_repeat || operation == it_each ) {
 				u_str rowstr;
-//				XML::Manager::to_ustr(numreps,rowstr);
+				XML::Manager::to_ustr(numreps,rowstr); //convert number to u_str.
 				metafield.replace(hashpos,9,rowstr);
 				hashpos += rowstr.size()-1 ;
 				retval = true;
@@ -229,7 +229,7 @@ bool Iteration::while_repeat_metafield(u_str& metafield) const {
 		} else {
 			if ( metafield.compare(hashpos,4,u"#row") == 0 ) {
 				u_str rowstr;
-//				XML::Manager::to_ustr(currentrow,rowstr);
+				XML::Manager::to_ustr(currentrow,rowstr);
 				metafield.replace(hashpos,4,rowstr);
 				hashpos += rowstr.size()-1 ;
 				retval = true;
