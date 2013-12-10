@@ -309,7 +309,7 @@ bool Instruction::evaluate_this() {
 									hmac_enc = IKO::str_to_encoder(*first_value);
 								} break;
 								case obyx::arithmetic: {
-									if (expr_bit_eval != nullptr) {
+									if (expr_eval != nullptr) {
 										string fv; if (first_value != nullptr) { fv = *first_value; }
 										expr_eval->set_expression(fv);
 									}
