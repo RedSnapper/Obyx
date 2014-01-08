@@ -112,11 +112,15 @@ https://gmplib.org/download/gmp/gmp-5.1.3.tar.bz2
 ./configure -q CFLAGS="-O0 -g" CXXFLAGS="-O0 -g"
 sudo make install
 
+OR you can disable GMP at compile time with CC_DEFINES="${CC_DEFINES} -DDISALLOW_GMP"
+
 ICU: (This offers lots of character conversions and transliteration)
 http://download.icu-project.org/files/icu4c/52.1/icu4c-52_1-src.tgz
 ./configure --enable-debug --disable-release --disable-renaming -q
 export CXXFLAGS="--std=c++0x"
 sudo make install
+
+OR you can disable ICU at compile time with CC_DEFINES="${CC_DEFINES} -DDISALLOW_ICU"
 
 xercesc: (This a DOM compliant, XSD aware XML parser)
 http://xerces.apache.org/xerces-c/
@@ -131,6 +135,13 @@ sudo make install
 pcre: (This is a regex engine)
 http://ftp.cs.stanford.edu/pub/exim/pcre/
 ./configure --enable-utf --enable-pcre16 --enable-pcre32 --enable-jit --enable-utf --enable-unicode-properties -q CFLAGS="-O0 -g" CXXFLAGS="-O0 -g"
+
+MAVERICKS
+#The current version of the xercesc transcoder has an implicit cast. fix it:
+/usr/local/include/xercesc/util/XMLUTF8Transcoder.hpp
+Line 110:        
+	char byte[2] = {(char)toCheck,0};
+
 
 **** 3. Setup Server File Structure
 The structure and location of files on the host server is flexible and controlled by configuration files. 
@@ -299,34 +310,80 @@ FcgidWrapper /Library/WebServer/CGI-Executables/obyx.fcgi .fbyx
 #eg using filename /foo.html will actually be pointing to /OBYX_ROOT_DIR/foo.html
 #the scripts directory, which is used by the 'shell' operation should be outside OBYX_ROOT_DIR.
 
- SetEnv OBYX_DEVELOPMENT       true
- SetEnv OBYX_ROOT_DIR          /WWW_ROOT/public
- SetEnv OBYX_SCRIPTS_DIR       /WWW_ROOT/scripts
- 
- SetEnv OBYX_SQLSERVICE        mysql  (or postgresql)
- SetEnv OBYX_SQLDATABASE       YOUR-DATABASE-NAME
- SetEnv OBYX_SQLHOST           YOUR-DATABASE-HOST
- SetEnv OBYX_SQLPORT           YOUR-DATABASE-PORT
- SetEnv OBYX_SQLUSER           YOUR-DATABASE-USERNAME
- SetEnv OBYX_SQLUSERPW         YOUR-DATABASE-USERPASSWORD
+ SetEnv OBYX_CONFIG_FILE /include/obyx.cf
 
-#set the following, if debugging or using breakpoints in obyx files.
- SetEnv OBYX_DEVELOPMENT       true	
-	
-#There are some settings for using custom paths to dynamic libraries
-#	SetEnv OBYX_LIBCURLDIR        /usr/local/lib
-#	SetEnv OBYX_LIBPCREDIR        /usr/local/lib
-#	SetEnv OBYX_LIBGMPDIR		  /usr/local/lib
 
-#MySQL Library location	(if using MySQL)
-	SetEnv OBYX_LIBMYSQLCRDIR      /usr/local/mysql/lib
-#	SetEnv OBYX_LIBZIPDIR          /usr/lib
-
-#PostgreSQL Library Location (if using PostgreSQL)
-	SetEnv OBYX_LIBPQDIR           /usr/local/pgsql/lib
-    
 ##### End Obyx Configuration #####
 </VirtualHost>
+
+so the obyx.cf (or fcf) file is a simple name value list as follows:
+#This should only be false if one is only using xhtml1 strict files.
+OBYX_USING_XHTML5 		true
+
+#This turns on/off the xml declaration
+OBYX_XMLDECL 			true
+
+#If this true, errors will generate a syslog error
+OBYX_SYSLOG_OFF        true
+
+#If this is true, utf-8 strings will be checked on kind='auto'. set to false for a small speedup.
+OBYX_AUTO_UTF8_CHECK	true
+
+#setting this to true is a good idea. it ensures valid xml during parse at very small cost.
+OBYX_VALIDATE_ALWAYS 	false
+
+#Set a default version if one does not want to set document version attributes. 
+#Leaving this unset will obyx files (which dont have a version attribute) to be compliant with the latest version of the obyx language
+#OBYX_DEFAULT_VERSION 	1.140101
+
+#path to sendmail or equivalent.
+OBYX_MTA				/usr/sbin/sendmail
+
+#SALT should be a random hexstring. It will be used by obyx for salting and is not exposed.
+OBYX_SALT				92b558b5fd711a2df038b1cf0f3feab946e928f2a111b56f86be3ada9d0ac035
+
+#OBYX_DEVELOPMENT false will suppress front-end error reporting.
+OBYX_DEVELOPMENT       true
+OBYX_ROOT_DIR          /WWW_ROOT/public
+OBYX_SCRIPTS_DIR       /WWW_ROOT/scripts
+OBYX_SCRATCH_DIR       /tmp
+
+#sql connection settings
+OBYX_SQLSERVICE        mysql  (or postgresql)
+OBYX_SQLDATABASE       YOUR-DATABASE-NAME
+OBYX_SQLHOST           YOUR-DATABASE-HOST
+OBYX_SQLPORT           YOUR-DATABASE-PORT
+OBYX_SQLUSER           YOUR-DATABASE-USERNAME
+OBYX_SQLUSERPW         YOUR-DATABASE-USERPASSWORD
+
+#IF using fcgi serving one database, then one does not need to reconnect for each request.
+OBYX_SQLPER_REQUEST 	false
+
+#set the following, if debugging or using breakpoints in obyx files.
+#OBYX_DEVELOPMENT       true
+	
+#There are some settings for using custom paths to dynamic libraries.
+#If the libraries are in normal places they don't need to be set.
+#OBYX_LIBCURLDIR     /usr/local/lib
+#OBYX_LIBPCREDIR     /usr/local/lib
+#OBYX_LIBGMPDIR		 /usr/local/lib
+#OBYX_LIBZIPDIR         /usr/lib
+
+#MySQL Library location	(if using MySQL)
+OBYX_LIBMYSQLCRDIR      /usr/local/mysql/lib
+
+#PostgreSQL Library Location (if using PostgreSQL)
+#OBYX_LIBPQDIR           /usr/local/pgsql/lib
+
+#LibICU may have a version string - so look out for what that is.
+#On debian, this can be done with 
+# nm -CD ./lib/libicui18n.so | grep ztrans_close
+#On Mac OS X, try
+# nm -g /usr/local/lib/libicui18n.dylib | grep ztrans_close
+#if the result is something like "_ztrans_close" then comment out OBYX_LIBICUVS
+#if the result is something like "_ztrans_close_52" then OBYX_LIBICUVS needs setting to _52
+#OBYX_LIBICUVS			_52
+
 
 **** 8. Test
 
