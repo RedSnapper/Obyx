@@ -1037,12 +1037,10 @@
 					/usr/local/mysql/include,
 					/usr/local/include,
 					/usr/include,
-					/opt/local/include,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					/usr/local/mysql/lib,
 					/usr/local/lib,
-					/opt/local/lib/,
 				);
 				OTHER_CFLAGS = (
 					"-DFAST",
@@ -1141,7 +1139,6 @@
 					/usr/local/mysql/include,
 					/usr/local/include,
 					/usr/include,
-					/opt/local/include,
 				);
 				OTHER_CFLAGS = (
 					"-DALLOW_MYSQL",
