@@ -1,0 +1,114 @@
+#This is an example obyx.cf file with comments.
+#The obyx.cf (or obyx.fcf) file is a simple, whitespace delimited, name-value list.
+#
+# Any line starting with a hash is treated as a comment.
+# Empty lines are ignored
+# All other lines are name-value pairs
+# Whitespace includes tabs and spaces.
+#
+#You will need to change this file to suit your own environmental needs.
+
+# OBYX_USING_XHTML5 changes the way that the namespace http://www.w3.org/1999/xhtml is identified.
+# If set to true, then the document is treated as xhtml 5. Otherwise it is treated as xhtml1 strict.
+# When set to true, documents which have an explicit doctype declaration of either html5 or xhtml1 will be honoured.
+# This defaults to false, but is best set to true.
+OBYX_USING_XHTML5 		true
+
+# OBYX_XMLDECL turns on/off the xml declaration on output files.
+# This is only relevant when dealing with user-agents that balk.
+OBYX_XMLDECL 			true
+
+# If OBYX_SYSLOG_OFF is true, errors will NOT generate a syslog error.
+# By default errors WILL generate a syslog error, which is normally then piped to the developer via email.
+OBYX_SYSLOG_OFF        true
+
+# If OBYX_AUTO_UTF8_CHECK is true, utf-8 strings will be checked on kind='auto'.
+# Set this to false for a small speedup. It best to have the check on during development.
+OBYX_AUTO_UTF8_CHECK	true
+
+# OBYX_VALIDATE_ALWAYS ensures valid xml during parse at very small cost, as long as there is an xsd grammar made available.
+# setting this to true is a good idea.
+OBYX_VALIDATE_ALWAYS 	true
+
+# Set a OBYX_DEFAULT_VERSION if you do not want to set document version attributes.
+# This is most useful if a website has been developed, and has no more work on it.
+# Then obyx may be updated, and it will remain backwardly compatible for these files.
+# Leaving this unset will expect obyx files (which dont have a version attribute) to be compliant with the latest version of the obyx language
+#OBYX_DEFAULT_VERSION 	1.140101
+
+# OBYX_MTA declares a path to sendmail or equivalent.
+# This is used by the osi mail service
+OBYX_MTA				/usr/sbin/sendmail
+
+# OBYX_SALT should be a random hexstring.
+# It will be used by obyx for salting and is not exposed.
+# The attribute encoder="secret" uses this value. Because debugging may inadvertently expose the source code
+# it is a good idea to have a secret salt which is not placed within the source code itself.
+OBYX_SALT				92b558b5fd711a2df038b1cf0f3feab946e928f2a111b56f86be3ada9d0ac035
+
+# OBYX_DEVELOPMENT false will suppress front-end error reporting.
+# This is normally turned to false when placing the website into production.
+# Leaving obyx development to true may expose the source code to an associated debugger.
+OBYX_DEVELOPMENT       true
+
+# OBYX_ROOT_DIR is the path for which all accessible files are expected to be originated.
+# For instance, if the root dir is /var/www-data/files then 
+# the path "/foo.ixml" will resolve to "/var/www-data/files/foo.ixml"
+OBYX_ROOT_DIR          /WWW_ROOT/public
+
+# OBYX_SCRIPTS_DIR this is where all scripts are expected to be originated.
+# the scripts directory should be outside of the root directory, so that obyx cannot overwrite scripts.
+# scripts are runtime executables (written in bash, or anything) which are available via the 'shell' operation.
+OBYX_SCRIPTS_DIR       /WWW_ROOT/scripts
+
+# For certain complex operations, obyx may need to write a temporary file. This directory must be write
+# available to all obyx users.
+OBYX_SCRATCH_DIR       /tmp
+
+
+# SQL connection settings
+# OBYX_SQLSERVICE should be either mysql or postgresql
+OBYX_SQLSERVICE        mysql
+OBYX_SQLDATABASE       YOUR-DATABASE-NAME
+
+#OBYX_SQLHOST defaults to localhost
+OBYX_SQLHOST           YOUR-DATABASE-HOST
+
+#OBYX_SQLPORT defaults to 3306
+OBYX_SQLPORT           YOUR-DATABASE-PORT
+
+OBYX_SQLUSER           YOUR-DATABASE-USERNAME
+OBYX_SQLUSERPW         YOUR-DATABASE-USERPASSWORD
+
+# OBYX_SQLPER_REQUEST is used to indicate if a new connection to a database needs to be made for each request.
+# When obyx is a normal cgi, this has no effect.
+# However, when obyx is set up as an fcgi, it may either be set up for multiple virtual hosts, or just one.
+# If there are multiple databases being called, then the SQL connection must be remade on each request.
+# However if obyx is serving just one website, then it does not need to reconnect for each request.
+# Simply, if this instance of obyx is not serving multiple websites, then leave it as false.
+OBYX_SQLPER_REQUEST 	false
+
+# OBYX_SEARCH_HOST is currently available alongside the mysql SQL Service.
+# The search host should be sphinx server, running the sphinx mysql service, on port 9306.
+# This may be localhost. It is NOT necessary to have a search host.
+OBYX_SEARCH_HOST YOUR-SPHINX-HOST
+
+# There are some settings for using custom paths to dynamic libraries.
+# If the libraries are in normal places they don't need to be set.
+# Obyx uses dlopen for libraries, so it will make use of whatever directories are available by default.
+#OBYX_LIBCURLDIR     /usr/local/lib
+#OBYX_LIBPCREDIR     /usr/local/lib
+#OBYX_LIBGMPDIR		 /usr/local/lib
+#OBYX_LIBZIPDIR      /usr/lib
+#OBYX_LIBPQDIR       /usr/local/pgsql/lib
+OBYX_LIBMYSQLCRDIR   /usr/local/mysql/lib
+
+#LibICU may have a version string - so look out for what that is.
+#On debian, this can be done with 
+# nm -CD ./lib/libicui18n.so | grep ztrans_close
+#On Mac OS X, try
+# nm -g /usr/local/lib/libicui18n.dylib | grep ztrans_close
+#if the result is something like "_ztrans_close" then comment out OBYX_LIBICUVS
+#if the result is something like "_ztrans_close_52" then OBYX_LIBICUVS needs setting to _52
+#If there is no version string, you will not need this line set.
+#OBYX_LIBICUVS			_52

@@ -1,0 +1,32 @@
+#This is an example obyx.cf file without comments, and normal values.
+#You WILL NEED TO AMEND THIS file to suit your own environmental needs.
+#there are other settings - if the following doesn't work for you, have a look through the documented
+#obyx.cf file.
+
+# ----- These WILL NEED AMENDS
+OBYX_ROOT_DIR			/WWW_ROOT/public
+OBYX_SCRIPTS_DIR		/WWW_ROOT/scripts
+OBYX_SALT				94b558b5fd711a2df038b1cf0f3feab946e928f2a111b56f86be3ada9d0ac035
+
+OBYX_SQLSERVICE       	mysql
+OBYX_SQLDATABASE      	YOUR-DATABASE-NAME
+OBYX_SQLUSER          	YOUR-DATABASE-USERNAME
+OBYX_SQLUSERPW        	YOUR-DATABASE-USERPASSWORD
+OBYX_SEARCH_HOST		YOUR-SPHINX-HOST
+OBYX_SQLHOST          	localhost
+OBYX_SQLPORT          	3306
+OBYX_SQLPER_REQUEST		false
+
+# ----- These MAY NEED AMENDS
+OBYX_MTA				/usr/sbin/sendmail
+OBYX_SCRATCH_DIR		/tmp
+OBYX_DEVELOPMENT		true
+OBYX_SYSLOG_OFF			false
+OBYX_LIBMYSQLCRDIR		/usr/local/mysql/lib
+
+# ----- These will probably not need amending
+OBYX_USING_XHTML5		true
+OBYX_XMLDECL			true
+OBYX_AUTO_UTF8_CHECK	true
+OBYX_VALIDATE_ALWAYS	true
+
