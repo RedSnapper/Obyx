@@ -276,6 +276,8 @@
 		B5A2AE08149BA5FB001D0266 /* json.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = json.h; sourceTree = "<group>"; };
 		B5A2AE09149BA83B001D0266 /* json.xsd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = json.xsd; path = grammars/json.xsd; sourceTree = SOURCE_ROOT; };
 		B5A2AE0A149BA917001D0266 /* jsonxsd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = jsonxsd.h; path = grammars/jsonxsd.h; sourceTree = "<group>"; };
+		B5A4C9A6187DAA0300D50EEB /* obyx.cf */ = {isa = PBXFileReference; lastKnownFileType = text; path = obyx.cf; sourceTree = "<group>"; };
+		B5A4C9A7187DB19400D50EEB /* obyx_small.cf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = obyx_small.cf; sourceTree = "<group>"; };
 		B5A68B3B09CEF76B00D69316 /* pairqueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pairqueue.h; sourceTree = "<group>"; };
 		B5A68E9109CF266B00D69316 /* pairqueue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = pairqueue.cpp; sourceTree = "<group>"; };
 		B5A913DE1451CAFE00845A52 /* xhtml5.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = xhtml5.h; path = grammars/xhtml5.h; sourceTree = "<group>"; };
@@ -678,6 +680,8 @@
 				B5D99D4F0D992FFD0093325B /* THANKS */,
 				B5D99D500D992FFD0093325B /* README */,
 				B5D99D520D992FFD0093325B /* INSTALL */,
+				B5A4C9A6187DAA0300D50EEB /* obyx.cf */,
+				B5A4C9A7187DB19400D50EEB /* obyx_small.cf */,
 			);
 			path = docs;
 			sourceTree = "<group>";
