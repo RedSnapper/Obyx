@@ -52,6 +52,10 @@ Installation here is provided using the aptitude tool as an example.
 	svn
     deb: subversion 
 	$sudo aptitude install subversion
+	
+MAC OS X
+	Install xcode and mysql (or postgre)
+
 
 
 **** 2. Preparation of host: Compile-time Library installations 
@@ -62,6 +66,7 @@ In most cases the development version of libraries is required.
 With the runtime libraries, there is still need for headers.
 
 ** Compile-time
+(see below for mac os x)
 
 xercesc 3.01
 http://xerces.apache.org/xerces-c
@@ -75,12 +80,12 @@ XQilla 2.2.4 fixes a bug concerning orphaned grammars when not using PVSI.
 As Obyx depends upon a common grammar pool, and likewise does not use PVSI, this is the critical minimum version 
 if one is validating.
 
-
 ??libfcgi: Used for fast cgi support.
 ??deb: libfcgi-dev 
 ??$sudo aptitude install libfcgi-dev
 
-** Run-time: 
+** Run-time:
+(see below for mac os x)
 
 libpcre: Used to handle regular expressions within Obyx.
 
@@ -96,6 +101,36 @@ libmysql: This library provides database connectivity with MySQL
     deb: libmysqlclient15-dev 
     $sudo aptitude install libmysqlclient15-dev
 
+
+-- MAC OS X Compile/Runtime Libraries --
+These settings are for development/debugging..
+It is best to put all the source code into a folder called Source
+which can be accessed from xcode debugging..
+
+GMP: (This offers arbitrary precision mathematics)
+https://gmplib.org/download/gmp/gmp-5.1.3.tar.bz2
+./configure -q CFLAGS="-O0 -g" CXXFLAGS="-O0 -g"
+sudo make install
+
+ICU: (This offers lots of character conversions and transliteration)
+http://download.icu-project.org/files/icu4c/52.1/icu4c-52_1-src.tgz
+./configure --enable-debug --disable-release --disable-renaming -q
+export CXXFLAGS="--std=c++0x"
+sudo make install
+
+xercesc: (This a DOM compliant, XSD aware XML parser)
+http://xerces.apache.org/xerces-c/
+./configure -q CFLAGS="-O0 -g -m64" CXXFLAGS="-O0 -g -m64"
+sudo make install 
+
+xqilla: (This is a XPath 2/3 overlay for xercesc)
+http://xqilla.sourceforge.net/
+./configure -q
+sudo make install 
+
+pcre: (This is a regex engine)
+http://ftp.cs.stanford.edu/pub/exim/pcre/
+./configure --enable-utf --enable-pcre16 --enable-pcre32 --enable-jit --enable-utf --enable-unicode-properties -q CFLAGS="-O0 -g" CXXFLAGS="-O0 -g"
 
 **** 3. Setup Server File Structure
 The structure and location of files on the host server is flexible and controlled by configuration files. 
