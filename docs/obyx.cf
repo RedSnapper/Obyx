@@ -105,7 +105,7 @@ OBYX_LIBMYSQLCRDIR   /usr/local/mysql/lib
 
 #LibICU may have a version string - so look out for what that is.
 #On debian, this can be done with 
-# nm -CD ./lib/libicui18n.so | grep ztrans_close
+# nm -CD /usr/lib/x86_64-linux-gnu/libicui18n.so | grep ztrans_close
 #On Mac OS X, try
 # nm -g /usr/local/lib/libicui18n.dylib | grep ztrans_close
 #if the result is something like "_ztrans_close" then comment out OBYX_LIBICUVS
