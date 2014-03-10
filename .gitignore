@@ -4,6 +4,7 @@
 *.tmp
 
 # Project files that should not be in the repo
+xcuserdata
 .buildpath
 .project
 .settings/
