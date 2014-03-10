@@ -501,7 +501,7 @@ void ObyxElement::get_search_connection() {
 			if(!e->getbenv("OBYX_SEARCH_USER",user)) { user="" ;}
 			if(!e->getbenv("OBYX_SEARCH_USERPW",userpw)) { userpw="" ;}
 			if(!e->getbenv("OBYX_SEARCH_PORT",port)) { port="9306" ;}
-			scc->open( host,user,String::natural(port),userpw);
+			scc->open(host,user,String::natural(port),userpw);
 			if (scc->isopen())  {
 				scc->database("-"); //not really needed but vdb won't allow a query without a db.
 			}
