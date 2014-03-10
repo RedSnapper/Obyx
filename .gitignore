@@ -2,9 +2,9 @@
 .DS_Store
 *.swp
 *.tmp
+*.xcuserstate
 
 # Project files that should not be in the repo
-.xcuserstate
 .buildpath
 .project
 .settings/
@@ -13,11 +13,11 @@
 
 # A handy place to put stuff that git should ignore:
 /ignore/
-xcuserdata/
+/project.xcworkspace/
+/xcuserdata/
 node_modules/
 tool/node_modules/
 
 .git-ref
 deps/
 
-*.xcuserstate
