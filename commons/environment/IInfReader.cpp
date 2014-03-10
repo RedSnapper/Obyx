@@ -8,7 +8,7 @@
  *
  * This derivation is a part of Obyx - see http://www.obyx.org .
  * Obyx is protected as a trade mark (2483369) in the name of Red Snapper Ltd.
- * This file is Copyright (C) 2006-2010 Red Snapper Ltd. http://www.redsnapper.net
+ * This file is Copyright (C) 2006-2014 Red Snapper Ltd. http://www.redsnapper.net
  * The governing usage license can be found at http://www.gnu.org/licenses/gpl-3.0.txt
  * Support for SWF written by Michael Aird.
  *
