@@ -21,3 +21,15 @@ tool/node_modules/
 .git-ref
 deps/
 
+
+*.xcworkspacedata
+
+*.xcsettings
+
+*.xcexplist
+
+*.xcbkptlist
+
+*.xcscheme
+
+obyx.xcodeproj/xcuserdata/ben.xcuserdatad/xcschemes/xcschememanagement.plist
