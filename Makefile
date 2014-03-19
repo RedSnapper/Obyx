@@ -2,7 +2,7 @@
 #
 # This Makefile is authored and maintained by Ben Griffin of Red Snapper Ltd
 # This Makefile is a part of Obyx - see http://www.obyx.org
-# This file is Copyright (C)2005-2013 Red Snapper Ltd. http://www.redsnapper.net
+# This file is Copyright (C)2005-2014 Red Snapper Ltd. http://www.redsnapper.net
 # Obyx is registered as a trade mark (2483369) in the name of Red Snapper Ltd.
 #
 # ----------------------------------------------------------------------------
