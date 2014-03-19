@@ -120,7 +120,7 @@ namespace Vdb {
 						*Logger::log << Log::LO << Log::blockend; 
 					}				
 				} else {
-					unsigned int to_secs = 10;
+					unsigned int to_secs = 90;
 					options(serviceHandle,MYSQL_READ_DEFAULT_GROUP,"cgi_sql_services");
 					options(serviceHandle,MYSQL_SET_CHARSET_NAME,"utf8");
 					options(serviceHandle,MYSQL_OPT_CONNECT_TIMEOUT,(const char *)&to_secs);
