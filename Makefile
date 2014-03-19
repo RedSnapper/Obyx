@@ -22,10 +22,9 @@
 #
 # The includes for xerc are not normally needed, unless xercesc is built there.
 ###############################################################################
-#Also RPATH and CGIDIR must have values -e.g.
-#RPATH=/var/www 
-#CGIDIR=bin
-#make ${RPATH}/${CGIDIR}/obyx.cgi 
+# Also RPATH must have values -e.g.
+# RPATH=/var/www/bin
+#make ${RPATH}/obyx.cgi
 #Environment dependent settings (default is set for mysql)
 CC_INCLUDES = -I/usr/include/mysql -I/usr/local/xerc/include
 LIBDIRS     = -L/lib -L/usr/lib -L/usr/local/xerc/lib
@@ -34,8 +33,8 @@ CC_WARNA    = -Wno-deprecated -Wno-unknown-pragmas -Wswitch -Wunused-function -W
 CC_WARNB    = -Wsign-compare -Wnon-virtual-dtor -Woverloaded-virtual -Wformat -Wmissing-braces -Wparentheses
 CC_FLAGS    = -x c++ -std=c++11 -DALLOW_MYSQL -fpermissive  -funsigned-char -fno-asm -Wno-trigraphs -g -O3 -fmessage-length=0 $(CC_WARNA) $(CC_WARNB)
 
-CGIHOME  = $(RPATH)/$(CGIDIR)
-CGIHOMEDEV  = $(RPATH)/$(CGIDIR)_dev
+CGIHOME  = $(RPATH)
+CGIHOMEDEV  = $(RPATH)/_dev
 ALL_LIBS = -ldl -lrt -lxerces-c -lxqilla -lstdc++ -lm
 SHELL    = /bin/sh
 ###############################################################################
