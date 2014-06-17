@@ -111,30 +111,23 @@ namespace String {
 				byte = input[i];
 				if ((byte == 0x09) || (byte == 0x20) || ((byte >= 0x21) && (byte <= 126) && ((byte < 0x3C) || (byte > 0x3E) ) && (byte != 0x26) )) {
 					if (linelen >= 74) {
-						if (linelen == 74 && byte < 0x21) {
+						if (linelen == 74) {
 							output.push_back(byte);
 							output.push_back('=');
 							output.append(CRLF);
 							linelen=0;
 						} else {
-							if (linelen == 75 && byte > 0x20) {
-								output.push_back(byte);
-								output.push_back('=');
-								output.append(CRLF);
-								linelen=0;
-							} else {
-								output.push_back('=');
-								output.append(CRLF);
-								output.push_back(byte);
-								linelen=1;
-							}
+							output.push_back('=');
+							output.append(CRLF);
+							output.push_back(byte);
+							linelen=1;
 						}
 					} else {
 						output.push_back(byte);
 						linelen++;
 					}
 				} else {
-					if (linelen >= 74) {
+					if (linelen >= 73) {
 						output.push_back('=');
 						output.append(CRLF);
 						linelen=0;
