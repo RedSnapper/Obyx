@@ -49,6 +49,7 @@ namespace String {
 	void csvencode(string&);
 	void csvdecode(string&); 
 
+	void qpencode(const std::string&,std::string&);
 	bool qpdecode(string&,const string = "\r\n");
 
 	bool base64decode(string&);

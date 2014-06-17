@@ -17,6 +17,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.140617		Enh.	Added qpencoder
 v1.131118		Enh.	Started migrate to C++11.
 v1.131003		Bug.	Base64 Decode has very rare bug.
 v1.131001		Bug.	RFC 1341 has some problems.

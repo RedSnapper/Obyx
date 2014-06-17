@@ -91,6 +91,55 @@ namespace String {
 		return retval;
 	}
 	
+
+	//Quoted-Printable encoding REQUIRES that encoded lines be no more than 76 characters long.
+	//The maximum encoding size of a character is 3.
+	//Use an equal sign to indicate a soft-break.
+	void qpencode(const std::string &input,std::string &output)
+	{
+		char byte;
+		const char hex[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+		const std::string CRLF="\r\n";
+		
+		int linelen=0;
+		for (size_t i = 0; i < input.length() ; ++i) {
+			byte = input[i];
+			if ((byte == 0x09) || (byte == 0x20) || ((byte >= 0x21) && (byte <= 126) && (byte != 61))) {
+				if (linelen >= 74) {
+					if (linelen == 74 && byte < 33) {
+						output.push_back(byte);
+						output.push_back('=');
+						output.append(CRLF);
+						linelen=0;
+					} else {
+						if (linelen == 75 && byte > 0x20) {
+							output.push_back(byte);
+							output.append(CRLF);
+							linelen=0;
+						} else {
+							output.append(CRLF);
+							output.push_back(byte);
+							linelen=1;
+						}
+					}
+				} else {
+					output.push_back(byte);
+					linelen++;
+				}
+			} else {
+				if (linelen >= 74) {
+					output.append(CRLF);
+					linelen=0;
+				}
+				output.push_back('=');
+				output.push_back(hex[((byte >> 4) & 0x0F)]);
+				output.push_back(hex[(byte & 0x0F)]);
+				linelen+=3;
+			}
+		}
+	}
+	
+	
 	/*
 	 DOS-style lines that end with (CR/LF) characters (optional for the last line)
 	 Any field may be quoted (with double quotes).

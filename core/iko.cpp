@@ -491,12 +491,12 @@ void IKO::process_encoding(DataItem*& basis) {
 			} break;
 			case e_qp: {
 				if ( process == encode) {
-					*Logger::log << Log::error << Log::LI << "Error. qp (quoted-printable) encoding is not yet implemented." << Log::LO;
-					trace();
-					*Logger::log << Log::blockend;
+					std::string result;
+					String::qpencode(encoded,result);
+					basis = DataItem::factory(result,di_text); //cannot be xml..
 				} else {
 					String::qpdecode(encoded);
-					basis = DataItem::factory(encoded,kind); //cannot be xml..
+					basis = DataItem::factory(encoded,kind); //may be xml..
 				}
 			} break;
 			case e_url: {

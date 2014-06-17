@@ -779,7 +779,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 0500;
+				LastUpgradeCheck = 0510;
 				ORGANIZATIONNAME = "Red Snapper Ltd";
 			};
 			buildConfigurationList = B59B3B1E08E2B9FB0065257B /* Build configuration list for PBXProject "obyx" */;
