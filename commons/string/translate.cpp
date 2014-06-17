@@ -117,6 +117,9 @@ namespace String {
 							output.append(CRLF);
 							linelen=0;
 						} else {
+							if (output.back() < 33 ) {
+								output.push_back('=');
+							}
 							output.append(CRLF);
 							output.push_back(byte);
 							linelen=1;
