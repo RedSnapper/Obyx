@@ -104,6 +104,15 @@ namespace String {
 		int linelen=0;
 		for (size_t i = 0; i < input.length() ; ++i) {
 			if (input[i] == '\r' && i+1 < input.length() && input[i+1]== '\n') {
+				if ((i > 0) && (input[i-1] == 0x20 || input[i-1] == 0x09 )) {
+					if (linelen < 76) {
+						output.push_back('=');
+					} else {
+						output.back() = '=';
+						output.append(CRLF);
+						output.push_back(input[i-1]);
+					}
+				}
 				output.append(CRLF);
 				linelen=0;
 				i++;
