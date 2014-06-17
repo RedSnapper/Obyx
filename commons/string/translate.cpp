@@ -103,41 +103,47 @@ namespace String {
 		
 		int linelen=0;
 		for (size_t i = 0; i < input.length() ; ++i) {
-			byte = input[i];
-			if ((byte == 0x09) || (byte == 0x20) || ((byte >= 0x21) && (byte <= 126) && ((byte < 0x3C) || (byte > 0x3E) ) && (byte != 0x26) )) {
-				if (linelen >= 74) {
-					if (linelen == 74 && byte < 0x21) {
-						output.push_back(byte);
-						output.push_back('=');
-						output.append(CRLF);
-						linelen=0;
-					} else {
-						if (linelen == 75 && byte > 0x20) {
+			if (input[i] == '\r' && i+1 < input.length() && input[i+1]== '\n') {
+				output.append(CRLF);
+				linelen=0;
+				i++;
+			} else {
+				byte = input[i];
+				if ((byte == 0x09) || (byte == 0x20) || ((byte >= 0x21) && (byte <= 126) && ((byte < 0x3C) || (byte > 0x3E) ) && (byte != 0x26) )) {
+					if (linelen >= 74) {
+						if (linelen == 74 && byte < 0x21) {
 							output.push_back(byte);
+							output.push_back('=');
 							output.append(CRLF);
 							linelen=0;
 						} else {
-							if (output.back() < 33 ) {
+							if (linelen == 75 && byte > 0x20) {
+								output.push_back(byte);
 								output.push_back('=');
+								output.append(CRLF);
+								linelen=0;
+							} else {
+								output.push_back('=');
+								output.append(CRLF);
+								output.push_back(byte);
+								linelen=1;
 							}
-							output.append(CRLF);
-							output.push_back(byte);
-							linelen=1;
 						}
+					} else {
+						output.push_back(byte);
+						linelen++;
 					}
 				} else {
-					output.push_back(byte);
-					linelen++;
+					if (linelen >= 74) {
+						output.push_back('=');
+						output.append(CRLF);
+						linelen=0;
+					}
+					output.push_back('=');
+					output.push_back(hex[((byte >> 4) & 0x0F)]);
+					output.push_back(hex[(byte & 0x0F)]);
+					linelen+=3;
 				}
-			} else {
-				if (linelen >= 74) {
-					output.append(CRLF);
-					linelen=0;
-				}
-				output.push_back('=');
-				output.push_back(hex[((byte >> 4) & 0x0F)]);
-				output.push_back(hex[(byte & 0x0F)]);
-				linelen+=3;
 			}
 		}
 	}
