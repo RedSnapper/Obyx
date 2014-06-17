@@ -94,7 +94,7 @@ namespace String {
 
 	//Quoted-Printable encoding REQUIRES that encoded lines be no more than 76 characters long.
 	//The maximum encoding size of a character is 3.
-	//Use an equal sign to indicate a soft-break.
+	//Use an equal sign to indicate a soft-break. B/C of osi we also encode amps.
 	void qpencode(const std::string &input,std::string &output)
 	{
 		char byte;
@@ -104,9 +104,9 @@ namespace String {
 		int linelen=0;
 		for (size_t i = 0; i < input.length() ; ++i) {
 			byte = input[i];
-			if ((byte == 0x09) || (byte == 0x20) || ((byte >= 0x21) && (byte <= 126) && (byte != 61))) {
+			if ((byte == 0x09) || (byte == 0x20) || ((byte >= 0x21) && (byte <= 126) && ((byte < 0x3C) || (byte > 0x3E) ) && (byte != 0x26) )) {
 				if (linelen >= 74) {
-					if (linelen == 74 && byte < 33) {
+					if (linelen == 74 && byte < 0x21) {
 						output.push_back(byte);
 						output.push_back('=');
 						output.append(CRLF);
