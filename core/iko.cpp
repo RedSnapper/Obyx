@@ -178,6 +178,7 @@ IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : ObyxElement
 				trace();
 				*Logger::log << Log::blockend;
 			} else {
+/*
 				if  (encoder == e_qp ) {
 					encoder = e_none;
 					string err_msg; Manager::transcode(str_encoder.c_str(),err_msg);
@@ -185,6 +186,7 @@ IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : ObyxElement
 					trace();
 					*Logger::log << Log::blockend;
 				} 
+*/ 
 			}
 		}
 	} 
