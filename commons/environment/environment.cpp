@@ -735,30 +735,25 @@ void Environment::dopostparms() {
 											//Now get any media information..
 											int width=0;
 											int height=0;
+											string sheight,swidth;
+											string fwidth(name+"_width");
+											string fheight(name+"_height");
 											istringstream ist(value);
 											try {
 												Info info( ist );
 												if ( info.check() ) {
-													string fwidth(name+"_width");
-													string fheight(name+"_height");
 													width = info.getWidth();
 													height = info.getHeight();
-													string swidth;
-													String::tostring(swidth,width);
-													string sheight;
-													String::tostring(sheight,height);
-													setparm("",fwidth);
-													setparm(fwidth,swidth);
-													numparms++;
-													setparm("",fheight);
-													setparm(fheight,sheight);
-													numparms++;
 												} else {
 													//*Logger::log << Log::LI << "File failed media info.check " << Log::LO;
 												}
 											} catch ( exception e ) {
 												// Need to be silent here generally. Except for debugging..
 											}
+											String::tostring(swidth,width);
+											String::tostring(sheight,height);
+											setparm(fwidth,swidth); numparms++;
+											setparm(fheight,sheight); numparms++;
 											//----- media info finishes.
 										} else {
 											//*Logger::log <<"Content-Type is empty, so no file details were discovered." << Log::LO;
