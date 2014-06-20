@@ -90,12 +90,20 @@ void XMLObject::take(DOMNode*& container) {
 /* ====================  VIRTUAL methods. =========== */
 XMLObject::operator XMLObject*() { return this; }	
 XMLObject::operator u_str() const {
-	u_str doc; 
+	u_str doc; string errs;
+	u_str no_empties = u"//*[not(node())][not(contains('[area|base|br|col|hr|img|input|link|meta|param|command|keygen|source]',local-name()))]";
+	DOMText* et = x_doc->createTextNode(pcx("")); //emptystring
+	XMLObject dit(et);
+	const_cast<XMLObject*>(this)->xp(&dit,no_empties,DOMLSParser::ACTION_APPEND_AS_CHILDREN,false,errs);
 	XML::Manager::parser()->writedoc(x_doc,doc);
 	return doc;
 }
 XMLObject::operator std::string() const {
-	string doc; 
+	string doc,errs;
+	u_str no_empties = u"//*[not(node())][not(contains('[area|base|br|col|hr|img|input|link|meta|param|command|keygen|source]',local-name()))]";
+	DOMText* et = x_doc->createTextNode(pcx("")); //emptystring
+	XMLObject dit(et);
+	const_cast<XMLObject*>(this)->xp(&dit,no_empties,DOMLSParser::ACTION_APPEND_AS_CHILDREN,false,errs);
 	XML::Manager::parser()->writedoc(x_doc,doc);
 	return doc;
 }
