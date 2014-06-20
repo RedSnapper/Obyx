@@ -86,7 +86,6 @@ void XMLObject::take(DOMNode*& container) {
 	container = x_doc;
 	x_doc = nullptr;
 }
-
 /* ====================  VIRTUAL methods. =========== */
 XMLObject::operator XMLObject*() { return this; }	
 XMLObject::operator u_str() const {
