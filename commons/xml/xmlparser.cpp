@@ -961,6 +961,9 @@ namespace XML {
 			do_attr_namespace_kludge(doc,inod);
 			pt->appendChild(inod);
 			doc->normalize();
+		} else { //This is used to break open closed elements.
+			DOMText* inod = doc->createTextNode(0x00);
+			pt->appendChild(inod);
 		}
 	}
 	
