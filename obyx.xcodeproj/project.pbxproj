@@ -80,9 +80,9 @@
 		B541F22111941E1E0099F07C /* osimessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B546CACC10DA3E6300BC151A /* osimessage.cpp */; };
 		B541F22211941E1E0099F07C /* fragmentobject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B58DA8C11104B05E00C34661 /* fragmentobject.cpp */; };
 		B541F22411941E1E0099F07C /* libdl.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B51648160CBB8285000995D5 /* libdl.dylib */; };
-		B541F22511941E1E0099F07C /* libxqilla.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B599F9230F583DEA00AD3D2C /* libxqilla.dylib */; };
-		B541F23A11941EC30099F07C /* libfcgi.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B541F23811941EC30099F07C /* libfcgi.dylib */; };
-		B541F23B11941EC30099F07C /* libfcgi++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B541F23911941EC30099F07C /* libfcgi++.dylib */; };
+		B541F22511941E1E0099F07C /* libxqilla.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B599F9230F583DEA00AD3D2C /* libxqilla.6.dylib */; };
+		B541F23A11941EC30099F07C /* libfcgi.0.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B541F23811941EC30099F07C /* libfcgi.0.0.0.dylib */; };
+		B541F23B11941EC30099F07C /* libfcgi++.0.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B541F23911941EC30099F07C /* libfcgi++.0.0.0.dylib */; };
 		B541F23E11941ECB0099F07C /* fast.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B541F1D4119414330099F07C /* fast.cpp */; };
 		B546CACD10DA3E6300BC151A /* osimessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B546CACC10DA3E6300BC151A /* osimessage.cpp */; };
 		B5493402105A697D00CE818F /* mysqlconnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B54933FC105A697D00CE818F /* mysqlconnection.cpp */; };
@@ -101,7 +101,7 @@
 		B56171DF0AD13B430032F167 /* comparison.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B56171DE0AD13B430032F167 /* comparison.cpp */; };
 		B56234A10FEFC9A400CF092E /* itemstore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B56234A00FEFC9A400CF092E /* itemstore.cpp */; };
 		B563F4C0170C23AF0073A76A /* libxerces-c-3.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B5CA58FB11B66946001A56D4 /* libxerces-c-3.1.dylib */; };
-		B563F4C1170C23B30073A76A /* libxqilla.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B599F9230F583DEA00AD3D2C /* libxqilla.dylib */; };
+		B563F4C1170C23B30073A76A /* libxqilla.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B599F9230F583DEA00AD3D2C /* libxqilla.6.dylib */; };
 		B568C3030CC63C1600B1EBFF /* connection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B568C2FB0CC63C1600B1EBFF /* connection.cpp */; };
 		B56A57021265F924001C4299 /* infix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B56A57011265F924001C4299 /* infix.cpp */; };
 		B56A57031265F924001C4299 /* infix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B56A57011265F924001C4299 /* infix.cpp */; };
@@ -206,8 +206,8 @@
 		B541F1D4119414330099F07C /* fast.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fast.cpp; sourceTree = "<group>"; };
 		B541F1D5119414330099F07C /* fast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fast.h; sourceTree = "<group>"; };
 		B541F22911941E1E0099F07C /* obyx.fcgi */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = obyx.fcgi; sourceTree = BUILT_PRODUCTS_DIR; };
-		B541F23811941EC30099F07C /* libfcgi.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfcgi.dylib; path = /usr/local/lib/libfcgi.dylib; sourceTree = "<absolute>"; };
-		B541F23911941EC30099F07C /* libfcgi++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libfcgi++.dylib"; path = "/usr/local/lib/libfcgi++.dylib"; sourceTree = "<absolute>"; };
+		B541F23811941EC30099F07C /* libfcgi.0.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfcgi.0.0.0.dylib; path = /usr/local/lib/libfcgi.0.0.0.dylib; sourceTree = "<absolute>"; };
+		B541F23911941EC30099F07C /* libfcgi++.0.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libfcgi++.0.0.0.dylib"; path = "/usr/local/lib/libfcgi++.0.0.0.dylib"; sourceTree = "<absolute>"; };
 		B546CACB10DA3E6300BC151A /* osimessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = osimessage.h; sourceTree = "<group>"; };
 		B546CACC10DA3E6300BC151A /* osimessage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = osimessage.cpp; sourceTree = "<group>"; };
 		B54933FC105A697D00CE818F /* mysqlconnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mysqlconnection.cpp; sourceTree = "<group>"; };
@@ -270,7 +270,7 @@
 		B58852A10CC39E1B009D0279 /* regex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = regex.cpp; sourceTree = "<group>"; };
 		B58DA8C01104B05E00C34661 /* fragmentobject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fragmentobject.h; sourceTree = "<group>"; };
 		B58DA8C11104B05E00C34661 /* fragmentobject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fragmentobject.cpp; sourceTree = "<group>"; };
-		B599F9230F583DEA00AD3D2C /* libxqilla.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxqilla.dylib; path = /usr/local/lib/libxqilla.dylib; sourceTree = "<absolute>"; };
+		B599F9230F583DEA00AD3D2C /* libxqilla.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxqilla.6.dylib; path = /usr/local/lib/libxqilla.6.dylib; sourceTree = "<absolute>"; };
 		B59D65FD14D6EE3200859276 /* xhtml1dtd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = xhtml1dtd.h; path = grammars/xhtml1dtd.h; sourceTree = "<group>"; };
 		B5A2AE05149BA5E8001D0266 /* json.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = json.cpp; sourceTree = "<group>"; };
 		B5A2AE08149BA5FB001D0266 /* json.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = json.h; sourceTree = "<group>"; };
@@ -334,9 +334,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				B541F22411941E1E0099F07C /* libdl.dylib in Frameworks */,
-				B541F22511941E1E0099F07C /* libxqilla.dylib in Frameworks */,
-				B541F23A11941EC30099F07C /* libfcgi.dylib in Frameworks */,
-				B541F23B11941EC30099F07C /* libfcgi++.dylib in Frameworks */,
+				B541F22511941E1E0099F07C /* libxqilla.6.dylib in Frameworks */,
+				B541F23A11941EC30099F07C /* libfcgi.0.0.0.dylib in Frameworks */,
+				B541F23B11941EC30099F07C /* libfcgi++.0.0.0.dylib in Frameworks */,
 				B5CA58FC11B66946001A56D4 /* libxerces-c-3.1.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -347,7 +347,7 @@
 			files = (
 				B51648170CBB8285000995D5 /* libdl.dylib in Frameworks */,
 				B563F4C0170C23AF0073A76A /* libxerces-c-3.1.dylib in Frameworks */,
-				B563F4C1170C23B30073A76A /* libxqilla.dylib in Frameworks */,
+				B563F4C1170C23B30073A76A /* libxqilla.6.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -359,9 +359,9 @@
 			children = (
 				B51648160CBB8285000995D5 /* libdl.dylib */,
 				B5CA58FB11B66946001A56D4 /* libxerces-c-3.1.dylib */,
-				B599F9230F583DEA00AD3D2C /* libxqilla.dylib */,
-				B541F23811941EC30099F07C /* libfcgi.dylib */,
-				B541F23911941EC30099F07C /* libfcgi++.dylib */,
+				B599F9230F583DEA00AD3D2C /* libxqilla.6.dylib */,
+				B541F23811941EC30099F07C /* libfcgi.0.0.0.dylib */,
+				B541F23911941EC30099F07C /* libfcgi++.0.0.0.dylib */,
 			);
 			name = "External Frameworks and Libraries";
 			sourceTree = "<group>";

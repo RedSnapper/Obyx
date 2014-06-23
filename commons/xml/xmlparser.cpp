@@ -115,7 +115,7 @@ namespace XML {
 	
 	void Parser::writedoc(const DOMDocument* const& n,std::string& result) {
 		if ( n != nullptr ) {
-			AutoRelease<DOMLSOutput> output(((DOMImplementationLS*)impl)->createLSOutput());	
+			AutoRelease<DOMLSOutput> output(((DOMImplementationLS*)impl)->createLSOutput());
 			MemBufFormatTarget* mbft = new MemBufFormatTarget();
 			output->setByteStream(mbft);
 			output->setEncoding(XMLUni::fgUTF8EncodingString); //This must be done.
@@ -126,12 +126,14 @@ namespace XML {
 				}
 			}
 			delete mbft;
+/*
 			if ( !result.empty() && String::Regex::available()) {
 				// NEED TO FIX single quote attributes as well as double quote ones.
 				const string textarea_find="<textarea((?:\\s+(?:\\w+:)?\\w+=\"[^\"]+\")+)/>";
 				const string textarea_repl="<textarea\\1></textarea>";
 				String::Regex::replace(textarea_find,textarea_repl,result,true);
 			}
+*/
 		} // else {} //node was nullptr
 	}
 	

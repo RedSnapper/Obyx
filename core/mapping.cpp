@@ -302,7 +302,16 @@ bool Mapping::evaluate_this() {
 						if ( key->results.result() == nullptr ) {
 							match->evaluate();
 							matched = true;
-							match->results.takeresult(the_domain);
+							switch (operation) {
+								case m_switch: {
+									results.setresult(match->results);
+								} break;
+								case m_state:  // m_switch uses full-matches and changes the domain.
+								case m_substitute: { // m_substitute uses partial-matching and changes the domain.
+									delete the_domain;
+									match->results.takeresult(the_domain);
+								} break;
+							}
 						}
 					}
 					if ( matched && match->k_break ) break; 
