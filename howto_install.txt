@@ -1,0 +1,21 @@
+#### HOW TO INSTALL ####
+
+// Install required programs //
+
+Command:
+sudo apt-get install apache2 curl libssl-dev libpcre3-dev libmysql++-dev libcurl4-openssl-dev libxerces-c-dev libgmp-dev libxqilla-dev autoconf automake autotools-dev libtool build-essential
+
+// Create cgi folder
+
+Command:
+mkdir /var/www/cgi
+
+// Define RPATH //
+
+Command: 
+export RPATH=/var/www/cgi
+
+// Compile Obyx
+
+Command:
+make $RPATH/obyx.cgi
