@@ -49,9 +49,34 @@ namespace Vdb {
 		}
 		s->library_end();
 	}
+	
+	bool MySQLConnection::open(const std::string& file) { //use a config file
+		if ( ! isopen() ) {
+			if (s->options(connectionHandle,MYSQL_READ_DEFAULT_FILE,file.c_str()) == 0) {
+				if (s->real_connect(connectionHandle, NULL, NULL, NULL, NULL, NULL, NULL, 0) == NULL) {
+					string errorMessage = s->error(connectionHandle);
+					if (Logger::debugging() && Logger::log != nullptr) {
+						*Logger::log << Log::info << Log::LI << "MySQLConnection error:: Connection failed with '" << errorMessage << "'" << Log::LO << Log::blockend;
+					}
+					conn_open = false;
+				} else {
+					conn_open = true;
+				}
+			} else {
+				if (Logger::debugging() && Logger::log != nullptr) {
+					*Logger::log << Log::info << Log::LI << "MySQLConnection error: Probably file '" << file << " is not valid or not found." << Log::LO << Log::blockend;
+				}
+			}
+		} else {
+			if (Logger::debugging() && Logger::log != nullptr) {
+				*Logger::log << Log::info << Log::LI << "MySQLConnection error: Each connection can only be opened once. Instantiate a new connection." << Log::LO << Log::blockend;
+			}
+		}
+		return isopen();
+	}
 
 	bool MySQLConnection::open(const std::string& host, const std::string& user, const unsigned int port,const std::string& password) {
-		if ( ! isopen() ) {	
+		if ( ! isopen() ) {
 			const char* tsocket = nullptr;
 			thost = host;
 			tuser = user;

@@ -44,7 +44,14 @@ namespace Vdb {
 			s->PQfinish(connectionHandle);
 		}
 	}
-		
+	
+	bool PostgreSQLConnection::open(const std::string& file) {
+		if ( ! isopen() ) {
+			conn_open = true; //this is really a bit of a misnomer. but pg doesn't set a connection unless a db is specified.
+		}
+		return isopen();
+	}
+	
 	bool PostgreSQLConnection::open(const std::string& host, const std::string& user, const unsigned int port,const std::string& password) {
 		if ( ! isopen() ) {
 			pghost = host;

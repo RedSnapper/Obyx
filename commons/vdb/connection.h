@@ -42,6 +42,7 @@ namespace Vdb {
 private:
 public:		
 		virtual bool open(const std::string&, const std::string&,const unsigned int, const std::string&)=0;
+		virtual bool open(const std::string&)=0;
 		virtual bool database(const std::string&) = 0;
 		virtual bool dbselected()=0; //if the database is selected we can instantiate queries.
 		virtual bool isopen()=0;
