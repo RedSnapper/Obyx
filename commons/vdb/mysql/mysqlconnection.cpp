@@ -53,7 +53,7 @@ namespace Vdb {
 	bool MySQLConnection::open(const std::string& file) { //use a config file
 		if ( ! isopen() ) {
 			if (s->options(connectionHandle,MYSQL_READ_DEFAULT_FILE,file.c_str()) == 0) {
-				if (s->real_connect(connectionHandle, NULL, NULL, NULL, NULL, NULL, NULL, 0) == NULL) {
+				if (s->real_connect(connectionHandle, NULL, NULL, NULL, NULL, 0, NULL, 0) == NULL) {
 					string errorMessage = s->error(connectionHandle);
 					if (Logger::debugging() && Logger::log != nullptr) {
 						*Logger::log << Log::info << Log::LI << "MySQLConnection error:: Connection failed with '" << errorMessage << "'" << Log::LO << Log::blockend;
