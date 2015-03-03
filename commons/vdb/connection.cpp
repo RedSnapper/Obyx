@@ -27,6 +27,7 @@
 #include "service.h"
 #include "connection.h"
 #include "query.h"
+#include "commons/environment/environment.h"
 
 namespace Vdb {
 
@@ -34,7 +35,23 @@ namespace Vdb {
 	}
 	
 	Connection::~Connection() { 
-	}		
+	}
+	
+	//syntactic sugar.
+	bool Connection::connect() {
+		bool retval=false;
+		Environment* e = Environment::service();
+		if(e->SQLconfig_file().empty()) {
+			retval = open( e->SQLhost(),e->SQLuser(),e->SQLport(),e->SQLuserPW());
+			if (retval) {
+				retval = database(Environment::Database());
+			}
+		} else {
+			retval = open( e->SQLconfig_file());
+		}
+		return retval;
+	}
+	
 	
 } //end of namespace
 

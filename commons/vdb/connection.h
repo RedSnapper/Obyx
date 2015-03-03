@@ -40,7 +40,8 @@ namespace Vdb {
 	class Connection {
 
 private:
-public:		
+public:
+		bool connect();
 		virtual bool open(const std::string&, const std::string&,const unsigned int, const std::string&)=0;
 		virtual bool open(const std::string&)=0;
 		virtual bool database(const std::string&) = 0;

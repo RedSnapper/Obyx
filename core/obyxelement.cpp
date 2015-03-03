@@ -530,24 +530,27 @@ void ObyxElement::get_sql_connection() {
 	if (dbs != nullptr)  {
 		dbc = dbs->instance();
 		if (dbc != nullptr) {
-			dbc->open( Environment::SQLhost(),Environment::SQLuser(),Environment::SQLport(),Environment::SQLuserPW() );
-			if (dbc->isopen())  {
-				dbc->database(Environment::Database());
-			} else {
+			dbc->connect();
+			if (!dbc->isopen())  {
+				Environment* e = Environment::service();
 				if (Environment::getbenvtf("OBYX_SQLSERVICE_REQ") && Logger::log != nullptr) {
 					*Logger::log << Log::error << Log::LI << "SQL Service. Service library was loaded but the host connection failed." << Log::LO;
 					*Logger::log << Log::LI << Log::notify << Log::LI;
 					*Logger::log << "If the host is on another box, check the database client configuration or host that networking is enabled. " << Log::LO;
-					*Logger::log << Log::LI << "mysql -D" << Environment::Database() << " -h" << Environment::SQLhost() << " -u" << Environment::SQLuser();
-					int pt = Environment::SQLport(); if (pt != 0) {
-						*Logger::log << " -P" << pt << Log::LO;
-					}
-					string up = Environment::SQLuserPW(); if (!up.empty()) {
-						*Logger::log << " -p";
-						string pqx(up.size(),'*');
-						pqx[0] = up[0];
-						pqx[pqx.size()-1] = up[up.size()-1];
-						*Logger::log << " -p" << pqx << Log::LO;
+					if (!e->SQLconfig_file().empty()) {
+						*Logger::log << Log::LI << "mysql --defaults-extra-file=" << e->SQLconfig_file();
+					} else {
+						*Logger::log << Log::LI << "mysql -D" << Environment::Database() << " -h" << Environment::SQLhost() << " -u" << Environment::SQLuser();
+						int pt = Environment::SQLport(); if (pt != 0) {
+							*Logger::log << " -P" << pt << Log::LO;
+						}
+						string up = Environment::SQLuserPW(); if (!up.empty()) {
+							*Logger::log << " -p";
+							string pqx(up.size(),'*');
+							pqx[0] = up[0];
+							pqx[pqx.size()-1] = up[up.size()-1];
+							*Logger::log << " -p" << pqx << Log::LO;
+						}
 					}
 					*Logger::log << Log::blockend << Log::LO << Log::blockend;
 				}
@@ -559,6 +562,7 @@ void ObyxElement::drop_sql_connection() {
 
 	Environment* env = Environment::service();
 	if (env != nullptr) {
+		env->resetenv("OBYX_SQLCONFIG_FILE");
 		env->resetenv("OBYX_SQLDATABASE");
 		env->resetenv("OBYX_SQLHOST");
 		env->resetenv("OBYX_SQLUSER");

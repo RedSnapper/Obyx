@@ -59,8 +59,10 @@ namespace Vdb {
 						*Logger::log << Log::info << Log::LI << "MySQLConnection error:: Connection failed with '" << errorMessage << "'" << Log::LO << Log::blockend;
 					}
 					conn_open = false;
+					db_open = false;
 				} else {
 					conn_open = true;
+					db_open = true;
 				}
 			} else {
 				if (Logger::debugging() && Logger::log != nullptr) {

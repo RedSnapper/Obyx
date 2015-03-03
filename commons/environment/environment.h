@@ -201,11 +201,12 @@ public:
 	string ScriptsDir() { return gScriptsDir; }
 	string ScratchDir() { return gScratchDir; }
 	string ScratchName();
-	static string Database() ;
-	static string SQLhost() ;
-	static string SQLuser() ;
-	static string SQLuserPW() ;	
-	static string Salt() ;	
+	static string SQLconfig_file();
+	static string Database();
+	static string SQLhost();
+	static string SQLuser();
+	static string SQLuserPW();
+	static string Salt();
 	static unsigned int SQLport();
 	void list();						//for debugging
 	void listEnv();					//for debugging
