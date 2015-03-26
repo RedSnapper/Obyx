@@ -1664,7 +1664,7 @@ void Environment::listEnv() {
 		*Logger::log << Log::LI << Log::even;
 		std::sort(vme.begin(), vme.end(), sortvps);
 		for(vector<pair<string,string> >::iterator vmei = vme.begin(); vmei != vme.end(); vmei++) {
-			if (( (vmei->first.find("OBYX_SQL",0,8) != 0) && (vmei->first.compare("OBYX_SALT") != 0)) || (vmei->first.compare("OBYX_SQLCONFIG_FILE") == 0)) {
+			if (( (vmei->first.find("OBYX_SQL",0,8) != 0) && (vmei->first.compare("OBYX_SALT") != 0)) || (vmei->first.compare("OBYX_SQLPER_REQUEST") == 0)  || (vmei->first.compare("OBYX_SQLCONFIG_FILE") == 0)) {
 				//			if ( vmei->first.find("OBYX_",0,5) != 0) {
 				*Logger::log << Log::LI << Log::II << vmei->first << Log::IO << Log::II << vmei->second << Log::IO << Log::LO;
 			}
