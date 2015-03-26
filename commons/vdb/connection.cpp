@@ -38,14 +38,6 @@ namespace Vdb {
 	Connection::~Connection() { 
 	}
 
-	//Environment* e =Environment::service(); string site="";
-	//if( && (site.compare("config")==0)) {
-	//	*Logger::log << Log::fatal << Log::LI << "MySQLConnection:: Opening via configfile:" << file << Log::LO << Log::blockend;
-	//	}
-	
-	
-	
-	
 	//syntactic sugar.
 	bool Connection::connect() {
 		bool retval=false; string filename="";
