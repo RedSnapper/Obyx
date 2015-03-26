@@ -1030,11 +1030,11 @@ void Environment::setbenvmap() {//per box/process environment
 string Environment::SQLconfig_file() {
 	string result("");
 	if (instance != nullptr) {
-		if (!instance->getenv("OBYX_SQLCONFIGFILE",result)) {
-			instance->getenv("OBYX_SQLCONFIGFILE",result);
+		if (!instance->getenv("OBYX_SQLCONFIG_FILE",result)) {
+			instance->getenv("OBYX_SQLCONFIG_FILE",result);
 		}
 	} else {
-		getbenv("OBYX_SQLCONFIGFILE",result);
+		getbenv("OBYX_SQLCONFIG_FILE",result);
 	}
 	return result;
 }
