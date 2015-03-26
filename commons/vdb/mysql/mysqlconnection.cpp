@@ -26,6 +26,7 @@
 #include "errmsg.h"
 
 #include "commons/logger/logger.h"
+#include "commons/environment/environment.h"
 
 #include "commons/vdb/service.h"
 #include "commons/vdb/query.h"
@@ -56,10 +57,15 @@ namespace Vdb {
 				thost = file;
 				if (s->real_connect(connectionHandle, NULL, NULL, NULL, NULL, 0, NULL, 0) == nullptr) {
 					string errorMessage = s->error(connectionHandle);
-						*Logger::log << Log::fatal << Log::LI << "MySQLConnection error:: Connection failed with '" << errorMessage << "'" << Log::LO << Log::blockend;
+					*Logger::log << Log::fatal << Log::LI << "MySQLConnection error:: Connection failed with '" << errorMessage << "'" << Log::LO << Log::blockend;
 					conn_open = false;
 					db_open = false;
 				} else {
+					Environment* e =Environment::service();
+					string site="";
+					if(e->getenv("SITE_NAME",site) && site.compare("config")==0) {
+						*Logger::log << Log::fatal << Log::LI << "MySQLConnection error:: Connection apparently succeeded." << Log::LO << Log::blockend;
+					}
 					conn_open = true;
 					db_open = true;
 				}
