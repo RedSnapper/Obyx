@@ -52,11 +52,6 @@ namespace Vdb {
 	}
 	
 	bool MySQLConnection::open(const std::string& file) { //use a config file
-		 Environment* e =Environment::service(); string site="";
-		 if(e->getenv("SITE_NAME",site) && (site.compare("config")==0)) {
-			 *Logger::log << Log::fatal << Log::LI << "MySQLConnection:: Opening via configfile:" << file << Log::LO << Log::blockend;
-		 }
-		
 		if ( ! isopen() ) {
 			if (s->options(connectionHandle,MYSQL_READ_DEFAULT_FILE,file.c_str()) == 0) {
 				thost = file;
@@ -81,11 +76,6 @@ namespace Vdb {
 	}
 
 	bool MySQLConnection::open(const std::string& host, const std::string& user, const unsigned int port,const std::string& password) {
-		Environment* e =Environment::service(); string site="";
-		if(e->getenv("SITE_NAME",site) && (site.compare("config")==0)) {
-			*Logger::log << Log::fatal << Log::LI << "MySQLConnection:: Opening via host/port/etc:" << host << Log::LO << Log::blockend;
-		}
-
 		if ( ! isopen() ) {
 			const char* tsocket = nullptr;
 			thost = host;
