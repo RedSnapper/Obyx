@@ -43,17 +43,11 @@ namespace Vdb {
 		bool retval=false;
 		Environment* e = Environment::service();
 		if(e->SQLconfig_file().empty()) {
-			if(Logger::debugging()) {
-				*Logger::log << Log::info << Log::LI << "Connecting to SQL with separates, SQLconfig_file is empty." << Log::LO << Log::blockend;
-			}
 			retval = open( e->SQLhost(),e->SQLuser(),e->SQLport(),e->SQLuserPW());
 			if (retval) {
 				retval = database(Environment::Database());
 			}
 		} else {
-			if(Logger::debugging()) {
-				*Logger::log << Log::info << Log::LI << "Connecting to SQL using SQLconfig_file " << e->SQLconfig_file() << Log::LO << Log::blockend;
-			}
 			retval = open( e->SQLconfig_file());
 		}
 		return retval;

@@ -56,7 +56,7 @@ void finalise();
 void shutdown();
 
 int main(int argc, char *argv[]) {
-	string v_number = "1.140623"; //Do NOT put the v here!
+	string v_number = "1.150326"; //Do NOT put the v here!
 #ifdef FAST
 #ifdef PROFILING
 	int  profilecount = 40;
@@ -93,7 +93,7 @@ int main(int argc, char *argv[]) {
 				string errorstr="",sourcefile="";
 				kind_type kind = di_null;
 				if (Filer::getfile(sourcefilepath,sourcefile,errorstr)) {
-					ObyxElement::init();
+//					ObyxElement::init();
 					DataItem* sfile = DataItem::factory(sourcefile,di_text); //will parse as object inside logging.
 					string out_str;				
 					if (true) { // used to delete document before finalising stuff
@@ -180,6 +180,7 @@ void init(ostream*& f_out,int argc,char** argv,char** env) {
 	XML::Manager::init(); 				//sets validation for instance.
 	OsiMessage::init();
 	Document::init();					//Instance Document
+	ObyxElement::init();
 	DataItem::init();
 	ItemStore::init();
 }
