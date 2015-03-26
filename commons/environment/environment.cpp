@@ -1120,6 +1120,10 @@ void Environment::resetenv(const string name) { //? used to reset per-request va
 	if (i != ienv_map.end()) {
 		ienv_map.erase(i);
 	}
+	var_map_type::iterator j = benv_map.find(name);
+	if (j != benv_map.end()) {
+		benv_map.erase(j);
+	}
 }
 void Environment::setienvmap(char ** environment) {
 	unsigned int eit = 0;
