@@ -56,7 +56,7 @@ namespace Vdb {
 				thost = file;
 				if (s->real_connect(connectionHandle, NULL, NULL, NULL, NULL, 0, NULL, 0) == nullptr) {
 					string errorMessage = s->error(connectionHandle);
-						*Logger::log << Log::error << Log::LI << "MySQLConnection error:: Connection failed with '" << errorMessage << "'" << Log::LO << Log::blockend;
+						*Logger::log << Log::fatal << Log::LI << "MySQLConnection error:: Connection failed with '" << errorMessage << "'" << Log::LO << Log::blockend;
 					conn_open = false;
 					db_open = false;
 				} else {
@@ -64,7 +64,7 @@ namespace Vdb {
 					db_open = true;
 				}
 			} else {
-				*Logger::log << Log::error << Log::LI << "MySQLConnection error: Possibly file '" << file << " is not valid or not found." << Log::LO << Log::blockend;
+				*Logger::log << Log::fatal << Log::LI << "MySQLConnection error: Possibly file '" << file << " is not valid or not found." << Log::LO << Log::blockend;
 			}
 		} else {
 			if (Logger::debugging() && Logger::log != nullptr) {
