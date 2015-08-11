@@ -176,10 +176,12 @@ bool OsiAPP::request(const xercesc::DOMNode* n,int max_redirects,int timeout_sec
 							}
 							file.removeFile();
 						}
-						FileUtils::File srcfile(mfil);
-						if (srcfile.exists()) {
-							srcfile.removeFile();
-						}					
+						if (errnum == 0) {
+							FileUtils::File srcfile(mfil);
+							if (srcfile.exists()) {
+								srcfile.removeFile();
+							}
+						}
 						request_result=true;
 						//---------------- COMMENT  when NOT debugging
 						/*
