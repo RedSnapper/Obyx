@@ -23,9 +23,11 @@
 #include <iostream>
 #include "commons/httphead/httphead.h"
 #include "commons/string/strings.h"
+#include "commons/environment/environment.h"
 #include "core/obyxelement.h"
 #include "core/xmlobject.h"
 #include "httplogger.h"
+//bool Environment::envexists(const string& name) {
 
 bool HTTPLogger::minititle = true;
 
@@ -37,10 +39,16 @@ HTTPLogger::HTTPLogger() : Logger(1),topped(false),tailed(false) {
 
 void HTTPLogger::dofatal(std::string message) {
 	Httphead* http = Httphead::service();
+	Environment* env = Environment::service();
 	if ( http && ! http->done() ) {
 		string xpath=path;
 		if ( xpath.find(rpath) == 0 ) {
 			xpath.erase(0,rpath.length());
+		}
+		if(env->envexists("Node")) {
+			string envnode;
+			env->getenv("Node",envnode);
+			http->addcustom("X-Obyx-Box",envnode);
 		}
 		string xpcount = String::tostring(XMLObject::xp_count);
 		http->addcustom("X-Obyx-XPC",xpcount);

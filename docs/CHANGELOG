@@ -17,6 +17,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.150811		Enh.	Adding in Node as a header on fatals.
 v1.140623		Bug.	mapping.substitute with an empty domain ignores match.
 v1.140620		Bug.	Self-closing.
 v1.140618		Enh.	Moved width/height outside of media-id. They are now set if there is a mimetype.
