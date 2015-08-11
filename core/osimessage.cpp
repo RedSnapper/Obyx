@@ -1048,6 +1048,7 @@ void OsiMessage::decompile(const xercesc::DOMNode* n,vector<std::string>& heads,
 							const DOMNode* nx=ch; next_el(nx);
 							if (nx != nullptr) {
 								switch(htype) {
+									case mailbox:
 									case list: {
 										headv.append(",");
 									} break;
