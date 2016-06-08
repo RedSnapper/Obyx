@@ -30,6 +30,9 @@
 #ifndef DISALLOW_ICU
 
 namespace String {
+	
+	string TransliterationService::startup_messages="";
+
 
 	bool TransliterationService::loadattempted = false;
 	bool TransliterationService::loaded = false;
@@ -58,11 +61,7 @@ namespace String {
 	}
 	bool TransliterationService::available() {
 		if (!loadattempted) {
-			string errors;
-			startup(errors);
-			if (!errors.empty()) {
-				*Logger::log << Log::error << Log::LI << "TransliterationService failed to load: " <<  errors  << Log::LO << Log::blockend;
-			}
+			startup(startup_messages);
 		}
 		return loaded;
 	}

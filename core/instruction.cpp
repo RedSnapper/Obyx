@@ -841,7 +841,8 @@ bool Instruction::evaluate_this() {
 									*Logger::log << Log::blockend;
 								} 
 							} else {
-								*Logger::log << Log::error << Log::LI << "Error. ICU is not available for transliterate." << Log::LO;
+								string extra = String::TransliterationService::startup_messages;
+								*Logger::log << Log::error << Log::LI << "Error. ICU is not available for transliterate. ("  << extra << ")" << Log::LO;
 								trace();
 								*Logger::log << Log::blockend;
 							}

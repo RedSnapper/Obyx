@@ -75,6 +75,7 @@ namespace String {
 			static void dlerr(string&);
 			
 		public:
+			static string startup_messages;
 			static bool startup(string&);
 			static bool available();
 			static bool shutdown();
