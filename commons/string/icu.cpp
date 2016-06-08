@@ -62,6 +62,9 @@ namespace String {
 	bool TransliterationService::available() {
 		if (!loadattempted) {
 			startup(startup_messages);
+			if (startup_messages.empty() && loadattempted && !loaded) {
+				startup_messages="No load messages, but load failed.";
+			}
 		}
 		return loaded;
 	}
