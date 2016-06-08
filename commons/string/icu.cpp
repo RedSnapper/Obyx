@@ -31,8 +31,7 @@
 
 namespace String {
 	
-	string TransliterationService::startup_messages="";
-
+	string TransliterationService::startup_messages;
 
 	bool TransliterationService::loadattempted = false;
 	bool TransliterationService::loaded = false;
@@ -60,20 +59,21 @@ namespace String {
 		}
 	}
 	bool TransliterationService::available() {
-		startup(startup_messages);
+		startup();
 		return loaded;
 	}
-	bool TransliterationService::startup(string& startup_errors) {
+	bool TransliterationService::startup() {
 		string errors;
 		if ( ! loadattempted ) {
+			startup_messages="";
 			loadattempted = true;
 			loaded = false;
 			string icupath,sufstr;
-			startup_errors.append("load attempted; ");
+			startup_messages.append("load attempted; ");
 			if (Environment::getbenv("OBYX_LIBICUDIR",icupath)) {
 				if (*icupath.rbegin() != '/') icupath.push_back('/');
-				startup_errors.append("OBYX_LIBICUDIR:");
-				startup_errors.append(icupath);
+				startup_messages.append("OBYX_LIBICUDIR:");
+				startup_messages.append(icupath);
 			}
 			Environment::getbenv("OBYX_LIBICUVS",sufstr);
 			string i18nstr = SO(icupath,libicui18n); i18n = dlopen(i18nstr.c_str(),RTLD_GLOBAL | RTLD_NOW); dlerr(errors);
@@ -100,7 +100,7 @@ namespace String {
 				
 				if ( errors.empty() ) {
 					loaded = true;
-					startup_errors.append("loaded; ");
+					startup_messages.append("loaded; ");
 					u_init(&errcode);
 					//early versions don't support Any-NFKD;Any-Latin;Latin-ASCII;[\\u007F-\\uFB02] Remove;
 					asciiservice = utrans_openU((const UChar*)(L"Any-NFKD;Any-Latin;[\\u007F-\\uFB02] Remove;"),-1,UTRANS_FORWARD,nullptr,0,nullptr,&errcode);
@@ -109,9 +109,9 @@ namespace String {
 						errors.append(u_errorName(errcode));
 					}
 				} else {
-					startup_errors.append("not loaded; ");
+					startup_messages.append("not loaded; ");
 				}
-				startup_errors.append(errors);
+				startup_messages.append(errors);
 			}
 		}
 		return loaded;

@@ -76,7 +76,7 @@ namespace String {
 			
 		public:
 			static string startup_messages;
-			static bool startup(string&);
+			static bool startup();
 			static bool available();
 			static bool shutdown();
 			static void ascii(u_str&,string&);
