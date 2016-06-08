@@ -24,6 +24,7 @@
 #include <string.h>
 #include "icu.h"
 #include "commons/environment/environment.h"
+#include "commons/logger/logger.h"
 #include "commons/dlso.h"
 
 #ifndef DISALLOW_ICU
@@ -59,6 +60,9 @@ namespace String {
 		if (!loadattempted) {
 			string errors;
 			startup(errors);
+			if (!errors.empty()) {
+				*Logger::log << Log::error << Log::LI << "TransliterationService failed to load: " <<  errors  << Log::LO << Log::blockend;
+			}
 		}
 		return loaded;
 	}
