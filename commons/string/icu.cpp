@@ -60,12 +60,7 @@ namespace String {
 		}
 	}
 	bool TransliterationService::available() {
-		if (!loadattempted) {
-			startup(startup_messages);
-			if (startup_messages.empty() && loadattempted && !loaded) {
-				startup_messages="No load messages, but load failed.";
-			}
-		}
+		startup(startup_messages);
 		return loaded;
 	}
 	bool TransliterationService::startup(string& startup_errors) {
@@ -100,6 +95,7 @@ namespace String {
 				
 				if ( errors.empty() ) {
 					loaded = true;
+					startup_errors.append("loaded; ");
 					u_init(&errcode);
 					//early versions don't support Any-NFKD;Any-Latin;Latin-ASCII;[\\u007F-\\uFB02] Remove;
 					asciiservice = utrans_openU((const UChar*)(L"Any-NFKD;Any-Latin;[\\u007F-\\uFB02] Remove;"),-1,UTRANS_FORWARD,nullptr,0,nullptr,&errcode);
@@ -107,6 +103,8 @@ namespace String {
 						errors.append("Transliteration service found and loaded but the service failed with the error: ");
 						errors.append(u_errorName(errcode));
 					}
+				} else {
+					startup_errors.append("not loaded; ");
 				}
 				startup_errors.append(errors);
 			}
