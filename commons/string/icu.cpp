@@ -69,13 +69,18 @@ namespace String {
 			loadattempted = true;
 			loaded = false;
 			string icupath,sufstr;
+			startup_errors.append("load attempted; ");
 			if (Environment::getbenv("OBYX_LIBICUDIR",icupath)) {
 				if (*icupath.rbegin() != '/') icupath.push_back('/');
+				startup_errors.append("OBYX_LIBICUDIR:");
+				startup_errors.append(icupath);
 			}
 			Environment::getbenv("OBYX_LIBICUVS",sufstr);
 			string i18nstr = SO(icupath,libicui18n); i18n = dlopen(i18nstr.c_str(),RTLD_GLOBAL | RTLD_NOW); dlerr(errors);
 			string ucstr = SO(icupath,libicuuc);   	 uc = dlopen(ucstr.c_str(),RTLD_GLOBAL | RTLD_NOW); dlerr(errors);
 			string tustr = SO(icupath,libicutu);   	 tu = dlopen(tustr.c_str(),RTLD_GLOBAL | RTLD_NOW); dlerr(errors);
+			
+			
 			
 			if (errors.empty() && uc != nullptr && i18n != nullptr && tu != nullptr) {
 				string init="u_init"+sufstr;
