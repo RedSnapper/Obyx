@@ -68,7 +68,7 @@ namespace String {
 			startup_messages="";
 			loadattempted = true;
 			loaded = false;
-			string icupath,sufstr;
+			string icupath="",sufstr="";
 			startup_messages.append("load attempted; ");
 			if (Environment::getbenv("OBYX_LIBICUDIR",icupath)) {
 				if (*icupath.rbegin() != '/') icupath.push_back('/');
