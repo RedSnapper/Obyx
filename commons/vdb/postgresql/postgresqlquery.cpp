@@ -86,13 +86,13 @@ namespace Vdb {
 			case PGRES_NONFATAL_ERROR:{ /* empty query! */
 				errstring = s->PQerrorMessage(connectionHandle);
 				if (errstring.empty()) {
-					errstring = "An unknown non-fatal error occured.";
+					errstring = "An unknown non-fatal error occurred.";
 				}
 			} break;
 			case PGRES_FATAL_ERROR:{ /* empty query! */
 				errstring = s->PQerrorMessage(connectionHandle);
 				if (errstring.empty()) {
-					errstring = "An unknown fatal error occured.";
+					errstring = "An unknown fatal error occurred.";
 				}
 			} break;
 		}

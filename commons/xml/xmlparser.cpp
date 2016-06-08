@@ -335,7 +335,7 @@ namespace XML {
 				*Logger::log << error << Log::LI << "Error during parsing memory stream. Exception message is:" << Log::br << err_message << "\n" << Log::LO << Log::blockend;
 			}
 			catch ( ... ) {
-				*Logger::log << error << Log::LI << "Some load error occured with an xml file of length " << (unsigned int)xmlfile.size() << Log::LO << Log::blockend;
+				*Logger::log << error << Log::LI << "Some load error occurred with an xml file of length " << (unsigned int)xmlfile.size() << Log::LO << Log::blockend;
 			}
 			if ( errorHandler->hadErrors() ) {	
 				*Logger::log << error << Log::LI << "Text that failed parse" << Log::LO << Log::LI << xmlfile << Log::LO << Log::blockend;
@@ -390,7 +390,7 @@ namespace XML {
 				rslt = parser->parse(input);
 			}
 			catch ( ... ) {
-				*Logger::log << error << Log::LI << "Some load error occured with an xml file of length " << (unsigned int)xmlfile.size() << Log::LO << Log::blockend;
+				*Logger::log << error << Log::LI << "Some load error occurred with an xml file of length " << (unsigned int)xmlfile.size() << Log::LO << Log::blockend;
 			}
 			if ( errorHandler->hadErrors() ) {	
 				string exml_file;
@@ -815,7 +815,7 @@ namespace XML {
 			*Logger::log << error << Log::LI << "Error during parsing memory stream. Exception message is:" << Log::br << err_message << "\n" << Log::LO << Log::blockend;
 		}
 		catch ( ... ) {
-			*Logger::log << error << Log::LI << "Some XML Document load error occured with the uri " << uri << Log::LO << Log::blockend;
+			*Logger::log << error << Log::LI << "Some XML Document load error occurred with the uri " << uri << Log::LO << Log::blockend;
 		}
 		if ( errorHandler->hadErrors() ) {		
 			*Logger::log << error << Log::LI << "XML Document will be empty." << Log::LO << Log::blockend;

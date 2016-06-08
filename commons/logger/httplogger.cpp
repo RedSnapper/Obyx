@@ -105,7 +105,7 @@ void HTTPLogger::ltop(string& container,bool do_bits,bool do_tiny) {		//top log 
 		if (Environment::getbenvtf("OBYX_USING_XHTML5")) {
 			container="<!DOCTYPE div><div xmlns=\"http://www.w3.org/1999/xhtml\" >";
 			if (!should_report()) {
-				container.append("<h3>An internal error has occured.</h3>");
+				container.append("<h3>An internal error has occurred.</h3>");
 				if(syslogging) {
 					container.append("<h4>We have been notified and will be fixing it as soon as possible.</h4>");
 				}
@@ -160,7 +160,7 @@ void HTTPLogger::ltop(string& container,bool do_bits,bool do_tiny) {		//top log 
 			container.append("</head><body>");
 		}
 		if (!should_report()) {
-			container.append("<h1>An internal error has occured.</h1>");
+			container.append("<h1>An internal error has occurred.</h1>");
 			if(syslogging) {
 				container.append("<h3>We have been notified and will be fixing it as soon as possible.</h3>");
 			}
