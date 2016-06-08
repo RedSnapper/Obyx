@@ -146,7 +146,7 @@ void startup(std::string& version,std::string& v_number,int argc,char** argv) {
 	Logger::startup(version);							//Logger
 	XMLChar::startup();									//Used By LOGGER.
 #ifndef DISALLOW_ICU
-	String::TransliterationService::startup(errs);
+	String::TransliterationService::startup();
 #endif
 	String::Deflate::startup(errs);						//need to start up for mysql etc.
 	Vdb::ServiceFactory::startup();
