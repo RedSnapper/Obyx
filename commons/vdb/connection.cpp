@@ -49,6 +49,9 @@ namespace Vdb {
 			}
 		} else {
 			retval = open( filename );
+			if (retval) {
+				retval = database(Environment::Database());
+			}
 		}
 		return retval;
 	}

@@ -59,10 +59,8 @@ namespace Vdb {
 					string errorMessage = s->error(connectionHandle);
 					*Logger::log << Log::fatal << Log::LI << "MySQLConnection error:: Connection failed with '" << errorMessage << "'" << Log::LO << Log::blockend;
 					conn_open = false;
-					db_open = false;
 				} else {
 					conn_open = true;
-					db_open = true;
 				}
 			} else {
 				*Logger::log << Log::fatal << Log::LI << "MySQLConnection error: Possibly file '" << file << " is not valid or not found." << Log::LO << Log::blockend;
