@@ -56,7 +56,7 @@ void finalise();
 void shutdown();
 
 int main(int argc, char *argv[]) {
-	string v_number = "1.160608"; //Do NOT put the v here!
+	string v_number = "1.161124"; //Do NOT put the v here!
 #ifdef FAST
 #ifdef PROFILING
 	int  profilecount = 40;
@@ -146,7 +146,7 @@ void startup(std::string& version,std::string& v_number,int argc,char** argv) {
 	Logger::startup(version);							//Logger
 	XMLChar::startup();									//Used By LOGGER.
 #ifndef DISALLOW_ICU
-	String::TransliterationService::startup();
+	String::TransliterationService::startup();			//OBYX_LIBICUVS is only available via DefaultInitEnv at this point.
 #endif
 	String::Deflate::startup(errs);						//need to start up for mysql etc.
 	Vdb::ServiceFactory::startup();
