@@ -80,7 +80,7 @@ namespace String {
 			string ucstr = SO(icupath,libicuuc);   	 uc = dlopen(ucstr.c_str(),RTLD_GLOBAL | RTLD_NOW); dlerr(errors);
 			string tustr = SO(icupath,libicutu);   	 tu = dlopen(tustr.c_str(),RTLD_GLOBAL | RTLD_NOW); dlerr(errors);
 			
-			
+			sufstr="_52"; //Hardcoded temporarily.
 			
 			if (errors.empty() && uc != nullptr && i18n != nullptr && tu != nullptr) {
 				string init="u_init"+sufstr;
