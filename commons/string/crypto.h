@@ -33,7 +33,6 @@ namespace String {
 	class Deflate {
 	private:
 		static void* lib_handle;
-		static void* crp_handle;
 		static bool loadattempted;	//used to show if the service is up or down.
 		static bool loaded;			//used to show if the service is up or down.
 		static void dlerr(string&);
@@ -65,6 +64,7 @@ namespace String {
 
 	class Digest {
 	private:
+		static void* crp_handle;
 		static void* lib_handle;
 		static bool loadattempted;	//used to show if the service is up or down.
 		static bool loaded;			//used to show if the service is up or down.
