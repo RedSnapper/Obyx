@@ -33,6 +33,7 @@ namespace String {
 	class Deflate {
 	private:
 		static void* lib_handle;
+		static void* crp_handle;
 		static bool loadattempted;	//used to show if the service is up or down.
 		static bool loaded;			//used to show if the service is up or down.
 		static void dlerr(string&);
@@ -67,8 +68,8 @@ namespace String {
 		static void* lib_handle;
 		static bool loadattempted;	//used to show if the service is up or down.
 		static bool loaded;			//used to show if the service is up or down.
-		
-		static void (*OpenSSL_add_all_digests)(void);
+	
+		static int (*OPENSSL_init_crypto)(ulong, void*);
 		static EVP_MD_CTX* (*EVP_MD_CTX_create)(void);
 		static void (*EVP_MD_CTX_destroy)(EVP_MD_CTX*);
 		static const EVP_MD* (*EVP_get_digestbyname)(const char*);
