@@ -32,6 +32,7 @@ namespace String {
 	bool Digest::loadattempted = false;
 	bool Digest::loaded = false;
 	void* Digest::lib_handle = nullptr;
+	void* Digest::crp_handle = NULL;
 	EVP_MD_CTX* Digest::context = nullptr;
 	const EVP_MD* Digest::md[16] = {nullptr,nullptr,nullptr,nullptr,nullptr, nullptr,nullptr,nullptr,nullptr,nullptr, nullptr,nullptr,nullptr,nullptr,nullptr, nullptr};
 	
@@ -66,17 +67,18 @@ namespace String {
 		if ( ! loadattempted ) {
 			loadattempted = true;
 			loaded = false;
-			string libdir,libstr;
-			if (!Environment::getbenv("OBYX_LIBSSLSO",libstr)) { 	//legacy method
-				if (Environment::getbenv("OBYX_LIBSSLDIR",libdir)) {
-					if (!libdir.empty() && *libdir.rbegin() != '/') libdir.push_back('/');
-				}
-				libstr = SO(libdir,libssl);
-			}
+#ifdef __MACH__
+			string libstr = "libssl.dylib";
+			string crpstr = "libcrypto.dylib";
+#else
+			string libstr = "libssl.so";
+			string crpstr = "libcrypto.so";
+#endif
 			lib_handle = dlopen(libstr.c_str(),RTLD_GLOBAL | RTLD_NOW);
+			crp_handle = dlopen(crpstr.c_str(),RTLD_GLOBAL | RTLD_NOW);
 			dlerr(errors); //debug only.
 			if (errors.empty() && lib_handle != nullptr ) {
-				OpenSSL_add_all_digests	=(void (*)(void)) dlsym(lib_handle,"OpenSSL_add_all_digests"); dlerr(errors);
+				OPENSSL_init_crypto	=(int (*)(ulong, void*)) dlsym(crp_handle,"OPENSSL_init_crypto"); dlerr(errors);
 				EVP_MD_CTX_create		=(EVP_MD_CTX* (*)(void)) dlsym(lib_handle,"EVP_MD_CTX_new"); dlerr(errors);
 				EVP_MD_CTX_destroy		=(void (*)(EVP_MD_CTX*)) dlsym(lib_handle,"EVP_MD_CTX_free"); dlerr(errors);
 				EVP_get_digestbyname	=(const EVP_MD* (*)(const char*)) dlsym(lib_handle,"EVP_get_digestbyname"); dlerr(errors);
@@ -89,7 +91,7 @@ namespace String {
 				
 				if ( errors.empty() ) {
 					loaded = true;
-					OpenSSL_add_all_digests();
+					OPENSSL_init_crypto(0x00000008L, null);
 					context = EVP_MD_CTX_create();
 					md[0] = EVP_get_digestbyname("md2");
 					md[1] = EVP_get_digestbyname("md4");
@@ -120,6 +122,9 @@ namespace String {
 		}
 		if ( lib_handle != nullptr ) {
 			dlclose(lib_handle);
+		}
+		if ( crp_handle != NULL ) {
+			dlclose(crp_handle);
 		}
 		return true;
 	}
