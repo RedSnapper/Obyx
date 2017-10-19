@@ -77,8 +77,8 @@ namespace String {
 			dlerr(errors); //debug only.
 			if (errors.empty() && lib_handle != nullptr ) {
 				OpenSSL_add_all_digests	=(void (*)(void)) dlsym(lib_handle,"OpenSSL_add_all_digests"); dlerr(errors);
-				EVP_MD_CTX_create		=(EVP_MD_CTX* (*)(void)) dlsym(lib_handle,"EVP_MD_CTX_create"); dlerr(errors);
-				EVP_MD_CTX_destroy		=(void (*)(EVP_MD_CTX*)) dlsym(lib_handle,"EVP_MD_CTX_destroy"); dlerr(errors);
+				EVP_MD_CTX_create		=(EVP_MD_CTX* (*)(void)) dlsym(lib_handle,"EVP_MD_CTX_new"); dlerr(errors);
+				EVP_MD_CTX_destroy		=(void (*)(EVP_MD_CTX*)) dlsym(lib_handle,"EVP_MD_CTX_free"); dlerr(errors);
 				EVP_get_digestbyname	=(const EVP_MD* (*)(const char*)) dlsym(lib_handle,"EVP_get_digestbyname"); dlerr(errors);
 				EVP_DigestInit_ex		=(int (*)(EVP_MD_CTX*,const EVP_MD*,ENGINE*)) dlsym(lib_handle,"EVP_DigestInit_ex"); dlerr(errors);
 				EVP_DigestUpdate		=(int (*)(EVP_MD_CTX*,const void*,size_t)) dlsym(lib_handle,"EVP_DigestUpdate"); dlerr(errors);
@@ -100,9 +100,8 @@ namespace String {
 					md[6] = EVP_get_digestbyname("sha256");
 					md[7] = EVP_get_digestbyname("sha384");
 					md[8] = EVP_get_digestbyname("sha512");
-					md[9] = EVP_get_digestbyname("dss1");
-					md[10] = EVP_get_digestbyname("mdc2");
-					md[11] = EVP_get_digestbyname("ripemd160");
+					md[9] = EVP_get_digestbyname("mdc2");
+					md[10] = EVP_get_digestbyname("ripemd160");
 
 					unsigned char *ibuff = new unsigned char[16];
 					RAND_pseudo_bytes(ibuff,16); //err = 1 on SUCCESS.
@@ -138,9 +137,8 @@ namespace String {
 			case sha256: { d_touse=md[6];} break;
 			case sha384: { d_touse=md[7];} break;
 			case sha512: { d_touse=md[8];} break;
-			case dss1: { d_touse=md[9];} break;
-			case mdc2: { d_touse=md[10];} break;
-			case ripemd160: { d_touse=md[11];} break;
+			case mdc2: { d_touse=md[9];} break;
+			case ripemd160: { d_touse=md[10];} break;
 		}
 		EVP_DigestInit_ex(context, d_touse, nullptr);
 		EVP_DigestUpdate(context,basis.c_str(),basis.size());
@@ -162,9 +160,8 @@ namespace String {
 			case sha256: { d_touse=md[6];} break;
 			case sha384: { d_touse=md[7];} break;
 			case sha512: { d_touse=md[8];} break;
-			case dss1: { d_touse=md[9];} break;
-			case mdc2: { d_touse=md[10];} break;
-			case ripemd160: { d_touse=md[11];} break;
+			case mdc2: { d_touse=md[9];} break;
+			case ripemd160: { d_touse=md[10];} break;
 		}
 		const unsigned char* dataptr = (const unsigned char*)data.c_str();
 		HMAC(d_touse,key.c_str(),(int)key.length(),dataptr,(int)data.length(),md_value,&md_len);	
