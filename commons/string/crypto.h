@@ -87,7 +87,7 @@ namespace String {
 		static void dlerr(string&);
 		
 	public:
-		typedef enum {md2,md4,md5,sha,sha1,sha224,sha256,sha384,sha512,dss1,mdc2,ripemd160} digest;	//cookie_expiry,cookie_path,cookie_domain -- cannot be retrieved from server.. 
+		typedef enum {md2,md4,md5,sha,sha1,sha224,sha256,sha384,sha512,mdc2,ripemd160} digest;	//cookie_expiry,cookie_path,cookie_domain -- cannot be retrieved from server.. 
 		static bool startup(string&);
 		static bool available(string&);
 		static bool shutdown();
