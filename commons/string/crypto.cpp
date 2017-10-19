@@ -35,8 +35,7 @@ namespace String {
 	void* Digest::crp_handle = nullptr;
 	EVP_MD_CTX* Digest::context = nullptr;
 	const EVP_MD* Digest::md[16] = {nullptr,nullptr,nullptr,nullptr,nullptr, nullptr,nullptr,nullptr,nullptr,nullptr, nullptr,nullptr,nullptr,nullptr,nullptr, nullptr};
-	
-	void (*Digest::OpenSSL_add_all_digests)(void) = nullptr;
+	int (*Digest::OPENSSL_init_crypto)(ulong, void*) = NULL;
 	EVP_MD_CTX* (*Digest::EVP_MD_CTX_create)(void) = nullptr;
 	void (*Digest::EVP_MD_CTX_destroy)(EVP_MD_CTX*) = nullptr;
 	const EVP_MD* (*Digest::EVP_get_digestbyname)(const char*) = nullptr;
