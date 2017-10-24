@@ -70,8 +70,8 @@ namespace String {
 		static bool loaded;			//used to show if the service is up or down.
 	
 		static int (*OPENSSL_init_crypto)(uint64_t, void*);
-		static EVP_MD_CTX* (*EVP_MD_CTX_create)(void);
-		static void (*EVP_MD_CTX_destroy)(EVP_MD_CTX*);
+		static EVP_MD_CTX* (*EVP_MD_CTX_new)(void);
+		static void (*EVP_MD_CTX_free)(EVP_MD_CTX*);
 		static const EVP_MD* (*EVP_get_digestbyname)(const char*);
 		static int (*EVP_DigestInit_ex)(EVP_MD_CTX*, const EVP_MD*,ENGINE*);
 		static int (*EVP_DigestUpdate)(EVP_MD_CTX*, const void *,size_t);
