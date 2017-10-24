@@ -35,7 +35,7 @@ namespace String {
 	void* Digest::crp_handle = nullptr;
 	EVP_MD_CTX* Digest::context = nullptr;
 	const EVP_MD* Digest::md[16] = {nullptr,nullptr,nullptr,nullptr,nullptr, nullptr,nullptr,nullptr,nullptr,nullptr, nullptr,nullptr,nullptr,nullptr,nullptr, nullptr};
-	int (*Digest::OPENSSL_init_crypto)(ulong, void*) = NULL;
+	int (*Digest::OPENSSL_init_crypto)(uint64_t, void*) = NULL;
 	EVP_MD_CTX* (*Digest::EVP_MD_CTX_create)(void) = nullptr;
 	void (*Digest::EVP_MD_CTX_destroy)(EVP_MD_CTX*) = nullptr;
 	const EVP_MD* (*Digest::EVP_get_digestbyname)(const char*) = nullptr;
@@ -76,17 +76,17 @@ namespace String {
 			lib_handle = dlopen(libstr.c_str(),RTLD_GLOBAL | RTLD_NOW);
 			crp_handle = dlopen(crpstr.c_str(),RTLD_GLOBAL | RTLD_NOW);
 			dlerr(errors); //debug only.
-			if (errors.empty() && lib_handle != nullptr ) {
-				OPENSSL_init_crypto	=(int (*)(ulong, void*)) dlsym(crp_handle,"OPENSSL_init_crypto"); dlerr(errors);
-				EVP_MD_CTX_create		=(EVP_MD_CTX* (*)(void)) dlsym(lib_handle,"EVP_MD_CTX_new"); dlerr(errors);
-				EVP_MD_CTX_destroy		=(void (*)(EVP_MD_CTX*)) dlsym(lib_handle,"EVP_MD_CTX_free"); dlerr(errors);
-				EVP_get_digestbyname	=(const EVP_MD* (*)(const char*)) dlsym(lib_handle,"EVP_get_digestbyname"); dlerr(errors);
-				EVP_DigestInit_ex		=(int (*)(EVP_MD_CTX*,const EVP_MD*,ENGINE*)) dlsym(lib_handle,"EVP_DigestInit_ex"); dlerr(errors);
-				EVP_DigestUpdate		=(int (*)(EVP_MD_CTX*,const void*,size_t)) dlsym(lib_handle,"EVP_DigestUpdate"); dlerr(errors);
-				EVP_DigestFinal_ex		=(int (*)(EVP_MD_CTX*,unsigned char*,unsigned int*)) dlsym(lib_handle,"EVP_DigestFinal_ex"); dlerr(errors);
-				RAND_bytes				=(int (*)(unsigned char*,int)) dlsym(lib_handle,"RAND_bytes"); dlerr(errors);
-				RAND_pseudo_bytes		=(int (*)(unsigned char*,int)) dlsym(lib_handle,"RAND_pseudo_bytes"); dlerr(errors);
-				HMAC					=(unsigned char* (*)(const EVP_MD*,const void*,int,const unsigned char*,int,unsigned char*,unsigned int*)) dlsym(lib_handle,"HMAC"); dlerr(errors);
+			if (errors.empty() && lib_handle != nullptr && crp_handle != nullptr) {
+				OPENSSL_init_crypto	=(int (*)(uint64_t, void*)) dlsym(crp_handle,"OPENSSL_init_crypto"); dlerr(errors);
+				EVP_MD_CTX_create		=(EVP_MD_CTX* (*)(void)) dlsym(crp_handle,"EVP_MD_CTX_new"); dlerr(errors);
+				EVP_MD_CTX_destroy		=(void (*)(EVP_MD_CTX*)) dlsym(crp_handle,"EVP_MD_CTX_free"); dlerr(errors);
+				EVP_get_digestbyname	=(const EVP_MD* (*)(const char*)) dlsym(crp_handle,"EVP_get_digestbyname"); dlerr(errors);
+				EVP_DigestInit_ex		=(int (*)(EVP_MD_CTX*,const EVP_MD*,ENGINE*)) dlsym(crp_handle,"EVP_DigestInit_ex"); dlerr(errors);
+				EVP_DigestUpdate		=(int (*)(EVP_MD_CTX*,const void*,size_t)) dlsym(crp_handle,"EVP_DigestUpdate"); dlerr(errors);
+				EVP_DigestFinal_ex		=(int (*)(EVP_MD_CTX*,unsigned char*,unsigned int*)) dlsym(crp_handle,"EVP_DigestFinal_ex"); dlerr(errors);
+				RAND_bytes					=(int (*)(unsigned char*,int)) dlsym(crp_handle,"RAND_bytes"); dlerr(errors);
+				RAND_pseudo_bytes		=(int (*)(unsigned char*,int)) dlsym(crp_handle,"RAND_pseudo_bytes"); dlerr(errors);
+				HMAC							=(unsigned char* (*)(const EVP_MD*,const void*,int,const unsigned char*,int,unsigned char*,unsigned int*)) dlsym(crp_handle,"HMAC"); dlerr(errors);
 				
 				if ( errors.empty() ) {
 					loaded = true;

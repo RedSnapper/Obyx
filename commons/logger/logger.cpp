@@ -41,7 +41,7 @@ using namespace Log;
 
 Logger*					Logger::log = nullptr;
 string					Logger::title="Logger";
-bool 					Logger::debugflag = false;
+bool 						Logger::debugflag = false;
 //size_t				Logger::logdepth = 0;
 
 //startup identifies if we are outputting as a cgi script or as a commandline utility.

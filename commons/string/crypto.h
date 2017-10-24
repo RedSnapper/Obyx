@@ -69,7 +69,7 @@ namespace String {
 		static bool loadattempted;	//used to show if the service is up or down.
 		static bool loaded;			//used to show if the service is up or down.
 	
-		static int (*OPENSSL_init_crypto)(ulong, void*);
+		static int (*OPENSSL_init_crypto)(uint64_t, void*);
 		static EVP_MD_CTX* (*EVP_MD_CTX_create)(void);
 		static void (*EVP_MD_CTX_destroy)(EVP_MD_CTX*);
 		static const EVP_MD* (*EVP_get_digestbyname)(const char*);
