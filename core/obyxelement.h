@@ -40,7 +40,7 @@ namespace obyx {
 	typedef enum { encode,decode } process_t;	//what sort of process
 	typedef enum { any,all } logic_t;	//what sort of scope (comparison)
 	
-	typedef enum { e_10to16,e_ascii,e_base64,e_base64S,e_btwoc,e_csv,e_deflate,e_digits,e_dss1,e_hex,e_json,e_md5,e_mdc2,e_message,e_name,e_none,e_qp,e_ripemd160,e_secret,e_sha1,e_sha224,e_sha256,e_sha384,e_sha512,e_sphinx,e_sql,e_url,e_xml,e_xpath_lit } enc_type;	//
+	typedef enum { e_10to16,e_ascii,e_base64,e_base64S,e_btwoc,e_csv,e_deflate,e_digits,e_hex,e_json,e_md5,e_mdc2,e_message,e_name,e_none,e_qp,e_ripemd160,e_secret,e_sha1,e_sha224,e_sha256,e_sha384,e_sha512,e_sphinx,e_sql,e_url,e_xml,e_xpath_lit } enc_type;	//
 	typedef std::map<u_str, enc_type > enc_type_map; 
 	
 	typedef enum { flowfunction,parm,defparm,other } elemclass;	//what sort of object

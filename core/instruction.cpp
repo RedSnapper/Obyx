@@ -752,12 +752,11 @@ bool Instruction::evaluate_this() {
 								case e_sha256: String::Digest::hmac(String::Digest::sha256,special,accumulator,result); break;
 								case e_sha384: String::Digest::hmac(String::Digest::sha384,special,accumulator,result); break;
 								case e_sha512:  String::Digest::hmac(String::Digest::sha512,special,accumulator,result); break;
-								case e_dss1:  String::Digest::hmac(String::Digest::dss1,special,accumulator,result); break;
 								case e_mdc2:  String::Digest::hmac(String::Digest::mdc2,special,accumulator,result); break;
 								case e_ripemd160:  String::Digest::hmac(String::Digest::ripemd160,special,accumulator,result); break;
 								case e_md5:  String::Digest::hmac(String::Digest::md5,special,accumulator,result); break;
 								default: {
-									*Logger::log << Log::error << Log::LI << "Error. Operation 'hmac' expects sha1,sha224,sha256,sha384,sha512,dss1,mdc2,ripemd160 or md5 in it's first parameter." << Log::LO;
+									*Logger::log << Log::error << Log::LI << "Error. Operation 'hmac' expects sha1,sha224,sha256,sha384,sha512,mdc2,ripemd160 or md5 in it's first parameter." << Log::LO;
 									trace();
 									*Logger::log << Log::blockend;
 								} break;
