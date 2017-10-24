@@ -137,7 +137,6 @@ IKO::IKO(xercesc::DOMNode* const& n,ObyxElement* par, elemtype el) : ObyxElement
 				case e_name:
 				case e_md5:
 				case e_sha1:
-				case e_dss1:
 				case e_mdc2:
 				case e_ripemd160:
 				case e_secret:
@@ -678,13 +677,6 @@ void IKO::process_encoding(DataItem*& basis) {
 			case e_sha512: {
 				if (String::Digest::available(errs)) {
 					String::Digest::do_digest(String::Digest::sha512,encoded);
-					String::tohex(encoded);
-					basis = DataItem::factory(encoded,di_text); //cannot be xml.
-				}
-			} break;
-			case e_dss1: {
-				if (String::Digest::available(errs)) {
-					String::Digest::do_digest(String::Digest::dss1,encoded);
 					String::tohex(encoded);
 					basis = DataItem::factory(encoded,di_text); //cannot be xml.
 				}
@@ -1280,7 +1272,6 @@ bool IKO::valuefromspace(u_str& input_name,const inp_space the_space,const bool 
 				case e_sha384:
 				case e_sha256:
 				case e_sha512:
-				case e_dss1:
 				case e_mdc2:
 				case e_ripemd160:
 				case e_secret:
@@ -1574,7 +1565,6 @@ void IKO::startup() {
 	enc_types.insert(enc_type_map::value_type(u"sha256", e_sha256));
 	enc_types.insert(enc_type_map::value_type(u"sha384", e_sha384));
 	enc_types.insert(enc_type_map::value_type(u"sha512", e_sha512));
-	enc_types.insert(enc_type_map::value_type(u"dss1", e_dss1));
 	enc_types.insert(enc_type_map::value_type(u"mdc2", e_mdc2));
 	enc_types.insert(enc_type_map::value_type(u"ripemd160", e_ripemd160));
 	enc_types.insert(enc_type_map::value_type(u"secret", e_secret));

@@ -328,7 +328,6 @@
 					<xs:enumeration value="sha256"/>
 					<xs:enumeration value="sha384"/>
 					<xs:enumeration value="sha512"/>
-					<xs:enumeration value="dss1"/>
 					<xs:enumeration value="mdc2"/>
 					<xs:enumeration value="ripemd160"/>
 					<xs:enumeration value="secret"/>
