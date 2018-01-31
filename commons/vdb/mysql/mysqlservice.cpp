@@ -48,7 +48,7 @@ namespace Vdb {
 	
 	MySQLService::MySQLService(bool fatal_necessity) : 
 	Service(),mysql_lib_handle(nullptr),serviceHandle(nullptr),
-	library_init(nullptr),library_end(nullptr),select_db(nullptr),close(nullptr),data_seek(nullptr),my_errno(nullptr),error(nullptr),
+	library_init(nullptr),library_end(nullptr),select_db(nullptr),reset_connection(nullptr),close(nullptr),data_seek(nullptr),my_errno(nullptr),error(nullptr),
 	fetch_field_direct(nullptr),
 	fetch_lengths(nullptr),fetch_row(nullptr),free_result(nullptr),init(nullptr),insert_id(nullptr),list_fields(nullptr),
 	list_tables(nullptr),num_fields(nullptr),num_rows(nullptr),options(nullptr),real_connect(nullptr),real_escape_string(nullptr),
@@ -67,6 +67,7 @@ namespace Vdb {
 				library_init = (int (*)(int, char **,char **)) dlsym(mysql_lib_handle,"mysql_server_init");
 				library_end = (void (*)()) dlsym(mysql_lib_handle,"mysql_server_end");
 				select_db = (int (*)(MYSQL*, const char*)) dlsym(mysql_lib_handle,"mysql_select_db");
+				reset_connection = (int mysql_reset_connection(MYSQL*)) dlsym(mysql_lib_handle,"mysql_reset_connection");
 				close = (void (*)(MYSQL*)) dlsym(mysql_lib_handle,"mysql_close");
 				data_seek = (void (*)(MYSQL_RES*,my_ulonglong)) dlsym(mysql_lib_handle,"mysql_data_seek");
 				my_errno = (unsigned int (*)(MYSQL*)) dlsym(mysql_lib_handle,"mysql_errno");

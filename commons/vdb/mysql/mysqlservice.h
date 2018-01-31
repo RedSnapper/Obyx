@@ -63,6 +63,7 @@ private:
 		void (*library_end)();
 		int (*select_db)(MYSQL*, const char*);
 		void (*close)(MYSQL*);
+		int (*mysql_reset_connection)(MYSQL*);
 		void (*data_seek)(MYSQL_RES*,my_ulonglong);
 		unsigned int (*my_errno)(MYSQL*);  //errno will be expanded as a macro from sys under some compilers.
 		const char* (*error)(MYSQL*);
