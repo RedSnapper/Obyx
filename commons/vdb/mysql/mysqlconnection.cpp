@@ -57,7 +57,7 @@ namespace Vdb {
 			if (connectionHandle != nullptr) {
 				//				s->reset_connection(connectionHandle);
 				s->close(connectionHandle);
-				connectionHandle = nullptr;
+				connectionHandle = s->init(nullptr);
 			}
 			if (s->options(connectionHandle,MYSQL_READ_DEFAULT_FILE,file.c_str()) == 0) {
 				thost = file;
