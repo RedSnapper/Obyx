@@ -54,7 +54,7 @@ namespace Vdb {
 	
 	bool MySQLConnection::open(const std::string& file) { //use a config file
 		if ( ! isopen() ) {
-			if (connectionHandle !== nullptr) {
+			if (connectionHandle != nullptr) {
 				s->reset_connection(connectionHandle);
 			}
 			if (s->options(connectionHandle,MYSQL_READ_DEFAULT_FILE,file.c_str()) == 0) {
