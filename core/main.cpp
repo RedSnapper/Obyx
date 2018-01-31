@@ -149,7 +149,7 @@ void startup(std::string& version,std::string& v_number,int argc,char** argv) {
 	String::TransliterationService::startup();			//OBYX_LIBICUVS is only available via DefaultInitEnv at this point.
 #endif
 	String::Deflate::startup(errs);						//need to start up for mysql etc.
-	Vdb::ServiceFactory::startup();
+//	Vdb::ServiceFactory::startup();
 #ifdef FAST
 	Fast::startup();
 #endif
@@ -175,6 +175,7 @@ void init(ostream*& f_out,int argc,char** argv,char** env) {
 	Environment::init(argc,argv,env);	//
 	Environment* e = Environment::service();
 	ostream* os = Logger::init(f_out);	//Instance Logger
+	Vdb::ServiceFactory::startup();
 	Httphead::init(os);					//Instance head
 	e->initwlogger();					//Continue environment load.
 	XML::Manager::init(); 				//sets validation for instance.
@@ -196,6 +197,8 @@ void finalise() {
 	Logger::finalise();
 	Httphead::finalise();
 	Environment::finalise();
+	Vdb::ServiceFactory::shutdown();	//Remove the database service
+
 }
 void shutdown() {
 	ItemStore::shutdown();
@@ -216,7 +219,7 @@ void shutdown() {
 #ifdef FAST
 	Fast::shutdown();
 #endif
-	Vdb::ServiceFactory::shutdown();	//Remove the database service
+//	Vdb::ServiceFactory::shutdown();	//Remove the database service
 	String::Deflate::shutdown();
 #ifndef DISALLOW_ICU
 	String::TransliterationService::shutdown();
