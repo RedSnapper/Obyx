@@ -55,7 +55,9 @@ namespace Vdb {
 	bool MySQLConnection::open(const std::string& file) { //use a config file
 		if ( ! isopen() ) {
 			if (connectionHandle != nullptr) {
-				s->reset_connection(connectionHandle);
+				//				s->reset_connection(connectionHandle);
+				s->close(connectionHandle);
+				connectionHandle = nullptr;
 			}
 			if (s->options(connectionHandle,MYSQL_READ_DEFAULT_FILE,file.c_str()) == 0) {
 				thost = file;
@@ -79,6 +81,9 @@ namespace Vdb {
 
 	bool MySQLConnection::open(const std::string& host, const std::string& user, const unsigned int port,const std::string& password) {
 		if ( ! isopen() ) {
+			if (connectionHandle != nullptr) {
+				s->reset_connection(connectionHandle);
+			}
 			const char* tsocket = nullptr;
 			thost = host;
 			tuser = user;
