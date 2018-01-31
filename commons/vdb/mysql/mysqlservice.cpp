@@ -67,7 +67,7 @@ namespace Vdb {
 				library_init = (int (*)(int, char **,char **)) dlsym(mysql_lib_handle,"mysql_server_init");
 				library_end = (void (*)()) dlsym(mysql_lib_handle,"mysql_server_end");
 				select_db = (int (*)(MYSQL*, const char*)) dlsym(mysql_lib_handle,"mysql_select_db");
-				reset_connection = (int mysql_reset_connection(MYSQL*)) dlsym(mysql_lib_handle,"mysql_reset_connection");
+				reset_connection = (int (*)(MYSQL*)) dlsym(mysql_lib_handle,"mysql_reset_connection");
 				close = (void (*)(MYSQL*)) dlsym(mysql_lib_handle,"mysql_close");
 				data_seek = (void (*)(MYSQL_RES*,my_ulonglong)) dlsym(mysql_lib_handle,"mysql_data_seek");
 				my_errno = (unsigned int (*)(MYSQL*)) dlsym(mysql_lib_handle,"mysql_errno");

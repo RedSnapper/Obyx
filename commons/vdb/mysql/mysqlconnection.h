@@ -57,7 +57,7 @@ public:
 		virtual Query* query(std::string = "");
 		virtual bool query(Query*&,std::string = "");
 		virtual void escape(std::string&);
-		virtual void close();                            
+		virtual void close();
 		virtual void list();                            
 		MySQLConnection(MySQLService*);
 		virtual ~MySQLConnection();
