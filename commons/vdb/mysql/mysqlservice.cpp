@@ -60,7 +60,7 @@ namespace Vdb {
 				if (Environment::getbenv("OBYX_LIBMYSQLDIR",libdir)) {
 					if (!libdir.empty() && *libdir.rbegin() != '/') libdir.push_back('/');
 				}
-				libname = SO(libdir,libmysqlclient_r);
+				libname = SO(libdir,libmysqlclient);
 			}
 			mysql_lib_handle = dlopen(libname.c_str(),RTLD_LAZY);
 			if (mysql_lib_handle != nullptr ) {

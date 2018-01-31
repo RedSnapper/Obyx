@@ -17,6 +17,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 ------------------------------------------------------------------------------------
 CHANGELOG file
+v1.180131		Enh.  libmysqlclient_r => libmysqlclient
 v1.171024		Enh.	Removed support for dss1.
 v1.150909		Bug.	Modified mailer. didn't update changelog.
 v1.150811		Enh.	Adding in Node as a header on fatals.
