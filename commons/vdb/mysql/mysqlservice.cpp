@@ -149,9 +149,9 @@ namespace Vdb {
 	}
 	
 	Connection* MySQLService::instance() {
-		if (connection == nullptr) {
+//		if (connection == nullptr) {
 			connection = new MySQLConnection(this);
-		}
+//		}
 		return connection;
 	}
 	

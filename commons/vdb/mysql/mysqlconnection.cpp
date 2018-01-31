@@ -46,11 +46,11 @@ namespace Vdb {
 
 	MySQLConnection::~MySQLConnection() {
 		if (connectionHandle != nullptr) { 
-			s->reset_connection(connectionHandle);
+//			s->reset_connection(connectionHandle);
 			s->close(connectionHandle);
 			connectionHandle = nullptr;
 		}
-		s->library_end();
+//		s->library_end();
 	}
 	
 	bool MySQLConnection::open(const std::string& file) { //use a config file
@@ -201,7 +201,7 @@ namespace Vdb {
 	}
 	void MySQLConnection::close() {
 		if (conn_open && connectionHandle != nullptr) {
-			s->reset_connection(connectionHandle);
+//		s->reset_connection(connectionHandle);
 			s->close(connectionHandle);
 			connectionHandle = nullptr;
 			conn_open = false;
