@@ -44,6 +44,7 @@ namespace Vdb {
 private:
 		void * mysql_lib_handle;
 		MYSQL* serviceHandle;		//for services only. Use a separate connectionHandle for connections.
+		Connection* connection;
 		
 private:
 		MySQLService(const MySQLService&) {}		//not implemented.

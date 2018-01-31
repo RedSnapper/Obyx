@@ -136,6 +136,10 @@ namespace Vdb {
 	}
 	
 	MySQLService::~MySQLService() {
+		if (connection != nullptr) {
+			delete connection;
+			connection = nullptr;
+		}
 		if (serviceHandle != nullptr) {
 			close(serviceHandle);
 		}
@@ -145,7 +149,10 @@ namespace Vdb {
 	}
 	
 	Connection* MySQLService::instance() {
-		return new MySQLConnection(this);
+		if (connection == nullptr) {
+			connection = new MySQLConnection(this);
+		}
+		return connection;
 	}
 	
 }
