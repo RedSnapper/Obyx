@@ -401,6 +401,12 @@ string Environment::response_cookies(bool explaining) {
 						cookiestream << "; domain=" << (*it).second;
 					}
 				}
+				if (explaining) {
+					cookiestream << "<m:subhead name=\"extra\" value=\"SameSite=lax;HTTPOnly;Secure\"/>";
+				} else {
+					cookiestream << ";SameSite=lax;HTTPOnly;Secure";
+				}
+				
 				//do the path component - defaults to /
 				it = ck_path_map.find(imt->first);
 				if (explaining) {
@@ -413,6 +419,8 @@ string Environment::response_cookies(bool explaining) {
 					} else {
 						cookiestream << "; path=/";
 					}
+					
+
 				}
 				if (explaining) {
 					cookiestream << "</m:header>";
