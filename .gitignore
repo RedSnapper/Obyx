@@ -21,6 +21,8 @@ tool/node_modules/
 
 .git-ref
 deps/
+dep/
+obj/
 
 *.xccheckout
 *.xcworkspacedata
