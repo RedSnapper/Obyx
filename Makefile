@@ -24,8 +24,8 @@
 ###############################################################################
 # Also RPATH must have values -e.g.
 # RPATH=/var/www/bin
-#make ${RPATH}/obyx.cgi
-#Environment dependent settings (default is set for mysql)
+# make ${RPATH}/obyx.cgi or make ${RPATH}/obyx.fcgi
+# Environment dependent settings (default is set for mysql)
 CC_INCLUDES = -I/usr/include/mysql -I/usr/include/xercesc
 LIBDIRS     = -L/lib -L/usr/lib 
 CC_PATH     = /usr/bin/
