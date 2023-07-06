@@ -30,9 +30,10 @@
 using namespace std;
 //using namespace __gnu_cxx; //hashmap namespace.
 
-extern "C" {
-	typedef struct real_pcre pcre;
-}
+//extern "C" {
+//     typedef struct real_pcre8_or_16 pcre
+//     typedef struct real_pcre pcre;
+//}
 
 namespace String {
 	class Regex {
