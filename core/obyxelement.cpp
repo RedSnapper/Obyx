@@ -492,6 +492,7 @@ void ObyxElement::drop_sql_service() {
 }
 
 void ObyxElement::get_search_connection() {
+	return; // this is no longer supported (EOL).
 	if (dbs != nullptr)  {
 		scc = dbs->instance();
 		if (scc != nullptr) {
@@ -510,6 +511,7 @@ void ObyxElement::get_search_connection() {
 	}
 }
 void ObyxElement::drop_search_connection() {
+	return; // this is no longer supported (EOL).
 	Environment* env = Environment::service();
 	if (env != nullptr) {
 //		env->resetenv("OBYX_SEARCH_HOST");
@@ -585,11 +587,11 @@ void ObyxElement::shutdown() {
 	string tmp;
 	if (!Environment::getbenvtf("OBYX_SQLPER_REQUEST")) {
 		drop_sql_connection();
-		drop_search_connection();
+		// drop_search_connection();
 	}
 #else
 	drop_sql_connection();
-	drop_search_connection();
+	// drop_search_connection();
 #endif
 	drop_sql_service();
 	ntmap.clear();
@@ -600,7 +602,7 @@ void ObyxElement::startup() {
 	string tmp;
 	if (!Environment::getbenvtf("OBYX_SQLPER_REQUEST")) {
 		get_sql_connection();
-		get_search_connection();
+		// get_search_connection();
 	}
 #endif
 	Function::startup();
@@ -626,12 +628,12 @@ void ObyxElement::startup() {
 void ObyxElement::init() {
 #ifndef FAST
 	get_sql_connection();
-	get_search_connection();
+	// get_search_connection();
 #else
 	string tmp;
 	if (Environment::getbenvtf("OBYX_SQLPER_REQUEST")) {
 		get_sql_connection();
-		get_search_connection();
+	// get_search_connection();
 	}
 #endif
 	Environment* env = Environment::service();
@@ -659,7 +661,7 @@ void ObyxElement::finalise() {
 	string tmp;
 	if (Environment::getbenvtf("OBYX_SQLPER_REQUEST")) {
 		drop_sql_connection();
-		drop_search_connection();
+		// drop_search_connection();
 	}
 #endif
 #ifdef PROFILING
