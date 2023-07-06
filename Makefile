@@ -26,8 +26,8 @@
 # RPATH=/var/www/bin
 #make ${RPATH}/obyx.cgi
 #Environment dependent settings (default is set for mysql)
-CC_INCLUDES = -I/usr/include/mysql -I/usr/local/xerc/include
-LIBDIRS     = -L/lib -L/usr/lib -L/usr/local/xerc/lib
+CC_INCLUDES = -I/usr/include/mysql -I/usr/include/xercesc
+LIBDIRS     = -L/lib -L/usr/lib 
 CC_PATH     = /usr/bin/
 CC_WARNA    = -Wno-deprecated -Wno-unknown-pragmas -Wswitch -Wunused-function -Wunused-label -Wunused-variable -Wunused-value
 CC_WARNB    = -Wsign-compare -Wnon-virtual-dtor -Woverloaded-virtual -Wformat -Wmissing-braces -Wparentheses
@@ -44,7 +44,7 @@ CC_COMPILE_FLAG =-c
 CC_OBJECT_FLAG  =-o
 SPECIAL_CCFLAGS =
 #All include directories are mentioned
-CC_ARGS      = -fshort-wchar -I /usr/include $(CC_INCLUDES) -I. $(CC_FLAGS) $(CC_DEFINES)
+CC_ARGS      = -fPIC -fshort-wchar -I /usr/include $(CC_INCLUDES) -I. $(CC_FLAGS) $(CC_DEFINES)
 CC_LINKFLAGS = -Wl,--as-needed 
 ###############################################################################
 #commons
