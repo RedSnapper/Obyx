@@ -58,6 +58,7 @@ namespace Vdb {
 			if (connectionHandle != nullptr) {
 				s->reset_connection(connectionHandle);
 			}
+			s->options(connectionHandle,MYSQL_OPT_CONNECT_TIMEOUT,"1");
 			if (s->options(connectionHandle,MYSQL_READ_DEFAULT_FILE,file.c_str()) == 0) {
 				thost = file;
 				if (s->real_connect(connectionHandle, NULL, NULL, NULL, NULL, 0, NULL, 0) == nullptr) {
